@@ -185,7 +185,9 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-05 00:00 CEST` Reworked the live root experience into a Phase 05 public discovery surface with organizer, city, and keyword search states, a featured discovery board, explicit public journey mapping, and a launch-oriented organizer request flow.
 - `2026-04-05 00:00 CEST` Extended the shared Passreserve.com domain module with discovery datasets, ranking rules, organizer launch options, and route-shape guidance so the landing page behavior is backed by reusable product definitions instead of inline copy only.
 - `2026-04-05 00:00 CEST` Verified the Phase 05 implementation locally with `npm run build`, plus `npm run dev` HTTP checks for `/` and a missing route to confirm the new landing content and updated empty-state copy render correctly.
-- `2026-04-05 00:00 CEST` Wrote patch note `patch-notes/2026-04-05_00-00-29_phase-05_public-discovery-surfaces.md`; Git commit, push, and Vercel verification will be recorded immediately after the required remote steps complete.
+- `2026-04-05 00:00 CEST` Wrote patch note `patch-notes/2026-04-05_00-00-29_phase-05_public-discovery-surfaces.md` to capture the completed public discovery, navigation, and organizer-launch work.
+- `2026-04-05 00:03 CEST` Created commit `1cefc39222943c581fcec65e575f03b803c5e42b` with message `feat: build passreserve discovery landing` and pushed `main` successfully to `origin`.
+- `2026-04-05 00:03 CEST` Verified through the Vercel integration that deployment `dpl_BAzCTGocWHWgXokpj13VTWiYyCDL` for commit `1cefc39222943c581fcec65e575f03b803c5e42b` reached `READY`, including the production aliases `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ---
 

@@ -36,13 +36,19 @@
 
 ## Vercel deployment status
 
-- Pending the required GitHub push and Vercel verification at the time this patch note was first written.
-- This section will be updated immediately after the final push-triggered deployment is checked.
+- Verified via the Vercel integration after pushing commit `1cefc39222943c581fcec65e575f03b803c5e42b`.
+- Deployment `dpl_BAzCTGocWHWgXokpj13VTWiYyCDL` for commit `1cefc39222943c581fcec65e575f03b803c5e42b` reached `READY`.
+- Observed production aliases included `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ## Problems and risks
 
 - The discovery and organizer-request flows are intentionally Phase 05 public-surface work; they define IA and interaction behavior but do not yet persist data to a backend inbox.
 - Search behavior is currently demonstrated through a reusable sample dataset in the shared domain module because organizer pages and real event routes land in later phases.
+
+## Commit and push status
+
+- Commit created successfully: `1cefc39222943c581fcec65e575f03b803c5e42b`
+- Push completed successfully: `origin/main`
 
 ## Notes for the next AI agent
 
