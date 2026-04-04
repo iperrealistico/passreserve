@@ -1,84 +1,48 @@
 import Link from "next/link";
 
+import {
+  antiCorruptionRules,
+  compatibilityAreas,
+  domainEntities,
+  foundationHighlights,
+  paymentExamples,
+  paymentStatuses,
+  phaseFoundation,
+  publicationRules,
+  registrationStatuses,
+  roadmap,
+  transitionTracks
+} from "../lib/passreserve-domain";
+
 const audienceCards = [
   {
     kicker: "For attendees",
-    title: "Register for events without checkout chaos.",
+    title: "Choose a real event date, then see the money split clearly.",
     body:
-      "Passreserve.com is being shaped around clear event pages, date-aware occurrences, calm registration steps, and transparent payment breakdowns."
+      "Passreserve.com is being built around dated occurrences, calm registration steps, and explicit online-versus-at-event payment language."
   },
   {
     kicker: "For organizers",
-    title: "Run events with practical tools, not platform bloat.",
+    title: "Operate from occurrences, capacities, and payment states.",
     body:
-      "Organizer-facing operations are being designed for schedules, capacities, registrations, deposits, and follow-up work that teams actually need on event day."
+      "The platform direction favors practical event-day workflows over catalog clutter, with each organizer owning a clear event model and a simpler admin shell."
   }
 ];
 
-const languageRows = [
+const statusFamilies = [
   {
-    term: "Organizer",
-    note: "The public host and admin owner on Passreserve.com."
+    kicker: "Registration statuses",
+    title: "The attendee lifecycle now has explicit operational states.",
+    body:
+      "Confirmation holds, event-day attendance, and cancellations are now modeled separately instead of being blurred into generic booking language.",
+    items: registrationStatuses
   },
   {
-    term: "Attendee",
-    note: "The person registering for an occurrence."
-  },
-  {
-    term: "Event type",
-    note: "The reusable event template an organizer publishes."
-  },
-  {
-    term: "Registration",
-    note: "The attendee record that tracks status and payment."
-  },
-  {
-    term: "Event catalog",
-    note: "The organizer-managed list of event offerings."
-  },
-  {
-    term: "Venue details",
-    note: "Name the place, access notes, and map link in event terms."
-  }
-];
-
-const emailSubjects = [
-  {
-    label: "Attendee confirmation",
-    subject: "Confirm your Passreserve registration"
-  },
-  {
-    label: "Registration confirmed",
-    subject: "Your Passreserve registration is confirmed"
-  },
-  {
-    label: "Payment received",
-    subject: "Payment received for your Passreserve registration"
-  },
-  {
-    label: "Organizer alert",
-    subject: "New registration for {{event_name}}"
-  }
-];
-
-const messagingPrinciples = [
-  "Lead with the event name and dated occurrence so each message is immediately clear.",
-  "Separate paid online from amount due at the event whenever both amounts exist.",
-  "Keep attendee and organizer language consistent across pages, emails, and future admin flows."
-];
-
-const roadmap = [
-  {
-    step: "Phase 03",
-    text: "Brand, metadata, vocabulary, and messaging are becoming Passreserve.com-first."
-  },
-  {
-    step: "Next",
-    text: "Public organizer pages, event presentation, and occurrence-driven browsing will follow."
-  },
-  {
-    step: "Later",
-    text: "Registration flows, deposits, and organizer operations will expand on the same foundation."
+    kicker: "Payment statuses",
+    title: "Money states stay distinct from attendance states.",
+    body:
+      "Online collection, deposits, failures, and refunds need their own vocabulary so organizers can reconcile money cleanly.",
+    items: paymentStatuses
   }
 ];
 
@@ -89,13 +53,15 @@ export default function HomePage() {
         <header className="topbar">
           <div className="wordmark">
             <span className="wordmark-name">Passreserve.com</span>
-            <span className="wordmark-tag">Simple event registration and organizer operations</span>
+            <span className="wordmark-tag">
+              Simple event registration, deposits, and organizer operations
+            </span>
           </div>
           <nav className="nav" aria-label="Primary">
             <a href="#why-passreserve">Why Passreserve</a>
-            <a href="#audiences">Who it serves</a>
-            <a href="#vocabulary">Language system</a>
-            <a href="#email-language">Email language</a>
+            <a href="#foundation">Domain model</a>
+            <a href="#transition">Transition rules</a>
+            <a href="#payments">Payment logic</a>
             <a href="#roadmap">Roadmap</a>
           </nav>
         </header>
@@ -104,28 +70,28 @@ export default function HomePage() {
           <article className="panel hero-copy">
             <span className="eyebrow">
               <span className="eyebrow-dot" aria-hidden="true" />
-              Phase 03 in progress
+              {phaseFoundation.label} active
             </span>
-            <h1>Event registration with a calmer operational core.</h1>
+            <h1>The event model is now explicit.</h1>
             <p>
-              Passreserve.com is the public face of the GATHERPASS transformation:
-              a practical event platform for organizers, venues, and seasonal
-              experiences. The app is being built in phases, starting by replacing
-              rental language with the registration vocabulary the final product
-              will use.
+              Passreserve.com has moved beyond vocabulary-only groundwork. The
+              active app now defines the event-platform foundation in code:
+              organizers own event types, event types produce dated occurrences,
+              attendees create registrations, and payment records keep online
+              collection auditable.
             </p>
             <p>
-              The live product direction is now clear: organizers publish event
-              types, attendees choose dated occurrences, registrations stay
-              traceable, and payment handling can support zero-percent, deposit, or
-              full online collection without losing operational simplicity.
+              This phase is about reducing future churn. Public discovery,
+              organizer admin flows, registration UX, and Stripe integration can
+              now build on a shared model instead of re-deciding entity
+              boundaries or status language in every screen.
             </p>
             <div className="hero-actions">
-              <a className="button button-primary" href="#roadmap">
-                Follow the rollout
+              <a className="button button-primary" href="#foundation">
+                Explore the foundation
               </a>
-              <a className="button button-secondary" href="#vocabulary">
-                See the new product language
+              <a className="button button-secondary" href="#payments">
+                See payment examples
               </a>
             </div>
           </article>
@@ -133,50 +99,41 @@ export default function HomePage() {
           <aside className="panel hero-aside" aria-label="Project status">
             <div className="status-block">
               <div className="status-label">Current status</div>
-              <h2>Brand foundation live</h2>
-              <p>
-                The root app now speaks in organizer, occurrence, registration, and
-                payment terms instead of legacy rental language.
-              </p>
+              <h2>{phaseFoundation.title}</h2>
+              <p>{phaseFoundation.summary}</p>
             </div>
 
             <div className="metrics" aria-label="High-level metrics">
               <div className="metric">
-                <div className="metric-label">Deployment</div>
-                <div className="metric-value">Vercel-linked</div>
+                <div className="metric-label">Phase</div>
+                <div className="metric-value">04</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Phase</div>
-                <div className="metric-value">03 active</div>
+                <div className="metric-label">Entities</div>
+                <div className="metric-value">{domainEntities.length}</div>
+              </div>
+              <div className="metric">
+                <div className="metric-label">Reg states</div>
+                <div className="metric-value">{registrationStatuses.length}</div>
+              </div>
+              <div className="metric">
+                <div className="metric-label">Online pay</div>
+                <div className="metric-value">0-100%</div>
               </div>
             </div>
 
             <div>
-              <div className="list-label">What this baseline establishes</div>
+              <div className="list-label">What this phase locks</div>
               <div className="status-list">
-                <div className="status-item">
-                  <span className="status-index">1</span>
-                  <div>
-                    <strong>Public naming</strong>
-                    Passreserve.com is now the product name shown in the live app.
+                {foundationHighlights.map((item, index) => (
+                  <div className="status-item" key={item.title}>
+                    <span className="status-index">{index + 1}</span>
+                    <div>
+                      <strong>{item.title}</strong>
+                      {item.detail}
+                    </div>
                   </div>
-                </div>
-                <div className="status-item">
-                  <span className="status-index">2</span>
-                  <div>
-                    <strong>Event-first wording</strong>
-                    Public copy is aligned with organizers, events, occurrences,
-                    registrations, and deposits.
-                  </div>
-                </div>
-                <div className="status-item">
-                  <span className="status-index">3</span>
-                  <div>
-                    <strong>Implementation runway</strong>
-                    Future phases can now add discovery, event pages, and payments
-                    on top of a coherent brand baseline.
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </aside>
@@ -192,54 +149,163 @@ export default function HomePage() {
           ))}
         </section>
 
-        <section className="section-grid">
-          <article className="panel section-card" id="vocabulary">
-            <div className="section-kicker">Vocabulary baseline</div>
-            <h3>The product language now has a concrete source of truth.</h3>
+        <section className="section-grid" id="foundation">
+          <article className="panel section-card section-span">
+            <div className="section-kicker">Core event entities</div>
+            <h3>Five reusable models now define the Passreserve.com domain.</h3>
             <p>
-              The live Passreserve.com surface now emphasizes the nouns the final
-              platform will use everywhere: public pages, admin workflows, payment
-              states, and future emails.
+              These entities give future screens, emails, and admin workflows a
+              shared vocabulary. They also make it clear which legacy concepts are
+              true bridges and which ones should disappear as the event platform
+              takes shape.
             </p>
-            <div className="mapping-list" aria-label="Passreserve vocabulary">
-              {languageRows.map((row) => (
-                <div className="mapping-row" key={row.term}>
-                  <div className="mapping-terms">
-                    <span className="mapping-current">{row.term}</span>
+            <div className="entity-grid">
+              {domainEntities.map((entity) => (
+                <article className="entity-card" key={entity.name}>
+                  <div className="entity-header">
+                    <strong>{entity.name}</strong>
+                    <span className="entity-bridge">{entity.bridge}</span>
                   </div>
-                  <p>{row.note}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="panel section-card" id="email-language">
-            <div className="section-kicker">Email language</div>
-            <h3>Subject lines now align with registrations and payment clarity.</h3>
-            <p>
-              Future email scenarios should sound direct and operational, with
-              clear references to the event, the attendee's status, and any amount
-              still due at the event.
-            </p>
-            <div className="scenario-list">
-              {emailSubjects.map((item) => (
-                <div className="scenario-item" key={item.label}>
-                  <strong>{item.label}</strong>
-                  <span>{item.subject}</span>
-                </div>
+                  <p className="entity-summary">{entity.summary}</p>
+                  <ul className="entity-fields">
+                    {entity.fields.map((field) => (
+                      <li key={field}>{field}</li>
+                    ))}
+                  </ul>
+                </article>
               ))}
             </div>
           </article>
         </section>
 
         <section className="section-grid">
-          <article className="panel section-card" id="roadmap">
-            <div className="section-kicker">Implementation order</div>
-            <h3>Building the event product phase by phase.</h3>
+          {statusFamilies.map((family) => (
+            <article className="panel section-card" key={family.kicker}>
+              <div className="section-kicker">{family.kicker}</div>
+              <h3>{family.title}</h3>
+              <p>{family.body}</p>
+              <div className="scenario-list">
+                {family.items.map((item) => (
+                  <div className="scenario-item" key={item.code}>
+                    <strong>{item.code}</strong>
+                    <span>{item.note}</span>
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
+        </section>
+
+        <section className="section-grid" id="transition">
+          <article className="panel section-card">
+            <div className="section-kicker">Transition path</div>
+            <h3>The event model has clean boundaries for what stays, what lands, and what goes away.</h3>
             <p>
-              The immediate goal is not to ship every event feature at once. It is
-              to make each next layer rest on clear terminology, strong metadata,
-              and a public-facing brand that already matches the destination.
+              The goal is not a rewrite. It is a staged transition that keeps the
+              strongest infrastructure pieces while refusing to trap events inside
+              rental-era slots, inventory labels, or vague payment fields.
+            </p>
+            <div className="timeline">
+              {transitionTracks.map((track) => (
+                <div className="timeline-step" key={track.title}>
+                  <strong>{track.title}</strong>
+                  <span>{track.summary}</span>
+                  <ul>
+                    {track.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <article className="panel section-card">
+            <div className="section-kicker">Compatibility review</div>
+            <h3>The strongest parts of the platform stay in play.</h3>
+            <p>
+              The event foundation is intentionally designed to reuse the
+              monolith&apos;s proven infrastructure instead of introducing
+              unnecessary architectural churn.
+            </p>
+            <div className="mapping-list">
+              {compatibilityAreas.map((item) => (
+                <div className="mapping-row" key={item.area}>
+                  <div className="mapping-terms">
+                    <span className="mapping-current">{item.area}</span>
+                  </div>
+                  <p>{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
+
+        <section className="section-grid" id="payments">
+          <article className="panel section-card">
+            <div className="section-kicker">Payment logic</div>
+            <h3>Deposit math now has concrete examples for zero, partial, and full online collection.</h3>
+            <p>
+              Each occurrence can keep a calm registration flow while still
+              telling the attendee exactly what was paid online and what remains
+              due at the event.
+            </p>
+            <div className="payment-grid">
+              {paymentExamples.map((example) => (
+                <article className="payment-card" key={example.label}>
+                  <div className="payment-heading">
+                    <strong>{example.label}</strong>
+                    <span>
+                      {example.quantity} tickets at {example.unitPrice.toFixed(0)} EUR
+                    </span>
+                  </div>
+                  <p>{example.summary}</p>
+                  <div className="payment-amounts" aria-label={`Amounts for ${example.label}`}>
+                    <div className="payment-amount">
+                      <span className="payment-label">Subtotal</span>
+                      <span className="payment-value">{example.subtotalLabel}</span>
+                    </div>
+                    <div className="payment-amount">
+                      <span className="payment-label">Online now</span>
+                      <span className="payment-value">{example.onlineAmountLabel}</span>
+                    </div>
+                    <div className="payment-amount">
+                      <span className="payment-label">Due at event</span>
+                      <span className="payment-value">{example.dueAtEventLabel}</span>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </article>
+
+          <article className="panel section-card">
+            <div className="section-kicker">Visibility and capacity</div>
+            <h3>Occurrences own the truth for what is visible and what is still bookable.</h3>
+            <p>
+              These rules are the guardrails for future public discovery, event
+              detail pages, registration holds, and sold-out handling.
+            </p>
+            <div className="legacy-list">
+              {publicationRules.map((rule) => (
+                <div className="legacy-item" key={rule.title}>
+                  <strong>{rule.title}</strong>
+                  <span>{rule.detail}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
+
+        <section className="section-grid" id="roadmap">
+          <article className="panel section-card">
+            <div className="section-kicker">Implementation order</div>
+            <h3>The next build layers now have a stable domain underneath them.</h3>
+            <p>
+              The immediate goal is not to ship every organizer workflow at once.
+              It is to make sure each next layer inherits a model that already
+              knows what an occurrence is, how deposits behave, and where legacy
+              concepts stop.
             </p>
             <div className="timeline">
               {roadmap.map((item) => (
@@ -252,17 +318,17 @@ export default function HomePage() {
           </article>
 
           <article className="panel section-card">
-            <div className="section-kicker">Messaging principles</div>
-            <h3>The public copy now favors clarity over platform jargon.</h3>
+            <div className="section-kicker">Anti-corruption rules</div>
+            <h3>The event model stays clean by boxing in transitional legacy concepts.</h3>
             <p>
-              The landing page and future email scenarios should stay direct,
-              date-aware, and explicit about what an attendee has paid online
-              versus what still happens at the event.
+              These rules keep the new Passreserve.com product from silently
+              inheriting the wrong abstractions while the rest of the platform is
+              still being transformed.
             </p>
             <div className="legacy-list">
-              {messagingPrinciples.map((item) => (
-                <div className="legacy-item" key={item}>
-                  {item}
+              {antiCorruptionRules.map((rule) => (
+                <div className="legacy-item" key={rule}>
+                  {rule}
                 </div>
               ))}
             </div>
@@ -270,7 +336,10 @@ export default function HomePage() {
         </section>
 
         <footer className="footer">
-          <span>Passreserve.com now has a live brand, vocabulary, and messaging baseline.</span>
+          <span>
+            Passreserve.com now has a coded event-domain foundation that future
+            phases can build on directly.
+          </span>
           <Link href="/missing-route">See the branded empty state</Link>
         </footer>
       </div>

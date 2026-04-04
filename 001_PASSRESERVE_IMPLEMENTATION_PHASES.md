@@ -133,24 +133,29 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 04: Event domain and data model foundation
 
-**Status:** `NOT STARTED`
+**Status:** `IN PROGRESS`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-04_15-06-07_phase-04_event-domain-foundation.md`
 
 **Checklist**
 
-- [ ] Finalize the target event-platform domain model
-- [ ] Decide which legacy models remain temporarily and which new models must be added immediately
-- [ ] Design `Organizer`, `EventType`, `EventOccurrence`, `Registration`, and payment-related structures
-- [ ] Define registration statuses and payment statuses
-- [ ] Define event visibility, publication, and capacity rules
-- [ ] Plan the Prisma schema changes and data migration approach
-- [ ] Review compatibility with existing auth, logs, settings, and email infrastructure
-- [ ] Document transitional constraints and anti-corruption rules between old and new domain concepts
+- [x] Finalize the target event-platform domain model
+- [x] Decide which legacy models remain temporarily and which new models must be added immediately
+- [x] Design `Organizer`, `EventType`, `EventOccurrence`, `Registration`, and payment-related structures
+- [x] Define registration statuses and payment statuses
+- [x] Define event visibility, publication, and capacity rules
+- [x] Plan the Prisma schema changes and data migration approach
+- [x] Review compatibility with existing auth, logs, settings, and email infrastructure
+- [x] Document transitional constraints and anti-corruption rules between old and new domain concepts
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-04 14:58 CEST` Resumed work from the last completed handoff and selected Phase 04 as the active implementation phase because the next documented Passreserve.com milestone is the event domain and data model foundation.
+- `2026-04-04 14:58 CEST` Completed the mandatory onboarding read-through, including the transformation plan, patch-note history, and language guide, and am now inspecting the active root workspace to define the first safe Phase 04 implementation slice.
+- `2026-04-04 15:03 CEST` Added `lib/passreserve-domain.js` as the shared source of truth for the Passreserve.com event entities, registration and payment statuses, visibility and capacity rules, deposit examples, compatibility notes, and anti-corruption constraints.
+- `2026-04-04 15:03 CEST` Reworked the live root page and supporting styles so the active Passreserve.com app now presents Phase 04 as a coded event-domain foundation instead of a Phase 03 vocabulary-only status page.
+- `2026-04-04 15:05 CEST` Verified the Phase 04 implementation with `npm run build`, plus local `npm run dev` HTTP checks for the root route with default and mobile user agents; screenshot-based browser verification was not available because the `agent-browser` CLI is not installed in this environment.
+- `2026-04-04 15:06 CEST` Marked all Phase 04 checklist items complete and wrote patch note `patch-notes/2026-04-04_15-06-07_phase-04_event-domain-foundation.md`; Git commit, push, and final Vercel verification are the remaining close-out steps.
 
 ---
 
