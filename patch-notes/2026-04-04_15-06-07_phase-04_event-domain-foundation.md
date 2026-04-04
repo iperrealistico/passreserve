@@ -34,13 +34,20 @@
 
 ## Vercel deployment status
 
-- Pending final push-triggered deployment verification.
-- This patch note will be updated after the Git push and Vercel check are completed.
+- Verified via the Vercel integration after pushing commit `949da1515a7d7ce37632b170a05c3398a1636fce`.
+- Deployment `dpl_4wykf4rdVamTVFz6zFetYU9Ar74s` for commit `949da1515a7d7ce37632b170a05c3398a1636fce` reached `READY`.
+- Observed production aliases included `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
+
+## Commit and push status
+
+- Commit created successfully: `949da1515a7d7ce37632b170a05c3398a1636fce`
+- Push completed successfully: `origin/main`
 
 ## Problems and risks
 
 - The active root workspace is still a minimal Next.js shell, so this phase establishes the event model in reusable code and live UI rather than in a real Prisma schema or organizer runtime.
 - Future backend phases must translate this domain module into actual persistence and server-action flows without reintroducing legacy rental abstractions.
+- Screenshot-based browser verification could not be performed in the documented way because the `agent-browser` CLI is not installed in this environment.
 
 ## Notes for the next AI agent
 

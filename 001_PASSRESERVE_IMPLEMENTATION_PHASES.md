@@ -133,7 +133,7 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 04: Event domain and data model foundation
 
-**Status:** `IN PROGRESS`
+**Status:** `DONE`
 
 **Patch note:** `patch-notes/2026-04-04_15-06-07_phase-04_event-domain-foundation.md`
 
@@ -156,6 +156,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-04 15:03 CEST` Reworked the live root page and supporting styles so the active Passreserve.com app now presents Phase 04 as a coded event-domain foundation instead of a Phase 03 vocabulary-only status page.
 - `2026-04-04 15:05 CEST` Verified the Phase 04 implementation with `npm run build`, plus local `npm run dev` HTTP checks for the root route with default and mobile user agents; screenshot-based browser verification was not available because the `agent-browser` CLI is not installed in this environment.
 - `2026-04-04 15:06 CEST` Marked all Phase 04 checklist items complete and wrote patch note `patch-notes/2026-04-04_15-06-07_phase-04_event-domain-foundation.md`; Git commit, push, and final Vercel verification are the remaining close-out steps.
+- `2026-04-04 15:08 CEST` Created commit `949da1515a7d7ce37632b170a05c3398a1636fce` with message `feat: codify passreserve event domain foundation` and pushed `main` successfully to `origin`.
+- `2026-04-04 15:08 CEST` Verified through the Vercel integration that deployment `dpl_4wykf4rdVamTVFz6zFetYU9Ar74s` for commit `949da1515a7d7ce37632b170a05c3398a1636fce` reached `READY`, including the production aliases `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ---
 
