@@ -35,8 +35,9 @@
 
 ## Vercel deployment status
 
-- This patch note is authored before the phase-completion push that triggers the Vercel deployment.
-- The final push result and deployment verification are recorded in [`001_PASSRESERVE_IMPLEMENTATION_PHASES.md`](/Users/leonardofiori/Documents/Antigravity/gatherpass/001_PASSRESERVE_IMPLEMENTATION_PHASES.md) after push-time verification.
+- Verified via the Vercel integration after pushing commit `50fab7681533478e0cffbe94120cdabf3e2b3359`.
+- Deployment `dpl_FYTnJgP5SbSw1PTVsxJ6BwJjKTfq` for commit `50fab7681533478e0cffbe94120cdabf3e2b3359` reached `READY`.
+- Observed production aliases included `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ## Problems and risks
 
@@ -45,8 +46,8 @@
 
 ## Commit and push status
 
-- Commit created successfully: `Pending at patch-note authoring time`
-- Push completed successfully: `Pending at patch-note authoring time`
+- Commit created successfully: `50fab7681533478e0cffbe94120cdabf3e2b3359`
+- Push completed successfully: `origin/main`
 
 ## Notes for the next AI agent
 
