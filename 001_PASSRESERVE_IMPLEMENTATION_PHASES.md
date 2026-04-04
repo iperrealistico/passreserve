@@ -19,6 +19,9 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - Append timestamped activity notes as work progresses.
 - When a phase is complete, record the patch note filename in the phase section.
 - When a phase is complete, create a Git commit and push it to the configured GitHub remote unless the user explicitly says not to push.
+- After every push, verify the related Vercel deployment or build result.
+- A local build check is useful but does not replace verification of the actual Vercel deployment.
+- If the Vercel deployment fails, the responsible agent must investigate and fix it before closing the work, unless the user explicitly pauses or redirects.
 
 ## Phase order
 
@@ -88,6 +91,7 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-04 12:40 CEST` Documented the active workspace, source-of-truth rules, and the mandatory commit-and-push requirement for future agents at phase completion.
 - `2026-04-04 12:44 CEST` Completed Phase 02 and recorded the Git bootstrap handoff in `patch-notes/2026-04-04_12-44-15_phase-02_git-bootstrap-and-remote.md`.
 - `2026-04-04 12:45 CEST` Created commit `4c5dae277c37d6e831877c66777aa49499e2cfb7` and pushed `main` successfully to `origin`.
+- `2026-04-04 12:46 CEST` Strengthened the AI operating protocol so every future push must be followed by a Vercel deployment check, using the Vercel MCP integration when available or the local CLI as fallback.
 
 ---
 

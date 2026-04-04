@@ -10,6 +10,10 @@ Do not write code, do not edit files, do not run migrations, do not run destruct
 - Internal codename: `GATHERPASS`
 - Workspace folder name: `gatherpass`
 - GitHub remote repository: `https://github.com/iperrealistico/passreserve.git`
+- Deployment platform: `Vercel.app`
+- Vercel team id: `team_HkXanAKxflViaTU8bv2zg4Cf`
+- Vercel project name: `passreserve`
+- Vercel project id: `prj_eU02UtIG5GkGV4wa3eMnrfqyYpyn`
 - Legacy source product being transformed: `MTB Reserve`
 - Legacy source snapshot location: [`unpacked/mtb-reserve`](/Users/leonardofiori/Documents/Antigravity/gatherpass/unpacked/mtb-reserve)
 
@@ -57,6 +61,17 @@ Only after all of the above has been read may you inspect code and start impleme
   - push to the configured GitHub remote
 - If push fails, document the failure clearly and do not pretend the handoff is complete.
 
+## Vercel deployment rules
+
+- The canonical deployment target for this project is `Vercel.app`.
+- This repository is expected to be connected to Vercel so that every push to GitHub triggers a Vercel deployment build.
+- Treat every push as incomplete until the corresponding Vercel build has been checked.
+- Prefer the Vercel MCP integration available in this environment to inspect deployments, build logs, and runtime status.
+- If the Vercel MCP integration is unavailable or insufficient, use the Vercel CLI available on the OS as fallback.
+- If you run a local build before pushing, that does not replace the Vercel check. You must still verify the actual Vercel deployment after the push.
+- If the Vercel build fails, you must investigate the logs, fix the issue, push the fix, and confirm the new Vercel deployment succeeds before closing the work.
+- Do not claim a phase or task is complete while the related Vercel deployment is failing or unverified.
+
 ## Non-negotiable rules
 
 - Do not start coding before reading the mandatory files above.
@@ -74,6 +89,8 @@ Only after all of the above has been read may you inspect code and start impleme
 - If Git is initialized in the active workspace, create an intentional commit after a phase is complete.
 - After the phase commit, push the current branch to the configured GitHub remote unless the user explicitly tells you not to push.
 - If a required commit or push cannot be performed, state that explicitly in the phase activity log, the patch note, and the final handoff.
+- After every push, verify the triggered Vercel deployment status using the Vercel MCP integration when possible, or the Vercel CLI as fallback.
+- If the Vercel deployment fails, fix it before ending the task or clearly state that the work is blocked by a failing deployment.
 - Do not silently skip tests, migrations, or risky decisions. Record what you ran and what you did not run.
 - Do not run destructive commands such as schema pushes, resets, or production-like build steps without understanding the documented risks first.
 
@@ -91,6 +108,8 @@ Only after all of the above has been read may you inspect code and start impleme
 10. If the phase is complete, write a timestamped patch note.
 11. Commit the phase work.
 12. Push the branch to the configured GitHub remote.
+13. Check the triggered Vercel deployment until it succeeds or until you have enough information to fix the failure.
+14. If the deployment fails, fix it, push again, and re-check Vercel before final handoff.
 
 ## What the master checklist must contain
 
@@ -114,6 +133,7 @@ Each patch note must describe:
 - what was implemented
 - which files were changed
 - which checks or tests were run
+- whether the Vercel deployment triggered by the final push succeeded
 - what problems or risks were encountered
 - what the next AI agent should pay attention to
 

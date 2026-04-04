@@ -37,6 +37,8 @@ Before closing a completed phase:
 3. Add the patch note filename back into the phase section of the master checklist
 4. Create a Git commit for the completed phase
 5. Push the branch to `https://github.com/iperrealistico/passreserve.git` unless the user explicitly says not to push
+6. Verify that the push-triggered Vercel deployment for this project succeeded
+7. If the Vercel deployment failed, fix it and do not close the handoff until a succeeding deployment has been verified
 
 ## Filename convention
 
@@ -59,6 +61,7 @@ Each patch note must include:
 - summary of completed work
 - files added, changed, or removed
 - tests, checks, or verifications performed
+- Vercel deployment verification status after the final push
 - blockers, caveats, and unresolved risks
 - explicit guidance for the next phase or next agent
 - whether commit and push were completed successfully

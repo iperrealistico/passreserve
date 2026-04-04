@@ -18,8 +18,22 @@ For the event-platform transformation described in this bundle, use the followin
 - public product name: `Passreserve.com`
 - internal codename: `GATHERPASS`
 - working folder / project workspace name: `gatherpass`
+- deployment target: `Vercel.app`
 
 When the documentation refers to the new event product, the public-facing name should be understood as `Passreserve.com`.
+
+## Deployment and build verification rule
+
+The active Passreserve.com workspace is intended to deploy on `Vercel.app`.
+
+Operational rule for future AI agents:
+
+- every push to the GitHub repository is expected to trigger a Vercel deployment build
+- after pushing, the agent must verify that the Vercel build succeeded
+- the preferred verification path is the Vercel MCP integration available in this environment
+- if MCP is unavailable or insufficient, the agent must use the local Vercel CLI or equivalent OS tooling
+- a successful local build does not replace the need to verify the real Vercel deployment
+- if the Vercel build fails, the agent must inspect the failure, fix it, push again, and confirm the new Vercel build succeeds
 
 ## What this bundle contains
 

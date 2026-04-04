@@ -21,6 +21,12 @@
 
 - `List tests, typechecks, lint runs, manual verification, or explain what was not run.`
 
+## Vercel deployment status
+
+- `Record whether the final push triggered a Vercel deployment and whether it succeeded.`
+- `If available, include the deployment id, URL, or the verification method used (MCP or CLI).`
+- `If the deployment failed or could not be checked, explain why.`
+
 ## Problems and risks
 
 - `Describe blockers, caveats, technical debt, or future risks.`
