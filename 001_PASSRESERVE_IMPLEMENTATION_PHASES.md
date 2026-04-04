@@ -163,23 +163,29 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 05: Public information architecture and discovery surfaces
 
-**Status:** `NOT STARTED`
+**Status:** `DONE`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-05_00-00-29_phase-05_public-discovery-surfaces.md`
 
 **Checklist**
 
-- [ ] Redesign the root landing page for Passreserve.com
-- [ ] Replace bike-rental discovery intent with event discovery intent
-- [ ] Replace partner onboarding copy with organizer onboarding copy
-- [ ] Decide the search and discovery behavior for organizers, cities, and event keywords
-- [ ] Update signup/join request flow for organizers
-- [ ] Define the new public navigation and top-level user journeys
-- [ ] Ensure the root experience reflects the new brand and event platform value proposition
+- [x] Redesign the root landing page for Passreserve.com
+- [x] Replace bike-rental discovery intent with event discovery intent
+- [x] Replace partner onboarding copy with organizer onboarding copy
+- [x] Decide the search and discovery behavior for organizers, cities, and event keywords
+- [x] Update signup/join request flow for organizers
+- [x] Define the new public navigation and top-level user journeys
+- [x] Ensure the root experience reflects the new brand and event platform value proposition
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-04 23:52 CEST` Completed the mandatory onboarding read-through in the required order, including the master tracker, patch-note history, architecture bundle, transformation plan, and Passreserve.com language guide.
+- `2026-04-04 23:52 CEST` Selected Phase 05 as the active implementation slice because the prior handoff completed Phase 04 and the next documented milestone is the public information architecture and discovery surface transformation.
+- `2026-04-04 23:52 CEST` Beginning Phase 05 by inspecting the active root workspace to redesign the landing and discovery experience around organizers, cities, keywords, and Passreserve.com event journeys.
+- `2026-04-05 00:00 CEST` Reworked the live root experience into a Phase 05 public discovery surface with organizer, city, and keyword search states, a featured discovery board, explicit public journey mapping, and a launch-oriented organizer request flow.
+- `2026-04-05 00:00 CEST` Extended the shared Passreserve.com domain module with discovery datasets, ranking rules, organizer launch options, and route-shape guidance so the landing page behavior is backed by reusable product definitions instead of inline copy only.
+- `2026-04-05 00:00 CEST` Verified the Phase 05 implementation locally with `npm run build`, plus `npm run dev` HTTP checks for `/` and a missing route to confirm the new landing content and updated empty-state copy render correctly.
+- `2026-04-05 00:00 CEST` Wrote patch note `patch-notes/2026-04-05_00-00-29_phase-05_public-discovery-surfaces.md`; Git commit, push, and Vercel verification will be recorded immediately after the required remote steps complete.
 
 ---
 
