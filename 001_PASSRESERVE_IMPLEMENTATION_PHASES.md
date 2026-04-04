@@ -92,6 +92,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-04 12:44 CEST` Completed Phase 02 and recorded the Git bootstrap handoff in `patch-notes/2026-04-04_12-44-15_phase-02_git-bootstrap-and-remote.md`.
 - `2026-04-04 12:45 CEST` Created commit `4c5dae277c37d6e831877c66777aa49499e2cfb7` and pushed `main` successfully to `origin`.
 - `2026-04-04 12:46 CEST` Strengthened the AI operating protocol so every future push must be followed by a Vercel deployment check, using the Vercel MCP integration when available or the local CLI as fallback.
+- `2026-04-04 12:49 CEST` Verified that the new documentation-only push caused a failing Vercel deployment because the repository root did not yet contain a buildable Next.js application.
+- `2026-04-04 12:50 CEST` Added a minimal root-level Next.js bootstrap app for Passreserve.com and confirmed locally that `npm install` and `npm run build` succeed before re-pushing.
 
 ---
 
