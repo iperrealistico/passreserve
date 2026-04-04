@@ -1,0 +1,11 @@
+1.3G	.
+ 17M	.git
+389M	.next
+891M	node_modules
+9.4M	public
+548K	app
+144K	components
+104K	lib
+ 16K	prisma
+ 44K	scripts
+ 36K	test

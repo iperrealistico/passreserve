@@ -1,0 +1,7 @@
+[.env]
+DATABASE_URL
+
+[.env.local]
+DATABASE_URL
+PRISMA_CLIENT_ENGINE_TYPE
+
