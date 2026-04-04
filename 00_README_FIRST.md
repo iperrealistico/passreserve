@@ -57,6 +57,8 @@ Operational rule for future AI agents:
   - Environment, deployment, scripts, testing, quality status, and implementation risks.
 - `07_SHARING_AND_ARTIFACTS.md`
   - What is in the full archive, what is safe or unsafe to share, and how to use the manifests.
+- `09_PASSRESERVE_LANGUAGE_AND_MESSAGING.md`
+  - Source of truth for Passreserve.com vocabulary, email tone, subject strategy, and allowed temporary legacy terms.
 - `manifests/`
   - Machine-generated inventories:
     - `tracked-files.txt`
@@ -86,7 +88,8 @@ Operational rule for future AI agents:
 10. `05_FILE_AND_DIRECTORY_INVENTORY.md`
 11. `07_SHARING_AND_ARTIFACTS.md`
 12. `08_GATHERPASS_TRANSFORMATION_PLAN.md`
-13. `manifests/` for exact inventories
+13. `09_PASSRESERVE_LANGUAGE_AND_MESSAGING.md`
+14. `manifests/` for exact inventories
 
 ## Scope of analysis
 

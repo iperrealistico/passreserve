@@ -359,6 +359,10 @@ select {
   line-height: 1.8;
 }
 
+.section-card strong {
+  color: var(--text);
+}
+
 .section-kicker {
   color: var(--accent);
   font-family: var(--mono);
@@ -409,6 +413,65 @@ select {
   font-size: 0.82rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.mapping-list,
+.scenario-list,
+.legacy-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1.2rem;
+}
+
+.mapping-row,
+.scenario-item,
+.legacy-item {
+  padding: 1rem 1.05rem;
+  border-radius: 1.15rem;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(23, 50, 40, 0.08);
+}
+
+.mapping-row p,
+.scenario-item span,
+.legacy-item {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.scenario-item span,
+.scenario-item strong {
+  display: block;
+}
+
+.mapping-terms {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.mapping-legacy,
+.mapping-current,
+.scenario-item strong {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mapping-legacy {
+  color: var(--muted);
+}
+
+.mapping-arrow {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.mapping-current {
+  color: var(--text);
 }
 
 .footer {

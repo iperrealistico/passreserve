@@ -36,6 +36,7 @@ Read these files before doing anything else:
 11. [`05_FILE_AND_DIRECTORY_INVENTORY.md`](/Users/leonardofiori/Documents/Antigravity/gatherpass/05_FILE_AND_DIRECTORY_INVENTORY.md)
 12. [`07_SHARING_AND_ARTIFACTS.md`](/Users/leonardofiori/Documents/Antigravity/gatherpass/07_SHARING_AND_ARTIFACTS.md)
 13. [`08_GATHERPASS_TRANSFORMATION_PLAN.md`](/Users/leonardofiori/Documents/Antigravity/gatherpass/08_GATHERPASS_TRANSFORMATION_PLAN.md)
+14. [`09_PASSRESERVE_LANGUAGE_AND_MESSAGING.md`](/Users/leonardofiori/Documents/Antigravity/gatherpass/09_PASSRESERVE_LANGUAGE_AND_MESSAGING.md)
 
 Only after all of the above has been read may you inspect code and start implementation work.
 

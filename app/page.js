@@ -3,7 +3,7 @@ import Link from "next/link";
 const audienceCards = [
   {
     kicker: "For attendees",
-    title: "Discover events without checkout chaos.",
+    title: "Register for events without checkout chaos.",
     body:
       "Passreserve.com is being shaped around clear event pages, date-aware occurrences, calm registration steps, and transparent payment breakdowns."
   },
@@ -15,19 +15,62 @@ const audienceCards = [
   }
 ];
 
-const vocabulary = [
-  "Organizer",
-  "Event type",
-  "Occurrence",
-  "Registration",
-  "Payment state",
-  "Amount due at event"
+const languageRows = [
+  {
+    term: "Organizer",
+    note: "The public host and admin owner on Passreserve.com."
+  },
+  {
+    term: "Attendee",
+    note: "The person registering for an occurrence."
+  },
+  {
+    term: "Event type",
+    note: "The reusable event template an organizer publishes."
+  },
+  {
+    term: "Registration",
+    note: "The attendee record that tracks status and payment."
+  },
+  {
+    term: "Event catalog",
+    note: "The organizer-managed list of event offerings."
+  },
+  {
+    term: "Venue details",
+    note: "Name the place, access notes, and map link in event terms."
+  }
+];
+
+const emailSubjects = [
+  {
+    label: "Attendee confirmation",
+    subject: "Confirm your Passreserve registration"
+  },
+  {
+    label: "Registration confirmed",
+    subject: "Your Passreserve registration is confirmed"
+  },
+  {
+    label: "Payment received",
+    subject: "Payment received for your Passreserve registration"
+  },
+  {
+    label: "Organizer alert",
+    subject: "New registration for {{event_name}}"
+  }
+];
+
+const messagingPrinciples = [
+  "Lead with the event name and dated occurrence so each message is immediately clear.",
+  "Separate paid online from amount due at the event whenever both amounts exist.",
+  "Keep attendee and organizer language consistent across pages, emails, and future admin flows."
 ];
 
 const roadmap = [
   {
     step: "Phase 03",
-    text: "Brand, metadata, and vocabulary are becoming Passreserve.com-first."
+    text: "Brand, metadata, vocabulary, and messaging are becoming Passreserve.com-first."
   },
   {
     step: "Next",
@@ -46,12 +89,13 @@ export default function HomePage() {
         <header className="topbar">
           <div className="wordmark">
             <span className="wordmark-name">Passreserve.com</span>
-            <span className="wordmark-tag">Simple event booking and organizer operations</span>
+            <span className="wordmark-tag">Simple event registration and organizer operations</span>
           </div>
           <nav className="nav" aria-label="Primary">
             <a href="#why-passreserve">Why Passreserve</a>
             <a href="#audiences">Who it serves</a>
-            <a href="#vocabulary">Vocabulary</a>
+            <a href="#vocabulary">Language system</a>
+            <a href="#email-language">Email language</a>
             <a href="#roadmap">Roadmap</a>
           </nav>
         </header>
@@ -62,12 +106,13 @@ export default function HomePage() {
               <span className="eyebrow-dot" aria-hidden="true" />
               Phase 03 in progress
             </span>
-            <h1>Event booking with a calmer operational core.</h1>
+            <h1>Event registration with a calmer operational core.</h1>
             <p>
               Passreserve.com is the public face of the GATHERPASS transformation:
               a practical event platform for organizers, venues, and seasonal
               experiences. The app is being built in phases, starting by replacing
-              rental language with the event vocabulary the final product will use.
+              rental language with the registration vocabulary the final product
+              will use.
             </p>
             <p>
               The live product direction is now clear: organizers publish event
@@ -150,21 +195,44 @@ export default function HomePage() {
         <section className="section-grid">
           <article className="panel section-card" id="vocabulary">
             <div className="section-kicker">Vocabulary baseline</div>
-            <h3>The product language is being standardized now.</h3>
+            <h3>The product language now has a concrete source of truth.</h3>
             <p>
-              This project is intentionally shifting from legacy rental terminology
-              to the nouns the final platform will use everywhere: public pages,
-              admin workflows, payment states, and future emails.
+              The live Passreserve.com surface now emphasizes the nouns the final
+              platform will use everywhere: public pages, admin workflows, payment
+              states, and future emails.
             </p>
-            <div className="pill-list" aria-label="Passreserve vocabulary">
-              {vocabulary.map((item) => (
-                <span className="pill" key={item}>
-                  {item}
-                </span>
+            <div className="mapping-list" aria-label="Passreserve vocabulary">
+              {languageRows.map((row) => (
+                <div className="mapping-row" key={row.term}>
+                  <div className="mapping-terms">
+                    <span className="mapping-current">{row.term}</span>
+                  </div>
+                  <p>{row.note}</p>
+                </div>
               ))}
             </div>
           </article>
 
+          <article className="panel section-card" id="email-language">
+            <div className="section-kicker">Email language</div>
+            <h3>Subject lines now align with registrations and payment clarity.</h3>
+            <p>
+              Future email scenarios should sound direct and operational, with
+              clear references to the event, the attendee's status, and any amount
+              still due at the event.
+            </p>
+            <div className="scenario-list">
+              {emailSubjects.map((item) => (
+                <div className="scenario-item" key={item.label}>
+                  <strong>{item.label}</strong>
+                  <span>{item.subject}</span>
+                </div>
+              ))}
+            </div>
+          </article>
+        </section>
+
+        <section className="section-grid">
           <article className="panel section-card" id="roadmap">
             <div className="section-kicker">Implementation order</div>
             <h3>Building the event product phase by phase.</h3>
@@ -182,10 +250,27 @@ export default function HomePage() {
               ))}
             </div>
           </article>
+
+          <article className="panel section-card">
+            <div className="section-kicker">Messaging principles</div>
+            <h3>The public copy now favors clarity over platform jargon.</h3>
+            <p>
+              The landing page and future email scenarios should stay direct,
+              date-aware, and explicit about what an attendee has paid online
+              versus what still happens at the event.
+            </p>
+            <div className="legacy-list">
+              {messagingPrinciples.map((item) => (
+                <div className="legacy-item" key={item}>
+                  {item}
+                </div>
+              ))}
+            </div>
+          </article>
         </section>
 
         <footer className="footer">
-          <span>Passreserve.com is now the public brand baseline for the live app.</span>
+          <span>Passreserve.com now has a live brand, vocabulary, and messaging baseline.</span>
           <Link href="/missing-route">See the branded empty state</Link>
         </footer>
       </div>

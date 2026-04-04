@@ -7,11 +7,10 @@ export const metadata = {
     template: "%s | Passreserve.com"
   },
   description:
-    "Simple event booking, deposits, and organizer operations for venues, activity providers, and seasonal experiences.",
+    "Simple event registration, deposits, and organizer operations for organizers, venues, and seasonal experiences.",
   applicationName: "Passreserve.com",
   keywords: [
     "Passreserve.com",
-    "event booking",
     "event registration",
     "organizer operations",
     "event deposits",
@@ -20,7 +19,7 @@ export const metadata = {
   openGraph: {
     title: "Passreserve.com",
     description:
-      "Simple event booking, deposits, and organizer operations for venues, activity providers, and seasonal experiences.",
+      "Simple event registration, deposits, and organizer operations for organizers, venues, and seasonal experiences.",
     siteName: "Passreserve.com",
     type: "website",
     locale: "en_US"
@@ -29,7 +28,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Passreserve.com",
     description:
-      "Simple event booking, deposits, and organizer operations for venues, activity providers, and seasonal experiences."
+      "Simple event registration, deposits, and organizer operations for organizers, venues, and seasonal experiences."
   }
 };
 

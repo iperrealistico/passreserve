@@ -102,18 +102,18 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 **Status:** `IN PROGRESS`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-04_14-53-07_phase-03_vocabulary-and-messaging-baseline.md`
 
 **Checklist**
 
-- [ ] Define the final naming dictionary from legacy rental terms to event-platform terms
+- [x] Define the final naming dictionary from legacy rental terms to event-platform terms
 - [x] Replace public-facing references to MTB Reserve with Passreserve.com in the active codebase
-- [ ] Replace rider, shop, bike, booking, inventory, and pickup wording where appropriate
+- [x] Replace rider, shop, bike, booking, inventory, and pickup wording where appropriate
 - [x] Standardize organizer, event, occurrence, registration, attendee, and payment terminology
 - [x] Update shared UI copy, headers, navigation labels, and empty states
-- [ ] Update email copy and subject strategy for the new product language
+- [x] Update email copy and subject strategy for the new product language
 - [x] Update metadata, titles, brand references, and SEO-facing naming
-- [ ] Document any intentional temporary legacy names left in code for migration reasons
+- [x] Document any intentional temporary legacy names left in code for migration reasons
 
 **Activity log**
 
@@ -122,6 +122,10 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-04 14:25 CEST` Email-copy updates, deeper legacy-term replacement, and intentional temporary-name documentation remain open because the active root app does not yet include the full organizer, admin, or email runtime from the legacy platform.
 - `2026-04-04 14:26 CEST` Committed the Phase 03 brand baseline as `80f029b650d9d8f9c7e717875895bc3d9dc1956c` with message `feat: establish passreserve brand baseline` and pushed `main` to `origin`.
 - `2026-04-04 14:26 CEST` Verified through the Vercel integration that deployment `dpl_3uAUMkWfysE6ipytAr5d6FLY76zb` for commit `80f029b650d9d8f9c7e717875895bc3d9dc1956c` reached `READY`, including the production alias `passreserve.vercel.app`.
+- `2026-04-04 14:46 CEST` Resumed Phase 03 after completing the mandatory onboarding read-through; this pass is focused on defining the naming dictionary, replacing remaining rental-language in the active Passreserve.com workspace, and documenting intentional temporary legacy terms that must remain during migration.
+- `2026-04-04 14:52 CEST` Added `09_PASSRESERVE_LANGUAGE_AND_MESSAGING.md` as the Phase 03 source of truth for vocabulary, email subjects, messaging tone, and temporary legacy-term exceptions; updated the onboarding docs so future agents read it before implementing new work.
+- `2026-04-04 14:52 CEST` Updated the live root app so public copy and metadata now use registration-first Passreserve.com language, and verified that no legacy rental terms remain in `app/`.
+- `2026-04-04 14:52 CEST` Verified the Phase 03 workspace changes with `npm run build`.
 
 ---
 
