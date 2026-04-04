@@ -100,24 +100,26 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 03: Brand, naming, and product vocabulary transformation
 
-**Status:** `NOT STARTED`
+**Status:** `IN PROGRESS`
 
 **Patch note:** `TBD`
 
 **Checklist**
 
 - [ ] Define the final naming dictionary from legacy rental terms to event-platform terms
-- [ ] Replace public-facing references to MTB Reserve with Passreserve.com in the active codebase
+- [x] Replace public-facing references to MTB Reserve with Passreserve.com in the active codebase
 - [ ] Replace rider, shop, bike, booking, inventory, and pickup wording where appropriate
-- [ ] Standardize organizer, event, occurrence, registration, attendee, and payment terminology
-- [ ] Update shared UI copy, headers, navigation labels, and empty states
+- [x] Standardize organizer, event, occurrence, registration, attendee, and payment terminology
+- [x] Update shared UI copy, headers, navigation labels, and empty states
 - [ ] Update email copy and subject strategy for the new product language
-- [ ] Update metadata, titles, brand references, and SEO-facing naming
+- [x] Update metadata, titles, brand references, and SEO-facing naming
 - [ ] Document any intentional temporary legacy names left in code for migration reasons
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-04 14:21 CEST` Started Phase 03 work focused on the first Passreserve.com brand and vocabulary transformation pass across the minimal root app's public-facing copy, metadata, and baseline empty states.
+- `2026-04-04 14:25 CEST` Replaced the bootstrap placeholder page with a branded Passreserve.com landing experience, added event-first terminology, introduced a branded not-found state, and verified the root app with `npm run build`.
+- `2026-04-04 14:25 CEST` Email-copy updates, deeper legacy-term replacement, and intentional temporary-name documentation remain open because the active root app does not yet include the full organizer, admin, or email runtime from the legacy platform.
 
 ---
 
