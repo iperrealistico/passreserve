@@ -120,6 +120,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-04 14:21 CEST` Started Phase 03 work focused on the first Passreserve.com brand and vocabulary transformation pass across the minimal root app's public-facing copy, metadata, and baseline empty states.
 - `2026-04-04 14:25 CEST` Replaced the bootstrap placeholder page with a branded Passreserve.com landing experience, added event-first terminology, introduced a branded not-found state, and verified the root app with `npm run build`.
 - `2026-04-04 14:25 CEST` Email-copy updates, deeper legacy-term replacement, and intentional temporary-name documentation remain open because the active root app does not yet include the full organizer, admin, or email runtime from the legacy platform.
+- `2026-04-04 14:26 CEST` Committed the Phase 03 brand baseline as `80f029b650d9d8f9c7e717875895bc3d9dc1956c` with message `feat: establish passreserve brand baseline` and pushed `main` to `origin`.
+- `2026-04-04 14:26 CEST` Verified through the Vercel integration that deployment `dpl_3uAUMkWfysE6ipytAr5d6FLY76zb` for commit `80f029b650d9d8f9c7e717875895bc3d9dc1956c` reached `READY`, including the production alias `passreserve.vercel.app`.
 
 ---
 
