@@ -222,23 +222,29 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 07: Organizer admin event catalog and occurrence management
 
-**Status:** `NOT STARTED`
+**Status:** `DONE`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-05_19-31-17_phase-07_organizer-admin-events-and-occurrences.md`
 
 **Checklist**
 
-- [ ] Replace the inventory area with event catalog management
-- [ ] Create event type create, update, and delete workflows
-- [ ] Add occurrence management as a first-class admin capability
-- [ ] Support one-off and recurring occurrence creation
-- [ ] Support price, capacity, venue, and publication overrides per occurrence
-- [ ] Add organizer-facing visibility controls and schedule conflict handling
-- [ ] Preserve useful admin shell patterns from MTB Reserve while replacing the domain content
+- [x] Replace the inventory area with event catalog management
+- [x] Create event type create, update, and delete workflows
+- [x] Add occurrence management as a first-class admin capability
+- [x] Support one-off and recurring occurrence creation
+- [x] Support price, capacity, venue, and publication overrides per occurrence
+- [x] Add organizer-facing visibility controls and schedule conflict handling
+- [x] Preserve useful admin shell patterns from MTB Reserve while replacing the domain content
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-05 19:12 CEST` Completed the mandatory onboarding read-through in the required order, including the master tracker, patch-note history, architecture bundle, transformation plan, and Passreserve.com language guide.
+- `2026-04-05 19:12 CEST` Selected Phase 07 as the active implementation slice because the prior handoff completed Phase 06 and the next documented milestone is organizer admin event catalog and occurrence management.
+- `2026-04-05 19:12 CEST` Beginning Phase 07 by inspecting the active root workspace to transform the organizer admin inventory area into Passreserve.com event catalog and occurrence management flows while preserving the practical admin shell patterns from MTB Reserve.
+- `2026-04-05 19:25 CEST` Added `lib/passreserve-admin.js` as the shared organizer-admin source of truth, then built new organizer-admin routes at `/{slug}/admin/events` and `/{slug}/admin/occurrences` with event catalog CRUD, recurring occurrence planning, per-date overrides, and venue-level conflict checks.
+- `2026-04-05 19:29 CEST` Extended the global visual system for the new admin shell, sidebar, planner, catalog board, and occurrence editor, and updated `package.json` so the standard `npm run dev` path uses webpack after Turbopack hit a JSON.parse failure while generating static admin paths.
+- `2026-04-05 19:31 CEST` Verified the Phase 07 implementation locally with `npm run build`, `npm run dev` HTTP checks for `/alpine-trail-lab/admin`, `/alpine-trail-lab/admin/events`, `/alpine-trail-lab/admin/occurrences?event=alpine-switchback-clinic`, and `/not-a-live-route`, plus `npm run start -- --port 3001` route checks to confirm the built app serves the new organizer-admin surfaces.
+- `2026-04-05 19:31 CEST` Marked Phase 07 complete and recorded patch note `patch-notes/2026-04-05_19-31-17_phase-07_organizer-admin-events-and-occurrences.md`; Git commit, push, and final Vercel verification are being completed next in this session.
 
 ---
 
