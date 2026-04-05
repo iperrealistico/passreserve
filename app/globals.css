@@ -1603,6 +1603,235 @@ select {
   border-color: rgba(203, 93, 45, 0.18);
 }
 
+.registration-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(20rem, 0.82fr);
+  gap: 1.25rem;
+  align-items: start;
+  margin-top: 1.25rem;
+}
+
+.registration-flow-card,
+.registration-aside {
+  min-width: 0;
+}
+
+.registration-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
+.registration-step,
+.registration-choice {
+  width: 100%;
+  border: 1px solid rgba(23, 50, 40, 0.08);
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.registration-step:hover,
+.registration-choice:hover {
+  transform: translateY(-1px);
+}
+
+.registration-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.46);
+  text-align: left;
+}
+
+.registration-step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: rgba(23, 50, 40, 0.08);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.registration-step span:last-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.registration-step strong {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.registration-step small {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.registration-step-active {
+  border-color: rgba(203, 93, 45, 0.3);
+  background: rgba(203, 93, 45, 0.08);
+  box-shadow: 0 18px 32px rgba(23, 50, 40, 0.08);
+}
+
+.registration-panel-stack {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.registration-choice-grid,
+.registration-rule-list,
+.registration-summary-list,
+.registration-error-list,
+.registration-checklist {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.registration-choice {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 1.05rem;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.48);
+  text-align: left;
+}
+
+.registration-choice-active {
+  border-color: rgba(203, 93, 45, 0.34);
+  box-shadow: 0 18px 40px rgba(23, 50, 40, 0.08);
+}
+
+.registration-choice-head,
+.registration-choice-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.registration-choice-head strong {
+  display: block;
+  color: var(--text);
+  font-family: var(--display);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.registration-choice-head div > span {
+  color: var(--muted);
+}
+
+.registration-choice p,
+.registration-rule-item span,
+.registration-review-card span,
+.registration-summary-card span,
+.registration-error-item span,
+.registration-check-item span {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.registration-choice-meta {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.registration-quantity-field {
+  width: min(16rem, 100%);
+}
+
+.registration-field-grid,
+.registration-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.registration-review-card,
+.registration-summary-card,
+.registration-rule-item,
+.registration-error-item,
+.registration-check-item {
+  padding: 1rem 1.05rem;
+  border-radius: 1.15rem;
+  background: rgba(255, 255, 255, 0.44);
+  border: 1px solid rgba(23, 50, 40, 0.08);
+}
+
+.registration-review-card strong,
+.registration-summary-card strong,
+.registration-rule-item strong,
+.registration-error-item strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text);
+}
+
+.registration-review-card-code strong {
+  font-family: var(--display);
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  letter-spacing: -0.04em;
+}
+
+.registration-submit-form,
+.registration-confirm-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.registration-payment-card {
+  margin-top: 1rem;
+}
+
+.registration-message {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+}
+
+.registration-message strong {
+  color: var(--text);
+}
+
+.registration-message-error {
+  background: rgba(160, 47, 19, 0.08);
+  border: 1px solid rgba(160, 47, 19, 0.16);
+}
+
+.registration-check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.registration-check-item input {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.2rem;
+}
+
+.registration-aside {
+  display: grid;
+  gap: 1rem;
+}
+
 .empty-state {
   min-height: 100vh;
   display: grid;
@@ -1638,7 +1867,8 @@ select {
   .cta-band,
   .admin-layout,
   .admin-grid,
-  .admin-preview-grid {
+  .admin-preview-grid,
+  .registration-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1692,6 +1922,8 @@ select {
   .submission-grid,
   .agenda-head,
   .agenda-meta,
+  .registration-choice-head,
+  .registration-choice-meta,
   .admin-section-header,
   .admin-inline-metrics,
   .admin-card-head,
@@ -1706,7 +1938,10 @@ select {
 
   .admin-field-grid,
   .admin-summary-grid,
-  .admin-card-metrics {
+  .admin-card-metrics,
+  .registration-stepper,
+  .registration-field-grid,
+  .registration-review-grid {
     grid-template-columns: 1fr;
   }
 

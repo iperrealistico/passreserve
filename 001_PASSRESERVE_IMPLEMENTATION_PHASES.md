@@ -252,24 +252,30 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 08: Registration flow, capacity engine, and attendee lifecycle
 
-**Status:** `NOT STARTED`
+**Status:** `DONE`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-05_21-16-41_phase-08_registration-flow-and-capacity-engine.md`
 
 **Checklist**
 
-- [ ] Transform the booking wizard into an event registration flow
-- [ ] Replace slot logic with occurrence selection logic
-- [ ] Replace bike availability logic with occurrence capacity logic
-- [ ] Define registration holds, expiry rules, and confirmation behavior
-- [ ] Support attendee details, quantity selection, and optional ticket-category structure
-- [ ] Update confirmation pages and registration code generation
-- [ ] Update related server actions, schemas, validations, and event logging
-- [ ] Ensure overbooking protection and pending-hold behavior are correct
+- [x] Transform the booking wizard into an event registration flow
+- [x] Replace slot logic with occurrence selection logic
+- [x] Replace bike availability logic with occurrence capacity logic
+- [x] Define registration holds, expiry rules, and confirmation behavior
+- [x] Support attendee details, quantity selection, and optional ticket-category structure
+- [x] Update confirmation pages and registration code generation
+- [x] Update related server actions, schemas, validations, and event logging
+- [x] Ensure overbooking protection and pending-hold behavior are correct
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-05 20:53 CEST` Completed the mandatory onboarding read-through in the required order, including the phase tracker, patch-note history, architecture bundle, transformation plan, and Passreserve.com language guide.
+- `2026-04-05 20:53 CEST` Selected Phase 08 as the active implementation slice because the prior handoff completed Phase 07 and the next documented milestone is the registration flow, capacity engine, and attendee lifecycle.
+- `2026-04-05 20:53 CEST` Beginning Phase 08 by inspecting the current public event routes, organizer-admin seeds, and shared Passreserve.com domain modules to replace slot-style booking with occurrence-based registration holds, attendee capture, and capacity-aware confirmation behavior.
+- `2026-04-05 21:08 CEST` Added `lib/passreserve-registrations.js` as the shared Phase 08 source of truth for occurrence capacity math, ticket-category options, signed hold and confirmation tokens, validation rules, lifecycle statuses, and console-safe registration event logging.
+- `2026-04-05 21:08 CEST` Added new attendee routes at `/{slug}/events/[eventSlug]/register`, `/{slug}/events/[eventSlug]/register/confirm/[holdToken]`, and `/{slug}/events/[eventSlug]/register/confirmed/[confirmationToken]`, then updated the homepage, organizer hubs, and event detail pages so public CTAs now open the live registration flow instead of phase-placeholder messaging.
+- `2026-04-05 21:15 CEST` Verified Phase 08 locally with `npm run build`, built-server HTTP checks for `/`, `/alpine-trail-lab/events/sunrise-ridge-session`, and `/alpine-trail-lab/events/sunrise-ridge-session/register?occurrence=atl-sunrise-2026-04-18`, plus a Playwright browser flow that created a hold, reached the confirmation page, confirmed the registration, and landed on the final confirmed page with generated code `PR-04D64A5F94`.
+- `2026-04-05 21:16 CEST` Recorded patch note `patch-notes/2026-04-05_21-16-41_phase-08_registration-flow-and-capacity-engine.md`; Git commit, push, and Vercel verification are being completed next in this session.
 
 ---
 

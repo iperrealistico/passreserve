@@ -17,7 +17,7 @@ import {
   publicNavigationBlueprint,
   searchPrinciples
 } from "../lib/passreserve-domain";
-import { publicOrganizerPhase } from "../lib/passreserve-public";
+import { registrationFlowPhase } from "../lib/passreserve-registrations";
 
 const initialJoinRequest = {
   contact: "",
@@ -108,7 +108,7 @@ export default function HomeExperience() {
           <article className="panel hero-copy hero-stack">
             <span className="eyebrow">
               <span className="eyebrow-dot" aria-hidden="true" />
-              {publicOrganizerPhase.label} live
+              {registrationFlowPhase.label} live
             </span>
             <h1>Find the right organizer, city, or event before the first click.</h1>
             <p>
@@ -117,9 +117,9 @@ export default function HomeExperience() {
               can understand the launch path without wading through rental-era language.
             </p>
             <p>
-              The homepage now hands off directly to live organizer hubs and featured event
-              pages, while later phases will add the registration and payment flow on top of
-              the same occurrence-first discovery model.
+              The homepage now hands off directly to live organizer hubs, featured event
+              pages, and the Phase 08 registration flow, while later work adds the Stripe
+              payment handoff on top of the same occurrence-first model.
             </p>
 
             <div className="search-lab">
@@ -183,8 +183,8 @@ export default function HomeExperience() {
           <aside className="panel hero-aside launch-aside" aria-label="Phase summary">
             <div className="status-block">
               <div className="status-label">Current build layer</div>
-              <h2>{publicOrganizerPhase.title}</h2>
-              <p>{publicOrganizerPhase.summary}</p>
+              <h2>{registrationFlowPhase.title}</h2>
+              <p>{registrationFlowPhase.summary}</p>
             </div>
 
             <div className="metrics" aria-label="Phase metrics">
@@ -521,7 +521,8 @@ export default function HomeExperience() {
 
         <footer className="footer">
           <span>
-            Phase 05 discovery now feeds live Phase 06 organizer hubs and featured event pages.
+            Phase 05 discovery now feeds live Phase 08 organizer hubs, featured event pages,
+            and attendee registration routes.
           </span>
           <a href="#discover">Return to discovery</a>
         </footer>

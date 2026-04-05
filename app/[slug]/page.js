@@ -3,9 +3,13 @@ import { notFound } from "next/navigation";
 
 import {
   getOrganizerBySlug,
-  getOrganizerSlugs,
-  publicOrganizerPhase
+  getOrganizerSlugs
 } from "../../lib/passreserve-public";
+import { registrationFlowPhase } from "../../lib/passreserve-registrations";
+
+function buildRegistrationHref(slug, eventSlug, occurrenceId) {
+  return `/${slug}/events/${eventSlug}/register?occurrence=${occurrenceId}`;
+}
 
 export function generateStaticParams() {
   return getOrganizerSlugs().map((slug) => ({ slug }));
@@ -44,7 +48,7 @@ export default async function OrganizerPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Organizer hubs, event pages, and occurrence-first public browsing
+              Organizer hubs, event pages, and occurrence-first public registration
             </span>
           </div>
           <nav className="nav" aria-label="Organizer page navigation">
@@ -60,7 +64,7 @@ export default async function OrganizerPage({ params }) {
           <article className="panel hero-copy public-hero-copy">
             <span className="eyebrow">
               <span className="eyebrow-dot" aria-hidden="true" />
-              {publicOrganizerPhase.label} live
+              {registrationFlowPhase.label} live
             </span>
             <div className="page-place">
               {organizer.city}, {organizer.region}
@@ -95,7 +99,7 @@ export default async function OrganizerPage({ params }) {
               <p>
                 The organizer page now acts like a public event hub: featured event up top,
                 dated occurrences underneath, and venue plus policy details visible before the
-                attendee reaches the registration flow.
+                attendee starts the live registration flow.
               </p>
             </div>
 
@@ -152,7 +156,7 @@ export default async function OrganizerPage({ params }) {
             <p>
               Each card links to its own event page, carries the next dated occurrence, and
               makes the deposit or full-payment rule visible before the attendee commits to a
-              date.
+              signed hold on a real date.
             </p>
             <div className="event-lineup">
               {organizer.events.map((event) => (
@@ -191,9 +195,16 @@ export default async function OrganizerPage({ params }) {
                       <Link className="button button-primary" href={event.detailHref}>
                         Open event page
                       </Link>
-                      <a className="button button-secondary" href={event.interestHref}>
-                        Ask about this event
-                      </a>
+                      <Link
+                        className="button button-secondary"
+                        href={buildRegistrationHref(
+                          organizer.slug,
+                          event.slug,
+                          event.nextOccurrence.id
+                        )}
+                      >
+                        Start registration
+                      </Link>
                     </div>
                   </div>
                 </article>
@@ -208,7 +219,8 @@ export default async function OrganizerPage({ params }) {
             <h3>Occurrences now surface directly on the organizer page.</h3>
             <p>
               The public hub can show a true dated agenda without forcing events back into slot
-              settings. Each occurrence keeps its own capacity and event-specific route.
+              settings. Each occurrence keeps its own capacity, event-specific route, and live
+              registration entry point.
             </p>
             <div className="agenda-list">
               {organizer.agenda.map((occurrence) => (
@@ -226,8 +238,15 @@ export default async function OrganizerPage({ params }) {
                     <span>{occurrence.priceLabel}</span>
                     <span>{occurrence.collectionLabel}</span>
                   </div>
-                  <Link className="inline-link" href={occurrence.detailHref}>
-                    View occurrence context
+                  <Link
+                    className="inline-link"
+                    href={buildRegistrationHref(
+                      organizer.slug,
+                      occurrence.eventSlug,
+                      occurrence.id
+                    )}
+                  >
+                    Start registration
                   </Link>
                 </article>
               ))}
@@ -317,7 +336,8 @@ export default async function OrganizerPage({ params }) {
 
         <footer className="footer">
           <span>
-            Phase 06 makes organizer hubs and event detail routes live on Passreserve.com.
+            Phase 08 makes organizer hubs, event detail routes, and registration entry points
+            live on Passreserve.com.
           </span>
           <Link href="/">Return to discovery</Link>
         </footer>
