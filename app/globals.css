@@ -1452,6 +1452,47 @@ select {
   color: #7b5e24;
 }
 
+.admin-badge-scheduled,
+.admin-badge-public {
+  background: rgba(22, 86, 63, 0.12);
+  color: #1b6048;
+}
+
+.admin-badge-capacity-watch {
+  background: rgba(203, 93, 45, 0.14);
+  color: #b45429;
+}
+
+.admin-badge-cancelled {
+  background: rgba(121, 61, 61, 0.12);
+  color: #8c4444;
+}
+
+.admin-badge-payment-neutral {
+  background: rgba(84, 93, 87, 0.1);
+  color: #506057;
+}
+
+.admin-badge-payment-pending {
+  background: rgba(203, 93, 45, 0.12);
+  color: #b45429;
+}
+
+.admin-badge-payment-partial {
+  background: rgba(72, 94, 163, 0.12);
+  color: #3d5d9e;
+}
+
+.admin-badge-payment-paid {
+  background: rgba(22, 86, 63, 0.12);
+  color: #1b6048;
+}
+
+.admin-badge-payment-failed {
+  background: rgba(121, 61, 61, 0.12);
+  color: #8c4444;
+}
+
 .admin-card h4,
 .admin-preview-panel h4 {
   margin: 0;
@@ -1601,6 +1642,170 @@ select {
 .admin-conflict-card {
   background: rgba(203, 93, 45, 0.08);
   border-color: rgba(203, 93, 45, 0.18);
+}
+
+.button-danger {
+  border-color: rgba(121, 61, 61, 0.16);
+  color: #8c4444;
+}
+
+.button-muted {
+  border-color: rgba(23, 50, 40, 0.12);
+}
+
+.ops-message {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.46);
+  border: 1px solid rgba(23, 50, 40, 0.08);
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.ops-record-list,
+.ops-day-list,
+.ops-occurrence-stack,
+.ops-provider-grid {
+  display: grid;
+  gap: 0.95rem;
+  margin-top: 1.2rem;
+}
+
+.ops-provider-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ops-record-card,
+.ops-day-card,
+.ops-occurrence-card,
+.ops-provider-card {
+  padding: 1rem 1.05rem;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.44);
+  border: 1px solid rgba(23, 50, 40, 0.08);
+}
+
+.ops-day-card {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.ops-day-header,
+.ops-record-head,
+.ops-link-row,
+.ops-action-row,
+.ops-inline-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.ops-record-title,
+.ops-day-card h4,
+.ops-occurrence-card h4 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+}
+
+.ops-record-head p,
+.ops-occurrence-card p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.ops-record-totals {
+  text-align: right;
+}
+
+.ops-record-totals strong {
+  display: block;
+  color: var(--text);
+  font-family: var(--display);
+  font-size: 1.3rem;
+}
+
+.ops-record-totals span,
+.ops-inline-list span,
+.ops-link-row a,
+.ops-provider-card span:last-child {
+  color: var(--muted);
+}
+
+.ops-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.ops-meta-card {
+  padding: 0.85rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.ops-meta-card strong,
+.ops-provider-card strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--text);
+}
+
+.ops-note {
+  margin: 0.95rem 0 0;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.ops-note-muted {
+  color: var(--muted);
+}
+
+.ops-inline-list {
+  margin-top: 0.95rem;
+  justify-content: flex-start;
+}
+
+.ops-inline-list span {
+  padding: 0.55rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(203, 93, 45, 0.08);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ops-link-row {
+  margin-top: 1rem;
+  justify-content: flex-start;
+}
+
+.ops-link-row a {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ops-action-row {
+  margin-top: 1rem;
+  justify-content: flex-start;
+}
+
+.ops-filter-bar {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ops-provider-card {
+  display: grid;
+  gap: 0.35rem;
 }
 
 .registration-grid {
@@ -1927,7 +2132,12 @@ select {
   .admin-section-header,
   .admin-inline-metrics,
   .admin-card-head,
-  .admin-form-actions {
+  .admin-form-actions,
+  .ops-day-header,
+  .ops-record-head,
+  .ops-link-row,
+  .ops-action-row,
+  .ops-inline-list {
     flex-direction: column;
     align-items: flex-start;
   }
@@ -1939,6 +2149,8 @@ select {
   .admin-field-grid,
   .admin-summary-grid,
   .admin-card-metrics,
+  .ops-meta-grid,
+  .ops-provider-grid,
   .registration-stepper,
   .registration-field-grid,
   .registration-review-grid {

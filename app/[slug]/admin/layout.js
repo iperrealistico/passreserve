@@ -2,20 +2,36 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
-  getOrganizerAdminBySlug,
-  organizerAdminGuidance,
-  organizerAdminPhase
-} from "../../../lib/passreserve-admin";
+  getOrganizerOperationsBySlug,
+  organizerOperationsGuidance,
+  organizerOperationsPhase
+} from "../../../lib/passreserve-operations";
 
 export default async function OrganizerAdminLayout({ children, params }) {
   const { slug } = await params;
-  const organizer = getOrganizerAdminBySlug(slug);
+  const organizer = getOrganizerOperationsBySlug(slug);
 
   if (!organizer) {
     notFound();
   }
 
   const navigation = [
+    {
+      label: "Dashboard",
+      href: organizer.dashboardHref
+    },
+    {
+      label: "Calendar",
+      href: organizer.calendarHref
+    },
+    {
+      label: "Registrations",
+      href: organizer.registrationsHref
+    },
+    {
+      label: "Payments",
+      href: organizer.paymentsHref
+    },
     {
       label: "Event catalog",
       href: organizer.eventsHref
@@ -39,14 +55,16 @@ export default async function OrganizerAdminLayout({ children, params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Organizer admin, event catalog management, and occurrence scheduling
+              Organizer operations, registrations, calendar, and payment follow-up
             </span>
           </div>
           <nav className="nav" aria-label="Organizer admin shortcuts">
             <Link href="/">Discover</Link>
             <Link href={organizer.publicHref}>Organizer hub</Link>
-            <Link href={organizer.eventsHref}>Admin events</Link>
-            <Link href={organizer.occurrencesHref}>Admin occurrences</Link>
+            <Link href={organizer.dashboardHref}>Dashboard</Link>
+            <Link href={organizer.calendarHref}>Calendar</Link>
+            <Link href={organizer.registrationsHref}>Registrations</Link>
+            <Link href={organizer.paymentsHref}>Payments</Link>
           </nav>
         </header>
 
@@ -55,7 +73,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
             <div className="admin-sidebar-block">
               <span className="eyebrow">
                 <span className="eyebrow-dot" aria-hidden="true" />
-                {organizerAdminPhase.label} live
+                {organizerOperationsPhase.label} live
               </span>
               <div className="page-place">
                 {organizer.city}, {organizer.region}
@@ -66,20 +84,20 @@ export default async function OrganizerAdminLayout({ children, params }) {
 
             <div className="admin-summary-grid">
               <div className="admin-summary-card">
-                <span className="metric-label">Event types</span>
-                <strong>{organizer.metrics.eventCount}</strong>
+                <span className="metric-label">Active regs</span>
+                <strong>{organizer.summary.activeCount}</strong>
               </div>
               <div className="admin-summary-card">
-                <span className="metric-label">Occurrences</span>
-                <strong>{organizer.metrics.occurrenceCount}</strong>
+                <span className="metric-label">Upcoming dates</span>
+                <strong>{organizer.totalUpcomingOccurrences}</strong>
               </div>
               <div className="admin-summary-card">
-                <span className="metric-label">Published</span>
-                <strong>{organizer.metrics.publishedOccurrences}</strong>
+                <span className="metric-label">Online collected</span>
+                <strong>{organizer.summary.onlineCollectedLabel}</strong>
               </div>
               <div className="admin-summary-card">
-                <span className="metric-label">Conflicts</span>
-                <strong>{organizer.metrics.conflictCount}</strong>
+                <span className="metric-label">Due at venue</span>
+                <strong>{organizer.summary.dueAtEventLabel}</strong>
               </div>
             </div>
 
@@ -98,7 +116,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
             <div className="admin-sidebar-block">
               <div className="section-kicker">Why this admin layer exists</div>
               <div className="status-list">
-                {organizerAdminGuidance.map((item, index) => (
+                {organizerOperationsGuidance.map((item, index) => (
                   <div className="status-item" key={item.title}>
                     <span className="status-index">{index + 1}</span>
                     <div>
@@ -113,7 +131,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
             <div className="admin-sidebar-block admin-sidebar-footer">
               <span className="spotlight-label">Support contact</span>
               <strong>{organizer.supportEmail}</strong>
-              <span>{organizer.venueTitle}</span>
+              <span>{organizer.timeZone}</span>
             </div>
           </aside>
 

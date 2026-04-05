@@ -1,20 +1,20 @@
 import { notFound, redirect } from "next/navigation";
 
 import {
-  getOrganizerAdminBySlug,
-  getOrganizerAdminSlugs
-} from "../../../lib/passreserve-admin";
+  getOrganizerOperationSlugs,
+  getOrganizerOperationsBySlug
+} from "../../../lib/passreserve-operations";
 
 export function generateStaticParams() {
-  return getOrganizerAdminSlugs().map((slug) => ({ slug }));
+  return getOrganizerOperationSlugs().map((slug) => ({ slug }));
 }
 
 export default async function OrganizerAdminIndexPage({ params }) {
   const { slug } = await params;
 
-  if (!getOrganizerAdminBySlug(slug)) {
+  if (!getOrganizerOperationsBySlug(slug)) {
     notFound();
   }
 
-  redirect(`/${slug}/admin/events`);
+  redirect(`/${slug}/admin/dashboard`);
 }

@@ -313,23 +313,29 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 10: Organizer operations dashboard, calendar, registrations, and payments UI
 
-**Status:** `NOT STARTED`
+**Status:** `DONE`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-05_23-14-01_phase-10_organizer-operations-dashboard-and-payments-ui.md`
 
 **Checklist**
 
-- [ ] Replace booking-centric dashboard metrics with registration and revenue metrics
-- [ ] Adapt the calendar to show occurrences, attendee counts, and payment state summaries
-- [ ] Build organizer views for registrations and attendee operations
-- [ ] Add organizer workflows for confirmation, cancellation, no-show, and reconciliation
-- [ ] Add organizer-facing payment visibility and amount-due tracking
-- [ ] Preserve the practical operations-first admin UX of the legacy app
-- [ ] Audit timezone behavior for organizer-local operations
+- [x] Replace booking-centric dashboard metrics with registration and revenue metrics
+- [x] Adapt the calendar to show occurrences, attendee counts, and payment state summaries
+- [x] Build organizer views for registrations and attendee operations
+- [x] Add organizer workflows for confirmation, cancellation, no-show, and reconciliation
+- [x] Add organizer-facing payment visibility and amount-due tracking
+- [x] Preserve the practical operations-first admin UX of the legacy app
+- [x] Audit timezone behavior for organizer-local operations
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-05 22:58 CEST` Completed the mandatory onboarding read-through in the required order, including the master tracker, patch-note history, architecture bundle, transformation plan, and Passreserve.com language guide.
+- `2026-04-05 22:58 CEST` Selected Phase 10 as the active implementation slice because the prior documented milestone is Phase 09 and the next pending work is the organizer operations dashboard, calendar, registrations, and payments UI.
+- `2026-04-05 22:58 CEST` Beginning Phase 10 by inspecting the current Passreserve.com organizer routes, registration engine, and payment-state helpers to replace booking-centric operations views with registration, occurrence, and amount-due workflows.
+- `2026-04-05 23:11 CEST` Added `lib/passreserve-operations.js` as the Phase 10 operations source of truth, then built new organizer-admin routes at `/{slug}/admin/dashboard`, `/{slug}/admin/calendar`, `/{slug}/admin/registrations`, and `/{slug}/admin/payments` with registration queues, payment ledgers, organizer-local calendar groupings, and client-side organizer action workflows.
+- `2026-04-05 23:11 CEST` Reworked the shared organizer-admin shell so `/{slug}/admin` now redirects to the dashboard and the sidebar/topbar frame Phase 10 around active registrations, online collection, venue balances, and organizer-local timezone handling instead of Phase 07 planning-only metrics.
+- `2026-04-05 23:13 CEST` Verified the Phase 10 implementation with `npm run build`, `npm run start -- --port 3101`, HTTP checks for `/alpine-trail-lab/admin`, `/alpine-trail-lab/admin/dashboard`, `/alpine-trail-lab/admin/calendar`, `/alpine-trail-lab/admin/registrations`, `/alpine-trail-lab/admin/payments`, and `/not-a-live-route`; port `3001` was already in use, so production-route verification moved to port `3101`.
+- `2026-04-05 23:14 CEST` Recorded patch note `patch-notes/2026-04-05_23-14-01_phase-10_organizer-operations-dashboard-and-payments-ui.md`; Git commit, push, and Vercel verification are being completed next in this session.
 
 ---
 
