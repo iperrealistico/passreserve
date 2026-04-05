@@ -335,7 +335,9 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-05 23:11 CEST` Added `lib/passreserve-operations.js` as the Phase 10 operations source of truth, then built new organizer-admin routes at `/{slug}/admin/dashboard`, `/{slug}/admin/calendar`, `/{slug}/admin/registrations`, and `/{slug}/admin/payments` with registration queues, payment ledgers, organizer-local calendar groupings, and client-side organizer action workflows.
 - `2026-04-05 23:11 CEST` Reworked the shared organizer-admin shell so `/{slug}/admin` now redirects to the dashboard and the sidebar/topbar frame Phase 10 around active registrations, online collection, venue balances, and organizer-local timezone handling instead of Phase 07 planning-only metrics.
 - `2026-04-05 23:13 CEST` Verified the Phase 10 implementation with `npm run build`, `npm run start -- --port 3101`, HTTP checks for `/alpine-trail-lab/admin`, `/alpine-trail-lab/admin/dashboard`, `/alpine-trail-lab/admin/calendar`, `/alpine-trail-lab/admin/registrations`, `/alpine-trail-lab/admin/payments`, and `/not-a-live-route`; port `3001` was already in use, so production-route verification moved to port `3101`.
-- `2026-04-05 23:14 CEST` Recorded patch note `patch-notes/2026-04-05_23-14-01_phase-10_organizer-operations-dashboard-and-payments-ui.md`; Git commit, push, and Vercel verification are being completed next in this session.
+- `2026-04-05 23:14 CEST` Recorded patch note `patch-notes/2026-04-05_23-14-01_phase-10_organizer-operations-dashboard-and-payments-ui.md`, created phase-close commit `82c1120`, and pushed `main` successfully to `origin`.
+- `2026-04-05 23:16 CEST` Vercel MCP verification failed because the integration required auth, and the local `vercel` CLI fallback also lacked credentials, so deployment verification fell back to the public production alias.
+- `2026-04-05 23:16 CEST` Verified `https://passreserve.vercel.app/alpine-trail-lab/admin/dashboard` and `https://passreserve.vercel.app/alpine-trail-lab/admin/payments` returned `200 OK` and served the new Phase 10 content, confirming the pushed production deployment is live on the public alias.
 
 ---
 

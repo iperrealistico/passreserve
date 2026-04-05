@@ -48,9 +48,12 @@
 
 ## Vercel deployment status
 
-- Local verification is complete.
-- Git commit, push, and Vercel deployment verification are being completed immediately after this patch note is recorded.
-- The responsible agent must update the phase log and final handoff with the resulting commit hash and Vercel deployment status.
+- Verified after pushing commit `82c1120` to `origin/main`.
+- Vercel MCP deployment inspection could not be used because the integration required auth in this environment, and the local `vercel` CLI fallback also failed due to missing saved credentials.
+- Fallback verification used the public production alias:
+  - `https://passreserve.vercel.app/alpine-trail-lab/admin/dashboard` returned `200 OK` and served the new Phase 10 dashboard content.
+  - `https://passreserve.vercel.app/alpine-trail-lab/admin/payments` returned `200 OK` and served the new Phase 10 payment-ledger content.
+- Based on the production alias serving the pushed Phase 10 routes, the deployment is considered live on the public Passreserve.com Vercel target.
 
 ## Problems and risks
 
@@ -60,8 +63,8 @@
 
 ## Commit and push status
 
-- Commit created successfully: `pending`
-- Push completed successfully: `pending`
+- Commit created successfully: `82c1120`
+- Push completed successfully: `origin/main`
 
 ## Notes for the next AI agent
 
