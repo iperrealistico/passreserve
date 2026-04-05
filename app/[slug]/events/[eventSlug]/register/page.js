@@ -51,7 +51,7 @@ export default async function RegistrationPage({ params, searchParams }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Registration holds, capacity-aware attendee flow, and confirmation-first lifecycle
+              Registration holds, confirmation-first lifecycle, and Stripe-ready payment handoff
             </span>
           </div>
           <nav className="nav" aria-label="Registration navigation">
@@ -142,7 +142,8 @@ export default async function RegistrationPage({ params, searchParams }) {
                 <span className="status-index">3</span>
                 <div>
                   <strong>Payment handoff</strong>
-                  The online amount is shown now; Stripe itself lands next in Phase 09.
+                  After confirmation, payment-required registrations now hand off into Stripe
+                  Checkout or an explicit preview fallback when Stripe keys are absent.
                 </div>
               </div>
             </div>
@@ -159,8 +160,8 @@ export default async function RegistrationPage({ params, searchParams }) {
 
         <footer className="footer">
           <span>
-            Phase 08 turns event detail routes into a real registration entry point with
-            occurrence selection and attendee holds.
+            Phase 09 keeps the occurrence-first registration flow intact while adding hosted
+            payment handoff and webhook-ready reconciliation.
           </span>
           <Link href={event.detailHref}>Return to the event page</Link>
         </footer>

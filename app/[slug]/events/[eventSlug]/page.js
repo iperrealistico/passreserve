@@ -46,7 +46,7 @@ export default async function EventDetailPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Event detail pages, live registration, and attendee-facing payment clarity
+              Event detail pages, live registration, and hosted payment-ready attendee flow
             </span>
           </div>
           <nav className="nav" aria-label="Event page navigation">
@@ -140,7 +140,8 @@ export default async function EventDetailPage({ params }) {
                 <span className="status-index">3</span>
                 <div>
                   <strong>Next date</strong>
-                  {event.nextOccurrence.time}
+                  {event.nextOccurrence.time}, with{" "}
+                  {event.prepayPercentage > 0 ? "Stripe Checkout after confirmation" : "venue payment only"}
                 </div>
               </div>
             </div>
@@ -311,9 +312,9 @@ export default async function EventDetailPage({ params }) {
             <div className="section-kicker">Event-specific CTA</div>
             <h2>Choose a published occurrence, then start the live registration flow.</h2>
             <p>
-              Phase 08 keeps the event route honest: the attendee can understand the date,
-              venue, policy, and payment framing here, then move straight into the signed hold
-              and confirmation lifecycle.
+              Phase 09 keeps the event route honest: the attendee can understand the date,
+              venue, policy, and payment framing here, then move straight into the signed hold,
+              confirmation, and payment lifecycle.
             </p>
           </div>
           <div className="hero-actions cta-actions">
@@ -328,8 +329,8 @@ export default async function EventDetailPage({ params }) {
 
         <footer className="footer">
           <span>
-            Phase 08 event routes now connect discovery to a real organizer hub, event detail,
-            and registration lifecycle.
+            Phase 09 event routes now connect discovery to a real organizer hub, event detail,
+            registration lifecycle, and hosted payment handoff.
           </span>
           <Link href={organizer.organizerHref}>Return to organizer hub</Link>
         </footer>

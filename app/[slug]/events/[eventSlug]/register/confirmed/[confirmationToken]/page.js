@@ -92,6 +92,7 @@ export default async function RegistrationConfirmedPage({ params }) {
             <div className="pill-list">
               <span className="pill">{view.registrationStatus}</span>
               <span className="pill">{view.paymentStatus}</span>
+              <span className="pill">{view.paymentProvider.label}</span>
               <span className="pill">{view.quantityLabel}</span>
             </div>
           </article>
@@ -101,8 +102,8 @@ export default async function RegistrationConfirmedPage({ params }) {
               <div className="status-label">Registration code</div>
               <h2>{view.registrationCode}</h2>
               <p>
-                Keep this code as the attendee-facing reference for organizer operations, later
-                payment messaging, and check-in tracking.
+                Keep this code as the attendee-facing reference for organizer operations,
+                payment follow-up, and check-in tracking.
               </p>
             </div>
 
@@ -112,16 +113,16 @@ export default async function RegistrationConfirmedPage({ params }) {
                 <div className="metric-value">{view.confirmedAtLabel}</div>
               </div>
               <div className="metric">
+                <div className="metric-label">Reconciled</div>
+                <div className="metric-value">{view.reconciledAtLabel || "N/A"}</div>
+              </div>
+              <div className="metric">
                 <div className="metric-label">Online amount</div>
                 <div className="metric-value">{view.payment.onlineAmountLabel}</div>
               </div>
               <div className="metric">
                 <div className="metric-label">Due at event</div>
                 <div className="metric-value">{view.payment.dueAtEventLabel}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Occurrence</div>
-                <div className="metric-value">{view.occurrence.label}</div>
               </div>
             </div>
           </aside>
@@ -186,6 +187,22 @@ export default async function RegistrationConfirmedPage({ params }) {
                 <strong>Confirmed</strong>
                 <span>{view.confirmedAtLabel}</span>
               </div>
+              <div className="registration-rule-item">
+                <strong>Payment provider</strong>
+                <span>{view.paymentProvider.label}</span>
+              </div>
+              {view.paymentProvider.sessionId ? (
+                <div className="registration-rule-item">
+                  <strong>Checkout session</strong>
+                  <span>{view.paymentProvider.sessionId}</span>
+                </div>
+              ) : null}
+              {view.paymentProvider.paymentIntentId ? (
+                <div className="registration-rule-item">
+                  <strong>Payment intent</strong>
+                  <span>{view.paymentProvider.paymentIntentId}</span>
+                </div>
+              ) : null}
             </div>
           </article>
 
@@ -214,8 +231,8 @@ export default async function RegistrationConfirmedPage({ params }) {
 
         <footer className="footer">
           <span>
-            Phase 08 now generates attendee registration codes and keeps the lifecycle state
-            explicit even before Stripe collection lands in Phase 09.
+            Phase 09 now keeps the attendee lifecycle explicit all the way through payment
+            reconciliation and final registration confirmation.
           </span>
           <Link href={view.event.detailHref}>Return to the event page</Link>
         </footer>

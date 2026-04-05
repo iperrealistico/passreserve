@@ -14,12 +14,14 @@ export default function ConfirmationForm({ eventSlug, holdToken, slug }) {
     confirmRegistrationAction,
     initialActionState
   );
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
     <form action={formAction} className="registration-confirm-form">
       <input name="slug" type="hidden" value={slug} />
       <input name="eventSlug" type="hidden" value={eventSlug} />
       <input name="holdToken" type="hidden" value={holdToken} />
+      <input name="baseUrl" type="hidden" value={baseUrl} />
 
       <div className="registration-checklist">
         <label className="registration-check-item">

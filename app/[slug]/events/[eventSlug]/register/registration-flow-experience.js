@@ -129,9 +129,8 @@ export default function RegistrationFlowExperience({
         <div className="section-kicker">Registration flow</div>
         <h2>Move from occurrence selection into a signed attendee hold.</h2>
         <p>
-          This Phase 08 flow replaces slot-driven booking with occurrence selection, ticket
-          choice, attendee details, and a 30-minute hold that the attendee confirms on the
-          next page.
+          This Phase 09 flow keeps the occurrence-first hold intact, then hands payment-required
+          registrations into hosted Checkout after the attendee confirms on the next page.
         </p>
 
         <div className="registration-stepper">

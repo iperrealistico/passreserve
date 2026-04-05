@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="passreserve-gradient" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#173228" />
+      <stop offset="100%" stop-color="#cb5d2d" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="#f4efe7" />
+  <path
+    d="M18 17h17.5c8 0 13.5 4.5 13.5 11.3 0 4.7-2.4 8.2-6.8 10.2l-1.7.8L46 49H35.8l-4.7-8.1h-4.7V49H18V17Zm8.4 7.2v9.8h8.1c3.7 0 5.7-1.7 5.7-4.9s-2-4.9-5.7-4.9h-8.1Z"
+    fill="url(#passreserve-gradient)"
+  />
+</svg>

@@ -100,7 +100,7 @@ export default async function RegistrationConfirmPage({ params }) {
             <p>
               Hold {holdView.hold.id} currently protects {holdView.quantityLabel} on{" "}
               {holdView.occurrence.label}. Confirming here either finalizes the registration
-              or moves it into a payment-pending state, depending on the online amount.
+              or opens the payment step, depending on the online amount.
             </p>
             <div className="pill-list">
               <span className="pill">{holdView.occurrence.capacityLabel}</span>
@@ -239,8 +239,8 @@ export default async function RegistrationConfirmPage({ params }) {
 
         <footer className="footer">
           <span>
-            Phase 08 keeps the confirmation page as the point where pending holds become a
-            real attendee lifecycle state.
+            Phase 09 keeps the confirmation page as the point where pending holds either settle
+            directly or hand off into hosted payment.
           </span>
           <Link href={holdView.event.detailHref}>Return to the event page</Link>
         </footer>

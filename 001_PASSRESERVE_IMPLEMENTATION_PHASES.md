@@ -283,24 +283,29 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 09: Payments, Stripe Checkout, and payment reconciliation
 
-**Status:** `NOT STARTED`
+**Status:** `DONE`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-05_22-47-44_phase-09_payments-stripe-checkout-and-payment-reconciliation.md`
 
 **Checklist**
 
-- [ ] Add Stripe configuration and environment requirements
-- [ ] Define 0 percent, deposit, and full-payment collection rules
-- [ ] Create Stripe Checkout Session creation flow
-- [ ] Add success and cancel return handling
-- [ ] Add webhook handling as the final payment source of truth
-- [ ] Store payment references and reconciliation metadata
-- [ ] Support partial online payment versus amount due at event
-- [ ] Add payment-state logging, failure handling, and idempotency safeguards
+- [x] Add Stripe configuration and environment requirements
+- [x] Define 0 percent, deposit, and full-payment collection rules
+- [x] Create Stripe Checkout Session creation flow
+- [x] Add success and cancel return handling
+- [x] Add webhook handling as the final payment source of truth
+- [x] Store payment references and reconciliation metadata
+- [x] Support partial online payment versus amount due at event
+- [x] Add payment-state logging, failure handling, and idempotency safeguards
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-05 22:11 CEST` Completed the mandatory onboarding read-through in the required order, including the phase tracker, patch-note history, architecture bundle, business-rules notes, transformation plan, and Passreserve.com language guide.
+- `2026-04-05 22:11 CEST` Selected Phase 09 as the active implementation slice because the prior handoff completed Phase 08 and the next documented milestone is payments, Stripe Checkout, and payment reconciliation.
+- `2026-04-05 22:11 CEST` Beginning Phase 09 by inspecting the current registration flow, shared Passreserve.com payment math, and route structure to add Stripe-aware confirmation, return handling, and webhook-backed payment truth without skipping the existing hold-and-confirm lifecycle.
+- `2026-04-05 22:47 CEST` Added the Phase 09 payment layer across the registration engine and attendee routes: Stripe environment requirements, live-versus-preview Checkout session creation, pending-payment payloads, success and cancel return routes, checkout resume handling, and finalized payment-state copy for zero-online, deposit, and fully online collection cases.
+- `2026-04-05 22:47 CEST` Added the Stripe webhook verification endpoint plus structured Phase 09 payment logging, stored provider session and reconciliation metadata inside the signed registration lifecycle payloads, and threaded payment fingerprints through Checkout metadata as a lightweight idempotency safeguard for the current sample-data architecture.
+- `2026-04-05 22:47 CEST` Verified Phase 09 locally with `npm run build`, `npm run start -- --port 3001`, headed browser checks of the paid and zero-online attendee flows, a webhook fallback POST to `/api/stripe/webhooks`, and a `/favicon.ico` redirect fix so browser verification no longer emits a false 404.
 
 ---
 
