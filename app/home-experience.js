@@ -118,8 +118,8 @@ export default function HomeExperience() {
             </p>
             <p>
               The homepage now hands off directly to live organizer hubs, featured event
-              pages, and the Phase 08 registration flow, while later work adds the Stripe
-              payment handoff on top of the same occurrence-first model.
+              pages, and the Phase 09 registration flow, including the payment handoff
+              layered on top of the same occurrence-first model.
             </p>
 
             <div className="search-lab">
@@ -521,8 +521,8 @@ export default function HomeExperience() {
 
         <footer className="footer">
           <span>
-            Phase 05 discovery now feeds live Phase 08 organizer hubs, featured event pages,
-            and attendee registration routes.
+            Discovery now feeds live Phase 09 organizer hubs, featured event pages,
+            attendee registration routes, and payment handoff states.
           </span>
           <a href="#discover">Return to discovery</a>
         </footer>

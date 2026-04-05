@@ -306,6 +306,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-05 22:47 CEST` Added the Phase 09 payment layer across the registration engine and attendee routes: Stripe environment requirements, live-versus-preview Checkout session creation, pending-payment payloads, success and cancel return routes, checkout resume handling, and finalized payment-state copy for zero-online, deposit, and fully online collection cases.
 - `2026-04-05 22:47 CEST` Added the Stripe webhook verification endpoint plus structured Phase 09 payment logging, stored provider session and reconciliation metadata inside the signed registration lifecycle payloads, and threaded payment fingerprints through Checkout metadata as a lightweight idempotency safeguard for the current sample-data architecture.
 - `2026-04-05 22:47 CEST` Verified Phase 09 locally with `npm run build`, `npm run start -- --port 3001`, headed browser checks of the paid and zero-online attendee flows, a webhook fallback POST to `/api/stripe/webhooks`, and a `/favicon.ico` redirect fix so browser verification no longer emits a false 404.
+- `2026-04-05 22:50 CEST` Committed the initial Phase 09 implementation as `fed77ab00f694cc3ab626294b8cea0700d19d0db`, pushed `main`, and verified through the Vercel integration that deployment `dpl_5aZ7WJnWfThrC1iZN5akBjoKqb4z` reached `READY` on the production aliases including `passreserve.vercel.app`.
+- `2026-04-05 22:52 CEST` Production verification surfaced a stale Phase 08 metric and footer string on the homepage, so a follow-up Phase 09 consistency fix is being shipped immediately to keep the public Passreserve.com landing page aligned with the live payment phase.
 
 ---
 

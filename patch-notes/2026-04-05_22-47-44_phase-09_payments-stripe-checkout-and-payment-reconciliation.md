@@ -51,13 +51,17 @@
 
 ## Vercel deployment status
 
-- Pending final push from this Phase 09 closeout. Update this section after the push-triggered deployment is checked through the Vercel integration.
+- Verified via the Vercel integration after pushing commit `fed77ab00f694cc3ab626294b8cea0700d19d0db`.
+- Deployment `dpl_5aZ7WJnWfThrC1iZN5akBjoKqb4z` for commit `fed77ab00f694cc3ab626294b8cea0700d19d0db` reached `READY`.
+- Observed production aliases included `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
+- A small follow-up homepage consistency fix is being pushed immediately after this first successful Phase 09 rollout because production verification exposed a stale Phase 08 metric and footer string on `/`.
 
 ## Problems and risks
 
 - The current Passreserve.com payment flow is still built on signed sample-data payloads rather than a durable database, so webhook verification and Checkout success returns can log trusted provider metadata but do not persist reconciliation into a long-lived payment table yet.
 - Live Stripe Checkout code paths are implemented but were verified in preview mode only on `2026-04-05` because `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_CURRENCY_DEFAULT`, and `NEXT_PUBLIC_BASE_URL` are not configured in the local environment.
 - The payment fingerprint metadata is a useful lightweight safeguard for the current token-based flow, but durable idempotency and replay protection will still matter once real persistence and background reconciliation are introduced.
+- The first production verification pass also revealed a homepage copy mismatch where the root page still displayed a Phase 08 metric and footer even though the Phase 09 payment flow was live; that content correction is intentionally being shipped as an immediate follow-up.
 
 ## Notes for the next AI agent
 
