@@ -45,8 +45,14 @@
 
 ## Vercel deployment status
 
-- Final Git commit, push, and Vercel deployment verification are still in progress in this session.
-- This patch note will be updated after the final push-triggered Vercel deployment is checked.
+- Verified via the Vercel integration after pushing commit `1351c26c94ba020b520217e0620c809b174e20c2`.
+- Deployment `dpl_2kmGhB24QK6McDMR4PxXzFur2jVZ` for commit `1351c26c94ba020b520217e0620c809b174e20c2` reached `READY`.
+- Observed production aliases included `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
+
+## Commit and push status
+
+- Commit created successfully: `1351c26c94ba020b520217e0620c809b174e20c2`
+- Push completed successfully: `origin/main`
 
 ## Problems and risks
 

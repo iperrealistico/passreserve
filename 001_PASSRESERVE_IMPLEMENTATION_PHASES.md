@@ -276,6 +276,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-05 21:08 CEST` Added new attendee routes at `/{slug}/events/[eventSlug]/register`, `/{slug}/events/[eventSlug]/register/confirm/[holdToken]`, and `/{slug}/events/[eventSlug]/register/confirmed/[confirmationToken]`, then updated the homepage, organizer hubs, and event detail pages so public CTAs now open the live registration flow instead of phase-placeholder messaging.
 - `2026-04-05 21:15 CEST` Verified Phase 08 locally with `npm run build`, built-server HTTP checks for `/`, `/alpine-trail-lab/events/sunrise-ridge-session`, and `/alpine-trail-lab/events/sunrise-ridge-session/register?occurrence=atl-sunrise-2026-04-18`, plus a Playwright browser flow that created a hold, reached the confirmation page, confirmed the registration, and landed on the final confirmed page with generated code `PR-04D64A5F94`.
 - `2026-04-05 21:16 CEST` Recorded patch note `patch-notes/2026-04-05_21-16-41_phase-08_registration-flow-and-capacity-engine.md`; Git commit, push, and Vercel verification are being completed next in this session.
+- `2026-04-05 21:17 CEST` Created commit `1351c26c94ba020b520217e0620c809b174e20c2` with message `feat: add passreserve registration flow` and pushed `main` successfully to `origin`.
+- `2026-04-05 21:18 CEST` Verified through the Vercel integration that deployment `dpl_2kmGhB24QK6McDMR4PxXzFur2jVZ` for commit `1351c26c94ba020b520217e0620c809b174e20c2` reached `READY`, including the production aliases `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ---
 
