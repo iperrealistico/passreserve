@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import {
@@ -12,11 +13,11 @@ import {
   organizerLaunchSteps,
   organizerLaunchWindows,
   organizerPaymentModels,
-  phaseDiscovery,
   publicNavigation,
   publicNavigationBlueprint,
   searchPrinciples
 } from "../lib/passreserve-domain";
+import { publicOrganizerPhase } from "../lib/passreserve-public";
 
 const initialJoinRequest = {
   contact: "",
@@ -107,7 +108,7 @@ export default function HomeExperience() {
           <article className="panel hero-copy hero-stack">
             <span className="eyebrow">
               <span className="eyebrow-dot" aria-hidden="true" />
-              {phaseDiscovery.label} active
+              {publicOrganizerPhase.label} live
             </span>
             <h1>Find the right organizer, city, or event before the first click.</h1>
             <p>
@@ -116,9 +117,9 @@ export default function HomeExperience() {
               can understand the launch path without wading through rental-era language.
             </p>
             <p>
-              This phase defines the public IA that later organizer pages, event detail routes,
-              and registration flows will inherit: organizer-first hubs, occurrence-first
-              discovery, and clear payment framing from the start.
+              The homepage now hands off directly to live organizer hubs and featured event
+              pages, while later phases will add the registration and payment flow on top of
+              the same occurrence-first discovery model.
             </p>
 
             <div className="search-lab">
@@ -182,8 +183,8 @@ export default function HomeExperience() {
           <aside className="panel hero-aside launch-aside" aria-label="Phase summary">
             <div className="status-block">
               <div className="status-label">Current build layer</div>
-              <h2>{phaseDiscovery.title}</h2>
-              <p>{phaseDiscovery.summary}</p>
+              <h2>{publicOrganizerPhase.title}</h2>
+              <p>{publicOrganizerPhase.summary}</p>
             </div>
 
             <div className="metrics" aria-label="Phase metrics">
@@ -299,14 +300,26 @@ export default function HomeExperience() {
                           <span className="route-label">Organizer route</span>
                           <strong>{formatOrganizerRoute(selectedEntry)}</strong>
                           <p>{selectedEntry.organizerNote}</p>
+                          <Link
+                            className="button button-secondary route-button"
+                            href={formatOrganizerRoute(selectedEntry)}
+                          >
+                            Open organizer page
+                          </Link>
                         </div>
                         <div className="route-card">
                           <span className="route-label">Event route</span>
                           <strong>{formatEventRoute(selectedEntry)}</strong>
                           <p>
-                            Event pages can now take over for photos, long description, policies,
+                            Event pages now take over for photos, long description, policies,
                             payment explanation, and upcoming occurrence selection.
                           </p>
+                          <Link
+                            className="button button-secondary route-button"
+                            href={formatEventRoute(selectedEntry)}
+                          >
+                            Open event page
+                          </Link>
                         </div>
                       </div>
                     </div>
@@ -508,8 +521,7 @@ export default function HomeExperience() {
 
         <footer className="footer">
           <span>
-            Phase 05 shifts Passreserve.com from a domain-foundation page into a public
-            discovery and organizer launch surface.
+            Phase 05 discovery now feeds live Phase 06 organizer hubs and featured event pages.
           </span>
           <a href="#discover">Return to discovery</a>
         </footer>

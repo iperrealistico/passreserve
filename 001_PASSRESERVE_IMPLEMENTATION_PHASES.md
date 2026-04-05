@@ -193,23 +193,30 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 06: Organizer public pages and event detail experience
 
-**Status:** `NOT STARTED`
+**Status:** `DONE`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-05_18-58-16_phase-06_organizer-public-pages-and-event-details.md`
 
 **Checklist**
 
-- [ ] Transform the public organizer page from booking storefront into event hub
-- [ ] Define organizer hero, description, venue info, and organizer contact presentation
-- [ ] Build or adapt event list and featured event presentation
-- [ ] Add event detail pages and route structure
-- [ ] Surface yearly or upcoming occurrences on organizer and event pages
-- [ ] Add attendee-facing policy, FAQ, and event-specific content blocks
-- [ ] Ensure the public experience supports photos, descriptions, and event-specific calls to action
+- [x] Transform the public organizer page from booking storefront into event hub
+- [x] Define organizer hero, description, venue info, and organizer contact presentation
+- [x] Build or adapt event list and featured event presentation
+- [x] Add event detail pages and route structure
+- [x] Surface yearly or upcoming occurrences on organizer and event pages
+- [x] Add attendee-facing policy, FAQ, and event-specific content blocks
+- [x] Ensure the public experience supports photos, descriptions, and event-specific calls to action
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-05 18:43 CEST` Completed the mandatory onboarding read-through in the required order, including the phase tracker, patch-note history, architecture bundle, data-model notes, transformation plan, and Passreserve.com language guide.
+- `2026-04-05 18:43 CEST` Selected Phase 06 as the active implementation slice because the prior handoff completed Phase 05 and the next documented milestone is the organizer public-page and event-detail experience.
+- `2026-04-05 18:43 CEST` Beginning Phase 06 by inspecting the active root workspace and shared Passreserve.com domain module to transform the public organizer route into an event hub and add dedicated event detail routes with occurrence-driven content.
+- `2026-04-05 18:54 CEST` Added a shared `lib/passreserve-public.js` source of truth for organizer hubs, event detail content, dated occurrences, venue/contact data, attendee-facing FAQ and policy blocks, and event-specific CTA links.
+- `2026-04-05 18:54 CEST` Built live organizer public pages at `/{slug}` and event detail routes at `/{slug}/events/[eventSlug]`, then rewired the Phase 05 homepage to open the new routes directly from discovery results.
+- `2026-04-05 18:57 CEST` Extended the global styles for organizer heroes, event lineup cards, occurrence lists, venue/contact sections, FAQ/policy blocks, photo-story support, and phase-close CTA bands across desktop and mobile layouts.
+- `2026-04-05 18:57 CEST` Verified the Phase 06 implementation locally with `npm run build`, plus `npm run dev` HTTP checks for `/`, `/alpine-trail-lab`, `/alpine-trail-lab/events/sunrise-ridge-session`, and a missing route that correctly returned `404`.
+- `2026-04-05 18:58 CEST` Marked Phase 06 complete and recorded patch note `patch-notes/2026-04-05_18-58-16_phase-06_organizer-public-pages-and-event-details.md`; Git commit, push, and Vercel verification are being completed next in this session.
 
 ---
 

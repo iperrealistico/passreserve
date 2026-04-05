@@ -10,13 +10,13 @@ export default function NotFound() {
         </span>
         <h1>This page is not live yet.</h1>
         <p>
-          The Passreserve.com rollout is being implemented in phases, and this route
-          has not been published yet. The discovery surface is now live, but the
-          deeper organizer and event routes are still taking shape.
+          The Passreserve.com rollout is being implemented in phases. Organizer hubs
+          and featured event pages are now live, but this specific route has not been
+          published yet.
         </p>
         <div className="hero-actions" style={{ justifyContent: "center" }}>
           <Link className="button button-primary" href="/">
-            Return to the homepage
+            Return to discovery
           </Link>
         </div>
       </section>
