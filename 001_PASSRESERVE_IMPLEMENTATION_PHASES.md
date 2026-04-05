@@ -343,23 +343,29 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 11: Super-admin adaptation, CMS, emails, and platform operations
 
-**Status:** `NOT STARTED`
+**Status:** `DONE`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-05_23-36-34_phase-11_platform-admin-cms-and-ops.md`
 
 **Checklist**
 
-- [ ] Rename and adapt tenant-management flows into organizer-management flows
-- [ ] Update super-admin listings, detail pages, and support actions
-- [ ] Update global settings, SEO, and platform branding references
-- [ ] Adapt the about/CMS content to the event-platform story
-- [ ] Update email template scenarios for registrations, payments, organizers, and operations
-- [ ] Ensure signup requests, logs, and health pages remain useful in the new product
-- [ ] Review admin auth copy and platform-wide operational terminology
+- [x] Rename and adapt tenant-management flows into organizer-management flows
+- [x] Update super-admin listings, detail pages, and support actions
+- [x] Update global settings, SEO, and platform branding references
+- [x] Adapt the about/CMS content to the event-platform story
+- [x] Update email template scenarios for registrations, payments, organizers, and operations
+- [x] Ensure signup requests, logs, and health pages remain useful in the new product
+- [x] Review admin auth copy and platform-wide operational terminology
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-05 23:22 CEST` Completed the mandatory onboarding read-through in the required order, including the phase tracker, patch-note history, architecture bundle, transformation plan, and Passreserve.com language guide.
+- `2026-04-05 23:22 CEST` Selected Phase 11 as the active implementation slice because the prior handoff completed Phase 10 and the next unfinished milestone is the super-admin adaptation, CMS, emails, and platform operations layer.
+- `2026-04-05 23:22 CEST` Beginning Phase 11 by inspecting the current Passreserve.com `app/admin` surfaces, shared platform modules, and public CMS/email copy to replace remaining rental-era global-admin language with organizer, event, registration, and payment operations.
+- `2026-04-05 23:31 CEST` Added `lib/passreserve-platform.js` as the shared Phase 11 source of truth, then built the missing platform-admin route map at `/admin`, `/admin/login`, `/admin/organizers`, `/admin/organizers/[slug]`, `/admin/settings`, `/admin/about`, `/admin/emails`, `/admin/logs`, `/admin/health`, plus a new public `/about` route for the Passreserve.com story.
+- `2026-04-05 23:31 CEST` Updated the homepage, global metadata, discovery metrics, and not-found messaging so the live app now advertises organizer admin and platform-admin surfaces instead of stopping at the earlier payment-phase framing.
+- `2026-04-05 23:35 CEST` Verified Phase 11 locally with `npm run build`, `npm run start -- --port 3201`, HTTP content checks for `/`, `/about`, `/admin/login`, `/admin`, `/admin/settings`, `/admin/about`, `/admin/emails`, `/admin/logs`, `/admin/health`, `/admin/organizers/alpine-trail-lab`, and `/not-a-live-route` returning `404`.
+- `2026-04-05 23:36 CEST` Marked Phase 11 complete and recorded patch note `patch-notes/2026-04-05_23-36-34_phase-11_platform-admin-cms-and-ops.md`; Git commit, push, and Vercel verification are being completed next in this session.
 
 ---
 

@@ -17,7 +17,7 @@ import {
   publicNavigationBlueprint,
   searchPrinciples
 } from "../lib/passreserve-domain";
-import { registrationFlowPhase } from "../lib/passreserve-registrations";
+import { platformAdminPhase } from "../lib/passreserve-platform";
 
 const initialJoinRequest = {
   contact: "",
@@ -92,7 +92,7 @@ export default function HomeExperience() {
           <div className="wordmark">
             <span className="wordmark-name">Passreserve.com</span>
             <span className="wordmark-tag">
-              Event discovery, registration deposits, and organizer operations
+              Event discovery, registration deposits, organizer admin, and platform operations
             </span>
           </div>
           <nav className="nav" aria-label="Primary">
@@ -101,6 +101,8 @@ export default function HomeExperience() {
                 {item.label}
               </a>
             ))}
+            <Link href="/about">About</Link>
+            <Link href="/admin/login">Platform admin</Link>
           </nav>
         </header>
 
@@ -108,7 +110,7 @@ export default function HomeExperience() {
           <article className="panel hero-copy hero-stack">
             <span className="eyebrow">
               <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} live
+              {platformAdminPhase.label} live
             </span>
             <h1>Find the right organizer, city, or event before the first click.</h1>
             <p>
@@ -118,8 +120,8 @@ export default function HomeExperience() {
             </p>
             <p>
               The homepage now hands off directly to live organizer hubs, featured event
-              pages, and the Phase 09 registration flow, including the payment handoff
-              layered on top of the same occurrence-first model.
+              pages, organizer-admin routes, and the platform-admin layer, while the same
+              occurrence-first registration and payment flow stays intact underneath.
             </p>
 
             <div className="search-lab">
@@ -183,8 +185,8 @@ export default function HomeExperience() {
           <aside className="panel hero-aside launch-aside" aria-label="Phase summary">
             <div className="status-block">
               <div className="status-label">Current build layer</div>
-              <h2>{registrationFlowPhase.title}</h2>
-              <p>{registrationFlowPhase.summary}</p>
+              <h2>{platformAdminPhase.title}</h2>
+              <p>{platformAdminPhase.summary}</p>
             </div>
 
             <div className="metrics" aria-label="Phase metrics">
@@ -521,8 +523,8 @@ export default function HomeExperience() {
 
         <footer className="footer">
           <span>
-            Discovery now feeds live Phase 09 organizer hubs, featured event pages,
-            attendee registration routes, and payment handoff states.
+            Discovery now feeds live organizer hubs, attendee registration routes, organizer-admin
+            operations, and the new platform-admin surfaces.
           </span>
           <a href="#discover">Return to discovery</a>
         </footer>
