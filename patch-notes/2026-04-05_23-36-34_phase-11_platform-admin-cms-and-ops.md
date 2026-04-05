@@ -49,19 +49,20 @@
 
 ## Vercel deployment status
 
-- Pending final update in this session until the Phase 11 commit is created and pushed.
-- Local build and built-server verification completed successfully before the Git close-out steps.
+- Verified via the Vercel integration after pushing commit `d85b4745920624460ac990db1a1ac4c2aee7da32`.
+- Deployment `dpl_ACZELkB3tjMr7cN2PdvvCCZzxrxA` for commit `d85b4745920624460ac990db1a1ac4c2aee7da32` reached `READY`.
+- Observed production aliases included `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ## Problems and risks
 
 - The new platform-admin layer is intentionally sample-data driven, so organizer management, CMS, and email workflows are illustrative surfaces rather than persisted mutations.
 - Local Stripe verification remains preview-only because live Stripe secrets are not configured in this environment.
-- Final Vercel deployment verification still depends on the post-push step; this note must be updated with the real deployment result before handoff closes.
+- The platform-admin surfaces are complete for this phase, but later phases still need to connect real persistence and auth to these routes instead of relying on shared in-repo data.
 
 ## Commit and push status
 
-- Commit created successfully: `pending`
-- Push completed successfully: `pending`
+- Commit created successfully: `d85b4745920624460ac990db1a1ac4c2aee7da32`
+- Push completed successfully: `origin/main`
 
 ## Notes for the next AI agent
 

@@ -366,6 +366,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-05 23:31 CEST` Updated the homepage, global metadata, discovery metrics, and not-found messaging so the live app now advertises organizer admin and platform-admin surfaces instead of stopping at the earlier payment-phase framing.
 - `2026-04-05 23:35 CEST` Verified Phase 11 locally with `npm run build`, `npm run start -- --port 3201`, HTTP content checks for `/`, `/about`, `/admin/login`, `/admin`, `/admin/settings`, `/admin/about`, `/admin/emails`, `/admin/logs`, `/admin/health`, `/admin/organizers/alpine-trail-lab`, and `/not-a-live-route` returning `404`.
 - `2026-04-05 23:36 CEST` Marked Phase 11 complete and recorded patch note `patch-notes/2026-04-05_23-36-34_phase-11_platform-admin-cms-and-ops.md`; Git commit, push, and Vercel verification are being completed next in this session.
+- `2026-04-05 23:38 CEST` Created phase-close commit `d85b4745920624460ac990db1a1ac4c2aee7da32` with message `feat: add passreserve platform admin layer` and pushed `main` successfully to `origin`.
+- `2026-04-05 23:38 CEST` Verified through the Vercel integration that deployment `dpl_ACZELkB3tjMr7cN2PdvvCCZzxrxA` for commit `d85b4745920624460ac990db1a1ac4c2aee7da32` reached `READY`, including the production aliases `passreserve.vercel.app` and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ---
 
