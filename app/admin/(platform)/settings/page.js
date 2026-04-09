@@ -1,20 +1,24 @@
-import { platformHealth, siteSettingsSnapshot } from "../../../../lib/passreserve-platform";
+import {
+  getPlatformHealth,
+  siteSettingsSnapshot
+} from "../../../../lib/passreserve-platform";
 
 export const metadata = {
   title: "Platform settings"
 };
 
-export default function PlatformSettingsPage() {
+export default async function PlatformSettingsPage() {
+  const platformHealth = await getPlatformHealth();
+
   return (
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Global settings</div>
-          <h2>Brand, SEO, delivery endpoints, and deployment rules now match Passreserve.com.</h2>
+          <div className="section-kicker">Settings</div>
+          <h2>Brand, contact points, and checkout status stay aligned.</h2>
           <p>
-            Phase 11 reintroduces the platform-settings surface in event language. Metadata,
-            support inboxes, Stripe readiness, and Vercel identifiers now sit beside the
-            operational rule that every push must be verified on the real deployment target.
+            This screen keeps the site name, metadata, inboxes, and checkout status together so
+            public pages and team replies stay consistent.
           </p>
         </article>
 
@@ -33,7 +37,7 @@ export default function PlatformSettingsPage() {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">SEO and brand</div>
-        <h3>Public-facing references are now platform-accurate.</h3>
+        <h3>Public-facing references stay aligned.</h3>
         <div className="admin-preview-grid">
           <div className="admin-preview-panel">
             <span className="route-label">Site title</span>
@@ -55,19 +59,19 @@ export default function PlatformSettingsPage() {
 
       <section className="admin-grid">
         <article className="panel section-card admin-section admin-section-wide">
-          <div className="section-kicker">Operations contacts</div>
-          <h3>Platform communication rules are explicit.</h3>
+          <div className="section-kicker">Team contacts</div>
+          <h3>Who receives what.</h3>
           <div className="admin-note-list">
             <div className="admin-note-item">
-              <strong>Platform support</strong>
+              <strong>Support email</strong>
               <p>{siteSettingsSnapshot.operations.platformEmail}</p>
             </div>
             <div className="admin-note-item">
-              <strong>Organizer launch inbox</strong>
+              <strong>Host request inbox</strong>
               <p>{siteSettingsSnapshot.operations.launchInbox}</p>
             </div>
             <div className="admin-note-item">
-              <strong>Admin notifications</strong>
+              <strong>Alert inbox</strong>
               <p>{siteSettingsSnapshot.operations.adminNotifications}</p>
             </div>
             <div className="admin-note-item">
@@ -79,8 +83,8 @@ export default function PlatformSettingsPage() {
 
         <aside className="admin-page">
           <article className="panel section-card admin-section">
-            <div className="section-kicker">Verification rule</div>
-            <h3>Deployment checks stay non-negotiable.</h3>
+            <div className="section-kicker">Live-site check</div>
+            <h3>Live confirmation stays part of the routine.</h3>
             <p>{siteSettingsSnapshot.operations.deploymentRule}</p>
           </article>
         </aside>
@@ -88,7 +92,7 @@ export default function PlatformSettingsPage() {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Stripe environment</div>
-        <h3>Payment readiness is visible from platform settings.</h3>
+        <h3>Checkout status is visible before launch claims are made.</h3>
         <div className="admin-card-grid">
           {siteSettingsSnapshot.stripe.requirements.map((requirement) => (
             <article className="admin-card" key={requirement.key}>
@@ -111,7 +115,7 @@ export default function PlatformSettingsPage() {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Health cross-check</div>
-        <h3>Settings now connect directly to operational status.</h3>
+        <h3>Settings connect directly to current service status.</h3>
         <div className="timeline">
           {platformHealth.checks.map((check) => (
             <div className="timeline-step" key={check.title}>

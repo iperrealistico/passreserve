@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-import { platformAdminPhase, siteSettingsSnapshot } from "../../../lib/passreserve-platform";
+import { siteSettingsSnapshot } from "../../../lib/passreserve-platform";
 
 export const metadata = {
-  title: "Platform admin login"
+  title: "Team sign in"
 };
 
 export default function PlatformAdminLoginPage() {
@@ -16,7 +16,7 @@ export default function PlatformAdminLoginPage() {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Super-admin adaptation, CMS, emails, and platform operations
+              Staff tools for host requests, emails, settings, and service status
             </span>
           </div>
           <nav className="nav" aria-label="Platform login navigation">
@@ -27,38 +27,33 @@ export default function PlatformAdminLoginPage() {
 
         <section className="hero">
           <article className="panel hero-copy hero-stack">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {platformAdminPhase.label} live
-            </span>
-            <h1>Platform admins now enter Passreserve.com in event terms.</h1>
+            <span className="eyebrow">Staff access</span>
+            <h1>Sign in to the Passreserve team dashboard.</h1>
             <p>
-              This sample-data workspace does not persist real super-admin credentials, so the
-              login route focuses on the copy, routing, and operational framing that the real
-              platform layer will need.
+              Use this entry when you review host requests, manage settings, check emails, or
+              monitor service status across Passreserve.com.
             </p>
             <p>
-              The important shift is already here: organizers replace tenants, registrations
-              replace bookings, and the platform-admin layer now connects settings, CMS, emails,
-              logs, and health checks without rental-era language.
+              Visitors should stay on host and event pages. This area is for the team supporting
+              hosts behind the scenes.
             </p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/admin">
-                Enter platform admin
+                Open team dashboard
               </Link>
               <Link className="button button-secondary" href="/about">
-                Review public story
+                Read about Passreserve
               </Link>
             </div>
           </article>
 
           <aside className="panel hero-aside">
             <div className="status-block">
-              <div className="status-label">Platform access note</div>
-              <h2>Auth copy reviewed</h2>
+              <div className="status-label">Support notes</div>
+              <h2>One place for host requests, emails, and service status</h2>
               <p>
-                The live message now describes platform-admin access, organizer support, and
-                deployment responsibility instead of singleton super-admin or tenant terminology.
+                Access is organized around host requests, settings, email delivery, and service
+                status.
               </p>
             </div>
 
@@ -66,23 +61,23 @@ export default function PlatformAdminLoginPage() {
               <div className="status-item">
                 <span className="status-index">1</span>
                 <div>
-                  <strong>Operations inbox</strong>
-                  Organizer requests route to {siteSettingsSnapshot.operations.launchInbox}.
+                  <strong>Host request inbox</strong>
+                  New host requests are sent to {siteSettingsSnapshot.operations.launchInbox}.
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">2</span>
                 <div>
-                  <strong>Platform notifications</strong>
-                  Deployment, email, and health follow-up route to{" "}
+                  <strong>Team alerts</strong>
+                  Deployment, email, and health follow-up go to{" "}
                   {siteSettingsSnapshot.operations.adminNotifications}.
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">3</span>
                 <div>
-                  <strong>Verification rule</strong>
-                  Every completed phase still needs post-push Vercel verification before handoff.
+                  <strong>Response target</strong>
+                  {siteSettingsSnapshot.operations.supportResponseTarget}
                 </div>
               </div>
             </div>

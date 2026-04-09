@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 import {
-  getRegistrationPaymentCancellationView,
-  registrationFlowPhase
+  getRegistrationPaymentCancellationView
 } from "../../../../../../../../lib/passreserve-registrations";
 import ResumePaymentForm from "./resume-payment-form";
 
@@ -28,10 +27,7 @@ function CancellationStatePanel({ view }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} payment state
-            </span>
+            <span className="eyebrow">Payment</span>
             <h1>{view.title}</h1>
             <p>{view.message}</p>
             <div className="hero-actions">
@@ -75,22 +71,19 @@ export default async function RegistrationPaymentCancelPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Pending payment follow-up and Checkout recovery
+              Resume your payment without re-entering your registration
             </span>
           </div>
           <nav className="nav" aria-label="Pending payment navigation">
-            <Link href={view.organizer.organizerHref}>Organizer hub</Link>
+            <Link href={view.organizer.organizerHref}>Host page</Link>
             <Link href={view.event.detailHref}>Event page</Link>
-            <Link href={view.restartHref}>Registration flow</Link>
+            <Link href={view.restartHref}>Registration</Link>
           </nav>
         </header>
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} payment pending
-            </span>
+            <span className="eyebrow">Payment still pending</span>
             <div className="breadcrumb">
               <Link href={view.organizer.organizerHref}>{view.organizer.name}</Link>
               <span>/</span>
@@ -103,9 +96,8 @@ export default async function RegistrationPaymentCancelPage({ params }) {
             </div>
             <h1>The registration is confirmed, but the online amount still needs to be completed.</h1>
             <p>
-              The attendee already cleared the confirmation checklist, so the registration code
-              and selected occurrence are reserved. Reopen Checkout below to collect the online
-              amount or return to the event page to start over.
+              Your registration is already confirmed. If you still want this date, reopen the
+              payment step below and finish the online amount.
             </p>
             <div className="pill-list">
               <span className="pill">{view.registrationCode}</span>
@@ -116,12 +108,11 @@ export default async function RegistrationPaymentCancelPage({ params }) {
 
           <aside className="panel hero-aside public-hero-aside">
             <div className="status-block">
-              <div className="status-label">Checkout mode</div>
-              <h2>{view.environment.mode}</h2>
+              <div className="status-label">Payment status</div>
+              <h2>{view.payment.onlineAmountLabel} outstanding</h2>
               <p>
-                {view.environment.mode === "preview"
-                  ? "This environment reopens the local preview route because live Stripe keys are not configured."
-                  : "Reopening Checkout creates a fresh hosted Stripe session tied to the same registration code."}
+                Reopening payment creates a fresh secure session tied to the same registration
+                code.
               </p>
             </div>
 
@@ -149,7 +140,7 @@ export default async function RegistrationPaymentCancelPage({ params }) {
         <section className="registration-grid">
           <article className="panel section-card registration-flow-card">
             <div className="section-kicker">Pending payment summary</div>
-            <h2>Keep the same registration while reopening payment</h2>
+            <h2>Keep the same registration while reopening payment.</h2>
             <div className="registration-review-grid">
               <div className="registration-review-card">
                 <span className="spotlight-label">Ticket</span>
@@ -162,8 +153,8 @@ export default async function RegistrationPaymentCancelPage({ params }) {
                 <span>{view.attendee.email}</span>
               </div>
               <div className="registration-review-card">
-                <span className="spotlight-label">Payment mode</span>
-                <strong>{view.environment.mode}</strong>
+                <span className="spotlight-label">Registration code</span>
+                <strong>{view.registrationCode}</strong>
                 <span>{view.registrationCode}</span>
               </div>
             </div>
@@ -198,7 +189,7 @@ export default async function RegistrationPaymentCancelPage({ params }) {
 
           <aside className="panel section-card registration-aside">
             <div className="section-kicker">Next steps</div>
-            <h3>What reopening Checkout will do</h3>
+            <h3>What happens if you reopen payment</h3>
             <div className="registration-rule-list">
               <div className="registration-rule-item">
                 <strong>Same registration code</strong>
@@ -212,9 +203,9 @@ export default async function RegistrationPaymentCancelPage({ params }) {
                 </span>
               </div>
               <div className="registration-rule-item">
-                <strong>Fresh provider session</strong>
+                <strong>Fresh checkout link</strong>
                 <span>
-                  Passreserve.com creates a new provider handoff without making the attendee redo
+                  Passreserve.com creates a new checkout link without making the attendee redo
                   the original confirmation checklist.
                 </span>
               </div>
@@ -222,7 +213,7 @@ export default async function RegistrationPaymentCancelPage({ params }) {
 
             <div className="hero-actions">
               <Link className="button button-secondary" href={view.restartHref}>
-                Start over from the event page
+                Back to registration
               </Link>
             </div>
           </aside>

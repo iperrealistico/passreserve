@@ -1,9 +1,34 @@
 import Link from "next/link";
 
 import {
-  getConfirmedRegistrationView,
-  registrationFlowPhase
+  getConfirmedRegistrationView
 } from "../../../../../../../lib/passreserve-registrations";
+
+function formatRegistrationStatus(status) {
+  switch (status) {
+    case "CONFIRMED_PAID":
+      return "Paid in full";
+    case "CONFIRMED_PARTIALLY_PAID":
+      return "Deposit paid";
+    case "CONFIRMED_UNPAID":
+      return "Payment due at event";
+    default:
+      return "Confirmed";
+  }
+}
+
+function formatPaymentStatus(status) {
+  switch (status) {
+    case "PAID":
+      return "Paid online";
+    case "PARTIALLY_PAID":
+      return "Partially paid online";
+    case "NONE":
+      return "No online payment";
+    default:
+      return "Payment updated";
+  }
+}
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, confirmationToken } = await params;
@@ -27,10 +52,7 @@ function ConfirmationStatePanel({ view }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} confirmation state
-            </span>
+            <span className="eyebrow">Registration</span>
             <h1>{view.title}</h1>
             <p>{view.message}</p>
             <div className="hero-actions">
@@ -62,21 +84,18 @@ export default async function RegistrationConfirmedPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Confirmed attendee state, lifecycle summary, and generated registration code
+              Registration confirmed and ready for your next step
             </span>
           </div>
           <nav className="nav" aria-label="Confirmed registration navigation">
-            <Link href={view.organizer.organizerHref}>Organizer hub</Link>
+            <Link href={view.organizer.organizerHref}>Host page</Link>
             <Link href={view.event.detailHref}>Event page</Link>
           </nav>
         </header>
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} confirmed state
-            </span>
+            <span className="eyebrow">You&apos;re in</span>
             <div className="breadcrumb">
               <Link href={view.organizer.organizerHref}>{view.organizer.name}</Link>
               <span>/</span>
@@ -90,8 +109,8 @@ export default async function RegistrationConfirmedPage({ params }) {
             <h1>{view.headline}</h1>
             <p>{view.nextStep}</p>
             <div className="pill-list">
-              <span className="pill">{view.registrationStatus}</span>
-              <span className="pill">{view.paymentStatus}</span>
+              <span className="pill">{formatRegistrationStatus(view.registrationStatus)}</span>
+              <span className="pill">{formatPaymentStatus(view.paymentStatus)}</span>
               <span className="pill">{view.paymentProvider.label}</span>
               <span className="pill">{view.quantityLabel}</span>
             </div>
@@ -102,8 +121,7 @@ export default async function RegistrationConfirmedPage({ params }) {
               <div className="status-label">Registration code</div>
               <h2>{view.registrationCode}</h2>
               <p>
-                Keep this code as the attendee-facing reference for organizer operations,
-                payment follow-up, and check-in tracking.
+                Keep this code handy for event-day check-in and any updates from the host.
               </p>
             </div>
 
@@ -131,13 +149,13 @@ export default async function RegistrationConfirmedPage({ params }) {
         <section className="registration-grid">
           <article className="panel section-card registration-flow-card">
             <div className="section-kicker">Attendee summary</div>
-            <h2>Registration details now have a durable attendee code.</h2>
+            <h2>Your registration details</h2>
 
             <div className="registration-review-grid">
               <div className="registration-review-card registration-review-card-code">
                 <span className="spotlight-label">Registration code</span>
                 <strong>{view.registrationCode}</strong>
-                <span>{view.registrationStatus}</span>
+                <span>{formatRegistrationStatus(view.registrationStatus)}</span>
               </div>
               <div className="registration-review-card">
                 <span className="spotlight-label">Attendee</span>
@@ -191,24 +209,12 @@ export default async function RegistrationConfirmedPage({ params }) {
                 <strong>Payment provider</strong>
                 <span>{view.paymentProvider.label}</span>
               </div>
-              {view.paymentProvider.sessionId ? (
-                <div className="registration-rule-item">
-                  <strong>Checkout session</strong>
-                  <span>{view.paymentProvider.sessionId}</span>
-                </div>
-              ) : null}
-              {view.paymentProvider.paymentIntentId ? (
-                <div className="registration-rule-item">
-                  <strong>Payment intent</strong>
-                  <span>{view.paymentProvider.paymentIntentId}</span>
-                </div>
-              ) : null}
             </div>
           </article>
 
           <aside className="panel section-card registration-aside">
-            <div className="section-kicker">Lifecycle timeline</div>
-            <h3>Where the attendee now sits in the flow</h3>
+            <div className="section-kicker">Next steps</div>
+            <h3>What to keep on hand</h3>
             <div className="registration-rule-list">
               {view.timeline.map((item) => (
                 <div className="registration-rule-item" key={item.title}>
@@ -223,17 +229,14 @@ export default async function RegistrationConfirmedPage({ params }) {
                 Back to the event page
               </Link>
               <Link className="button button-primary" href={view.organizer.organizerHref}>
-                Open organizer hub
+                Open host page
               </Link>
             </div>
           </aside>
         </section>
 
         <footer className="footer">
-          <span>
-            Phase 09 now keeps the attendee lifecycle explicit all the way through payment
-            reconciliation and final registration confirmation.
-          </span>
+          <span>Keep your registration code handy for event-day check-in and updates.</span>
           <Link href={view.event.detailHref}>Return to the event page</Link>
         </footer>
       </div>

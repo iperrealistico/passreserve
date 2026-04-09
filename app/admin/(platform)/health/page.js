@@ -1,21 +1,24 @@
-import { platformHealth, siteSettingsSnapshot } from "../../../../lib/passreserve-platform";
+import {
+  getPlatformHealth,
+  siteSettingsSnapshot
+} from "../../../../lib/passreserve-platform";
 
 export const metadata = {
-  title: "Platform health"
+  title: "Service status"
 };
 
-export default function PlatformHealthPage() {
+export default async function PlatformHealthPage() {
+  const platformHealth = await getPlatformHealth();
+
   return (
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Platform health</div>
-          <h2>Deployment readiness, Stripe clarity, and route coverage stay visible together.</h2>
+          <div className="section-kicker">Service status</div>
+          <h2>Live site status, checkout mode, and request storage stay visible together.</h2>
           <p>
-            This health surface replaces the older rental-era ops framing with checks that matter
-            to Passreserve.com: brand consistency, organizer-route coverage, email scenarios,
-            payment readiness, and the rule that Vercel verification closes the loop after every
-            push.
+            Use this view to confirm host coverage, email readiness, and checkout status before
+            replying to hosts or guests.
           </p>
         </article>
 
@@ -42,7 +45,7 @@ export default function PlatformHealthPage() {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Checks</div>
-        <h3>Platform readiness is explicit instead of implied.</h3>
+        <h3>Service readiness is explicit.</h3>
         <div className="admin-card-grid">
           {platformHealth.checks.map((check) => (
             <article className="admin-card" key={check.title}>
@@ -60,7 +63,7 @@ export default function PlatformHealthPage() {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Known risks</div>
-        <h3>Open caveats stay visible for the next implementation pass.</h3>
+        <h3>Current caveats stay visible to the team.</h3>
         <div className="admin-note-list">
           {platformHealth.risks.map((risk) => (
             <div className="admin-note-item" key={risk.title}>

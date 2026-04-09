@@ -2,31 +2,29 @@ import Link from "next/link";
 
 import {
   getPlatformOverview,
-  platformAdminPhase,
   platformLogCatalog,
   platformOrganizers
 } from "../../../lib/passreserve-platform";
 
 export const metadata = {
-  title: "Platform admin overview"
+  title: "Team dashboard"
 };
 
-export default function PlatformAdminOverviewPage() {
-  const overview = getPlatformOverview();
+export default async function PlatformAdminOverviewPage() {
+  const overview = await getPlatformOverview();
 
   return (
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Platform overview</div>
-          <h2>Organizer support, CMS, and operations now share one platform surface.</h2>
+          <div className="section-kicker">Support overview</div>
+          <h2>Review host requests, keep the site accurate, and monitor service status.</h2>
           <p>
-            {platformAdminPhase.summary} The active Passreserve.com workspace no longer stops at
-            organizer admin. The platform team can now review organizer launches, public story,
-            email scenarios, and health signals from one root-level route map.
+            This dashboard keeps host requests, page content, email readiness, and service checks
+            together so the team can act quickly.
           </p>
           <div className="pill-list">
-            <span className="pill">{overview.summary.organizerCount} organizers</span>
+            <span className="pill">{overview.summary.organizerCount} hosts</span>
             <span className="pill">{overview.summary.occurrenceCount} published occurrences</span>
             <span className="pill">{overview.summary.activeRegistrations} active registrations</span>
             <span className="pill">{overview.summary.onlineCollectedLabel} collected online</span>
@@ -35,11 +33,11 @@ export default function PlatformAdminOverviewPage() {
 
         <aside className="panel hero-aside admin-hero-aside">
           <div className="status-block">
-            <div className="status-label">Current platform pulse</div>
+            <div className="status-label">Current snapshot</div>
             <h2>{overview.summary.stripeModeLabel}</h2>
             <p>
-              The platform view keeps organizer volume, request inbox pressure, and payment
-              readiness visible together so a future ops team can prioritize the right follow-up.
+              Host volume, request activity, and checkout readiness stay visible together so the
+              next follow-up is obvious.
             </p>
           </div>
 
@@ -64,10 +62,10 @@ export default function PlatformAdminOverviewPage() {
 
           <div className="hero-actions">
             <Link className="button button-primary" href="/admin/organizers">
-              Review organizers
+              Review hosts
             </Link>
             <Link className="button button-secondary" href="/admin/health">
-              Open health
+              Open service status
             </Link>
           </div>
         </aside>
@@ -78,7 +76,7 @@ export default function PlatformAdminOverviewPage() {
           <div className="admin-section-header">
             <div>
               <div className="section-kicker">Attention queue</div>
-              <h3>Phase 11 keeps the highest-value platform follow-up visible.</h3>
+              <h3>What needs attention first.</h3>
             </div>
           </div>
 
@@ -97,8 +95,8 @@ export default function PlatformAdminOverviewPage() {
 
         <aside className="admin-page">
           <article className="panel section-card admin-section">
-            <div className="section-kicker">Release tracks</div>
-            <h3>What Phase 11 adds to the active app.</h3>
+            <div className="section-kicker">Focus areas</div>
+            <h3>What this team area covers.</h3>
             <div className="timeline">
               {overview.releaseTracks.map((item) => (
                 <div className="timeline-step" key={item.title}>
@@ -110,8 +108,8 @@ export default function PlatformAdminOverviewPage() {
           </article>
 
           <article className="panel section-card admin-section">
-            <div className="section-kicker">Recent platform events</div>
-            <h3>Latest operational context carried into this phase.</h3>
+            <div className="section-kicker">Recent activity</div>
+            <h3>Recent changes across hosts and registrations.</h3>
             <div className="timeline">
               {platformLogCatalog.slice(0, 3).map((entry) => (
                 <div className="timeline-step" key={entry.id}>
@@ -128,8 +126,8 @@ export default function PlatformAdminOverviewPage() {
       </section>
 
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Organizer coverage</div>
-        <h3>Every seeded organizer now has a platform-admin detail route.</h3>
+        <div className="section-kicker">Host coverage</div>
+        <h3>Every host has one support view.</h3>
         <div className="admin-card-grid">
           {platformOrganizers.map((organizer) => (
             <article className="admin-card" key={organizer.slug}>
@@ -175,10 +173,10 @@ export default function PlatformAdminOverviewPage() {
 
               <div className="admin-actions-row">
                 <Link className="button button-primary" href={organizer.detailHref}>
-                  Organizer detail
+                  Open host detail
                 </Link>
                 <Link className="button button-secondary" href={organizer.dashboardHref}>
-                  Organizer dashboard
+                  Host dashboard
                 </Link>
               </div>
             </article>

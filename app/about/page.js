@@ -17,12 +17,12 @@ export default function AboutPage() {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Event registration, organizer operations, and calm platform tooling
+              Clear event details for guests and hosts alike
             </span>
           </div>
           <nav className="nav" aria-label="About navigation">
-            <Link href="/">Discover</Link>
-            <Link href="/admin/login">Platform admin</Link>
+            <Link href="/#featured">Find an event</Link>
+            <Link href="/#organizer-launch">Host an event</Link>
           </nav>
         </header>
 
@@ -37,10 +37,10 @@ export default function AboutPage() {
             <p>{aboutPageStory.hero.secondary}</p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/">
-                Return to discovery
+                Browse events
               </Link>
-              <Link className="button button-secondary" href="/admin/login">
-                Open platform admin
+              <Link className="button button-secondary" href="/#organizer-launch">
+                Request organizer access
               </Link>
             </div>
           </article>
@@ -48,11 +48,10 @@ export default function AboutPage() {
           <aside className="panel hero-aside">
             <div className="status-block">
               <div className="status-label">What makes the product distinct</div>
-              <h2>Organizer-first, occurrence-first, server-owned.</h2>
+              <h2>Clear hosts, clear dates, clear expectations.</h2>
               <p>
-                Passreserve.com keeps the lightweight monolith and slug-based routing from the
-                original product, but every public and operational surface now speaks in event
-                terms instead of rental terms.
+                Passreserve.com is built to help visitors understand who is hosting, what each
+                event includes, which date to choose, and what they need to pay now.
               </p>
             </div>
 
@@ -99,16 +98,16 @@ export default function AboutPage() {
 
         <section className="cta-band">
           <div>
-            <div className="section-kicker">Next route</div>
+            <div className="section-kicker">Next step</div>
             <h2>{aboutPageStory.cta.title}</h2>
             <p>{aboutPageStory.cta.detail}</p>
           </div>
           <div className="hero-actions cta-actions">
-            <Link className="button button-primary" href="/admin/login">
-              Platform admin
+            <Link className="button button-primary" href="/#organizer-launch">
+              Host an event
             </Link>
             <Link className="button button-secondary" href="/">
-              Discovery home
+              Browse events
             </Link>
           </div>
         </section>

@@ -64,7 +64,7 @@ export default function RegistrationOperationsExperience({ organizer }) {
   const [records, setRecords] = useState(organizer.records);
   const [filter, setFilter] = useState("all");
   const [message, setMessage] = useState(
-    "Organizer actions on this screen update the in-repo operations draft so the queue logic can be reviewed safely."
+    "Use this queue to move registrations forward, keep payment follow-up visible, and record final outcomes."
   );
 
   const summary = summarizeRegistrationOperations(records);
@@ -84,12 +84,11 @@ export default function RegistrationOperationsExperience({ organizer }) {
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Registration operations</div>
-          <h2>Organizer queues now cover confirmation, cancellation, no-show, and reconciliation.</h2>
+          <div className="section-kicker">Registrations</div>
+          <h2>Review confirmations, cancellations, payments, and event-day outcomes.</h2>
           <p>
-            This route turns the Phase 08 and Phase 09 attendee flow into a practical organizer
-            queue. Registration states, payment states, and venue-balance follow-up can now be
-            reviewed and progressed without leaving the admin shell.
+            This queue brings holds, confirmations, payments, and event-day follow-up into one
+            host view. Staff can progress each registration without bouncing between screens.
           </p>
           <div className="pill-list">
             <span className="pill">{summary.activeCount} active registrations</span>
@@ -101,11 +100,11 @@ export default function RegistrationOperationsExperience({ organizer }) {
 
         <aside className="panel hero-aside admin-hero-aside">
           <div className="status-block">
-            <div className="status-label">Queue health</div>
+            <div className="status-label">Queue status</div>
             <h2>{organizer.name}</h2>
             <p>
-              The organizer can progress registrations from hold to payment, close venue balances,
-              and preserve historical states like attended, no-show, or cancelled for audit clarity.
+              The host can move registrations from hold to payment, close venue balances, and
+              keep final outcomes such as attended, no-show, or cancelled easy to review.
             </p>
           </div>
 
@@ -138,7 +137,7 @@ export default function RegistrationOperationsExperience({ organizer }) {
           <div className="admin-section-header">
             <div>
               <div className="section-kicker">Queue actions</div>
-              <h3>Review and progress each attendee record.</h3>
+              <h3>Review and update each guest record.</h3>
             </div>
             <div className="admin-inline-metrics">
               <span>{visibleRecords.length} registrations in this filter</span>
@@ -211,7 +210,7 @@ export default function RegistrationOperationsExperience({ organizer }) {
 
                   <div className="ops-link-row">
                     <Link href={record.publicEventHref}>Public event page</Link>
-                    <Link href={record.adminPaymentsHref}>Payment view</Link>
+                    <Link href={record.adminPaymentsHref}>Payment details</Link>
                   </div>
 
                   {actions.length > 0 ? (
@@ -237,14 +236,13 @@ export default function RegistrationOperationsExperience({ organizer }) {
         <aside className="admin-page">
           <article className="panel section-card admin-section">
             <div className="section-kicker">Workflow notes</div>
-            <h3>How organizer actions map to the attendee lifecycle.</h3>
+            <h3>How team actions move each registration forward.</h3>
             <div className="status-list">
               <div className="status-item">
                 <span className="status-index">1</span>
                 <div>
                   <strong>Confirm</strong>
-                  Move a hold into the next organizer-owned state while keeping capacity pressure
-                  visible.
+                  Move a hold into its next step while keeping capacity pressure visible.
                 </div>
               </div>
               <div className="status-item">
@@ -259,7 +257,7 @@ export default function RegistrationOperationsExperience({ organizer }) {
                 <span className="status-index">3</span>
                 <div>
                   <strong>No-show and cancellation</strong>
-                  Close operational exceptions while keeping payment and audit details visible.
+                  Close exceptions while keeping payment and history details visible.
                 </div>
               </div>
             </div>

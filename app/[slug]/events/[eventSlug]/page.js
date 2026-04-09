@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 
 import {
   getRegistrationExperienceBySlugs,
-  getRegistrationRouteParams,
-  registrationFlowPhase
+  getRegistrationRouteParams
 } from "../../../../lib/passreserve-registrations";
 
 export function generateStaticParams() {
@@ -46,12 +45,12 @@ export default async function EventDetailPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Event detail pages, live registration, and hosted payment-ready attendee flow
+              Event details, upcoming dates, and simple registration
             </span>
           </div>
           <nav className="nav" aria-label="Event page navigation">
             <Link href="/">Discover</Link>
-            <Link href={organizer.organizerHref}>Organizer hub</Link>
+            <Link href={organizer.organizerHref}>Host page</Link>
             <a href="#occurrences">Upcoming dates</a>
             <a href="#faq">FAQ</a>
           </nav>
@@ -59,10 +58,7 @@ export default async function EventDetailPage({ params }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} registration live
-            </span>
+            <span className="eyebrow">Event page</span>
             <div className="breadcrumb">
               <Link href={organizer.organizerHref}>{organizer.name}</Link>
               <span>/</span>
@@ -87,7 +83,7 @@ export default async function EventDetailPage({ params }) {
                 Email the organizer
               </a>
               <Link className="button button-secondary" href={organizer.organizerHref}>
-                Back to organizer hub
+                Back to host page
               </Link>
             </div>
           </article>
@@ -97,8 +93,8 @@ export default async function EventDetailPage({ params }) {
               <div className="status-label">Hosted by {organizer.name}</div>
               <h2>{event.nextOccurrence.label}</h2>
               <p>
-                Event pages now carry the long-form description, pricing model, venue detail,
-                attendee policies, and the live registration entry point for each occurrence.
+                Everything you need is kept on one page: what this event is, who it is for,
+                what it includes, how much it costs, and which dates are open right now.
               </p>
             </div>
 
@@ -139,9 +135,10 @@ export default async function EventDetailPage({ params }) {
               <div className="status-item">
                 <span className="status-index">3</span>
                 <div>
-                  <strong>Next date</strong>
-                  {event.nextOccurrence.time}, with{" "}
-                  {event.prepayPercentage > 0 ? "Stripe Checkout after confirmation" : "venue payment only"}
+                  <strong>Payment</strong>
+                  {event.prepayPercentage > 0
+                    ? `${event.nextOccurrence.time}, with the online amount collected after confirmation`
+                    : `${event.nextOccurrence.time}, with payment handled at the event`}
                 </div>
               </div>
             </div>
@@ -150,11 +147,10 @@ export default async function EventDetailPage({ params }) {
 
         <section className="section-grid">
           <article className="panel section-card">
-            <div className="section-kicker">What attendees should know</div>
-            <h3>Highlights for this event type</h3>
+            <div className="section-kicker">Why people choose it</div>
+            <h3>Highlights for this event</h3>
             <p>
-              This is where the event route explains what makes this format distinct from the
-              organizer&apos;s other public experiences.
+              Use this section to understand the feel of the event before you compare dates.
             </p>
             <div className="policy-list">
               {event.highlights.map((highlight) => (
@@ -166,12 +162,11 @@ export default async function EventDetailPage({ params }) {
           </article>
 
           <article className="panel section-card">
-            <div className="section-kicker">Payment framing</div>
-            <h3>Attendees now see the money split before they create a hold.</h3>
+            <div className="section-kicker">Pricing</div>
+            <h3>See the total and what you pay now.</h3>
             <p>
-              The occurrence cards below now open the live registration flow. This payment
-              section makes the split explicit first so the attendee knows what is paid online
-              and what remains due at the event before the hold is created.
+              If a deposit or online amount is required, it is shown clearly before you start
+              registration.
             </p>
             <div className="payment-card">
               <div className="payment-heading">
@@ -200,12 +195,11 @@ export default async function EventDetailPage({ params }) {
 
         <section className="section-grid" id="occurrences">
           <article className="panel section-card section-span">
-            <div className="section-kicker">Upcoming occurrences</div>
-            <h2>Occurrence-first scheduling now opens directly into registration.</h2>
+            <div className="section-kicker">Choose a date</div>
+            <h2>Pick the date that works for you.</h2>
             <p>
-              Each occurrence card carries its own date, time, capacity state, and registration
-              route so the attendee can move straight into the hold flow without falling back
-              to slot settings or hidden admin data.
+              Each date keeps its own timing, availability, and registration link so you can
+              sign up without guessing what is still open.
             </p>
             <div className="occurrence-list">
               {event.occurrences.map((occurrence) => (
@@ -237,7 +231,7 @@ export default async function EventDetailPage({ params }) {
                         Register for this date
                       </Link>
                       <Link className="button button-secondary" href={organizer.organizerHref}>
-                        View organizer hub
+                        View host page
                       </Link>
                     </div>
                   </div>
@@ -249,7 +243,7 @@ export default async function EventDetailPage({ params }) {
 
         <section className="section-grid">
           <article className="panel section-card">
-            <div className="section-kicker">Venue and inclusions</div>
+            <div className="section-kicker">Included and on site</div>
             <h3>{organizer.venue.title}</h3>
             <p>{event.venueDetail}</p>
             <div className="policy-list">
@@ -262,8 +256,8 @@ export default async function EventDetailPage({ params }) {
           </article>
 
           <article className="panel section-card">
-            <div className="section-kicker">Photo support</div>
-            <h3>This route now supports event-specific imagery and editorial detail.</h3>
+            <div className="section-kicker">Visual feel</div>
+            <h3>Get a sense of the event before you commit.</h3>
             <div className="photo-grid">
               {event.gallery.map((photo) => (
                 <article
@@ -283,7 +277,7 @@ export default async function EventDetailPage({ params }) {
         <section className="section-grid" id="faq">
           <article className="panel section-card">
             <div className="section-kicker">Policies</div>
-            <h3>Event-specific rules live with the event, not in hidden settings.</h3>
+            <h3>Important details before you register.</h3>
             <div className="policy-list">
               {event.policies.map((policy) => (
                 <div className="policy-item" key={policy}>
@@ -295,7 +289,7 @@ export default async function EventDetailPage({ params }) {
 
           <article className="panel section-card">
             <div className="section-kicker">Attendee FAQ</div>
-            <h3>Common questions are now answered on the public event route.</h3>
+            <h3>Common questions before signup.</h3>
             <div className="faq-list">
               {event.faq.map((item) => (
                 <article className="faq-item" key={item.question}>
@@ -309,12 +303,11 @@ export default async function EventDetailPage({ params }) {
 
         <section className="cta-band">
           <div>
-            <div className="section-kicker">Event-specific CTA</div>
-            <h2>Choose a published occurrence, then start the live registration flow.</h2>
+            <div className="section-kicker">Ready to join?</div>
+            <h2>Pick a date and start your registration.</h2>
             <p>
-              Phase 09 keeps the event route honest: the attendee can understand the date,
-              venue, policy, and payment framing here, then move straight into the signed hold,
-              confirmation, and payment lifecycle.
+              You&apos;ll choose a date, confirm your details, and receive a registration code
+              with any next payment steps explained clearly.
             </p>
           </div>
           <div className="hero-actions cta-actions">
@@ -328,11 +321,8 @@ export default async function EventDetailPage({ params }) {
         </section>
 
         <footer className="footer">
-          <span>
-            Phase 09 event routes now connect discovery to a real organizer hub, event detail,
-            registration lifecycle, and hosted payment handoff.
-          </span>
-          <Link href={organizer.organizerHref}>Return to organizer hub</Link>
+          <span>Want to compare more formats from the same host? Return to the host page.</span>
+          <Link href={organizer.organizerHref}>Return to the host page</Link>
         </footer>
       </div>
     </main>

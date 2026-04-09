@@ -3,7 +3,7 @@ import Link from "next/link";
 import { platformOrganizers } from "../../../../lib/passreserve-platform";
 
 export const metadata = {
-  title: "Platform organizers"
+  title: "Hosts"
 };
 
 export default function PlatformOrganizersPage() {
@@ -11,43 +11,42 @@ export default function PlatformOrganizersPage() {
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Organizer management</div>
-          <h2>Organizer support now reads like enablement, not tenant maintenance.</h2>
+          <div className="section-kicker">Host management</div>
+          <h2>Support every host from one organizer roster.</h2>
           <p>
-            Each organizer detail route connects the public hub, organizer-admin surfaces, payment
-            follow-up, and platform support context in one place. That keeps the Phase 11 language
-            shift visible wherever platform ops need to intervene.
+            Each host detail view connects the public page, host dashboard, payment follow-up,
+            and support context in one place so the team can jump directly to the right action.
           </p>
           <div className="pill-list">
-            <span className="pill">{platformOrganizers.length} seeded organizers</span>
-            <span className="pill">Public and admin routes linked</span>
+            <span className="pill">{platformOrganizers.length} hosts</span>
+            <span className="pill">Public pages and team tools linked</span>
             <span className="pill">Payment status visible</span>
           </div>
         </article>
 
         <aside className="panel hero-aside admin-hero-aside">
           <div className="status-block">
-            <div className="status-label">What changed</div>
-            <h2>Organizer-first language</h2>
+            <div className="status-label">What this view is for</div>
+            <h2>Fast host review</h2>
             <p>
-              The platform team now speaks about organizers, events, registrations, venues, and
-              payment states instead of tenants, bookings, and inventory rows.
+              Use this roster to spot request status, payment follow-up, and host readiness before
+              jumping into a specific host.
             </p>
           </div>
           <div className="hero-actions">
             <Link className="button button-primary" href="/admin/emails">
-              Open launch inbox
+              Open host requests
             </Link>
             <Link className="button button-secondary" href="/admin/health">
-              Review health
+              Review service status
             </Link>
           </div>
         </aside>
       </section>
 
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Organizer roster</div>
-        <h3>Public routes, organizer admin, and platform support all connect from here.</h3>
+        <div className="section-kicker">Host roster</div>
+        <h3>Public pages, host tools, and support links all connect from here.</h3>
         <div className="admin-card-grid">
           {platformOrganizers.map((organizer) => (
             <article className="admin-card" key={organizer.slug}>
@@ -101,13 +100,13 @@ export default function PlatformOrganizersPage() {
 
               <div className="admin-actions-row">
                 <Link className="button button-primary" href={organizer.detailHref}>
-                  Open platform detail
+                  Open host detail
                 </Link>
                 <Link className="button button-secondary" href={organizer.publicHref}>
                   Public page
                 </Link>
                 <Link className="button button-secondary" href={organizer.dashboardHref}>
-                  Organizer admin
+                  Host dashboard
                 </Link>
               </div>
             </article>

@@ -3,12 +3,13 @@ import Link from "next/link";
 import {
   getPlatformOverview,
   platformAdminGuidance,
-  platformAdminNavigation,
-  platformAdminPhase
+  platformAdminNavigation
 } from "../../../lib/passreserve-platform";
 
-export default function PlatformAdminLayout({ children }) {
-  const overview = getPlatformOverview();
+export const dynamic = "force-dynamic";
+
+export default async function PlatformAdminLayout({ children }) {
+  const overview = await getPlatformOverview();
 
   return (
     <main className="shell admin-shell">
@@ -19,28 +20,28 @@ export default function PlatformAdminLayout({ children }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Platform admin, organizer management, CMS, emails, and health
+              Team tools for host requests, emails, settings, and service status
             </span>
           </div>
-          <nav className="nav" aria-label="Platform admin shortcuts">
-            <Link href="/">Discover</Link>
+          <nav className="nav" aria-label="Team shortcuts">
+            <Link href="/">Public home</Link>
             <Link href="/about">About</Link>
-            <Link href="/admin/organizers">Organizers</Link>
+            <Link href="/admin/organizers">Hosts</Link>
             <Link href="/admin/emails">Emails</Link>
-            <Link href="/admin/health">Health</Link>
+            <Link href="/admin/health">Service status</Link>
           </nav>
         </header>
 
         <section className="admin-layout">
           <aside className="panel admin-sidebar">
             <div className="admin-sidebar-block">
-              <span className="eyebrow">
-                <span className="eyebrow-dot" aria-hidden="true" />
-                {platformAdminPhase.label} live
-              </span>
+              <span className="eyebrow">Team tools</span>
               <div className="page-place">{overview.releaseLabel}</div>
-              <h1 className="admin-sidebar-title">Platform admin</h1>
-              <p className="admin-sidebar-copy">{platformAdminPhase.summary}</p>
+              <h1 className="admin-sidebar-title">Support dashboard</h1>
+              <p className="admin-sidebar-copy">
+                Review host requests, keep public pages accurate, check emails, and monitor
+                service status from one place.
+              </p>
             </div>
 
             <div className="admin-summary-grid">
@@ -57,13 +58,13 @@ export default function PlatformAdminLayout({ children }) {
                 <strong>{overview.summary.openRequestsCount}</strong>
               </div>
               <div className="admin-summary-card">
-                <span className="metric-label">Stripe mode</span>
-                <strong>{overview.summary.stripeModeLabel}</strong>
+                <span className="metric-label">Inbox storage</span>
+                <strong>{overview.summary.inboxStorageLabel}</strong>
               </div>
             </div>
 
             <div className="admin-sidebar-block">
-              <div className="section-kicker">Admin navigation</div>
+              <div className="section-kicker">Quick links</div>
               <div className="admin-nav-list">
                 {platformAdminNavigation.map((item) => (
                   <Link className="admin-nav-link" href={item.href} key={item.href}>
@@ -75,7 +76,7 @@ export default function PlatformAdminLayout({ children }) {
             </div>
 
             <div className="admin-sidebar-block">
-              <div className="section-kicker">Phase guidance</div>
+              <div className="section-kicker">What this area covers</div>
               <div className="status-list">
                 {platformAdminGuidance.map((item, index) => (
                   <div className="status-item" key={item.title}>
@@ -90,9 +91,9 @@ export default function PlatformAdminLayout({ children }) {
             </div>
 
             <div className="admin-sidebar-block admin-sidebar-footer">
-              <span className="spotlight-label">Platform support</span>
+              <span className="spotlight-label">Team contact</span>
               <strong>{overview.supportEmail}</strong>
-              <span>{overview.summary.onlineCollectedLabel} collected online across seeded organizers</span>
+              <span>{overview.summary.onlineCollectedLabel} collected online across active organizers</span>
             </div>
           </aside>
 

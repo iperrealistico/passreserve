@@ -5,7 +5,6 @@ import {
   getOrganizerBySlug,
   getOrganizerSlugs
 } from "../../lib/passreserve-public";
-import { registrationFlowPhase } from "../../lib/passreserve-registrations";
 
 function buildRegistrationHref(slug, eventSlug, occurrenceId) {
   return `/${slug}/events/${eventSlug}/register?occurrence=${occurrenceId}`;
@@ -26,7 +25,7 @@ export async function generateMetadata({ params }) {
   }
 
   return {
-    title: `${organizer.name} organizer page`,
+    title: `${organizer.name} events`,
     description: organizer.description
   };
 }
@@ -48,10 +47,10 @@ export default async function OrganizerPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Organizer hubs, event pages, and occurrence-first public registration
+              Hosted events with clear dates, pricing, and venue details
             </span>
           </div>
-          <nav className="nav" aria-label="Organizer page navigation">
+          <nav className="nav" aria-label="Host page navigation">
             <Link href="/">Discover</Link>
             <a href="#events">Event lineup</a>
             <a href="#dates">Upcoming dates</a>
@@ -62,10 +61,7 @@ export default async function OrganizerPage({ params }) {
 
         <section className="hero public-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} live
-            </span>
+            <span className="eyebrow">Hosted events</span>
             <div className="page-place">
               {organizer.city}, {organizer.region}
             </div>
@@ -94,12 +90,11 @@ export default async function OrganizerPage({ params }) {
 
           <aside className="panel hero-aside public-hero-aside">
             <div className="status-block">
-              <div className="status-label">Organizer snapshot</div>
+              <div className="status-label">Featured next</div>
               <h2>{organizer.featuredEvent.title}</h2>
               <p>
-                The organizer page now acts like a public event hub: featured event up top,
-                dated occurrences underneath, and venue plus policy details visible before the
-                attendee starts the live registration flow.
+                Start with the featured event, then browse the upcoming dates below to compare the
+                host, the place, and the price before you register.
               </p>
             </div>
 
@@ -113,11 +108,11 @@ export default async function OrganizerPage({ params }) {
                 <div className="metric-value">{organizer.totalUpcomingOccurrences}</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Default collection</div>
+                <div className="metric-label">Online payment</div>
                 <div className="metric-value">{organizer.defaultCollectionLabel}</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Venue zone</div>
+                <div className="metric-label">Host city</div>
                 <div className="metric-value">{organizer.city}</div>
               </div>
             </div>
@@ -126,23 +121,22 @@ export default async function OrganizerPage({ params }) {
               <div className="status-item">
                 <span className="status-index">1</span>
                 <div>
-                  <strong>Venue</strong>
+                  <strong>Meeting point</strong>
                   {organizer.venue.title}
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">2</span>
                 <div>
-                  <strong>Contact</strong>
+                  <strong>Questions</strong>
                   {organizer.contact.email}
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">3</span>
                 <div>
-                  <strong>Map support</strong>
-                  Use the venue section to explain arrival, check-in, and where any event-day
-                  balance is handled.
+                  <strong>Payment style</strong>
+                  {organizer.defaultCollectionLabel}, shown clearly before anyone starts registration.
                 </div>
               </div>
             </div>
@@ -152,11 +146,10 @@ export default async function OrganizerPage({ params }) {
         <section className="section-grid" id="events">
           <article className="panel section-card section-span">
             <div className="section-kicker">Event lineup</div>
-            <h2>Featured events and presentation routes are now live for this organizer.</h2>
+            <h2>Choose the format that feels right for you.</h2>
             <p>
-              Each card links to its own event page, carries the next dated occurrence, and
-              makes the deposit or full-payment rule visible before the attendee commits to a
-              signed hold on a real date.
+              Each event keeps its own tone, next date, and payment approach so you can compare
+              options without losing the personality of the host.
             </p>
             <div className="event-lineup">
               {organizer.events.map((event) => (
@@ -215,12 +208,11 @@ export default async function OrganizerPage({ params }) {
 
         <section className="section-grid" id="dates">
           <article className="panel section-card">
-            <div className="section-kicker">Upcoming agenda</div>
-            <h3>Occurrences now surface directly on the organizer page.</h3>
+            <div className="section-kicker">Upcoming dates</div>
+            <h3>Browse the next available dates at a glance.</h3>
             <p>
-              The public hub can show a true dated agenda without forcing events back into slot
-              settings. Each occurrence keeps its own capacity, event-specific route, and live
-              registration entry point.
+              If you already know you want this organizer, you should be able to go from this
+              list straight into the date that works for you.
             </p>
             <div className="agenda-list">
               {organizer.agenda.map((occurrence) => (
@@ -254,11 +246,11 @@ export default async function OrganizerPage({ params }) {
           </article>
 
           <article className="panel section-card">
-            <div className="section-kicker">Photo story</div>
-            <h3>The organizer page now has room for photos and place cues.</h3>
+            <div className="section-kicker">Atmosphere</div>
+            <h3>Get a feel for the place before you sign up.</h3>
             <p>
-              These visual tiles show where the public experience can carry atmosphere, venue
-              signals, and host credibility without reducing the page to a plain event table.
+              These photos help show the pace, setting, and hosting style behind the events before
+              you choose a date.
             </p>
             <div className="photo-grid">
               {organizer.photoStory.map((photo) => (
@@ -267,7 +259,7 @@ export default async function OrganizerPage({ params }) {
                   key={photo.title}
                   style={{ background: photo.background }}
                 >
-                  <span className="route-label">Photo support</span>
+                  <span className="route-label">Venue feel</span>
                   <strong>{photo.title}</strong>
                   <p>{photo.caption}</p>
                 </article>
@@ -307,8 +299,8 @@ export default async function OrganizerPage({ params }) {
           </article>
 
           <article className="panel section-card">
-            <div className="section-kicker">Attendee policies</div>
-            <h3>Policy and payment expectations are now visible on the public route.</h3>
+            <div className="section-kicker">Before you book</div>
+            <h3>Know the basics before you choose a date.</h3>
             <div className="policy-list">
               {organizer.policies.map((policy) => (
                 <div className="policy-item" key={policy}>
@@ -321,8 +313,8 @@ export default async function OrganizerPage({ params }) {
 
         <section className="section-grid" id="faq">
           <article className="panel section-card section-span">
-            <div className="section-kicker">Organizer FAQ</div>
-            <h3>Attendee-facing questions no longer need to wait for later phases.</h3>
+            <div className="section-kicker">FAQ</div>
+            <h3>Common questions, answered before registration.</h3>
             <div className="faq-list">
               {organizer.faq.map((item) => (
                 <article className="faq-item" key={item.question}>
@@ -335,10 +327,7 @@ export default async function OrganizerPage({ params }) {
         </section>
 
         <footer className="footer">
-          <span>
-            Phase 08 makes organizer hubs, event detail routes, and registration entry points
-            live on Passreserve.com.
-          </span>
+          <span>Open an event page to compare dates, pricing, and what&apos;s included.</span>
           <Link href="/">Return to discovery</Link>
         </footer>
       </div>

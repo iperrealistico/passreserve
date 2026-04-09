@@ -142,6 +142,10 @@ select {
   align-items: stretch;
 }
 
+.home-split-hero {
+  grid-template-columns: minmax(0, 1.18fr) minmax(19rem, 0.9fr);
+}
+
 .panel {
   border: 1px solid var(--line);
   border-radius: 2rem;
@@ -152,6 +156,54 @@ select {
 
 .hero-copy {
   padding: clamp(2rem, 4vw, 4rem);
+}
+
+.home-primary-panel {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top right, rgba(203, 93, 45, 0.14), transparent 26%),
+    linear-gradient(180deg, rgba(255, 251, 246, 0.92) 0%, rgba(255, 247, 238, 0.8) 100%);
+}
+
+.home-primary-panel::after {
+  content: "";
+  position: absolute;
+  inset: auto 1.5rem 1.2rem auto;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 1.8rem;
+  background: linear-gradient(135deg, rgba(203, 93, 45, 0.08), rgba(22, 50, 40, 0.04));
+  transform: rotate(14deg);
+  pointer-events: none;
+}
+
+.home-organizer-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.45rem;
+  background:
+    linear-gradient(180deg, rgba(255, 249, 242, 0.94) 0%, rgba(247, 230, 212, 0.96) 100%);
+  border-color: rgba(203, 93, 45, 0.18);
+}
+
+.home-organizer-panel .status-block h2,
+.home-organizer-panel .status-item strong {
+  color: var(--text);
+}
+
+.home-organizer-panel .status-block p,
+.home-organizer-panel .status-item div:last-child {
+  color: var(--muted);
+}
+
+.home-organizer-panel .status-index {
+  background: rgba(203, 93, 45, 0.12);
+  color: var(--accent);
+}
+
+.home-organizer-panel .hero-actions {
+  margin-top: auto;
 }
 
 .eyebrow {
@@ -632,8 +684,9 @@ select {
   margin-top: 2rem;
   padding: 1.1rem;
   border-radius: 1.45rem;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.66);
   border: 1px solid rgba(23, 50, 40, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36);
 }
 
 .filter-row {
@@ -2109,6 +2162,7 @@ select {
   .hero-copy,
   .section-card,
   .hero-aside,
+  .home-organizer-panel,
   .empty-card {
     padding: 1.4rem;
     border-radius: 1.45rem;

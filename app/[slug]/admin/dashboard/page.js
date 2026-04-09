@@ -16,12 +16,12 @@ export async function generateMetadata({ params }) {
 
   if (!organizer) {
     return {
-      title: "Organizer dashboard not found"
+      title: "Host dashboard not found"
     };
   }
 
   return {
-    title: `${organizer.name} organizer dashboard`
+    title: `${organizer.name} dashboard`
   };
 }
 

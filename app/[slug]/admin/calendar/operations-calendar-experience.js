@@ -5,7 +5,7 @@ export default function OperationsCalendarExperience({ organizer }) {
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Organizer calendar</div>
+          <div className="section-kicker">Calendar</div>
           <h2>Occurrence days now show attendees, payment pressure, and capacity watch notes.</h2>
           <p>
             The calendar stays occurrence-first, but every day card now carries organizer-local
@@ -20,21 +20,20 @@ export default function OperationsCalendarExperience({ organizer }) {
 
         <aside className="panel hero-aside admin-hero-aside">
           <div className="status-block">
-            <div className="status-label">Calendar rendering</div>
+            <div className="status-label">Time zone</div>
             <h2>{organizer.timeZone}</h2>
             <p>
-              Every day bucket and time range below is rendered in the organizer timezone so the
-              operations team can plan staffing, check-in, and payment reconciliation against the
-              correct local schedule.
+              Every day and time below is shown in the local host time zone so the team can plan
+              staffing, check-in, and payment follow-up against the correct schedule.
             </p>
           </div>
 
           <div className="hero-actions">
             <Link className="button button-primary" href={organizer.registrationsHref}>
-              Open registration queue
+              Open registrations
             </Link>
             <Link className="button button-secondary" href={organizer.occurrencesHref}>
-              Open occurrence planner
+              Open date planner
             </Link>
           </div>
         </aside>
@@ -45,7 +44,7 @@ export default function OperationsCalendarExperience({ organizer }) {
           <div className="admin-section-header">
             <div>
               <div className="section-kicker">Upcoming day view</div>
-              <h3>Organizer-local occurrence windows with operations context.</h3>
+              <h3>Upcoming dates shown in local time.</h3>
             </div>
             <div className="admin-inline-metrics">
               <span>{organizer.calendarDays.length} day groups</span>
@@ -129,7 +128,7 @@ export default function OperationsCalendarExperience({ organizer }) {
           </article>
 
           <article className="panel section-card admin-section">
-            <div className="section-kicker">Timezone audit</div>
+            <div className="section-kicker">Time zone</div>
             <h3>Local day boundaries stay visible to the team.</h3>
             <div className="status-list">
               {organizer.timeZoneAudit.items.map((item, index) => (

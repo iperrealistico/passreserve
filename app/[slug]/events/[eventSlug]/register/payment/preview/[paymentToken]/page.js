@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 import {
-  getRegistrationPaymentPreviewView,
-  registrationFlowPhase
+  getRegistrationPaymentPreviewView
 } from "../../../../../../../../lib/passreserve-registrations";
 
 export async function generateMetadata({ params }) {
@@ -11,13 +10,13 @@ export async function generateMetadata({ params }) {
 
   if (view.state !== "ready") {
     return {
-      title: "Payment preview"
+      title: "Payment review"
     };
   }
 
   return {
-    title: `Preview payment for ${view.event.title}`,
-    description: `Preview the Passreserve.com payment return flow for ${view.event.title}.`
+    title: `Payment review for ${view.event.title}`,
+    description: `Review the Passreserve.com payment step for ${view.event.title}.`
   };
 }
 
@@ -27,10 +26,7 @@ function PreviewStatePanel({ view }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} payment preview
-            </span>
+            <span className="eyebrow">Payment</span>
             <h1>{view.title}</h1>
             <p>{view.message}</p>
             <div className="hero-actions">
@@ -57,9 +53,9 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
     return (
       <PreviewStatePanel
         view={{
-          title: "The payment preview has expired.",
+          title: "This payment link has expired.",
           message:
-            "The original hold window has closed, so this preview token can no longer simulate a successful payment return."
+            "The original payment window has closed, so this link can no longer be used."
         }}
       />
     );
@@ -74,37 +70,33 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Stripe preview fallback for unconfigured environments
+              Review your payment details before checkout
             </span>
           </div>
           <nav className="nav" aria-label="Payment preview navigation">
-            <Link href={view.organizer.organizerHref}>Organizer hub</Link>
+            <Link href={view.organizer.organizerHref}>Host page</Link>
             <Link href={view.event.detailHref}>Event page</Link>
-            <Link href={view.restartHref}>Registration flow</Link>
+            <Link href={view.restartHref}>Registration</Link>
           </nav>
         </header>
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} payment preview
-            </span>
+            <span className="eyebrow">Payment review</span>
             <div className="breadcrumb">
               <Link href={view.organizer.organizerHref}>{view.organizer.name}</Link>
               <span>/</span>
               <Link href={view.event.detailHref}>{view.event.title}</Link>
               <span>/</span>
-              <span>Preview payment</span>
+              <span>Review payment</span>
             </div>
             <div className="page-place">
               {view.organizer.city}, {view.organizer.region}
             </div>
-            <h1>Live Stripe Checkout is not configured here, so this route previews the return flow.</h1>
+            <h1>Review this registration before checkout opens.</h1>
             <p>
-              The registration is already in a pending-payment state. This page makes the setup
-              gap explicit while still letting us verify the success and cancel returns locally
-              without pretending money was collected.
+              Your registration is already waiting on payment. Review the amount due now and keep
+              the registration details close before you continue.
             </p>
             <div className="pill-list">
               <span className="pill">{view.registrationCode}</span>
@@ -115,11 +107,10 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
 
           <aside className="panel hero-aside public-hero-aside">
             <div className="status-block">
-              <div className="status-label">Environment mode</div>
-              <h2>{view.environment.mode}</h2>
+              <div className="status-label">Next step</div>
+              <h2>Secure payment</h2>
               <p>
-                Add the Stripe secret and webhook env vars to switch this route from preview to
-                live hosted Checkout.
+                Review the amount due now, then continue to the payment step when you are ready.
               </p>
             </div>
 
@@ -147,7 +138,7 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
         <section className="registration-grid">
           <article className="panel section-card registration-flow-card">
             <div className="section-kicker">Payment split</div>
-            <h2>What the hosted Checkout flow would collect</h2>
+            <h2>What you&apos;re paying now</h2>
             <div className="registration-review-grid">
               <div className="registration-review-card">
                 <span className="spotlight-label">Occurrence</span>
@@ -168,7 +159,7 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
 
             <div className="payment-card registration-payment-card">
               <div className="payment-heading">
-                <strong>Previewed collection</strong>
+                <strong>Online collection</strong>
                 <span>{view.event.collectionLabel}</span>
               </div>
               <div className="payment-amounts">
@@ -192,34 +183,38 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
                 className="button button-primary"
                 href={`/${slug}/events/${eventSlug}/register/payment/success/${paymentToken}?preview=1`}
               >
-                Preview successful payment
+                Continue to secure payment
               </Link>
               <Link
                 className="button button-secondary"
                 href={`/${slug}/events/${eventSlug}/register/payment/cancel/${paymentToken}`}
               >
-                Preview cancelled payment
+                Not now
               </Link>
             </div>
           </article>
 
           <aside className="panel section-card registration-aside">
-            <div className="section-kicker">Setup requirements</div>
-            <h3>Env keys needed for live Checkout</h3>
+            <div className="section-kicker">Before you continue</div>
+            <h3>What to keep in mind</h3>
             <div className="registration-rule-list">
-              {view.environment.requirements.map((requirement) => (
-                <div className="registration-rule-item" key={requirement.key}>
-                  <strong>
-                    {requirement.key} · {requirement.present ? "present" : "missing"}
-                  </strong>
-                  <span>{requirement.requiredFor}</span>
-                </div>
-              ))}
+              <div className="registration-rule-item">
+                <strong>Registration saved</strong>
+                <span>Your place is still tied to {view.registrationCode} while this payment window stays open.</span>
+              </div>
+              <div className="registration-rule-item">
+                <strong>Online amount only</strong>
+                <span>You&apos;ll pay {view.payment.onlineAmountLabel} now, and any remaining balance stays due at the event.</span>
+              </div>
+              <div className="registration-rule-item">
+                <strong>Need to pause?</strong>
+                <span>You can come back to this payment window before it expires.</span>
+              </div>
             </div>
 
             <div className="hero-actions">
               <Link className="button button-secondary" href={view.restartHref}>
-                Back to the registration flow
+                Back to registration
               </Link>
             </div>
           </aside>

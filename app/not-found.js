@@ -8,15 +8,14 @@ export default function NotFound() {
           <span className="eyebrow-dot" aria-hidden="true" />
           Passreserve.com
         </span>
-        <h1>This page is not live yet.</h1>
+        <h1>We couldn&apos;t find that page.</h1>
         <p>
-          The Passreserve.com rollout is being implemented in phases. Organizer hubs,
-          attendee registration, the about story, and platform-admin routes are now live,
-          but this specific route has not been published yet.
+          The link may be out of date, or the event or organizer may no longer be available.
+          Start from the main discovery page to browse live organizers and upcoming events.
         </p>
         <div className="hero-actions" style={{ justifyContent: "center" }}>
           <Link className="button button-primary" href="/">
-            Return to discovery
+            Browse events
           </Link>
         </div>
       </section>

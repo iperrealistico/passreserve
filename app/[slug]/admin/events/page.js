@@ -16,7 +16,7 @@ export async function generateMetadata({ params }) {
 
   if (!organizer) {
     return {
-      title: "Organizer admin not found"
+      title: "Host dashboard not found"
     };
   }
 

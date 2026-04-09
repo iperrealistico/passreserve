@@ -5,12 +5,11 @@ export default function OperationsDashboardExperience({ organizer }) {
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Organizer operations dashboard</div>
-          <h2>Registrations, venue balances, and calendar pressure now share one surface.</h2>
+          <div className="section-kicker">Dashboard</div>
+          <h2>Registrations, venue balances, and upcoming dates share one view.</h2>
           <p>
-            {organizer.phase.summary} This dashboard keeps the practical admin rhythm from the
-            legacy app, but the metrics now speak in registration, attendance, and payment
-            terms instead of bookings and inventory.
+            This dashboard keeps today&apos;s registrations, payment follow-up, and upcoming dates
+            in one place so the team can act fast without losing context.
           </p>
           <div className="pill-list">
             <span className="pill">{organizer.summary.activeCount} active registrations</span>
@@ -22,12 +21,11 @@ export default function OperationsDashboardExperience({ organizer }) {
 
         <aside className="panel hero-aside admin-hero-aside">
           <div className="status-block">
-            <div className="status-label">Current organizer pulse</div>
+            <div className="status-label">Current snapshot</div>
             <h2>{organizer.name}</h2>
             <p>
-              Organizer-local operations are currently rendered in {organizer.timeZone}. The
-              dashboard keeps the open payment queue, capacity pressure, and attendee follow-up
-              visible at first glance.
+              Times are shown in {organizer.timeZone}. The dashboard keeps open payments,
+              capacity pressure, and guest follow-up visible at a glance.
             </p>
           </div>
 
@@ -52,10 +50,10 @@ export default function OperationsDashboardExperience({ organizer }) {
 
           <div className="hero-actions">
             <Link className="button button-primary" href={organizer.registrationsHref}>
-              Open registration queue
+              Open registrations
             </Link>
             <Link className="button button-secondary" href={organizer.paymentsHref}>
-              Open payment follow-up
+              Open payments
             </Link>
           </div>
         </aside>
@@ -115,7 +113,7 @@ export default function OperationsDashboardExperience({ organizer }) {
         <aside className="admin-page">
           <article className="panel section-card admin-section">
             <div className="section-kicker">Recent registrations</div>
-            <h3>Most recent organizer activity.</h3>
+            <h3>Most recent guest activity.</h3>
             <div className="timeline">
               {organizer.recentRegistrations.map((record) => (
                 <div className="timeline-step" key={record.id}>
@@ -157,8 +155,8 @@ export default function OperationsDashboardExperience({ organizer }) {
           </article>
 
           <article className="panel section-card admin-section">
-            <div className="section-kicker">Timezone audit</div>
-            <h3>Organizer-local day boundaries stay explicit.</h3>
+            <div className="section-kicker">Time zone</div>
+            <h3>Every date is shown in local time.</h3>
             <div className="status-list">
               {organizer.timeZoneAudit.items.map((item, index) => (
                 <div className="status-item" key={item.title}>

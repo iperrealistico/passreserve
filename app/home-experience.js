@@ -1,31 +1,57 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
+import { submitOrganizerRequestAction } from "./actions";
 import {
   discoveryJourneys,
-  discoveryMetrics,
   discoveryModes,
   discoveryQuickSearches,
   discoverySignals,
   getDiscoveryResults,
-  organizerLaunchSteps,
   organizerLaunchWindows,
   organizerPaymentModels,
-  publicNavigation,
-  publicNavigationBlueprint,
-  searchPrinciples
+  publicNavigation
 } from "../lib/passreserve-domain";
-import { platformAdminPhase } from "../lib/passreserve-platform";
 
-const initialJoinRequest = {
-  contact: "",
-  organizer: "",
+const initialOrganizerRequest = {
+  contactName: "",
+  contactEmail: "",
+  contactPhone: "",
+  organizerName: "",
   city: "",
   launchWindow: organizerLaunchWindows[1].id,
-  paymentModel: organizerPaymentModels[1].id
+  paymentModel: organizerPaymentModels[1].id,
+  eventFocus: "",
+  note: ""
 };
+
+const initialActionState = {
+  status: "idle",
+  message: "",
+  detail: "",
+  fieldErrors: {}
+};
+
+const visitorJourneys = [
+  {
+    title: "Join an event",
+    description:
+      "Start from a city, a host, or an event style, then move straight to the date and details that matter.",
+    steps: discoveryJourneys[0].steps
+  },
+  {
+    title: "Host an event",
+    description:
+      "Share the basics about your events, get set up with approval, and publish a page that people can trust quickly.",
+    steps: [
+      "Tell us who you are, what you host, and where your events happen.",
+      "Choose whether guests pay nothing online, a deposit, or the full amount.",
+      "We review the request and help shape your first public page and event lineup."
+    ]
+  }
+];
 
 function formatOrganizerRoute(entry) {
   return `/${entry.slug}`;
@@ -36,25 +62,30 @@ function formatEventRoute(entry) {
 }
 
 export default function HomeExperience() {
+  const [actionState, formAction, isPending] = useActionState(
+    submitOrganizerRequestAction,
+    initialActionState
+  );
   const [searchMode, setSearchMode] = useState(discoveryModes[0].id);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-  const [joinRequest, setJoinRequest] = useState(initialJoinRequest);
-  const [submittedJoinRequest, setSubmittedJoinRequest] = useState(null);
+  const [organizerRequest, setOrganizerRequest] = useState(initialOrganizerRequest);
 
   const trimmedQuery = query.trim();
   const results = getDiscoveryResults(trimmedQuery, searchMode);
   const selectedEntry = results.find((entry) => entry.id === selectedId) ?? results[0] ?? null;
-  const launchWindowLabel =
-    organizerLaunchWindows.find((item) => item.id === joinRequest.launchWindow)?.label ??
-    joinRequest.launchWindow;
-  const paymentModelLabel =
-    organizerPaymentModels.find((item) => item.id === joinRequest.paymentModel)?.label ??
-    joinRequest.paymentModel;
-  const canPrepareRequest =
-    joinRequest.contact.trim() &&
-    joinRequest.organizer.trim() &&
-    joinRequest.city.trim();
+  const canSubmitOrganizerRequest =
+    organizerRequest.contactName.trim() &&
+    organizerRequest.contactEmail.trim() &&
+    organizerRequest.organizerName.trim() &&
+    organizerRequest.city.trim() &&
+    organizerRequest.eventFocus.trim();
+
+  useEffect(() => {
+    if (actionState.status === "success") {
+      setOrganizerRequest(initialOrganizerRequest);
+    }
+  }, [actionState.status]);
 
   function handleQuickSearch(chip) {
     setSearchMode(chip.mode);
@@ -62,27 +93,13 @@ export default function HomeExperience() {
     setSelectedId(null);
   }
 
-  function handleJoinFieldChange(event) {
+  function handleOrganizerFieldChange(event) {
     const { name, value } = event.target;
 
-    setJoinRequest((current) => ({
+    setOrganizerRequest((current) => ({
       ...current,
       [name]: value
     }));
-  }
-
-  function handleJoinRequestSubmit(event) {
-    event.preventDefault();
-
-    if (!canPrepareRequest) {
-      return;
-    }
-
-    setSubmittedJoinRequest({
-      ...joinRequest,
-      launchWindowLabel,
-      paymentModelLabel
-    });
   }
 
   return (
@@ -91,9 +108,7 @@ export default function HomeExperience() {
         <header className="topbar">
           <div className="wordmark">
             <span className="wordmark-name">Passreserve.com</span>
-            <span className="wordmark-tag">
-              Event discovery, registration deposits, organizer admin, and platform operations
-            </span>
+            <span className="wordmark-tag">Find an event or launch one with confidence</span>
           </div>
           <nav className="nav" aria-label="Primary">
             {publicNavigation.map((item) => (
@@ -102,26 +117,20 @@ export default function HomeExperience() {
               </a>
             ))}
             <Link href="/about">About</Link>
-            <Link href="/admin/login">Platform admin</Link>
           </nav>
         </header>
 
-        <section className="hero" id="discover">
-          <article className="panel hero-copy hero-stack">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {platformAdminPhase.label} live
-            </span>
-            <h1>Find the right organizer, city, or event before the first click.</h1>
+        <section className="hero home-split-hero" id="discover">
+          <article className="panel hero-copy hero-stack home-primary-panel">
+            <span className="eyebrow">Find an event</span>
+            <h1>Choose a host, pick a date, and sign up with confidence.</h1>
             <p>
-              Passreserve.com now uses the homepage as a discovery desk, not a placeholder.
-              Attendees can search by organizer, city, or event keyword, while new organizers
-              can understand the launch path without wading through rental-era language.
+              Passreserve.com helps people find local experiences with clear hosts, clear dates,
+              and clear prices before they ever start the signup.
             </p>
             <p>
-              The homepage now hands off directly to live organizer hubs, featured event
-              pages, organizer-admin routes, and the platform-admin layer, while the same
-              occurrence-first registration and payment flow stays intact underneath.
+              Search by host, city, or event style, then open the page that answers the real
+              questions fast: what it is, where it happens, what it costs, and how to join.
             </p>
 
             <div className="search-lab">
@@ -142,7 +151,7 @@ export default function HomeExperience() {
               </div>
 
               <label className="search-field">
-                <span className="search-label">Search organizers, cities, or event words</span>
+                <span className="search-label">Search by host, city, or event type</span>
                 <input
                   name="query"
                   onChange={(event) => {
@@ -172,63 +181,86 @@ export default function HomeExperience() {
                 <strong>
                   {trimmedQuery
                     ? `${results.length} matches for "${trimmedQuery}"`
-                    : "Featured discovery deck"}
+                    : "Featured events and hosts"}
                 </strong>
                 <span>
-                  Exact organizer names rank first, city searches stay future-facing, and
-                  keyword searches inspect event titles, summaries, and audience cues together.
+                  Start with a host, a city, or a theme and open the event that feels like the
+                  right fit.
                 </span>
               </div>
             </div>
+
+            <div className="hero-actions">
+              <a className="button button-primary" href="#featured">
+                Browse featured events
+              </a>
+              <a className="button button-secondary" href="#organizer-launch">
+                Host an event
+              </a>
+            </div>
           </article>
 
-          <aside className="panel hero-aside launch-aside" aria-label="Phase summary">
+          <aside className="panel home-organizer-panel">
             <div className="status-block">
-              <div className="status-label">Current build layer</div>
-              <h2>{platformAdminPhase.title}</h2>
-              <p>{platformAdminPhase.summary}</p>
+              <div className="status-label">Host an event</div>
+              <h2>Launch a page that makes your events easy to trust.</h2>
+              <p>
+                Share what you host, where you host it, and how you want to handle online
+                payment. We&apos;ll help you get set up with approval-based access.
+              </p>
             </div>
 
-            <div className="metrics" aria-label="Phase metrics">
-              {discoveryMetrics.map((metric) => (
-                <div className="metric" key={metric.label}>
-                  <div className="metric-label">{metric.label}</div>
-                  <div className="metric-value">{metric.value}</div>
+            <div className="status-list">
+              <div className="status-item">
+                <span className="status-index">1</span>
+                <div>
+                  <strong>Show your next dates clearly</strong>
+                  Your public page highlights upcoming events, venue details, and what guests
+                  should know before they register.
                 </div>
-              ))}
+              </div>
+              <div className="status-item">
+                <span className="status-index">2</span>
+                <div>
+                  <strong>Set payment expectations upfront</strong>
+                  Choose no online payment, a deposit, or full prepayment and let guests see that
+                  split before they commit.
+                </div>
+              </div>
+              <div className="status-item">
+                <span className="status-index">3</span>
+                <div>
+                  <strong>Manage everything in one place</strong>
+                  Keep dates, registrations, and payment follow-up together without juggling
+                  separate tools.
+                </div>
+              </div>
             </div>
 
-            <div>
-              <div className="list-label">What this phase delivers</div>
-              <div className="status-list">
-                {organizerLaunchSteps.map((step, index) => (
-                  <div className="status-item" key={step.title}>
-                    <span className="status-index">{index + 1}</span>
-                    <div>
-                      <strong>{step.title}</strong>
-                      {step.detail}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="hero-actions">
+              <a className="button button-primary" href="#organizer-launch">
+                Request organizer access
+              </a>
+              <Link className="button button-secondary" href="/admin/login">
+                Existing organizer login
+              </Link>
             </div>
           </aside>
         </section>
 
-        <section className="section-grid">
+        <section className="section-grid" id="featured">
           <article className="panel section-card section-span">
             <div className="results-shell">
               <div className="results-intro">
-                <div className="section-kicker">Discovery board</div>
+                <div className="section-kicker">Featured now</div>
                 <h2>
                   {trimmedQuery
                     ? `Matches for "${trimmedQuery}"`
-                    : "Featured organizers, cities, and event signals"}
+                    : "Hosts and events worth opening first"}
                 </h2>
                 <p>
-                  The homepage now behaves like a discovery surface: it can express organizer
-                  authority, city-led browsing, and keyword intent without pretending the
-                  platform is still an equipment catalog.
+                  Every card leads you toward the same decision: which event feels right, on
+                  which date, with which host.
                 </p>
               </div>
 
@@ -275,7 +307,7 @@ export default function HomeExperience() {
                   {selectedEntry ? (
                     <div className="result-spotlight">
                       <div className="spotlight-copy">
-                        <div className="section-kicker">Selected organizer brief</div>
+                        <div className="section-kicker">Selected host</div>
                         <h3>
                           {selectedEntry.organizer}
                           <span className="spotlight-city">
@@ -285,11 +317,11 @@ export default function HomeExperience() {
                         <p>{selectedEntry.audience}</p>
                         <div className="spotlight-notes">
                           <div className="spotlight-note">
-                            <span className="spotlight-label">Next live date</span>
+                            <span className="spotlight-label">Next date</span>
                             <strong>{selectedEntry.nextOccurrence}</strong>
                           </div>
                           <div className="spotlight-note">
-                            <span className="spotlight-label">Commercial framing</span>
+                            <span className="spotlight-label">Price</span>
                             <strong>
                               {selectedEntry.priceFrom} · {selectedEntry.deposit}
                             </strong>
@@ -299,22 +331,22 @@ export default function HomeExperience() {
 
                       <div className="spotlight-routes">
                         <div className="route-card">
-                          <span className="route-label">Organizer route</span>
-                          <strong>{formatOrganizerRoute(selectedEntry)}</strong>
+                          <span className="route-label">Host page</span>
+                          <strong>{selectedEntry.organizer}</strong>
                           <p>{selectedEntry.organizerNote}</p>
                           <Link
                             className="button button-secondary route-button"
                             href={formatOrganizerRoute(selectedEntry)}
                           >
-                            Open organizer page
+                            Open host page
                           </Link>
                         </div>
                         <div className="route-card">
-                          <span className="route-label">Event route</span>
-                          <strong>{formatEventRoute(selectedEntry)}</strong>
+                          <span className="route-label">Event page</span>
+                          <strong>{selectedEntry.event}</strong>
                           <p>
-                            Event pages now take over for photos, long description, policies,
-                            payment explanation, and upcoming occurrence selection.
+                            Open the event page to check the format, see the next dates, and pick
+                            the right signup.
                           </p>
                           <Link
                             className="button button-secondary route-button"
@@ -331,8 +363,8 @@ export default function HomeExperience() {
                 <div className="search-empty">
                   <h3>No exact matches yet.</h3>
                   <p>
-                    Try a nearby city, a clearer organizer name, or an event theme such as
-                    workshop, family, gravel, or sunset.
+                    Try a nearby city, a clearer host name, or a theme such as workshop, family,
+                    gravel, or sunset.
                   </p>
                 </div>
               )}
@@ -340,42 +372,16 @@ export default function HomeExperience() {
           </article>
         </section>
 
-        <section className="section-grid" id="signals">
-          {discoverySignals.map((signal) => (
-            <article className="panel section-card" key={signal.title}>
-              <div className="section-kicker">Discovery signal</div>
-              <h3>{signal.title}</h3>
-              <p>{signal.detail}</p>
-            </article>
-          ))}
-
-          <article className="panel section-card">
-            <div className="section-kicker">Navigation blueprint</div>
-            <h3>The top-level public journeys are now named explicitly.</h3>
-            <div className="mapping-list">
-              {publicNavigationBlueprint.map((item) => (
-                <div className="mapping-row" key={item.title}>
-                  <div className="mapping-terms">
-                    <span className="mapping-current">{item.title}</span>
-                  </div>
-                  <p>{item.detail}</p>
-                </div>
-              ))}
-            </div>
-          </article>
-        </section>
-
-        <section className="section-grid" id="journeys">
+        <section className="section-grid" id="how-it-works">
           <article className="panel section-card section-span">
-            <div className="section-kicker">Public journeys</div>
-            <h3>Attendees and organizers now have clearer first-click paths.</h3>
+            <div className="section-kicker">Two clear paths</div>
+            <h3>Join an event or launch one.</h3>
             <p>
-              This root experience now explains how discovery should work before deeper route
-              work arrives. Each journey names the entry point, what the attendee or organizer
-              sees next, and where later phases will take over.
+              Passreserve.com is built around two simple jobs: helping guests find the right
+              event and helping hosts publish it without turning setup into extra overhead.
             </p>
             <div className="journey-grid">
-              {discoveryJourneys.map((journey) => (
+              {visitorJourneys.map((journey) => (
                 <article className="journey-card" key={journey.title}>
                   <strong>{journey.title}</strong>
                   <p>{journey.description}</p>
@@ -388,75 +394,99 @@ export default function HomeExperience() {
               ))}
             </div>
           </article>
+
+          {discoverySignals.map((signal) => (
+            <article className="panel section-card" key={signal.title}>
+              <div className="section-kicker">Why it feels clearer</div>
+              <h3>{signal.title}</h3>
+              <p>{signal.detail}</p>
+            </article>
+          ))}
         </section>
 
-        <section className="section-grid" id="search-rules">
-          <article className="panel section-card">
-            <div className="section-kicker">Search logic</div>
-            <h3>Discovery ranking is now defined in product language and demo behavior.</h3>
+        <section className="section-grid" id="organizer-launch">
+          <article className="panel section-card section-span">
+            <div className="section-kicker">Host an event</div>
+            <h3>Tell us what you host and where you host it.</h3>
             <p>
-              Passreserve.com should feel intentional at the first query. These rules now guide
-              how organizer, city, and keyword intent are surfaced from the homepage.
-            </p>
-            <div className="principle-list">
-              {searchPrinciples.map((principle) => (
-                <div className="principle-item" key={principle.title}>
-                  <strong>{principle.title}</strong>
-                  <span>{principle.detail}</span>
-                </div>
-              ))}
-            </div>
-          </article>
-
-          <article className="panel section-card" id="organizer-launch">
-            <div className="section-kicker">Organizer launch request</div>
-            <h3>Capture the organizer brief before the admin system takes over.</h3>
-            <p>
-              The organizer join path is now framed around launch readiness instead of partner
-              signup language. The root page asks for the inputs that later phases will need
-              anyway: identity, city, timing, and payment stance.
+              Start with the basics. We&apos;ll use them to shape your first Passreserve page,
+              your initial event lineup, and the signup flow your guests will see.
             </p>
 
-            <form className="launch-form" onSubmit={handleJoinRequestSubmit}>
+            <form action={formAction} className="launch-form">
               <label className="field">
                 <span>Contact person</span>
                 <input
-                  name="contact"
-                  onChange={handleJoinFieldChange}
+                  name="contactName"
+                  onChange={handleOrganizerFieldChange}
                   placeholder="Marta Bianchi"
                   type="text"
-                  value={joinRequest.contact}
+                  value={organizerRequest.contactName}
+                />
+                {actionState.fieldErrors.contactName ? (
+                  <span className="field-help">{actionState.fieldErrors.contactName}</span>
+                ) : null}
+              </label>
+
+              <label className="field">
+                <span>Contact email</span>
+                <input
+                  name="contactEmail"
+                  onChange={handleOrganizerFieldChange}
+                  placeholder="marta@example.com"
+                  type="email"
+                  value={organizerRequest.contactEmail}
+                />
+                {actionState.fieldErrors.contactEmail ? (
+                  <span className="field-help">{actionState.fieldErrors.contactEmail}</span>
+                ) : null}
+              </label>
+
+              <label className="field">
+                <span>Phone number</span>
+                <input
+                  name="contactPhone"
+                  onChange={handleOrganizerFieldChange}
+                  placeholder="+39 347 555 9011"
+                  type="tel"
+                  value={organizerRequest.contactPhone}
                 />
               </label>
 
               <label className="field">
-                <span>Organizer name</span>
+                <span>Host or organizer name</span>
                 <input
-                  name="organizer"
-                  onChange={handleJoinFieldChange}
+                  name="organizerName"
+                  onChange={handleOrganizerFieldChange}
                   placeholder="Lago Studio Pass"
                   type="text"
-                  value={joinRequest.organizer}
+                  value={organizerRequest.organizerName}
                 />
+                {actionState.fieldErrors.organizerName ? (
+                  <span className="field-help">{actionState.fieldErrors.organizerName}</span>
+                ) : null}
               </label>
 
               <label className="field">
-                <span>Primary city</span>
+                <span>Main city</span>
                 <input
                   name="city"
-                  onChange={handleJoinFieldChange}
+                  onChange={handleOrganizerFieldChange}
                   placeholder="Como"
                   type="text"
-                  value={joinRequest.city}
+                  value={organizerRequest.city}
                 />
+                {actionState.fieldErrors.city ? (
+                  <span className="field-help">{actionState.fieldErrors.city}</span>
+                ) : null}
               </label>
 
               <label className="field">
                 <span>Target launch window</span>
                 <select
                   name="launchWindow"
-                  onChange={handleJoinFieldChange}
-                  value={joinRequest.launchWindow}
+                  onChange={handleOrganizerFieldChange}
+                  value={organizerRequest.launchWindow}
                 >
                   {organizerLaunchWindows.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -467,11 +497,11 @@ export default function HomeExperience() {
               </label>
 
               <label className="field">
-                <span>Default online collection</span>
+                <span>Default online payment</span>
                 <select
                   name="paymentModel"
-                  onChange={handleJoinFieldChange}
-                  value={joinRequest.paymentModel}
+                  onChange={handleOrganizerFieldChange}
+                  value={organizerRequest.paymentModel}
                 >
                   {organizerPaymentModels.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -481,52 +511,70 @@ export default function HomeExperience() {
                 </select>
               </label>
 
+              <label className="field">
+                <span>What do you host?</span>
+                <textarea
+                  name="eventFocus"
+                  onChange={handleOrganizerFieldChange}
+                  placeholder="Weekend workshops, guided rides, seasonal dinners, community walks..."
+                  rows="4"
+                  value={organizerRequest.eventFocus}
+                />
+                {actionState.fieldErrors.eventFocus ? (
+                  <span className="field-help">{actionState.fieldErrors.eventFocus}</span>
+                ) : null}
+              </label>
+
+              <label className="field">
+                <span>Anything else we should know?</span>
+                <textarea
+                  name="note"
+                  onChange={handleOrganizerFieldChange}
+                  placeholder="Share anything helpful about your audience, venue, timing, or setup."
+                  rows="4"
+                  value={organizerRequest.note}
+                />
+              </label>
+
               <button
                 className="button button-primary"
-                disabled={!canPrepareRequest}
+                disabled={!canSubmitOrganizerRequest || isPending}
                 type="submit"
               >
-                Prepare organizer request
+                {isPending ? "Saving request..." : "Request organizer access"}
               </button>
             </form>
 
-            {submittedJoinRequest ? (
+            {actionState.status === "success" ? (
               <div className="submission-card">
-                <span className="route-label">Organizer request prepared</span>
-                <h4>{submittedJoinRequest.organizer}</h4>
-                <p>
-                  Passreserve.com can now frame this organizer publicly around{" "}
-                  {submittedJoinRequest.city}, a {submittedJoinRequest.launchWindowLabel.toLowerCase()}{" "}
-                  launch, and a default collection stance of {submittedJoinRequest.paymentModelLabel}.
-                </p>
+                <span className="route-label">Request received</span>
+                <h4>{actionState.request.organizerName}</h4>
+                <p>{actionState.message}</p>
                 <div className="submission-grid">
                   <div className="spotlight-note">
-                    <span className="spotlight-label">Contact</span>
-                    <strong>{submittedJoinRequest.contact}</strong>
+                    <span className="spotlight-label">Launch window</span>
+                    <strong>{actionState.request.launchWindow}</strong>
                   </div>
                   <div className="spotlight-note">
-                    <span className="spotlight-label">Homepage signals</span>
-                    <strong>
-                      {submittedJoinRequest.organizer} · {submittedJoinRequest.city}
-                    </strong>
+                    <span className="spotlight-label">Payment setup</span>
+                    <strong>{actionState.request.paymentModel}</strong>
                   </div>
                 </div>
+                <p className="field-help">{actionState.detail}</p>
               </div>
+            ) : actionState.status === "error" ? (
+              <p className="field-help">{actionState.message}</p>
             ) : (
               <p className="field-help">
-                Fill the three required fields to preview the organizer launch brief this phase
-                is designed around.
+                We&apos;ll review new host requests and reply within one business day.
               </p>
             )}
           </article>
         </section>
 
         <footer className="footer">
-          <span>
-            Discovery now feeds live organizer hubs, attendee registration routes, organizer-admin
-            operations, and the new platform-admin surfaces.
-          </span>
-          <a href="#discover">Return to discovery</a>
+          <span>Need a fresh start? Return to the top and search again.</span>
+          <a href="#discover">Back to the top</a>
         </footer>
       </div>
     </main>

@@ -2,8 +2,7 @@ import Link from "next/link";
 
 import {
   getConfirmationFieldRules,
-  getRegistrationHoldView,
-  registrationFlowPhase
+  getRegistrationHoldView
 } from "../../../../../../../lib/passreserve-registrations";
 import ConfirmationForm from "./confirmation-form";
 
@@ -29,10 +28,7 @@ function HoldStatePanel({ holdView }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} hold state
-            </span>
+            <span className="eyebrow">Registration</span>
             <h1>{holdView.title}</h1>
             <p>{holdView.message}</p>
             <div className="hero-actions">
@@ -70,11 +66,11 @@ export default async function RegistrationConfirmPage({ params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Hold review, attendee confirmation, and registration code handoff
+              Review your details before you confirm your registration
             </span>
           </div>
           <nav className="nav" aria-label="Hold review navigation">
-            <Link href={holdView.organizer.organizerHref}>Organizer hub</Link>
+            <Link href={holdView.organizer.organizerHref}>Host page</Link>
             <Link href={holdView.event.detailHref}>Event page</Link>
             <Link href={holdView.occurrence.registrationHref}>Edit registration</Link>
           </nav>
@@ -82,25 +78,21 @@ export default async function RegistrationConfirmPage({ params }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} confirmation
-            </span>
+            <span className="eyebrow">Almost done</span>
             <div className="breadcrumb">
               <Link href={holdView.organizer.organizerHref}>{holdView.organizer.name}</Link>
               <span>/</span>
               <Link href={holdView.event.detailHref}>{holdView.event.title}</Link>
               <span>/</span>
-              <span>Confirm hold</span>
+              <span>Confirm registration</span>
             </div>
             <div className="page-place">
               {holdView.organizer.city}, {holdView.organizer.region}
             </div>
-            <h1>Review the hold before confirming the registration.</h1>
+            <h1>Review your details and confirm your place.</h1>
             <p>
-              Hold {holdView.hold.id} currently protects {holdView.quantityLabel} on{" "}
-              {holdView.occurrence.label}. Confirming here either finalizes the registration
-              or opens the payment step, depending on the online amount.
+              We&apos;re holding {holdView.quantityLabel} on {holdView.occurrence.label} for a
+              short time while you confirm the details below.
             </p>
             <div className="pill-list">
               <span className="pill">{holdView.occurrence.capacityLabel}</span>
@@ -111,11 +103,11 @@ export default async function RegistrationConfirmPage({ params }) {
 
           <aside className="panel hero-aside public-hero-aside">
             <div className="status-block">
-              <div className="status-label">Hold window</div>
+              <div className="status-label">Confirm by</div>
               <h2>{holdView.hold.expiresAtLabel}</h2>
               <p>
-                The hold stays live for 30 minutes so the attendee can review the occurrence,
-                the attendee details, and the payment split without risking silent overbooking.
+                After that time, the place is released back into general availability and you may
+                need to start again from the event page.
               </p>
             </div>
 
@@ -142,7 +134,7 @@ export default async function RegistrationConfirmPage({ params }) {
 
         <section className="registration-grid">
           <article className="panel section-card registration-flow-card">
-            <div className="section-kicker">Hold summary</div>
+            <div className="section-kicker">Your registration</div>
             <h2>Occurrence, attendee, and payment details</h2>
 
             <div className="registration-review-grid">
@@ -186,7 +178,7 @@ export default async function RegistrationConfirmPage({ params }) {
               </div>
             </div>
 
-            <div className="section-kicker">Confirmation checklist</div>
+            <div className="section-kicker">Before you confirm</div>
             <div className="registration-rule-list">
               {getConfirmationFieldRules().map((rule) => (
                 <div className="registration-rule-item" key={rule.field}>
@@ -204,8 +196,8 @@ export default async function RegistrationConfirmPage({ params }) {
           </article>
 
           <aside className="panel section-card registration-aside">
-            <div className="section-kicker">Lifecycle timeline</div>
-            <h3>What happens around this hold</h3>
+            <div className="section-kicker">What happens next</div>
+            <h3>After you confirm</h3>
             <div className="registration-rule-list">
               {holdView.timeline.map((item) => (
                 <div className="registration-rule-item" key={item.title}>
@@ -215,7 +207,7 @@ export default async function RegistrationConfirmPage({ params }) {
               ))}
             </div>
 
-            <div className="section-kicker">Current capacity mix</div>
+            <div className="section-kicker">Availability snapshot</div>
             <div className="registration-review-grid">
               <div className="registration-review-card">
                 <span className="spotlight-label">Pending payment</span>
@@ -238,10 +230,7 @@ export default async function RegistrationConfirmPage({ params }) {
         </section>
 
         <footer className="footer">
-          <span>
-            Phase 09 keeps the confirmation page as the point where pending holds either settle
-            directly or hand off into hosted payment.
-          </span>
+          <span>Need to change anything first? Go back and edit the registration.</span>
           <Link href={holdView.event.detailHref}>Return to the event page</Link>
         </footer>
       </div>

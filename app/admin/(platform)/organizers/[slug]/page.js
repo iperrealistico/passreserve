@@ -15,7 +15,7 @@ export async function generateMetadata({ params }) {
   const organizer = getPlatformOrganizerBySlug(slug);
 
   return {
-    title: organizer ? `${organizer.name} platform detail` : "Organizer not found"
+    title: organizer ? `${organizer.name} host detail` : "Host not found"
   };
 }
 
@@ -53,8 +53,8 @@ export default async function PlatformOrganizerDetailPage({ params }) {
             <div className="status-label">Organizer status</div>
             <h2>{organizer.healthLabel}</h2>
             <p>
-              Joined {organizer.joinedAtLabel}. Platform-admin detail routes now keep public,
-              organizer-admin, payment, and support context visible together.
+              Joined {organizer.joinedAtLabel}. This view keeps the public page, host dashboard,
+              payments, and support context visible together.
             </p>
           </div>
 
@@ -82,14 +82,14 @@ export default async function PlatformOrganizerDetailPage({ params }) {
       <section className="admin-grid">
         <article className="panel section-card admin-section admin-section-wide">
           <div className="section-kicker">Support actions</div>
-          <h3>Platform operators can jump directly into the right organizer surface.</h3>
+          <h3>The team can jump directly into the right host page.</h3>
           <div className="admin-card-grid">
             {organizer.supportActions.map((action) => (
               <article className="admin-card" key={action.href}>
                 <h4>{action.label}</h4>
                 <p>{action.detail}</p>
                 <Link className="inline-link" href={action.href}>
-                  Open route
+                  Open page
                 </Link>
               </article>
             ))}
@@ -113,7 +113,7 @@ export default async function PlatformOrganizerDetailPage({ params }) {
 
           <article className="panel section-card admin-section">
             <div className="section-kicker">Timezone audit</div>
-            <h3>Daily operations stay anchored to {organizer.timeZone}.</h3>
+            <h3>Daily plans stay anchored to {organizer.timeZone}.</h3>
             <div className="status-list">
               {organizer.timeZoneAudit.items.map((item, index) => (
                 <div className="status-item" key={item.title}>
@@ -154,7 +154,7 @@ export default async function PlatformOrganizerDetailPage({ params }) {
               <div className="ops-inline-list">
                 <span>{event.category}</span>
                 <span>{event.nextOccurrenceLabel}</span>
-                <span>{event.registrationsCount} registrations seeded</span>
+                <span>{event.registrationsCount} registrations tracked</span>
               </div>
             </article>
           ))}
@@ -164,7 +164,7 @@ export default async function PlatformOrganizerDetailPage({ params }) {
       <section className="admin-grid">
         <article className="panel section-card admin-section admin-section-wide">
           <div className="section-kicker">Recent registrations</div>
-          <h3>Platform support can trace attendee-facing outcomes quickly.</h3>
+          <h3>The team can trace guest outcomes quickly.</h3>
           <div className="timeline">
             {organizer.recentRegistrations.map((record) => (
               <div className="timeline-step" key={record.id}>
@@ -198,7 +198,7 @@ export default async function PlatformOrganizerDetailPage({ params }) {
               ) : (
                 <div className="admin-note-item">
                   <strong>No hot occurrences</strong>
-                  <p>The current seeded dates have comfortable room and no special support flags.</p>
+                  <p>The current dates still have comfortable room and no special support flags.</p>
                 </div>
               )}
             </div>

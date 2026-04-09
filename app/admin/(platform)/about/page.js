@@ -3,7 +3,7 @@ import Link from "next/link";
 import { aboutCmsBlocks, aboutPageStory } from "../../../../lib/passreserve-platform";
 
 export const metadata = {
-  title: "Platform about CMS"
+  title: "About page"
 };
 
 export default function PlatformAboutCmsPage() {
@@ -11,12 +11,11 @@ export default function PlatformAboutCmsPage() {
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">About CMS</div>
-          <h2>The public story now explains Passreserve.com as an event platform.</h2>
+          <div className="section-kicker">About page</div>
+          <h2>Keep the about page warm, clear, and event-first.</h2>
           <p>
-            The about route no longer needs to inherit MTB Reserve storytelling. Phase 11
-            rewrites the public narrative around organizer hubs, event pages, deposits, and calm
-            platform operations while keeping the content structure easy to manage.
+            The about page should explain what Passreserve is for, how attendees sign up, and how
+            organizers manage events without exposing internal project history.
           </p>
           <div className="hero-actions">
             <Link className="button button-primary" href="/about">
@@ -27,7 +26,7 @@ export default function PlatformAboutCmsPage() {
 
         <aside className="panel hero-aside admin-hero-aside">
           <div className="status-block">
-            <div className="status-label">Public story</div>
+            <div className="status-label">Live summary</div>
             <h2>{aboutPageStory.hero.eyebrow}</h2>
             <p>{aboutPageStory.hero.summary}</p>
           </div>
@@ -35,8 +34,8 @@ export default function PlatformAboutCmsPage() {
       </section>
 
       <section className="panel section-card admin-section">
-        <div className="section-kicker">CMS blocks</div>
-        <h3>Each block now carries event-platform language.</h3>
+        <div className="section-kicker">Content blocks</div>
+        <h3>Each block supports the public page.</h3>
         <div className="admin-card-grid">
           {aboutCmsBlocks.map((block) => (
             <article className="admin-card" key={block.title}>
@@ -54,7 +53,7 @@ export default function PlatformAboutCmsPage() {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Published sections</div>
-        <h3>The new public story is already structured for reuse.</h3>
+        <h3>The live about page is arranged for clear reading.</h3>
         <div className="timeline">
           {aboutPageStory.sections.map((section) => (
             <div className="timeline-step" key={section.id}>

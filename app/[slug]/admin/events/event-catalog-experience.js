@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import {
-  eventVisibilityOptions,
-  organizerAdminPhase
-} from "../../../../lib/passreserve-admin";
+import { eventVisibilityOptions } from "../../../../lib/passreserve-admin";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -51,7 +48,7 @@ function buildEmptyEventForm(organizer) {
     attendeeInstructions:
       "Tell attendees where they arrive, what is already included, and what still happens at the venue.",
     organizerNotes:
-      "Capture the operational promise here before the public route is updated.",
+      "Capture the promise guests should understand before the public page is updated.",
     cancellationPolicy:
       "Deposits stay tied to the selected occurrence unless the organizer republishes a replacement date."
   };
@@ -119,7 +116,7 @@ function buildEventRecord(existingEvents, form, currentEvent) {
     organizerNotes: form.organizerNotes.trim(),
     cancellationPolicy: form.cancellationPolicy.trim(),
     nextOccurrenceLabel:
-      currentEvent?.nextOccurrenceLabel ?? "No dates yet - create them in the occurrence planner",
+      currentEvent?.nextOccurrenceLabel ?? "No dates yet - add them in the date planner",
     occurrenceCount: currentEvent?.occurrenceCount ?? 0,
     publishedOccurrenceCount: currentEvent?.publishedOccurrenceCount ?? 0,
     registrationsCount: currentEvent?.registrationsCount ?? 0,
@@ -201,7 +198,7 @@ export default function EventCatalogExperience({ organizer }) {
 
     if (
       !window.confirm(
-        `Delete ${selectedEvent.title}? This removes its in-repo occurrence plan from the Phase 07 admin demo.`
+        `Delete ${selectedEvent.title}? This removes its current date plan from this dashboard.`
       )
     ) {
       return;
@@ -222,11 +219,10 @@ export default function EventCatalogExperience({ organizer }) {
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
           <div className="section-kicker">Event catalog management</div>
-          <h2>Organizer admins now manage event types instead of inventory rows.</h2>
+          <h2>Shape the event formats people can book.</h2>
           <p>
-            {organizerAdminPhase.summary} This screen keeps the practical MTB Reserve admin
-            rhythm, but the core object is now an event type with defaults for venue,
-            pricing, visibility, and collection rules.
+            Use this board to define the promise for each event type: venue, pricing, visibility,
+            and default online collection before date-specific planning begins.
           </p>
           <div className="pill-list">
             <span className="pill">{events.length} event types</span>
@@ -264,9 +260,9 @@ export default function EventCatalogExperience({ organizer }) {
             <div className="status-item">
               <span className="status-index">3</span>
               <div>
-                <strong>Public handoff</strong>
-                Published event types can still link straight back to the organizer hub and
-                public event routes.
+                <strong>Public preview</strong>
+                Published event types can still link straight back to the host page and live event
+                pages.
               </div>
             </div>
           </div>
@@ -380,7 +376,7 @@ export default function EventCatalogExperience({ organizer }) {
           <h3>
             {mode === "edit" && selectedEvent
               ? selectedEvent.title
-              : "Shape the next Passreserve.com event type"}
+              : "Create the next event type"}
           </h3>
           <p>
             Use this form to set the reusable defaults. The occurrence planner applies
@@ -575,8 +571,8 @@ export default function EventCatalogExperience({ organizer }) {
 
       <section className="admin-grid">
         <article className="panel section-card admin-section">
-          <div className="section-kicker">Preserved admin patterns</div>
-          <h3>The old inventory shell becomes a practical event-management workspace.</h3>
+          <div className="section-kicker">Helpful working patterns</div>
+          <h3>This board keeps event setup clear.</h3>
           <div className="admin-note-list">
             <div className="admin-note-item">
               <span className="spotlight-label">Catalog-first list</span>
@@ -584,10 +580,10 @@ export default function EventCatalogExperience({ organizer }) {
             </div>
             <div className="admin-note-item">
               <span className="spotlight-label">Direct public preview</span>
-              <strong>Published event types still jump back to the live organizer and event routes.</strong>
+              <strong>Published event types still jump back to the live host page and event pages.</strong>
             </div>
             <div className="admin-note-item">
-              <span className="spotlight-label">Occurrence handoff</span>
+              <span className="spotlight-label">Date planning</span>
               <strong>Dates and per-occurrence overrides move into a dedicated planner instead of slot settings.</strong>
             </div>
           </div>
@@ -597,16 +593,15 @@ export default function EventCatalogExperience({ organizer }) {
           <div className="section-kicker">Ready for scheduling</div>
           <h3>Once the event defaults are right, shift into the occurrence planner.</h3>
           <p>
-            Phase 07 separates reusable event defaults from date-specific operations. That
-            keeps pricing, visibility, and venue defaults stable while each occurrence can
-            still override what the organizer needs for a specific date.
+            Keep reusable event defaults here, then shape individual dates in the occurrence
+            planner when timing, pricing, capacity, or venue details need to change.
           </p>
           <div className="hero-actions">
             <Link className="button button-primary" href={organizer.occurrencesHref}>
               Plan one-off and recurring dates
             </Link>
             <Link className="button button-secondary" href={organizer.publicHref}>
-              Review the public organizer page
+              Review the public host page
             </Link>
           </div>
         </article>

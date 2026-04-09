@@ -5,8 +5,7 @@ import { useActionState, useEffect, useState } from "react";
 
 import { calculatePaymentBreakdown } from "../../../../../lib/passreserve-domain";
 import {
-  getRegistrationQuantityOptions,
-  registrationLifecycleSignals
+  getRegistrationQuantityOptions
 } from "../../../../../lib/passreserve-registrations";
 import { createRegistrationHoldAction } from "./actions";
 
@@ -126,11 +125,11 @@ export default function RegistrationFlowExperience({
   return (
     <section className="registration-grid">
       <article className="panel section-card registration-flow-card">
-        <div className="section-kicker">Registration flow</div>
-        <h2>Move from occurrence selection into a signed attendee hold.</h2>
+        <div className="section-kicker">Register</div>
+        <h2>Choose your date, ticket, and contact details.</h2>
         <p>
-          This Phase 09 flow keeps the occurrence-first hold intact, then hands payment-required
-          registrations into hosted Checkout after the attendee confirms on the next page.
+          You&apos;ll review everything before the registration is confirmed, including whether
+          anything is due online today.
         </p>
 
         <div className="registration-stepper">
@@ -155,7 +154,7 @@ export default function RegistrationFlowExperience({
             <div className="section-kicker">Step 1</div>
             <h3>Choose an occurrence</h3>
             <p>
-              Each occurrence owns its own capacity state, hold pressure, and event-day timing.
+              Pick the date that suits you best. Each one keeps its own timing and availability.
             </p>
             <div className="registration-choice-grid">
               {event.occurrences.map((occurrence) => {
@@ -201,8 +200,8 @@ export default function RegistrationFlowExperience({
             <div className="section-kicker">Step 2</div>
             <h3>Select the ticket category and quantity</h3>
             <p>
-              Ticket categories stay optional at the model level, but this flow supports them
-              now so the same occurrence can price admission variants cleanly.
+              Some events offer more than one ticket type. Choose the option that matches how
+              you&apos;re joining, then set the right quantity.
             </p>
             <div className="registration-choice-grid">
               {selectedOccurrence?.ticketCategories.map((category) => {
@@ -274,8 +273,8 @@ export default function RegistrationFlowExperience({
             <div className="section-kicker">Step 3</div>
             <h3>Capture the attendee contact details</h3>
             <p>
-              The attendee details become the registration identity used for confirmation,
-              organizer communication, and later payment messaging.
+              We&apos;ll use these details for the confirmation step, your registration code,
+              and any important updates from the organizer.
             </p>
             <div className="registration-field-grid">
               <label className="field">
@@ -337,8 +336,8 @@ export default function RegistrationFlowExperience({
             <div className="section-kicker">Step 4</div>
             <h3>Review the hold before creating it</h3>
             <p>
-              Submitting here does not finish the attendee lifecycle yet. It creates a signed
-              30-minute hold and sends the attendee into the confirmation screen.
+              This step creates a 30-minute hold so you can confirm the registration safely on
+              the next screen.
             </p>
 
             <div className="registration-review-grid">
@@ -413,7 +412,7 @@ export default function RegistrationFlowExperience({
       <aside className="panel section-card registration-aside">
         <div className="section-kicker">Selected summary</div>
         <h3>{event.title}</h3>
-        <p>{event.registrationModeLabel}</p>
+        <p>Check the essentials before you move forward.</p>
 
         <div className="registration-summary-list">
           <div className="registration-summary-card">
@@ -460,7 +459,7 @@ export default function RegistrationFlowExperience({
           </div>
         ) : null}
 
-        <div className="section-kicker">Validation rules</div>
+        <div className="section-kicker">Before you continue</div>
         <div className="registration-rule-list">
           {fieldRules.map((rule) => (
             <div className="registration-rule-item" key={rule.field}>
@@ -470,14 +469,20 @@ export default function RegistrationFlowExperience({
           ))}
         </div>
 
-        <div className="section-kicker">Lifecycle cues</div>
+        <div className="section-kicker">Good to know</div>
         <div className="registration-rule-list">
-          {registrationLifecycleSignals.map((signal) => (
-            <div className="registration-rule-item" key={signal.title}>
-              <strong>{signal.title}</strong>
-              <span>{signal.detail}</span>
-            </div>
-          ))}
+          <div className="registration-rule-item">
+            <strong>30-minute hold</strong>
+            <span>Your place is temporarily protected while you confirm the registration.</span>
+          </div>
+          <div className="registration-rule-item">
+            <strong>Clear payment split</strong>
+            <span>Any amount due online is shown separately from what remains due at the event.</span>
+          </div>
+          <div className="registration-rule-item">
+            <strong>Registration code next</strong>
+            <span>After confirmation, you&apos;ll receive a registration code and the next steps for your date.</span>
+          </div>
         </div>
 
         <div className="hero-actions">

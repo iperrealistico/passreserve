@@ -16,12 +16,12 @@ export async function generateMetadata({ params }) {
 
   if (!organizer) {
     return {
-      title: "Organizer payments not found"
+      title: "Host payments not found"
     };
   }
 
   return {
-    title: `${organizer.name} payment operations`
+    title: `${organizer.name} payments`
   };
 }
 

@@ -9,7 +9,7 @@ export default function PlatformLogsPage() {
     <div className="admin-page">
       <section className="panel section-card admin-section">
         <div className="section-kicker">Platform logs</div>
-        <h2>Event logs now explain deployment, payment, and tooling state in platform terms.</h2>
+        <h2>Platform events show deployment, payment, and delivery status in plain terms.</h2>
         <div className="timeline">
           {platformLogCatalog.map((entry) => (
             <div className="timeline-step" key={entry.id}>

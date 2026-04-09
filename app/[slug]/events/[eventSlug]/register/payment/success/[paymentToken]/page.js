@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import {
-  registrationFlowPhase,
   resolveSuccessfulRegistrationConfirmation
 } from "../../../../../../../../lib/passreserve-registrations";
 
@@ -10,8 +9,8 @@ export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;
 
   return {
-    title: `Payment return for ${eventSlug}`,
-    description: `Resolve the Passreserve.com payment return for ${slug}.`
+    title: `Payment status for ${eventSlug}`,
+    description: `Resolve the Passreserve.com payment status for ${slug}.`
   };
 }
 
@@ -38,10 +37,7 @@ export default async function RegistrationPaymentSuccessPage({
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} payment return
-            </span>
+            <span className="eyebrow">Payment</span>
             <h1>{resolution.title}</h1>
             <p>{resolution.message}</p>
             <div className="hero-actions">
@@ -49,7 +45,7 @@ export default async function RegistrationPaymentSuccessPage({
                 className="button button-primary"
                 href={`/${slug}/events/${eventSlug}/register/payment/cancel/${paymentToken}`}
               >
-                Open the pending-payment route
+                Open the pending payment page
               </Link>
               <Link className="button button-secondary" href={`/${slug}/events/${eventSlug}`}>
                 Return to the event page

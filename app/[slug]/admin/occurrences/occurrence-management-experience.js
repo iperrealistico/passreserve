@@ -486,7 +486,7 @@ export default function OccurrenceManagementExperience({
               Back to event catalog
             </Link>
             <Link className="button button-secondary" href={organizer.publicHref}>
-              Open public organizer page
+              Open public host page
             </Link>
           </div>
         </aside>
@@ -933,7 +933,7 @@ export default function OccurrenceManagementExperience({
                   onChange={handleEditorChange}
                   type="checkbox"
                 />
-                <span>Published on the public organizer page</span>
+                <span>Published on the public host page</span>
               </label>
 
               <div className="admin-form-actions">

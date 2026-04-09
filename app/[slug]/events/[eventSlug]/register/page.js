@@ -4,8 +4,7 @@ import { notFound } from "next/navigation";
 import {
   getRegistrationExperienceBySlugs,
   getRegistrationFieldRules,
-  getRegistrationRouteParams,
-  registrationFlowPhase
+  getRegistrationRouteParams
 } from "../../../../../lib/passreserve-registrations";
 import RegistrationFlowExperience from "./registration-flow-experience";
 
@@ -51,22 +50,19 @@ export default async function RegistrationPage({ params, searchParams }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Registration holds, confirmation-first lifecycle, and Stripe-ready payment handoff
+              Simple registration with clear dates and payment expectations
             </span>
           </div>
           <nav className="nav" aria-label="Registration navigation">
             <Link href="/">Discover</Link>
-            <Link href={organizer.organizerHref}>Organizer hub</Link>
+            <Link href={organizer.organizerHref}>Host page</Link>
             <Link href={event.detailHref}>Event page</Link>
           </nav>
         </header>
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {registrationFlowPhase.label} live
-            </span>
+            <span className="eyebrow">Registration</span>
             <div className="breadcrumb">
               <Link href={organizer.organizerHref}>{organizer.name}</Link>
               <span>/</span>
@@ -77,15 +73,14 @@ export default async function RegistrationPage({ params, searchParams }) {
             <div className="page-place">
               {organizer.city}, {organizer.region}
             </div>
-            <h1>Start the attendee registration flow.</h1>
-            <p>{registrationFlowPhase.summary}</p>
+            <h1>Start your registration.</h1>
             <p>
-              The attendee now picks a real occurrence, chooses ticket quantity, adds contact
-              details, and creates a signed hold before landing on the confirmation step.
+              Choose a date, select the right ticket, add your contact details, and review your
+              total before you confirm anything.
             </p>
             <div className="pill-list">
               <span className="pill">{event.collectionLabel}</span>
-              <span className="pill">{event.occurrences.length} live occurrences</span>
+              <span className="pill">{event.occurrences.length} upcoming dates</span>
               <span className="pill">{selectedOccurrence?.capacityLabel}</span>
               <span className="pill">{selectedTicketCategory?.label}</span>
             </div>
@@ -93,12 +88,11 @@ export default async function RegistrationPage({ params, searchParams }) {
 
           <aside className="panel hero-aside public-hero-aside">
             <div className="status-block">
-              <div className="status-label">Registration snapshot</div>
+              <div className="status-label">Selected date</div>
               <h2>{selectedOccurrence?.label}</h2>
               <p>
-                Holds last 30 minutes so the selected quantity can be protected without
-                overselling the occurrence. Confirmation and registration code generation
-                happen on the next two routes.
+                Your place is only reserved after you confirm on the next screen. If an online
+                payment is required, you&apos;ll see that split clearly before it opens.
               </p>
             </div>
 
@@ -125,25 +119,22 @@ export default async function RegistrationPage({ params, searchParams }) {
               <div className="status-item">
                 <span className="status-index">1</span>
                 <div>
-                  <strong>Capacity engine</strong>
-                  Confirmed attendees, pending holds, and pending-payment seats now shape the
-                  published availability.
+                  <strong>Clear availability</strong>
+                  The seat count shown here reflects what is currently open for this date.
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">2</span>
                 <div>
-                  <strong>Confirmation flow</strong>
-                  The attendee still reviews the occurrence and acceptance checklist before the
-                  registration is finalized.
+                  <strong>Review before you commit</strong>
+                  You&apos;ll confirm your details and payment split before the registration is finalized.
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">3</span>
                 <div>
-                  <strong>Payment handoff</strong>
-                  After confirmation, payment-required registrations now hand off into Stripe
-                  Checkout or an explicit preview fallback when Stripe keys are absent.
+                  <strong>Payment stays explicit</strong>
+                  If any amount is due online, you&apos;ll see it separately from what stays due at the event.
                 </div>
               </div>
             </div>
@@ -159,10 +150,7 @@ export default async function RegistrationPage({ params, searchParams }) {
         />
 
         <footer className="footer">
-          <span>
-            Phase 09 keeps the occurrence-first registration flow intact while adding hosted
-            payment handoff and webhook-ready reconciliation.
-          </span>
+          <span>Need more context first? Return to the event page at any time.</span>
           <Link href={event.detailHref}>Return to the event page</Link>
         </footer>
       </div>

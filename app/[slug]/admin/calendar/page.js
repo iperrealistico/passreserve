@@ -16,12 +16,12 @@ export async function generateMetadata({ params }) {
 
   if (!organizer) {
     return {
-      title: "Organizer calendar not found"
+      title: "Host calendar not found"
     };
   }
 
   return {
-    title: `${organizer.name} organizer calendar`
+    title: `${organizer.name} calendar`
   };
 }
 

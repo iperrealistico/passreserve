@@ -52,7 +52,7 @@ function summarizeProviders(records) {
 export default function PaymentOperationsExperience({ organizer }) {
   const [records, setRecords] = useState(organizer.records);
   const [message, setMessage] = useState(
-    "This organizer payment board keeps online collection, venue balances, and refunds visible without using live provider state."
+    "This page keeps online payments, venue balances, and refunds visible for the host team."
   );
 
   const paymentRecords = records.filter(
@@ -84,12 +84,11 @@ export default function PaymentOperationsExperience({ organizer }) {
     <div className="admin-page">
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Payment operations</div>
-          <h2>Organizer payment visibility now shows online collection, venue balance, and refunds.</h2>
+          <div className="section-kicker">Payments</div>
+          <h2>Track online payments, venue balances, and refunds in one place.</h2>
           <p>
-            This route keeps the payment side of Passreserve.com calm and explicit. Organizers can
-            see what was collected online, what is still due at the venue, and which records need
-            manual reconciliation before the occurrence runs.
+            This page shows what was collected online, what is still due at the venue, and which
+            registrations need follow-up before the date begins.
           </p>
           <div className="pill-list">
             <span className="pill">{summary.onlineCollectedLabel} online collected</span>
@@ -101,11 +100,11 @@ export default function PaymentOperationsExperience({ organizer }) {
 
         <aside className="panel hero-aside admin-hero-aside">
           <div className="status-block">
-            <div className="status-label">Reconciliation queue</div>
+            <div className="status-label">Payment follow-up</div>
             <h2>{organizer.name}</h2>
             <p>
-              Organizers can mark online amounts received, close venue balances, and keep refund
-              history visible without collapsing payment logic back into the public flow.
+              Hosts can mark online amounts received, close venue balances, and keep refund
+              history visible without sending guests back through the public flow.
             </p>
           </div>
 
@@ -234,7 +233,7 @@ export default function PaymentOperationsExperience({ organizer }) {
 
           <article className="panel section-card admin-section">
             <div className="section-kicker">Follow-up lanes</div>
-            <h3>What still needs organizer attention.</h3>
+            <h3>What still needs host attention.</h3>
             <div className="timeline">
               <div className="timeline-step">
                 <strong>Pending online</strong>

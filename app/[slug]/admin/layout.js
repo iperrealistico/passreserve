@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 
 import {
   getOrganizerOperationsBySlug,
-  organizerOperationsGuidance,
-  organizerOperationsPhase
+  organizerOperationsGuidance
 } from "../../../lib/passreserve-operations";
 
 export default async function OrganizerAdminLayout({ children, params }) {
@@ -41,7 +40,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
       href: organizer.occurrencesHref
     },
     {
-      label: "Public organizer page",
+      label: "Public host page",
       href: organizer.publicHref
     }
   ];
@@ -55,12 +54,12 @@ export default async function OrganizerAdminLayout({ children, params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Organizer operations, registrations, calendar, and payment follow-up
+              Host dashboard for dates, registrations, and payments
             </span>
           </div>
-          <nav className="nav" aria-label="Organizer admin shortcuts">
-            <Link href="/">Discover</Link>
-            <Link href={organizer.publicHref}>Organizer hub</Link>
+          <nav className="nav" aria-label="Host dashboard shortcuts">
+            <Link href="/">Public home</Link>
+            <Link href={organizer.publicHref}>Host page</Link>
             <Link href={organizer.dashboardHref}>Dashboard</Link>
             <Link href={organizer.calendarHref}>Calendar</Link>
             <Link href={organizer.registrationsHref}>Registrations</Link>
@@ -71,10 +70,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
         <section className="admin-layout">
           <aside className="panel admin-sidebar">
             <div className="admin-sidebar-block">
-              <span className="eyebrow">
-                <span className="eyebrow-dot" aria-hidden="true" />
-                {organizerOperationsPhase.label} live
-              </span>
+              <span className="eyebrow">Host dashboard</span>
               <div className="page-place">
                 {organizer.city}, {organizer.region}
               </div>
@@ -102,7 +98,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
             </div>
 
             <div className="admin-sidebar-block">
-              <div className="section-kicker">Admin navigation</div>
+              <div className="section-kicker">Quick links</div>
               <div className="admin-nav-list">
                 {navigation.map((item) => (
                   <Link className="admin-nav-link" href={item.href} key={item.href}>
@@ -114,7 +110,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
             </div>
 
             <div className="admin-sidebar-block">
-              <div className="section-kicker">Why this admin layer exists</div>
+              <div className="section-kicker">Today's focus</div>
               <div className="status-list">
                 {organizerOperationsGuidance.map((item, index) => (
                   <div className="status-item" key={item.title}>

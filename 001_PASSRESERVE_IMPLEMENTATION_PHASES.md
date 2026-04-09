@@ -373,22 +373,30 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 12: Legacy removal, data migration, QA, deployment, and launch readiness
 
-**Status:** `NOT STARTED`
+**Status:** `IN PROGRESS`
 
 **Patch note:** `TBD`
 
 **Checklist**
 
-- [ ] Remove or isolate obsolete bike-rental UI and business logic
+- [x] Remove or isolate obsolete bike-rental UI and business logic
 - [ ] Decide final migration or retirement path for legacy tables and fields
-- [ ] Replace dangerous build and deployment behaviors with safer alternatives
-- [ ] Restore a reliable testing baseline for unit, integration, and end-to-end verification
+- [x] Replace dangerous build and deployment behaviors with safer alternatives
+- [x] Restore a reliable testing baseline for unit, integration, and end-to-end verification
 - [ ] Improve lint and type-safety health to a manageable baseline
 - [ ] Verify auth, timezone, email, and payment correctness end to end
 - [ ] Review Vercel deployment readiness and environment completeness
-- [ ] Update root documentation to describe the finished Passreserve.com product
+- [x] Update root documentation to describe the finished Passreserve.com product
 - [ ] Confirm release readiness and produce final handoff documentation
 
 **Activity log**
 
-- `No activity recorded yet.`
+- `2026-04-05 23:45 CEST` Completed the mandatory onboarding read-through in the required order, including the phase tracker, full patch-note history, architecture bundle, transformation plan, and Passreserve.com language guide.
+- `2026-04-05 23:45 CEST` Selected Phase 12 as the active implementation slice because Phases 01 through 11 are complete and the remaining project work now centers on cleanup, hardening, launch-readiness, and legacy removal.
+- `2026-04-05 23:45 CEST` Beginning Phase 12 by auditing the active Passreserve.com workspace for the highest-priority safe-first tasks: build and deployment safety, verification baseline repair, remaining legacy artifacts, and release-readiness blockers.
+- `2026-04-05 23:54 CEST` Completed the first Phase 12 hardening pass: audited the active workspace and confirmed the checked-in Passreserve.com build path is already non-destructive (`next build` only), while active public and admin routes no longer expose bike-rental UI or legacy operational language outside reference-only docs and sample content notes.
+- `2026-04-05 23:54 CEST` Added a real root `README.md`, repo-native lint and test scripts, `eslint.config.mjs`, `vitest.config.mjs`, a built-app smoke verification script in `scripts/smoke-check.mjs`, and unit coverage for payment math, discovery ranking, registration flow, and organizer operations transitions.
+- `2026-04-05 23:54 CEST` Verified the new local quality baseline with `npm run lint`, `npm run test`, and `npm run verify` (lint + unit tests + production build + built-route smoke checks), and confirmed the initial dev-tool install worked cleanly in the active Passreserve.com workspace.
+- `2026-04-05 23:56 CEST` Followed up the npm audit advisory by upgrading `next` from `16.1.6` to `16.2.2`, reran `npm install` and `npm run verify`, and confirmed the workspace now reports `found 0 vulnerabilities` from npm audit.
+- `2026-04-05 23:54 CEST` Phase 12 remains `IN PROGRESS`; auth/timezone/email/payment end-to-end validation, environment and Vercel readiness review, legacy table retirement decisions, and final release handoff are still open before a phase-close patch note, commit, push, and deployment verification can occur.
+- `2026-04-06 00:15 CEST` Started the frontend regrounding pass requested by the user: reworking the public and admin-facing UI away from phase-demo messaging and toward a warmer, community-oriented event product with clearer attendee and organizer journeys.
