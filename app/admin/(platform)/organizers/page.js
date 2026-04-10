@@ -12,10 +12,10 @@ export default function PlatformOrganizersPage() {
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
           <div className="section-kicker">Host management</div>
-          <h2>Support every host from one organizer roster.</h2>
+          <h2>Review every host from one organizer roster.</h2>
           <p>
-            Each host detail view connects the public page, host dashboard, payment follow-up,
-            and support context in one place so the team can jump directly to the right action.
+            Each host detail view connects the public page, host dashboard, registrations, and
+            payments so approved staff can jump directly to the right action.
           </p>
           <div className="pill-list">
             <span className="pill">{platformOrganizers.length} hosts</span>
@@ -35,10 +35,10 @@ export default function PlatformOrganizersPage() {
           </div>
           <div className="hero-actions">
             <Link className="button button-primary" href="/admin/emails">
-              Open host requests
+              Open inbox
             </Link>
             <Link className="button button-secondary" href="/admin/health">
-              Review service status
+              View checks
             </Link>
           </div>
         </aside>

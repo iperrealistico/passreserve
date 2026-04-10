@@ -18,10 +18,10 @@ export default async function PlatformAdminOverviewPage() {
       <section className="hero admin-hero">
         <article className="panel hero-copy admin-hero-copy">
           <div className="section-kicker">Support overview</div>
-          <h2>Review host requests, keep the site accurate, and monitor service status.</h2>
+          <h2>Manage hosts, public pages, email templates, and key admin checks.</h2>
           <p>
-            This dashboard keeps host requests, page content, email readiness, and service checks
-            together so the team can act quickly.
+            Start here to review hosts, content, email templates, and the main site checks
+            without jumping between tools.
           </p>
           <div className="pill-list">
             <span className="pill">{overview.summary.organizerCount} hosts</span>
@@ -65,7 +65,7 @@ export default async function PlatformAdminOverviewPage() {
               Review hosts
             </Link>
             <Link className="button button-secondary" href="/admin/health">
-              Open service status
+              View checks
             </Link>
           </div>
         </aside>
@@ -96,7 +96,7 @@ export default async function PlatformAdminOverviewPage() {
         <aside className="admin-page">
           <article className="panel section-card admin-section">
             <div className="section-kicker">Focus areas</div>
-            <h3>What this team area covers.</h3>
+            <h3>Core admin areas.</h3>
             <div className="timeline">
               {overview.releaseTracks.map((item) => (
                 <div className="timeline-step" key={item.title}>

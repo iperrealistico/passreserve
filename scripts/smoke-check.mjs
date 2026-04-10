@@ -359,7 +359,9 @@ async function main() {
     const platformOverview = await fetchHtml(baseUrl, "/admin");
     assert(platformOverview.response.status === 200, "Team dashboard should return 200.");
     assert(
-      platformOverview.text.includes("Review host requests, keep the site accurate, and monitor service status."),
+      platformOverview.text.includes(
+        "Manage hosts, public pages, email templates, and key admin checks."
+      ),
       "Team dashboard should render the visitor-safe support overview copy."
     );
     assertNoInternalCopy(platformOverview.text, "Team dashboard");

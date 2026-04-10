@@ -19,16 +19,14 @@ export default async function PlatformAdminLayout({ children }) {
             <Link className="wordmark-name" href="/">
               Passreserve.com
             </Link>
-            <span className="wordmark-tag">
-              Team tools for host requests, emails, settings, and service status
-            </span>
+            <span className="wordmark-tag">Private tools for approved Passreserve staff</span>
           </div>
           <nav className="nav" aria-label="Team shortcuts">
             <Link href="/">Public home</Link>
             <Link href="/about">About</Link>
             <Link href="/admin/organizers">Hosts</Link>
             <Link href="/admin/emails">Emails</Link>
-            <Link href="/admin/health">Service status</Link>
+            <Link href="/admin/health">Checks</Link>
           </nav>
         </header>
 
@@ -38,8 +36,8 @@ export default async function PlatformAdminLayout({ children }) {
               <div className="page-place">{overview.releaseLabel}</div>
               <h1 className="admin-sidebar-title">Support dashboard</h1>
               <p className="admin-sidebar-copy">
-                Review host requests, keep public pages accurate, check emails, and monitor
-                service status from one place.
+                Review hosts, keep public pages accurate, check emails, and follow the main
+                internal checks from one place.
               </p>
             </div>
 

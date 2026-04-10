@@ -5,9 +5,7 @@ import { useActionState, useEffect, useState } from "react";
 
 import { submitOrganizerRequestAction } from "./actions";
 import {
-  discoveryJourneys,
   discoveryQuickSearches,
-  discoverySignals,
   getDiscoveryResults,
   organizerLaunchWindows,
   organizerPaymentModels,
@@ -35,22 +33,72 @@ const initialActionState = {
   fieldErrors: {}
 };
 
-const visitorJourneys = [
+const hostSeoHighlights = [
   {
-    title: "Join an event",
+    title: "What Passreserve.com is",
     description:
-      "Start from a city, a host, or an event style, then move straight to the date and details that matter.",
-    steps: discoveryJourneys[0].steps
+      "A free event registration tool for organizers who need a public event page, clear dates, and flexible payment choices without a heavy software bill."
   },
   {
-    title: "Host an event",
+    title: "Why the base stays free",
     description:
-      "Share the basics about your events, get set up with approval, and publish a page that people can trust quickly.",
-    steps: [
-      "Tell us who you are, what you host, and where your events happen.",
-      "Choose whether guests pay nothing online, a deposit, or the full amount.",
-      "We review the request and help shape your first public page and event lineup."
-    ]
+      "The core host flow stays free so independent organizers, venues, studios, guides, and associations can publish events and collect registrations without committing to another recurring paid tool."
+  },
+  {
+    title: "Why hosts move over",
+    description:
+      "Passreserve.com makes it easier to keep online fees low by letting you collect nothing online, take only a deposit, or let guests pay directly at the event when that suits the format better."
+  }
+];
+
+const hostComparisonRows = [
+  {
+    label: "Base host access",
+    passreserve: "Free host page, free event listings, free registration flow",
+    marketplace: "Often tied to ticket fees or marketplace pressure",
+    software: "Usually tied to a paid plan"
+  },
+  {
+    label: "Pay at the event",
+    passreserve: "Built in as a normal payment option",
+    marketplace: "Often secondary to full online checkout",
+    software: "Varies by setup"
+  },
+  {
+    label: "Deposit-only collection",
+    passreserve: "Yes, with the split shown clearly before signup",
+    marketplace: "Sometimes, depending on the tool",
+    software: "Sometimes, often with more setup"
+  },
+  {
+    label: "Best fit",
+    passreserve: "Workshops, retreats, dinners, tours, classes, local experiences",
+    marketplace: "Broad public ticket sales and marketplace browsing",
+    software: "Teams ready for a larger software stack"
+  },
+  {
+    label: "Cost pressure for small hosts",
+    passreserve: "Low, because the base stays free",
+    marketplace: "Higher, especially when online fees drive every signup",
+    software: "Higher, because access often starts with a subscription"
+  }
+];
+
+const hostSearchIntentGroups = [
+  {
+    title: "Useful search phrases for hosts",
+    detail:
+      "free event registration software, free event ticketing software, event organizer software, event page builder, event signup software, workshop registration software, retreat registration software, class registration software, festival registration software, event software for small teams, free event management software, event software with deposits, event software with pay at event"
+  },
+  {
+    title: "Event formats that fit well",
+    detail:
+      "workshops, guided tours, retreats, cooking classes, studio events, training camps, local festivals, tastings, outdoor experiences, wellness sessions, community events, charity events, venue programs, multi-date experiences, recurring classes, seasonal dinners"
+  },
+  {
+    title: "Common host intent",
+    detail:
+      "how to create an event page for free, how to accept event registrations without high fees, how to take a deposit for an event, how to let guests pay at the event, free alternative to paid ticketing software, free software for workshop organizers, software for recurring event dates, software for local event hosts"
   }
 ];
 
@@ -227,7 +275,7 @@ export default function HomeExperience() {
 
             <div className="hero-actions hero-actions-inline">
               <a className="button button-primary" href="#organizer-launch">
-                Request organizer access
+                Request access
               </a>
               <Link className="button button-secondary" href="/admin/login">
                 Existing organizer login
@@ -361,35 +409,80 @@ export default function HomeExperience() {
         </section>
 
         <section className="section-grid" id="how-it-works">
-          <article className="panel section-card section-span">
-            <div className="section-kicker">Two clear paths</div>
-            <h3>Join an event or launch one.</h3>
-            <p>
-              Passreserve.com is built around two simple jobs: helping guests find the right
-              event and helping hosts publish it without turning setup into extra overhead.
-            </p>
-            <div className="journey-grid">
-              {visitorJourneys.map((journey) => (
-                <article className="journey-card" key={journey.title}>
-                  <strong>{journey.title}</strong>
-                  <p>{journey.description}</p>
-                  <ul>
-                    {journey.steps.map((step) => (
-                      <li key={step}>{step}</li>
-                    ))}
-                  </ul>
+          <article className="panel section-card section-span seo-section">
+            <div className="section-kicker">For hosts</div>
+            <h2>Free event registration software for organizers who want clear pages and flexible payments.</h2>
+            <div className="seo-copy">
+              <p>
+                Passreserve.com is a free event registration platform for event organizers,
+                workshop hosts, retreat planners, studio owners, venues, guides, community groups,
+                associations, festival teams, and local experience brands. It helps you publish an
+                event page, list upcoming dates, collect registrations, show pricing clearly, and
+                decide whether guests pay online, leave only a deposit, or pay directly at the
+                event.
+              </p>
+              <p>
+                The base stays free because many hosts do not need another expensive ticketing
+                subscription just to launch a clean event page and take signups. Passreserve.com
+                will grow with more advanced features over time, but the core host flow stays
+                free: request access, publish your page, list events, accept registrations, and
+                keep the option to collect payment in person when that fits your format better.
+              </p>
+              <p>
+                That makes Passreserve.com a strong fit if you are comparing free event
+                registration software, event organizer software, workshop registration tools,
+                class registration software, retreat registration pages, guided tour signup
+                software, community event software, or a lower-cost alternative to high-fee online
+                ticketing tools. Hosts keep more control over the guest journey, avoid unnecessary
+                online fee pressure, and can still offer deposits or full prepayment when they
+                want to.
+              </p>
+            </div>
+            <div className="comparison-table-wrap">
+              <table className="comparison-table">
+                <caption>How Passreserve.com compares for hosts</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">What hosts compare</th>
+                    <th scope="col">Passreserve.com</th>
+                    <th scope="col">Typical ticketing marketplace</th>
+                    <th scope="col">Typical paid event software</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {hostComparisonRows.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row">{row.label}</th>
+                      <td>{row.passreserve}</td>
+                      <td>{row.marketplace}</td>
+                      <td>{row.software}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </article>
+
+          {hostSeoHighlights.map((item) => (
+            <article className="panel section-card" key={item.title}>
+              <div className="section-kicker">Host value</div>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))}
+
+          <article className="panel section-card section-span seo-keywords-card">
+            <div className="section-kicker">Host search intent</div>
+            <h3>Search phrases and event keywords this homepage should answer.</h3>
+            <div className="seo-detail-grid">
+              {hostSearchIntentGroups.map((group) => (
+                <article className="seo-detail-card" key={group.title}>
+                  <strong>{group.title}</strong>
+                  <p>{group.detail}</p>
                 </article>
               ))}
             </div>
           </article>
-
-          {discoverySignals.map((signal) => (
-            <article className="panel section-card" key={signal.title}>
-              <div className="section-kicker">Why it feels clearer</div>
-              <h3>{signal.title}</h3>
-              <p>{signal.detail}</p>
-            </article>
-          ))}
         </section>
 
         <section className="section-grid" id="organizer-launch">
@@ -499,12 +592,16 @@ export default function HomeExperience() {
                 </select>
               </label>
 
-              <label className="field">
+              <label className="field field-rich field-span-2">
                 <span>What do you host?</span>
+                <small className="field-note">
+                  Describe the event formats you run so we can shape the right page, keywords,
+                  and registration flow.
+                </small>
                 <textarea
                   name="eventFocus"
                   onChange={handleOrganizerFieldChange}
-                  placeholder="Weekend workshops, guided rides, seasonal dinners, community walks..."
+                  placeholder="Workshops, retreats, guided tours, community dinners, studio classes, outdoor experiences..."
                   rows="4"
                   value={organizerRequest.eventFocus}
                 />
@@ -513,23 +610,27 @@ export default function HomeExperience() {
                 ) : null}
               </label>
 
-              <label className="field">
+              <label className="field field-rich field-span-2">
                 <span>Anything else we should know?</span>
+                <small className="field-note">
+                  Share anything useful about venue, timing, recurring dates, group size, city,
+                  payment style, or whether guests should pay at the event.
+                </small>
                 <textarea
                   name="note"
                   onChange={handleOrganizerFieldChange}
-                  placeholder="Share anything helpful about your audience, venue, timing, or setup."
+                  placeholder="Venue details, launch timing, recurring dates, payment preference, audience notes, or anything else that helps us shape your page."
                   rows="4"
                   value={organizerRequest.note}
                 />
               </label>
 
               <button
-                className="button button-primary"
+                className="button button-primary field-span-2"
                 disabled={!canSubmitOrganizerRequest || isPending}
                 type="submit"
               >
-                {isPending ? "Saving request..." : "Request organizer access"}
+                {isPending ? "Saving request..." : "Request access"}
               </button>
             </form>
 

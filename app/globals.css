@@ -299,6 +299,7 @@ select {
 
 .hero-actions-inline .button {
   width: 100%;
+  white-space: nowrap;
 }
 
 .button {
@@ -788,18 +789,55 @@ select {
 
 .search-field input,
 .field input,
-.field select {
+.field select,
+.field textarea {
   min-height: 3.1rem;
   padding: 0.85rem 1rem;
   border: 1px solid rgba(23, 50, 40, 0.12);
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.82);
   color: var(--text);
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
 }
 
 .search-field input::placeholder,
-.field input::placeholder {
+.field input::placeholder,
+.field textarea::placeholder {
   color: rgba(79, 101, 93, 0.76);
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.search-field input:focus {
+  outline: none;
+  border-color: rgba(203, 93, 45, 0.45);
+  box-shadow: 0 0 0 4px rgba(203, 93, 45, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.field textarea {
+  min-height: 9rem;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.field-note {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.field-rich {
+  gap: 0.6rem;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.44);
+  border: 1px solid rgba(23, 50, 40, 0.08);
+}
+
+.field-span-2 {
+  grid-column: 1 / -1;
 }
 
 .quick-chip-row {
@@ -1023,6 +1061,95 @@ select {
   margin-top: 1.2rem;
 }
 
+.seo-section h2,
+.seo-keywords-card h3 {
+  max-width: 52rem;
+}
+
+.seo-copy {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+
+.seo-copy p,
+.seo-detail-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.comparison-table-wrap {
+  margin-top: 1.4rem;
+  overflow-x: auto;
+  border: 1px solid rgba(23, 50, 40, 0.08);
+  border-radius: 1.35rem;
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 52rem;
+}
+
+.comparison-table caption {
+  padding: 1rem 1.2rem 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: 1rem 1.2rem;
+  border-top: 1px solid rgba(23, 50, 40, 0.08);
+  text-align: left;
+  vertical-align: top;
+  line-height: 1.7;
+}
+
+.comparison-table thead th {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.comparison-table tbody th {
+  width: 13rem;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.seo-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 0.95rem;
+  margin-top: 1.2rem;
+}
+
+.seo-detail-card {
+  padding: 1rem 1.05rem;
+  border-radius: 1.2rem;
+  border: 1px solid rgba(23, 50, 40, 0.08);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.seo-detail-card strong {
+  display: block;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .journey-card,
 .principle-item,
 .submission-card,
@@ -1062,7 +1189,8 @@ select {
 
 .launch-form {
   display: grid;
-  gap: 0.2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
   margin-top: 1.2rem;
 }
 
@@ -1098,6 +1226,19 @@ select {
 .route-button {
   margin-top: 0.9rem;
   width: fit-content;
+}
+
+.hero-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.hero-single-panel {
+  width: min(100%, 54rem);
+  justify-self: center;
+}
+
+.admin-login-visual {
+  width: min(100%, 30rem);
 }
 
 .page-place,
@@ -2245,6 +2386,7 @@ select {
   .admin-card-metrics,
   .ops-meta-grid,
   .ops-provider-grid,
+  .launch-form,
   .registration-stepper,
   .registration-field-grid,
   .registration-review-grid {

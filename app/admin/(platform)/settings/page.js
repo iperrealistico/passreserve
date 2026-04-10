@@ -67,7 +67,7 @@ export default async function PlatformSettingsPage() {
               <p>{siteSettingsSnapshot.operations.platformEmail}</p>
             </div>
             <div className="admin-note-item">
-              <strong>Host request inbox</strong>
+              <strong>Launch inbox</strong>
               <p>{siteSettingsSnapshot.operations.launchInbox}</p>
             </div>
             <div className="admin-note-item">
@@ -75,7 +75,7 @@ export default async function PlatformSettingsPage() {
               <p>{siteSettingsSnapshot.operations.adminNotifications}</p>
             </div>
             <div className="admin-note-item">
-              <strong>Response target</strong>
+              <strong>Reply target</strong>
               <p>{siteSettingsSnapshot.operations.supportResponseTarget}</p>
             </div>
           </div>
@@ -115,7 +115,7 @@ export default async function PlatformSettingsPage() {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Health cross-check</div>
-        <h3>Settings connect directly to current service status.</h3>
+        <h3>Settings connect directly to the current site checks.</h3>
         <div className="timeline">
           {platformHealth.checks.map((check) => (
             <div className="timeline-step" key={check.title}>

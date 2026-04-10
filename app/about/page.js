@@ -38,7 +38,7 @@ export default function AboutPage() {
                 Browse events
               </Link>
               <Link className="button button-secondary" href="/#organizer-launch">
-                Request organizer access
+                Request access
               </Link>
             </div>
           </article>
