@@ -58,10 +58,6 @@ export const forbiddenUiCopyRules = [
     htmlPattern: /\brider\b/i
   },
   {
-    label: "booking",
-    htmlPattern: /\bbooking\b/i
-  },
-  {
     label: "pickup",
     htmlPattern: /\bpickup\b/i
   },

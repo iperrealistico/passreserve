@@ -35,19 +35,56 @@ const initialActionState = {
 
 const hostSeoHighlights = [
   {
-    title: "What Passreserve.com is",
+    eyebrow: "Free to launch",
+    title: "Publish an event page without paying for the basics.",
     description:
-      "A free event registration tool for organizers who need a public event page, clear dates, and flexible payment choices without a heavy software bill."
+      "Use Passreserve.com as a free event booking platform to publish a host page, show recurring dates, collect event registrations, and keep the event setup simple."
   },
   {
-    title: "Why the base stays free",
+    eyebrow: "Flexible collection",
+    title: "Let guests pay online, leave a deposit, or pay at the event.",
     description:
-      "The core host flow stays free so independent organizers, venues, studios, guides, and associations can publish events and collect registrations without committing to another recurring paid tool."
+      "Passreserve.com works for hosts who want full online checkout, deposit-only event booking, or a free event signup flow where payment happens directly at the venue."
   },
   {
-    title: "Why hosts move over",
+    eyebrow: "Built for small teams",
+    title: "Avoid the usual pressure of high ticketing fees.",
     description:
-      "Passreserve.com makes it easier to keep online fees low by letting you collect nothing online, take only a deposit, or let guests pay directly at the event when that suits the format better."
+      "It is a strong alternative when you are searching for free event registration software, free event ticketing alternatives, or software that does not force every booking into a paid online transaction."
+  }
+];
+
+const hostSeoPills = [
+  "free event registration software",
+  "free event booking platform",
+  "pay at the event",
+  "deposit optional",
+  "free event page",
+  "event signup software",
+  "workshop registration",
+  "retreat booking",
+  "class registration",
+  "recurring event dates"
+];
+
+const hostSeoSignalCards = [
+  {
+    label: "Free",
+    title: "Free platform for the core host flow",
+    detail:
+      "Publish the page, list your dates, and collect registrations without starting from a paid subscription."
+  },
+  {
+    label: "Pay later",
+    title: "Pay at the event when that fits your format",
+    detail:
+      "Useful for workshops, dinners, guided experiences, local classes, and community formats that do not need forced online checkout."
+  },
+  {
+    label: "Deposit",
+    title: "Take a deposit without hiding the remaining balance",
+    detail:
+      "Guests see the split clearly before they register, so hosts can keep trust high and fee pressure low."
   }
 ];
 
@@ -86,19 +123,19 @@ const hostComparisonRows = [
 
 const hostSearchIntentGroups = [
   {
-    title: "Useful search phrases for hosts",
+    title: "Free platform keywords",
     detail:
-      "free event registration software, free event ticketing software, event organizer software, event page builder, event signup software, workshop registration software, retreat registration software, class registration software, festival registration software, event software for small teams, free event management software, event software with deposits, event software with pay at event"
+      "free event registration software, free event booking platform, free event signup platform, free event management software, free ticketing alternative, free event page builder, free software for event organizers, free software for workshops and classes, free event software for small teams"
   },
   {
-    title: "Event formats that fit well",
+    title: "Pay-at-event and deposit keywords",
     detail:
-      "workshops, guided tours, retreats, cooking classes, studio events, training camps, local festivals, tastings, outdoor experiences, wellness sessions, community events, charity events, venue programs, multi-date experiences, recurring classes, seasonal dinners"
+      "pay at the event, pay later event booking, deposit event registration, deposit-only event booking, event software without forced checkout, event booking with balance due at venue, collect deposits for workshops, let guests pay at the venue, no online fee event booking"
   },
   {
-    title: "Common host intent",
+    title: "Organizer search intent",
     detail:
-      "how to create an event page for free, how to accept event registrations without high fees, how to take a deposit for an event, how to let guests pay at the event, free alternative to paid ticketing software, free software for workshop organizers, software for recurring event dates, software for local event hosts"
+      "how to create an event page for free, how to accept event registrations without high fees, best free platform to book events, free event software for recurring dates, event booking software for retreats, class booking software for small businesses, free platform for local experiences, software for hosts who want guests to pay at the event"
   }
 ];
 
@@ -411,33 +448,78 @@ export default function HomeExperience() {
         <section className="section-grid" id="how-it-works">
           <article className="panel section-card section-span seo-section">
             <div className="section-kicker">For hosts</div>
-            <h2>Free event registration software for organizers who want clear pages and flexible payments.</h2>
-            <div className="seo-copy">
-              <p>
-                Passreserve.com is a free event registration platform for event organizers,
-                workshop hosts, retreat planners, studio owners, venues, guides, community groups,
-                associations, festival teams, and local experience brands. It helps you publish an
-                event page, list upcoming dates, collect registrations, show pricing clearly, and
-                decide whether guests pay online, leave only a deposit, or pay directly at the
-                event.
-              </p>
-              <p>
-                The base stays free because many hosts do not need another expensive ticketing
-                subscription just to launch a clean event page and take signups. Passreserve.com
-                will grow with more advanced features over time, but the core host flow stays
-                free: request access, publish your page, list events, accept registrations, and
-                keep the option to collect payment in person when that fits your format better.
-              </p>
-              <p>
-                That makes Passreserve.com a strong fit if you are comparing free event
-                registration software, event organizer software, workshop registration tools,
-                class registration software, retreat registration pages, guided tour signup
-                software, community event software, or a lower-cost alternative to high-fee online
-                ticketing tools. Hosts keep more control over the guest journey, avoid unnecessary
-                online fee pressure, and can still offer deposits or full prepayment when they
-                want to.
-              </p>
+            <div className="seo-host-hero">
+              <div className="seo-copy">
+                <h2>
+                  Free event registration software for organizers who want clear pages and flexible
+                  payments.
+                </h2>
+                <p>
+                  Passreserve.com is a free event registration platform for event organizers,
+                  workshop hosts, retreat planners, studio owners, venues, guides, community
+                  groups, associations, festival teams, and local experience brands. It helps you
+                  publish an event page, list upcoming dates, collect registrations, show pricing
+                  clearly, and decide whether guests pay online, leave only a deposit, or pay
+                  directly at the event.
+                </p>
+                <p>
+                  The base stays free because many hosts do not need another expensive ticketing
+                  subscription just to launch a clean event page and take signups. Passreserve.com
+                  will grow with more advanced features over time, but the core host flow stays
+                  free: request access, publish your page, list events, accept registrations, and
+                  keep the option to collect payment in person when that fits your format better.
+                </p>
+                <p>
+                  That makes Passreserve.com a strong fit if you are comparing free event
+                  registration software, free event booking platforms, event organizer software,
+                  workshop registration tools, class registration software, retreat registration
+                  pages, guided tour signup software, community event software, or a lower-cost
+                  alternative to high-fee online ticketing tools. Hosts keep more control over the
+                  guest journey, avoid unnecessary online fee pressure, and can still offer
+                  deposits or full prepayment when they want to.
+                </p>
+                <div className="seo-pill-cloud">
+                  {hostSeoPills.map((pill) => (
+                    <span className="seo-pill" key={pill}>
+                      {pill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="seo-visual-rail">
+                <PublicVisual
+                  className="seo-visual seo-visual-tall"
+                  sizes="(min-width: 1024px) 24vw, 100vw"
+                  visualId={routeVisuals.aboutCta}
+                />
+                <div className="seo-icon-grid">
+                  {hostSeoSignalCards.map((card) => (
+                    <article className="seo-icon-card" key={card.title}>
+                      <span className="seo-icon-mark">{card.label}</span>
+                      <strong>{card.title}</strong>
+                      <p>{card.detail}</p>
+                    </article>
+                  ))}
+                </div>
+                <PublicVisual
+                  className="seo-visual seo-visual-wide"
+                  sizes="(min-width: 1024px) 24vw, 100vw"
+                  visualId={routeVisuals.paymentPreview}
+                />
+              </div>
             </div>
+
+            <div className="seo-highlight-grid">
+              {hostSeoHighlights.map((item) => (
+                <article className="seo-highlight-card" key={item.title}>
+                  <span className="seo-highlight-label">{item.eyebrow}</span>
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                </article>
+              ))}
+            </div>
+
             <div className="comparison-table-wrap">
               <table className="comparison-table">
                 <caption>How Passreserve.com compares for hosts</caption>
@@ -462,14 +544,6 @@ export default function HomeExperience() {
               </table>
             </div>
           </article>
-
-          {hostSeoHighlights.map((item) => (
-            <article className="panel section-card" key={item.title}>
-              <div className="section-kicker">Host value</div>
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </article>
-          ))}
 
           <article className="panel section-card section-span seo-keywords-card">
             <div className="section-kicker">Host search intent</div>
