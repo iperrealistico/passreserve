@@ -5,6 +5,8 @@ import {
   getOrganizerBySlug,
   getOrganizerSlugs
 } from "../../lib/passreserve-public";
+import { PublicVisual } from "../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../lib/passreserve-visuals";
 
 function buildRegistrationHref(slug, eventSlug, occurrenceId) {
   return `/${slug}/events/${eventSlug}/register?occurrence=${occurrenceId}`;
@@ -61,7 +63,6 @@ export default async function OrganizerPage({ params }) {
 
         <section className="hero public-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">Hosted events</span>
             <div className="page-place">
               {organizer.city}, {organizer.region}
             </div>
@@ -89,6 +90,11 @@ export default async function OrganizerPage({ params }) {
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.organizerHero}
+            />
             <div className="status-block">
               <div className="status-label">Featured next</div>
               <h2>{organizer.featuredEvent.title}</h2>
@@ -154,14 +160,15 @@ export default async function OrganizerPage({ params }) {
             <div className="event-lineup">
               {organizer.events.map((event) => (
                 <article className="event-card" key={event.slug}>
-                  <div
+                  <PublicVisual
                     className="event-card-cover"
-                    style={{ background: event.gallery[0].background }}
+                    sizes="(min-width: 1024px) 24vw, 100vw"
+                    visualId={event.gallery[0].visualId}
                   >
                     <span className="route-label">{event.category}</span>
                     <strong>{event.nextOccurrence.label}</strong>
                     <span>{event.collectionLabel}</span>
-                  </div>
+                  </PublicVisual>
                   <div className="event-card-body">
                     <h3>{event.title}</h3>
                     <p>{event.summary}</p>
@@ -254,15 +261,17 @@ export default async function OrganizerPage({ params }) {
             </p>
             <div className="photo-grid">
               {organizer.photoStory.map((photo) => (
-                <article
+                <PublicVisual
+                  alt={`${photo.title}. ${photo.caption}`}
                   className="photo-card"
                   key={photo.title}
-                  style={{ background: photo.background }}
+                  sizes="(min-width: 1024px) 20vw, 100vw"
+                  visualId={photo.visualId}
                 >
                   <span className="route-label">Venue feel</span>
                   <strong>{photo.title}</strong>
                   <p>{photo.caption}</p>
-                </article>
+                </PublicVisual>
               ))}
             </div>
           </article>

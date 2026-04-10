@@ -6,7 +6,6 @@ import { useActionState, useEffect, useState } from "react";
 import { submitOrganizerRequestAction } from "./actions";
 import {
   discoveryJourneys,
-  discoveryModes,
   discoveryQuickSearches,
   discoverySignals,
   getDiscoveryResults,
@@ -14,6 +13,8 @@ import {
   organizerPaymentModels,
   publicNavigation
 } from "../lib/passreserve-domain";
+import { PublicVisual } from "../lib/passreserve-visual-component";
+import { routeVisuals } from "../lib/passreserve-visuals";
 
 const initialOrganizerRequest = {
   contactName: "",
@@ -66,13 +67,12 @@ export default function HomeExperience() {
     submitOrganizerRequestAction,
     initialActionState
   );
-  const [searchMode, setSearchMode] = useState(discoveryModes[0].id);
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [organizerRequest, setOrganizerRequest] = useState(initialOrganizerRequest);
 
   const trimmedQuery = query.trim();
-  const results = getDiscoveryResults(trimmedQuery, searchMode);
+  const results = getDiscoveryResults(trimmedQuery);
   const selectedEntry = results.find((entry) => entry.id === selectedId) ?? results[0] ?? null;
   const canSubmitOrganizerRequest =
     organizerRequest.contactName.trim() &&
@@ -88,7 +88,6 @@ export default function HomeExperience() {
   }, [actionState.status]);
 
   function handleQuickSearch(chip) {
-    setSearchMode(chip.mode);
     setQuery(chip.query);
     setSelectedId(null);
   }
@@ -122,34 +121,19 @@ export default function HomeExperience() {
 
         <section className="hero home-split-hero" id="discover">
           <article className="panel hero-copy hero-stack home-primary-panel">
-            <span className="eyebrow">Find an event</span>
-            <h1>Choose a host, pick a date, and sign up with confidence.</h1>
+            <PublicVisual
+              className="home-panel-visual"
+              priority
+              sizes="(min-width: 1024px) 27vw, 100vw"
+              visualId={routeVisuals.homeFind}
+            />
+            <h1 className="home-panel-title">Find an event</h1>
             <p>
-              Passreserve.com helps people find local experiences with clear hosts, clear dates,
-              and clear prices before they ever start the signup.
-            </p>
-            <p>
-              Search by host, city, or event style, then open the page that answers the real
-              questions fast: what it is, where it happens, what it costs, and how to join.
+              Search by host, city, or event style, then open the page that answers what it is,
+              where it happens, what it costs, and how to join.
             </p>
 
             <div className="search-lab">
-              <div className="filter-row" aria-label="Discovery mode">
-                {discoveryModes.map((mode) => (
-                  <button
-                    className={`filter-pill${mode.id === searchMode ? " filter-pill-active" : ""}`}
-                    key={mode.id}
-                    onClick={() => {
-                      setSearchMode(mode.id);
-                      setSelectedId(null);
-                    }}
-                    type="button"
-                  >
-                    {mode.label}
-                  </button>
-                ))}
-              </div>
-
               <label className="search-field">
                 <span className="search-label">Search by host, city, or event type</span>
                 <input
@@ -190,7 +174,7 @@ export default function HomeExperience() {
               </div>
             </div>
 
-            <div className="hero-actions">
+            <div className="hero-actions hero-actions-inline">
               <a className="button button-primary" href="#featured">
                 Browse featured events
               </a>
@@ -201,12 +185,16 @@ export default function HomeExperience() {
           </article>
 
           <aside className="panel home-organizer-panel">
-            <div className="status-block">
-              <div className="status-label">Host an event</div>
-              <h2>Launch a page that makes your events easy to trust.</h2>
+            <PublicVisual
+              className="home-panel-visual"
+              sizes="(min-width: 1024px) 27vw, 100vw"
+              visualId={routeVisuals.homeHost}
+            />
+            <div className="status-block home-panel-copy">
+              <h2 className="home-panel-title">Host an event</h2>
               <p>
-                Share what you host, where you host it, and how you want to handle online
-                payment. We&apos;ll help you get set up with approval-based access.
+                Share what you host, where it happens, and how online payment should work. We&apos;ll
+                review the request and help shape a public page people can trust quickly.
               </p>
             </div>
 
@@ -237,7 +225,7 @@ export default function HomeExperience() {
               </div>
             </div>
 
-            <div className="hero-actions">
+            <div className="hero-actions hero-actions-inline">
               <a className="button button-primary" href="#organizer-launch">
                 Request organizer access
               </a>

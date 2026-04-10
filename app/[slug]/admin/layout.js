@@ -70,7 +70,6 @@ export default async function OrganizerAdminLayout({ children, params }) {
         <section className="admin-layout">
           <aside className="panel admin-sidebar">
             <div className="admin-sidebar-block">
-              <span className="eyebrow">Host dashboard</span>
               <div className="page-place">
                 {organizer.city}, {organizer.region}
               </div>

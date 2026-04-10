@@ -5,6 +5,8 @@ import {
   getRegistrationExperienceBySlugs,
   getRegistrationRouteParams
 } from "../../../../lib/passreserve-registrations";
+import { PublicVisual } from "../../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../../lib/passreserve-visuals";
 
 export function generateStaticParams() {
   return getRegistrationRouteParams();
@@ -58,7 +60,6 @@ export default async function EventDetailPage({ params }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">Event page</span>
             <div className="breadcrumb">
               <Link href={organizer.organizerHref}>{organizer.name}</Link>
               <span>/</span>
@@ -89,6 +90,11 @@ export default async function EventDetailPage({ params }) {
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.eventHero}
+            />
             <div className="status-block">
               <div className="status-label">Hosted by {organizer.name}</div>
               <h2>{event.nextOccurrence.label}</h2>
@@ -204,11 +210,15 @@ export default async function EventDetailPage({ params }) {
             <div className="occurrence-list">
               {event.occurrences.map((occurrence) => (
                 <article className="occurrence-card" key={occurrence.id}>
-                  <div className="occurrence-cover" style={{ background: event.gallery[0].background }}>
+                  <PublicVisual
+                    className="occurrence-cover"
+                    sizes="(min-width: 1024px) 24vw, 100vw"
+                    visualId={event.gallery[0].visualId}
+                  >
                     <span className="route-label">{occurrence.capacityLabel}</span>
                     <strong>{occurrence.label}</strong>
                     <span>{occurrence.time}</span>
-                  </div>
+                  </PublicVisual>
                   <div className="occurrence-body">
                     <h3>{event.title}</h3>
                     <p>{occurrence.note}</p>
@@ -260,15 +270,17 @@ export default async function EventDetailPage({ params }) {
             <h3>Get a sense of the event before you commit.</h3>
             <div className="photo-grid">
               {event.gallery.map((photo) => (
-                <article
+                <PublicVisual
+                  alt={`${photo.title}. ${photo.caption}`}
                   className="photo-card"
                   key={photo.title}
-                  style={{ background: photo.background }}
+                  sizes="(min-width: 1024px) 20vw, 100vw"
+                  visualId={photo.visualId}
                 >
                   <span className="route-label">Event photo</span>
                   <strong>{photo.title}</strong>
                   <p>{photo.caption}</p>
-                </article>
+                </PublicVisual>
               ))}
             </div>
           </article>

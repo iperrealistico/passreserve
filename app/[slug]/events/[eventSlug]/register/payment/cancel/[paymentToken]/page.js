@@ -3,6 +3,8 @@ import Link from "next/link";
 import {
   getRegistrationPaymentCancellationView
 } from "../../../../../../../../lib/passreserve-registrations";
+import { PublicVisual } from "../../../../../../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../../../../../../lib/passreserve-visuals";
 import ResumePaymentForm from "./resume-payment-form";
 
 export async function generateMetadata({ params }) {
@@ -27,7 +29,11 @@ function CancellationStatePanel({ view }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">Payment</span>
+            <PublicVisual
+              className="empty-card-visual"
+              sizes="(min-width: 768px) 36vw, 90vw"
+              visualId={routeVisuals.paymentCancel}
+            />
             <h1>{view.title}</h1>
             <p>{view.message}</p>
             <div className="hero-actions">
@@ -83,7 +89,6 @@ export default async function RegistrationPaymentCancelPage({ params }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">Payment still pending</span>
             <div className="breadcrumb">
               <Link href={view.organizer.organizerHref}>{view.organizer.name}</Link>
               <span>/</span>
@@ -107,6 +112,11 @@ export default async function RegistrationPaymentCancelPage({ params }) {
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.paymentCancel}
+            />
             <div className="status-block">
               <div className="status-label">Payment status</div>
               <h2>{view.payment.onlineAmountLabel} outstanding</h2>

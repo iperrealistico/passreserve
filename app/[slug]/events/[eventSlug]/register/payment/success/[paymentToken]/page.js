@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import {
   resolveSuccessfulRegistrationConfirmation
 } from "../../../../../../../../lib/passreserve-registrations";
+import { PublicVisual } from "../../../../../../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../../../../../../lib/passreserve-visuals";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;
@@ -37,7 +39,11 @@ export default async function RegistrationPaymentSuccessPage({
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">Payment</span>
+            <PublicVisual
+              className="empty-card-visual"
+              sizes="(min-width: 768px) 36vw, 90vw"
+              visualId={routeVisuals.paymentSuccess}
+            />
             <h1>{resolution.title}</h1>
             <p>{resolution.message}</p>
             <div className="hero-actions">

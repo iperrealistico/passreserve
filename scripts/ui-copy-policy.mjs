@@ -82,6 +82,10 @@ export const forbiddenUiCopyRules = [
     label: "super-admin",
     htmlPattern: /\bsuper-admin\b/i,
     sourcePattern: /\bsuper-admin\b/i
+  },
+  {
+    label: "eyebrow badge",
+    sourcePattern: /className="eyebrow"/
   }
 ];
 

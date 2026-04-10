@@ -6,6 +6,8 @@ import {
   getRegistrationFieldRules,
   getRegistrationRouteParams
 } from "../../../../../lib/passreserve-registrations";
+import { PublicVisual } from "../../../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../../../lib/passreserve-visuals";
 import RegistrationFlowExperience from "./registration-flow-experience";
 
 export function generateStaticParams() {
@@ -62,7 +64,6 @@ export default async function RegistrationPage({ params, searchParams }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">Registration</span>
             <div className="breadcrumb">
               <Link href={organizer.organizerHref}>{organizer.name}</Link>
               <span>/</span>
@@ -87,6 +88,11 @@ export default async function RegistrationPage({ params, searchParams }) {
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.registrationStart}
+            />
             <div className="status-block">
               <div className="status-label">Selected date</div>
               <h2>{selectedOccurrence?.label}</h2>

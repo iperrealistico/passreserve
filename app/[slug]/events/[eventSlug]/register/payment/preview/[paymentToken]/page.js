@@ -3,6 +3,8 @@ import Link from "next/link";
 import {
   getRegistrationPaymentPreviewView
 } from "../../../../../../../../lib/passreserve-registrations";
+import { PublicVisual } from "../../../../../../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../../../../../../lib/passreserve-visuals";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
@@ -26,7 +28,11 @@ function PreviewStatePanel({ view }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">Payment</span>
+            <PublicVisual
+              className="empty-card-visual"
+              sizes="(min-width: 768px) 36vw, 90vw"
+              visualId={routeVisuals.paymentPreview}
+            />
             <h1>{view.title}</h1>
             <p>{view.message}</p>
             <div className="hero-actions">
@@ -82,7 +88,6 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">Payment review</span>
             <div className="breadcrumb">
               <Link href={view.organizer.organizerHref}>{view.organizer.name}</Link>
               <span>/</span>
@@ -106,6 +111,11 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.paymentPreview}
+            />
             <div className="status-block">
               <div className="status-label">Next step</div>
               <h2>Secure payment</h2>

@@ -35,7 +35,6 @@ export default async function PlatformAdminLayout({ children }) {
         <section className="admin-layout">
           <aside className="panel admin-sidebar">
             <div className="admin-sidebar-block">
-              <span className="eyebrow">Team tools</span>
               <div className="page-place">{overview.releaseLabel}</div>
               <h1 className="admin-sidebar-title">Support dashboard</h1>
               <p className="admin-sidebar-copy">

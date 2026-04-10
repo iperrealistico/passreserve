@@ -1,13 +1,17 @@
 import Link from "next/link";
 
+import { PublicVisual } from "../lib/passreserve-visual-component";
+import { routeVisuals } from "../lib/passreserve-visuals";
+
 export default function NotFound() {
   return (
     <main className="empty-state">
       <section className="panel empty-card">
-        <span className="eyebrow">
-          <span className="eyebrow-dot" aria-hidden="true" />
-          Passreserve.com
-        </span>
+        <PublicVisual
+          className="empty-card-visual"
+          sizes="(min-width: 768px) 36vw, 90vw"
+          visualId={routeVisuals.notFound}
+        />
         <h1>We couldn&apos;t find that page.</h1>
         <p>
           The link may be out of date, or the event or organizer may no longer be available.

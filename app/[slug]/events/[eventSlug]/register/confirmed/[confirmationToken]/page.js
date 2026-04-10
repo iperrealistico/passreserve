@@ -3,6 +3,8 @@ import Link from "next/link";
 import {
   getConfirmedRegistrationView
 } from "../../../../../../../lib/passreserve-registrations";
+import { PublicVisual } from "../../../../../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../../../../../lib/passreserve-visuals";
 
 function formatRegistrationStatus(status) {
   switch (status) {
@@ -52,7 +54,11 @@ function ConfirmationStatePanel({ view }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">Registration</span>
+            <PublicVisual
+              className="empty-card-visual"
+              sizes="(min-width: 768px) 36vw, 90vw"
+              visualId={routeVisuals.registrationConfirmed}
+            />
             <h1>{view.title}</h1>
             <p>{view.message}</p>
             <div className="hero-actions">
@@ -95,7 +101,6 @@ export default async function RegistrationConfirmedPage({ params }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">You&apos;re in</span>
             <div className="breadcrumb">
               <Link href={view.organizer.organizerHref}>{view.organizer.name}</Link>
               <span>/</span>
@@ -117,6 +122,11 @@ export default async function RegistrationConfirmedPage({ params }) {
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.registrationConfirmed}
+            />
             <div className="status-block">
               <div className="status-label">Registration code</div>
               <h2>{view.registrationCode}</h2>

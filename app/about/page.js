@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { aboutPageStory } from "../../lib/passreserve-platform";
+import { PublicVisual } from "../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../lib/passreserve-visuals";
 
 export const metadata = {
   title: "About Passreserve.com",
@@ -28,10 +30,6 @@ export default function AboutPage() {
 
         <section className="hero">
           <article className="panel hero-copy hero-stack">
-            <span className="eyebrow">
-              <span className="eyebrow-dot" aria-hidden="true" />
-              {aboutPageStory.hero.eyebrow}
-            </span>
             <h1>{aboutPageStory.hero.title}</h1>
             <p>{aboutPageStory.hero.summary}</p>
             <p>{aboutPageStory.hero.secondary}</p>
@@ -46,6 +44,11 @@ export default function AboutPage() {
           </article>
 
           <aside className="panel hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.aboutHero}
+            />
             <div className="status-block">
               <div className="status-label">What makes the product distinct</div>
               <h2>Clear hosts, clear dates, clear expectations.</h2>
@@ -79,6 +82,19 @@ export default function AboutPage() {
               </ul>
             </article>
           ))}
+          <article className="panel section-card visual-callout-card">
+            <PublicVisual
+              className="section-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.aboutCta}
+            />
+            <div className="section-kicker">Hosting at a glance</div>
+            <h2>Make the first page feel trustworthy.</h2>
+            <p>
+              A strong host page should explain the event format, the next dates, and the payment
+              split before a guest ever starts the signup.
+            </p>
+          </article>
         </section>
 
         <section className="section-grid">

@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { siteSettingsSnapshot } from "../../../lib/passreserve-platform";
+import { PublicVisual } from "../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../lib/passreserve-visuals";
 
 export const metadata = {
   title: "Team sign in"
@@ -27,10 +29,9 @@ export default function PlatformAdminLoginPage() {
 
         <section className="hero">
           <article className="panel hero-copy hero-stack">
-            <span className="eyebrow">Staff access</span>
-            <h1>Sign in to the Passreserve team dashboard.</h1>
+            <h1>Staff access</h1>
             <p>
-              Use this entry when you review host requests, manage settings, check emails, or
+              Sign in here when you review host requests, manage settings, check emails, or
               monitor service status across Passreserve.com.
             </p>
             <p>
@@ -48,6 +49,11 @@ export default function PlatformAdminLoginPage() {
           </article>
 
           <aside className="panel hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.staffLogin}
+            />
             <div className="status-block">
               <div className="status-label">Support notes</div>
               <h2>One place for host requests, emails, and service status</h2>

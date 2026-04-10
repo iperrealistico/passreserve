@@ -4,6 +4,8 @@ import {
   getConfirmationFieldRules,
   getRegistrationHoldView
 } from "../../../../../../../lib/passreserve-registrations";
+import { PublicVisual } from "../../../../../../../lib/passreserve-visual-component";
+import { routeVisuals } from "../../../../../../../lib/passreserve-visuals";
 import ConfirmationForm from "./confirmation-form";
 
 export async function generateMetadata({ params }) {
@@ -28,7 +30,11 @@ function HoldStatePanel({ holdView }) {
       <div className="content">
         <section className="empty-state">
           <article className="panel empty-card">
-            <span className="eyebrow">Registration</span>
+            <PublicVisual
+              className="empty-card-visual"
+              sizes="(min-width: 768px) 36vw, 90vw"
+              visualId={routeVisuals.registrationConfirm}
+            />
             <h1>{holdView.title}</h1>
             <p>{holdView.message}</p>
             <div className="hero-actions">
@@ -78,7 +84,6 @@ export default async function RegistrationConfirmPage({ params }) {
 
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <span className="eyebrow">Almost done</span>
             <div className="breadcrumb">
               <Link href={holdView.organizer.organizerHref}>{holdView.organizer.name}</Link>
               <span>/</span>
@@ -102,6 +107,11 @@ export default async function RegistrationConfirmPage({ params }) {
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.registrationConfirm}
+            />
             <div className="status-block">
               <div className="status-label">Confirm by</div>
               <h2>{holdView.hold.expiresAtLabel}</h2>

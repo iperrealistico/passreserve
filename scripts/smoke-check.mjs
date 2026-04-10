@@ -24,6 +24,15 @@ function assertNoInternalCopy(text, routeLabel) {
   );
 }
 
+function assertIncludesVisual(text, src, routeLabel) {
+  const encoded = encodeURIComponent(src);
+
+  assert(
+    text.includes(src) || text.includes(encoded),
+    `${routeLabel} should include the optimized visual "${src}".`
+  );
+}
+
 function getLastPathSegment(urlLike) {
   const pathname = new URL(urlLike, "http://127.0.0.1").pathname;
   const segments = pathname.split("/").filter(Boolean);
@@ -180,14 +189,14 @@ async function main() {
     const homepage = await fetchHtml(baseUrl, "/");
     assert(homepage.response.status === 200, "Homepage should return 200.");
     assert(
-      homepage.text.includes("Passreserve.com") &&
-        homepage.text.includes("Choose a host, pick a date, and sign up with confidence."),
-      "Homepage should render the live Passreserve discovery hero."
+      homepage.text.includes("Find an event") &&
+        homepage.text.includes("Host an event") &&
+        homepage.text.includes("Search by host, city, or event style"),
+      "Homepage should render the simplified two-path hero."
     );
-    assert(
-      homepage.text.includes("Find an event") && homepage.text.includes("Host an event"),
-      "Homepage should keep the two main visitor paths visible."
-    );
+    assert(!homepage.text.includes("All signals"), "Homepage should not render the removed discovery-mode pills.");
+    assertIncludesVisual(homepage.text, "/images/passreserve/home-find-event.webp", "Homepage");
+    assertIncludesVisual(homepage.text, "/images/passreserve/home-host-event.webp", "Homepage");
     assertNoInternalCopy(homepage.text, "Homepage");
 
     const aboutPage = await fetchHtml(baseUrl, "/about");
@@ -200,6 +209,8 @@ async function main() {
       aboutPage.text.includes("Browse events or request host access."),
       "About page should keep the visitor-facing CTA visible."
     );
+    assertIncludesVisual(aboutPage.text, "/images/passreserve/about-editorial.webp", "About page");
+    assertIncludesVisual(aboutPage.text, "/images/passreserve/about-launch.webp", "About page");
     assertNoInternalCopy(aboutPage.text, "About page");
 
     const organizerPage = await fetchHtml(baseUrl, "/alpine-trail-lab");
@@ -208,6 +219,7 @@ async function main() {
       organizerPage.text.includes("Choose the format that feels right for you."),
       "Organizer page should render the live host copy."
     );
+    assertIncludesVisual(organizerPage.text, "/images/passreserve/organizer-hero-still.webp", "Organizer page");
     assertNoInternalCopy(organizerPage.text, "Organizer page");
 
     const eventPage = await fetchHtml(
@@ -219,6 +231,7 @@ async function main() {
       eventPage.text.includes("Pick the date that works for you."),
       "Event detail page should render the event-detail registration copy."
     );
+    assertIncludesVisual(eventPage.text, "/images/passreserve/event-hero-still.webp", "Event page");
     assertNoInternalCopy(eventPage.text, "Event page");
 
     const registerPage = await fetchHtml(
@@ -230,6 +243,7 @@ async function main() {
       registerPage.text.includes("Start your registration."),
       "Registration route should render the attendee registration flow heading."
     );
+    assertIncludesVisual(registerPage.text, "/images/passreserve/registration-flow.webp", "Registration page");
     assertNoInternalCopy(registerPage.text, "Registration page");
 
     const registrationSmoke = await runRegistrationSmokeHelper(baseUrl);
@@ -238,6 +252,11 @@ async function main() {
     assert(
       holdPage.text.includes("Review your details before you confirm your registration"),
       "Confirmation route should render the hold review heading."
+    );
+    assertIncludesVisual(
+      holdPage.text,
+      "/images/passreserve/registration-flow.webp",
+      "Registration confirmation page"
     );
     assertNoInternalCopy(holdPage.text, "Registration confirmation page");
 
@@ -250,6 +269,11 @@ async function main() {
     assert(
       paymentPreviewPage.text.includes("Review this registration before checkout opens."),
       "Payment preview route should render the payment review heading."
+    );
+    assertIncludesVisual(
+      paymentPreviewPage.text,
+      "/images/passreserve/payment-preview.webp",
+      "Payment preview page"
     );
     assertNoInternalCopy(paymentPreviewPage.text, "Payment preview page");
 
@@ -265,6 +289,11 @@ async function main() {
       ),
       "Payment cancel route should render the pending-payment heading."
     );
+    assertIncludesVisual(
+      paymentCancelPage.text,
+      "/images/passreserve/payment-preview.webp",
+      "Payment cancel page"
+    );
     assertNoInternalCopy(paymentCancelPage.text, "Payment cancel page");
 
     const paymentSuccessResponse = await fetch(
@@ -272,13 +301,20 @@ async function main() {
     );
     const paymentSuccessText = await paymentSuccessResponse.text();
     assert(
-      paymentSuccessResponse.url.includes("/register/confirmed/"),
-      "Payment success route should resolve into the confirmed-registration page."
+      paymentSuccessResponse.status === 200,
+      "Payment success route should return the confirmed-registration experience."
     );
     assert(
       paymentSuccessText.includes("You're in") ||
-        paymentSuccessText.includes("Payment received and registration confirmed"),
+        paymentSuccessText.includes("Payment received and registration confirmed") ||
+        paymentSuccessText.includes("Deposit received, registration confirmed") ||
+        paymentSuccessText.includes("Registration confirmed"),
       "Payment success route should land on the confirmed-registration experience."
+    );
+    assertIncludesVisual(
+      paymentSuccessText,
+      "/images/passreserve/registration-flow.webp",
+      "Confirmed registration page"
     );
     assertNoInternalCopy(paymentSuccessText, "Confirmed registration page");
 
@@ -305,10 +341,20 @@ async function main() {
     const platformLogin = await fetchHtml(baseUrl, "/admin/login");
     assert(platformLogin.response.status === 200, "Team login should return 200.");
     assert(
-      platformLogin.text.includes("Sign in to the Passreserve team dashboard."),
-      "Team login should render the updated sign-in copy."
+      platformLogin.text.includes("Staff access"),
+      "Team login should render the promoted staff-access heading."
     );
+    assertIncludesVisual(platformLogin.text, "/images/passreserve/staff-login.webp", "Team login page");
     assertNoInternalCopy(platformLogin.text, "Team login page");
+
+    const notFoundPage = await fetchHtml(baseUrl, "/this-page-does-not-exist");
+    assert(notFoundPage.response.status === 404, "Not-found route should return 404.");
+    assert(
+      notFoundPage.text.includes("We couldn't find that page."),
+      "Not-found route should render the updated empty state."
+    );
+    assertIncludesVisual(notFoundPage.text, "/images/passreserve/not-found.webp", "Not-found page");
+    assertNoInternalCopy(notFoundPage.text, "Not-found page");
 
     const platformOverview = await fetchHtml(baseUrl, "/admin");
     assert(platformOverview.response.status === 200, "Team dashboard should return 200.");
