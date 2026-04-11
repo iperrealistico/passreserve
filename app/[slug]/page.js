@@ -22,7 +22,7 @@ export async function generateMetadata({ params }) {
 
   if (!organizer) {
     return {
-      title: "Organizer not found"
+      title: "Page not found"
     };
   }
 

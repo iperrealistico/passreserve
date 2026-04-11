@@ -40,7 +40,7 @@ export default async function PlatformAdminLoginPage({ searchParams }) {
           </div>
           <nav className="nav" aria-label="Platform login navigation">
             <Link href="/">Discover</Link>
-            <Link href="/about">About</Link>
+            <Link href="/#faq">FAQ</Link>
           </nav>
         </header>
 

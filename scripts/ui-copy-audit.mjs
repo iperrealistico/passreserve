@@ -7,7 +7,6 @@ import { findForbiddenUiCopy } from "./ui-copy-policy.mjs";
 const sourceFiles = [
   "app/layout.js",
   "app/page.js",
-  "app/about/page.js",
   "app/not-found.js",
   "app/[slug]/page.js",
   "app/[slug]/events/[eventSlug]/page.js",

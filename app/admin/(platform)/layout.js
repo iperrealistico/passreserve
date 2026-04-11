@@ -33,7 +33,7 @@ export default async function PlatformAdminLayout({ children }) {
           </div>
           <nav className="nav" aria-label="Team shortcuts">
             <Link href="/">Public home</Link>
-            <Link href="/about">About</Link>
+            <Link href="/#faq">FAQ</Link>
             <Link href="/admin/organizers">Hosts</Link>
             <Link href="/admin/emails">Emails</Link>
             <Link href="/admin/health">Checks</Link>

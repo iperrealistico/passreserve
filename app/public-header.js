@@ -15,7 +15,6 @@ export function PublicHeader() {
             {item.label}
           </Link>
         ))}
-        <Link href="/about">About</Link>
       </nav>
     </header>
   );

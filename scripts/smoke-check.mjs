@@ -164,6 +164,13 @@ async function main() {
       "Homepage should render the host-facing SEO and comparison section."
     );
     assert(
+      homepage.text.includes('"@type":"FAQPage"') &&
+        homepage.text.includes("What is Passreserve and who is it for?") &&
+        homepage.text.includes("Is Passreserve free for event organizers?") &&
+        homepage.text.includes("What is the best free event registration software for workshops and classes?"),
+      "Homepage should render the expanded host FAQ and FAQ schema."
+    );
+    assert(
       !homepage.text.includes("Alpine Switchback Clinic"),
       "Homepage should not render the event search results list."
     );
@@ -185,18 +192,7 @@ async function main() {
     assertNoInternalCopy(eventsPage.text, "Events search page");
 
     const aboutPage = await fetchHtml(baseUrl, "/about");
-    assert(aboutPage.response.status === 200, "About page should return 200.");
-    assert(
-      aboutPage.text.includes("A calmer home for local events and the people who host them."),
-      "About page should render the public Passreserve story."
-    );
-    assert(
-      aboutPage.text.includes("Browse events or request host access."),
-      "About page should keep the visitor-facing CTA visible."
-    );
-    assertIncludesVisual(aboutPage.text, "/images/passreserve/about-editorial.webp", "About page");
-    assertIncludesVisual(aboutPage.text, "/images/passreserve/about-launch.webp", "About page");
-    assertNoInternalCopy(aboutPage.text, "About page");
+    assert(aboutPage.response.status === 404, "About page should be removed and return 404.");
 
     const organizerPage = await fetchHtml(baseUrl, "/alpine-trail-lab");
     assert(organizerPage.response.status === 200, "Organizer page should return 200.");

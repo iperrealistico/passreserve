@@ -4,9 +4,53 @@ import { useEffect, useRef, useState } from "react";
 
 import { submitOrganizerRequestRedirectAction } from "./actions.js";
 
+const MODAL_CLOSE_MS = 220;
+
 export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
   const dialogRef = useRef(null);
+  const closeTimerRef = useRef(null);
+  const animationFrameRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const [modalState, setModalState] = useState("closed");
+
+  const finishClose = () => {
+    const dialog = dialogRef.current;
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    if (closeTimerRef.current) {
+      clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
+
+    if (dialog?.open) {
+      dialog.close();
+    }
+
+    setOpen(false);
+    setModalState("closed");
+  };
+
+  const requestClose = () => {
+    const dialog = dialogRef.current;
+
+    if (!dialog?.open || modalState === "closing") {
+      return;
+    }
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+
+    setModalState("closing");
+    closeTimerRef.current = window.setTimeout(() => {
+      finishClose();
+    }, MODAL_CLOSE_MS);
+  };
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -16,12 +60,13 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
     }
 
     if (open && !dialog.open) {
+      setModalState("opening");
       dialog.showModal();
+      animationFrameRef.current = requestAnimationFrame(() => {
+        setModalState("open");
+        animationFrameRef.current = null;
+      });
       return;
-    }
-
-    if (!open && dialog.open) {
-      dialog.close();
     }
   }, [open]);
 
@@ -34,14 +79,25 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
 
     const handleCancel = (event) => {
       event.preventDefault();
-      setOpen(false);
+      requestClose();
     };
     const handleClose = () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = null;
+      }
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
       setOpen(false);
+      setModalState("closed");
     };
     const handleBackdropClick = (event) => {
       if (event.target === dialog) {
-        setOpen(false);
+        requestClose();
       }
     };
 
@@ -56,22 +112,42 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (closeTimerRef.current) {
+        clearTimeout(closeTimerRef.current);
+      }
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
       <button
         className="button button-primary button-compact button-small"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          if (closeTimerRef.current) {
+            clearTimeout(closeTimerRef.current);
+            closeTimerRef.current = null;
+          }
+
+          setModalState("opening");
+          setOpen(true);
+        }}
         type="button"
       >
         Request access
       </button>
 
-      <dialog className="home-modal" ref={dialogRef}>
+      <dialog className="home-modal" data-state={modalState} ref={dialogRef}>
         <div className="home-modal-panel">
           <button
             aria-label="Close request form"
             className="home-modal-close"
-            onClick={() => setOpen(false)}
+            onClick={requestClose}
             type="button"
           >
             Close
@@ -127,7 +203,7 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
                 ))}
               </select>
             </label>
-            <label className="field field-span">
+            <label className="field field-span" style={{ gridColumn: "1 / -1" }}>
               <span>What do you host?</span>
               <textarea
                 name="eventFocus"
@@ -136,7 +212,7 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
                 rows="2"
               />
             </label>
-            <label className="field field-span">
+            <label className="field field-span" style={{ gridColumn: "1 / -1" }}>
               <span>Notes</span>
               <textarea
                 name="note"
@@ -145,13 +221,13 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
               />
             </label>
 
-            <div className="home-modal-actions">
-              <button className="button button-primary button-compact button-small" type="submit">
+            <div className="home-modal-actions" style={{ gridColumn: "1 / -1" }}>
+              <button className="button button-primary button-compact button-small home-modal-submit" type="submit">
                 Send request
               </button>
               <button
-                className="button button-secondary button-compact button-small"
-                onClick={() => setOpen(false)}
+                className="button button-secondary button-compact button-small home-modal-cancel"
+                onClick={requestClose}
                 type="button"
               >
                 Cancel
