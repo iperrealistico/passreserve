@@ -151,97 +151,81 @@ const hostNotes = [
   }
 ];
 
-const homeFaqGroups = [
+const homeFaqItems = [
   {
-    label: "Useful host questions",
-    title: "Practical answers for organizers setting up event pages, payments, and recurring dates",
-    intro:
-      "These cover the decisions most hosts make first: whether the platform is free, how payment works, what kinds of events fit best, and how quickly a page can go live.",
-    items: [
-      {
-        question: "What is Passreserve and who is it for?",
-        answer:
-          "Passreserve is free event registration software for organizers who want clear event pages, calm booking flows, and flexible payments. It works well for workshops, classes, retreats, guided rides, tastings, seasonal dinners, and local experiences that need a free event booking platform or a free event signup platform without the crowded feel of a marketplace listing."
-      },
-      {
-        question: "Is Passreserve free for event organizers?",
-        answer:
-          "Yes. Passreserve is free to start and the base stays free, so hosts can publish pages, accept registrations, and manage attendee signups without a Passreserve platform subscription fee. That makes it useful as a free event page builder, free software for event organizers, and free event software for small teams that want a simple starting point."
-      },
-      {
-        question: "Can guests pay at the event instead of online?",
-        answer:
-          "Yes. Hosts can let guests pay at the event, use pay later event booking, or keep online collection optional. If your event works better with in-person payment, Passreserve supports software for hosts who want guests to pay at the event instead of forcing a full online checkout every time."
-      },
-      {
-        question: "Can I collect only a deposit online and the rest at the venue?",
-        answer:
-          "Yes. Passreserve supports deposit event registration, deposit-only event booking, and event booking with balance due at venue. It is designed for organizers who want to collect deposits for workshops, reserve seats in advance, and still take the remaining payment when guests arrive."
-      },
-      {
-        question: "Do I need Stripe to start using Passreserve?",
-        answer:
-          "No. You can start with free registration or pay-at-the-event flows without connecting Stripe. Stripe only becomes relevant if you want to collect online payments or deposits before the event, which keeps the setup lighter for hosts who do not need checkout on day one."
-      },
-      {
-        question: "Can I use my own Stripe account for online payments?",
-        answer:
-          "Yes. If you want online checkout, Passreserve can work with your own Stripe integration so payouts, payment timing, and customer relationships stay on your side. That is helpful for organizers comparing free ticketing alternatives and looking for an event platform that does not lock them into a platform-controlled merchant flow."
-      },
-      {
-        question: "What kinds of events work best on Passreserve?",
-        answer:
-          "Passreserve is a strong fit for workshops, classes, retreats, guided experiences, small festivals, studio sessions, tastings, community events, and other local formats. It works especially well as class booking software for small businesses, event booking software for retreats, and a free platform for local experiences that need clarity more than complexity."
-      },
-      {
-        question: "Can I run recurring dates or repeating sessions?",
-        answer:
-          "Yes. Passreserve is meant for hosts running recurring dates, repeating classes, retreat weekends, and seasonal calendars. If you are comparing free event software for recurring dates or free software for workshops and classes, the goal here is to keep date selection readable instead of burying people in a complicated ticket stack."
-      },
-      {
-        question: "How quickly can I create an event page for free?",
-        answer:
-          "Hosts can move quickly because the setup is centered on one clear page with event details, dates, pricing, and registration flow. For people searching how to create an event page for free, Passreserve keeps the process focused on what guests actually need to understand before they sign up."
-      },
-      {
-        question: "Is Passreserve a good fit for small teams, independent hosts, and venues?",
-        answer:
-          "Yes. Passreserve is intentionally simple for independent organizers, local venues, guides, studios, farms, and small teams that do not want expensive software or a bloated admin setup. It is especially useful when you want no platform fee event software, a calmer public page, and booking without high monthly costs."
-      }
-    ]
+    question: "What is Passreserve and who is it for?",
+    answer:
+      "Passreserve is free event registration software for organizers who want clear event pages, calm booking flows, and flexible payments. It works well for workshops, classes, retreats, guided rides, tastings, seasonal dinners, and local experiences that need a free event booking platform or a free event signup platform without the crowded feel of a marketplace listing."
   },
   {
-    label: "SEO-friendly questions",
-    title: "Search-intent answers for hosts comparing free event software and payment flexibility",
-    intro:
-      "These questions use the language organizers often type into search engines when they are evaluating event platforms, payment options, and alternatives to higher-fee ticketing tools.",
-    items: [
-      {
-        question: "What is the best free event registration software for workshops and classes?",
-        answer:
-          "The best fit depends on how much control you want, but Passreserve is built specifically for hosts who need free event registration software, free event booking software for workshops and classes, and a page that explains the event clearly before the booking starts. It is meant for organizers who care about trust, recurring dates, and straightforward payment choices."
-      },
-      {
-        question: "Is there a free event booking platform that lets guests pay later or pay at the venue?",
-        answer:
-          "Yes. Passreserve is a free event booking platform that supports pay later event booking, pay at the event, and balance due at venue flows. That makes it a useful option for hosts who want event software without forced checkout or need no online fee event booking for experiences that close payment in person."
-      },
-      {
-        question: "How can I accept event registrations without high platform fees?",
-        answer:
-          "A good starting point is to use a free platform that keeps the base software free and does not add its own platform fee on registrations. For hosts searching how to accept event registrations without high fees or the best free platform to book events, Passreserve keeps the booking flow simple and leaves optional online card processing to your own Stripe account when you want it."
-      },
-      {
-        question: "What free event management software works for recurring retreats, classes, and local experiences?",
-        answer:
-          "Passreserve is designed for recurring schedules and place-based formats, which makes it useful as free event management software for retreats, classes, workshops, and a free platform for local experiences. It is especially relevant when you need repeating dates, deposit options, and a presentation that feels cleaner than a generic ticketing wall."
-      },
-      {
-        question: "Is there a free ticketing alternative with your own Stripe integration?",
-        answer:
-          "Yes. If you are looking for a free ticketing alternative with your own Stripe integration, Passreserve gives hosts the option to collect online payments on their own Stripe account while still supporting free registrations, deposits, and pay-at-event flows. That combination is useful for organizers who want flexibility without giving up payout control."
-      }
-    ]
+    question: "Is Passreserve free for event organizers?",
+    answer:
+      "Yes. Passreserve is free to start and the base stays free, so hosts can publish pages, accept registrations, and manage attendee signups without a Passreserve platform subscription fee. That makes it useful as a free event page builder, free software for event organizers, and free event software for small teams that want a simple starting point."
+  },
+  {
+    question: "Can guests pay at the event instead of online?",
+    answer:
+      "Yes. Hosts can let guests pay at the event, use pay later event booking, or keep online collection optional. If your event works better with in-person payment, Passreserve supports software for hosts who want guests to pay at the event instead of forcing a full online checkout every time."
+  },
+  {
+    question: "Can I collect only a deposit online and the rest at the venue?",
+    answer:
+      "Yes. Passreserve supports deposit event registration, deposit-only event booking, and event booking with balance due at venue. It is designed for organizers who want to collect deposits for workshops, reserve seats in advance, and still take the remaining payment when guests arrive."
+  },
+  {
+    question: "Do I need Stripe to start using Passreserve?",
+    answer:
+      "No. You can start with free registration or pay-at-the-event flows without connecting Stripe. Stripe only becomes relevant if you want to collect online payments or deposits before the event, which keeps the setup lighter for hosts who do not need checkout on day one."
+  },
+  {
+    question: "Can I use my own Stripe account for online payments?",
+    answer:
+      "Yes. If you want online checkout, Passreserve can work with your own Stripe integration so payouts, payment timing, and customer relationships stay on your side. That is helpful for organizers comparing free ticketing alternatives and looking for an event platform that does not lock them into a platform-controlled merchant flow."
+  },
+  {
+    question: "What kinds of events work best on Passreserve?",
+    answer:
+      "Passreserve is a strong fit for workshops, classes, retreats, guided experiences, small festivals, studio sessions, tastings, community events, and other local formats. It works especially well as class booking software for small businesses, event booking software for retreats, and a free platform for local experiences that need clarity more than complexity."
+  },
+  {
+    question: "Can I run recurring dates or repeating sessions?",
+    answer:
+      "Yes. Passreserve is meant for hosts running recurring dates, repeating classes, retreat weekends, and seasonal calendars. If you are comparing free event software for recurring dates or free software for workshops and classes, the goal here is to keep date selection readable instead of burying people in a complicated ticket stack."
+  },
+  {
+    question: "How quickly can I create an event page for free?",
+    answer:
+      "Hosts can move quickly because the setup is centered on one clear page with event details, dates, pricing, and registration flow. For people searching how to create an event page for free, Passreserve keeps the process focused on what guests actually need to understand before they sign up."
+  },
+  {
+    question: "Is Passreserve a good fit for small teams, independent hosts, and venues?",
+    answer:
+      "Yes. Passreserve is intentionally simple for independent organizers, local venues, guides, studios, farms, and small teams that do not want expensive software or a bloated admin setup. It is especially useful when you want no platform fee event software, a calmer public page, and booking without high monthly costs."
+  },
+  {
+    question: "What is the best free event registration software for workshops and classes?",
+    answer:
+      "The best fit depends on how much control you want, but Passreserve is built specifically for hosts who need free event registration software, free event booking software for workshops and classes, and a page that explains the event clearly before the booking starts. It is meant for organizers who care about trust, recurring dates, and straightforward payment choices."
+  },
+  {
+    question: "Is there a free event booking platform that lets guests pay later or pay at the venue?",
+    answer:
+      "Yes. Passreserve is a free event booking platform that supports pay later event booking, pay at the event, and balance due at venue flows. That makes it a useful option for hosts who want event software without forced checkout or need no online fee event booking for experiences that close payment in person."
+  },
+  {
+    question: "How can I accept event registrations without high platform fees?",
+    answer:
+      "A good starting point is to use a free platform that keeps the base software free and does not add its own platform fee on registrations. For hosts searching how to accept event registrations without high fees or the best free platform to book events, Passreserve keeps the booking flow simple and leaves optional online card processing to your own Stripe account when you want it."
+  },
+  {
+    question: "What free event management software works for recurring retreats, classes, and local experiences?",
+    answer:
+      "Passreserve is designed for recurring schedules and place-based formats, which makes it useful as free event management software for retreats, classes, workshops, and a free platform for local experiences. It is especially relevant when you need repeating dates, deposit options, and a presentation that feels cleaner than a generic ticketing wall."
+  },
+  {
+    question: "Is there a free ticketing alternative with your own Stripe integration?",
+    answer:
+      "Yes. If you are looking for a free ticketing alternative with your own Stripe integration, Passreserve gives hosts the option to collect online payments on their own Stripe account while still supporting free registrations, deposits, and pay-at-event flows. That combination is useful for organizers who want flexibility without giving up payout control."
   }
 ];
 
@@ -255,16 +239,14 @@ const homeFaqHighlights = [
 const homeFaqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  mainEntity: homeFaqGroups.flatMap((group) =>
-    group.items.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer
-      }
-    }))
-  )
+  mainEntity: homeFaqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer
+    }
+  }))
 };
 
 export default async function HomePage({ searchParams }) {
@@ -471,8 +453,8 @@ export default async function HomePage({ searchParams }) {
         <section className="section-grid home-faq-section" id="faq">
           <article className="panel section-card section-span home-faq-intro">
             <div className="home-faq-copy">
-              <span className="section-kicker">Host FAQ</span>
-              <h2>Answers for hosts comparing free event software, deposits, and pay-at-event flows</h2>
+              <span className="section-kicker">FAQ</span>
+              <h2>Host FAQ</h2>
               <p>
                 This FAQ is written for organizers choosing a free event booking platform, a free
                 event page builder, or a calmer ticketing alternative. It covers how Passreserve
@@ -498,23 +480,15 @@ export default async function HomePage({ searchParams }) {
                 </Link>
               </div>
             </div>
+            <div className="faq-accordion-list">
+              {homeFaqItems.map((item) => (
+                <details className="faq-accordion-item" key={item.question}>
+                  <summary>{item.question}</summary>
+                  <p>{item.answer}</p>
+                </details>
+              ))}
+            </div>
           </article>
-
-          {homeFaqGroups.map((group) => (
-            <article className="panel section-card faq-group-card" key={group.title}>
-              <div className="section-kicker">{group.label}</div>
-              <h3>{group.title}</h3>
-              <p className="faq-group-intro">{group.intro}</p>
-              <div className="faq-accordion-list">
-                {group.items.map((item) => (
-                  <details className="faq-accordion-item" key={item.question}>
-                    <summary>{item.question}</summary>
-                    <p>{item.answer}</p>
-                  </details>
-                ))}
-              </div>
-            </article>
-          ))}
         </section>
       </div>
     </main>
