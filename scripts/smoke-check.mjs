@@ -191,8 +191,17 @@ async function main() {
     assertIncludesVisual(eventsPage.text, "/images/passreserve/home-find-event.webp", "Events search page");
     assertNoInternalCopy(eventsPage.text, "Events search page");
 
-    const aboutPage = await fetchHtml(baseUrl, "/about");
-    assert(aboutPage.response.status === 404, "About page should be removed and return 404.");
+    const aboutPage = await fetchHtml(baseUrl, "/about", {
+      redirect: "manual"
+    });
+    assert(
+      aboutPage.response.status === 307 || aboutPage.response.status === 308,
+      "About page should redirect to the homepage FAQ."
+    );
+    assert(
+      aboutPage.response.headers.get("location") === "/#faq",
+      "About page redirect should point to the homepage FAQ."
+    );
 
     const organizerPage = await fetchHtml(baseUrl, "/alpine-trail-lab");
     assert(organizerPage.response.status === 200, "Organizer page should return 200.");
