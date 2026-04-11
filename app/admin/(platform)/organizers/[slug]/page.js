@@ -2,9 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getPlatformOrganizerDetail } from "../../../../../lib/passreserve-admin-service.js";
+import {
+  sendOrganizerResetFromPlatformAction,
+  updateOrganizerBillingAction
+} from "../../../actions.js";
 
-export default async function PlatformOrganizerDetailPage({ params }) {
+export default async function PlatformOrganizerDetailPage({ params, searchParams }) {
   const { slug } = await params;
+  const query = await searchParams;
   const detail = await getPlatformOrganizerDetail(slug);
 
   if (!detail) {
@@ -13,6 +18,16 @@ export default async function PlatformOrganizerDetailPage({ params }) {
 
   return (
     <div className="admin-page">
+      {query.message === "billing-saved" ? (
+        <div className="registration-message registration-message-success">
+          Organizer billing updated successfully.
+        </div>
+      ) : null}
+      {query.message === "reset-sent" ? (
+        <div className="registration-message registration-message-success">
+          Organizer reset email generated successfully.
+        </div>
+      ) : null}
       <section className="panel section-card admin-section">
         <div className="section-kicker">Organizer detail</div>
         <h2>{detail.organizer.name}</h2>
@@ -37,6 +52,64 @@ export default async function PlatformOrganizerDetailPage({ params }) {
 
       <section className="admin-grid">
         <article className="panel section-card admin-section">
+          <div className="section-kicker">Stripe and billing</div>
+          <h3>Paid event eligibility</h3>
+          <div className="timeline">
+            <div className="timeline-step">
+              <strong>Connection</strong>
+              <span>{detail.organizer.billing.stripeConnectionStatusLabel}</span>
+              <span>{detail.organizer.billing.stripeAccountId || "No connected account"}</span>
+            </div>
+            <div className="timeline-step">
+              <strong>Charges and payouts</strong>
+              <span>
+                Charges {detail.organizer.billing.stripeChargesEnabled ? "enabled" : "blocked"} ·
+                payouts {detail.organizer.billing.stripePayoutsEnabled ? "enabled" : "blocked"}
+              </span>
+            </div>
+            <div className="timeline-step">
+              <strong>Billing</strong>
+              <span>
+                {detail.organizer.billing.monthlyFeeLabel} monthly ·{" "}
+                {detail.organizer.billing.billingStatusLabel}
+              </span>
+            </div>
+            <div className="timeline-step">
+              <strong>Publishing</strong>
+              <span>{detail.organizer.billing.paidPublishingLabel}</span>
+            </div>
+          </div>
+          <form action={updateOrganizerBillingAction} className="registration-panel-stack">
+            <input name="slug" type="hidden" value={slug} />
+            <label className="field">
+              <span>Monthly fee cents</span>
+              <input
+                defaultValue={detail.organizer.billing.onlinePaymentsMonthlyFeeCents}
+                min="0"
+                name="onlinePaymentsMonthlyFeeCents"
+                type="number"
+              />
+            </label>
+            <label className="field">
+              <span>Billing status</span>
+              <select
+                defaultValue={detail.organizer.billing.onlinePaymentsBillingStatus}
+                name="onlinePaymentsBillingStatus"
+              >
+                <option value="NOT_REQUIRED">Not required</option>
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+            </label>
+            <div className="hero-actions">
+              <button className="button button-primary" type="submit">
+                Save billing
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article className="panel section-card admin-section">
           <div className="section-kicker">Admin accounts</div>
           <h3>Organizer admins</h3>
           <div className="timeline">
@@ -45,6 +118,13 @@ export default async function PlatformOrganizerDetailPage({ params }) {
                 <strong>{admin.name}</strong>
                 <span>{admin.email}</span>
                 <span>{admin.isPrimary ? "Primary admin" : "Organizer admin"}</span>
+                <form action={sendOrganizerResetFromPlatformAction}>
+                  <input name="slug" type="hidden" value={slug} />
+                  <input name="email" type="hidden" value={admin.email} />
+                  <button className="button button-secondary" type="submit">
+                    Send reset link
+                  </button>
+                </form>
               </div>
             ))}
           </div>

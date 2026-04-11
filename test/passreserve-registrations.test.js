@@ -11,6 +11,7 @@ import {
   getRegistrationExperienceBySlugs,
   getRegistrationHoldView
 } from "../lib/passreserve-registrations";
+import { mutatePersistentState } from "../lib/passreserve-state.js";
 
 beforeEach(async () => {
   process.env.PASSRESERVE_STATE_FILE = path.join(
@@ -107,5 +108,35 @@ describe("passreserve-registrations", () => {
       registrationStatus: "CONFIRMED_UNPAID",
       paymentStatus: "NONE"
     });
+  });
+
+  it("blocks registrations that are too close to the event start", async () => {
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");
+
+      organizer.minAdvanceHours = 500;
+      organizer.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const result = await createRegistrationHold(input);
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("Registrations close 500 hours before this event starts.");
+  });
+
+  it("blocks registrations that are too far ahead of the allowed booking window", async () => {
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");
+
+      organizer.maxAdvanceDays = 2;
+      organizer.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const result = await createRegistrationHold(input);
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("Registrations only open within 2 days of the event date.");
   });
 });

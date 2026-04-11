@@ -36,6 +36,14 @@ export default async function OrganizerAdminLayout({ children, params }) {
       href: organizer.paymentsHref
     },
     {
+      label: "Billing",
+      href: organizer.billingHref
+    },
+    {
+      label: "Settings",
+      href: organizer.settingsHref
+    },
+    {
       label: "Event catalog",
       href: organizer.eventsHref
     },
@@ -68,6 +76,8 @@ export default async function OrganizerAdminLayout({ children, params }) {
             <Link href={organizer.calendarHref}>Calendar</Link>
             <Link href={organizer.registrationsHref}>Registrations</Link>
             <Link href={organizer.paymentsHref}>Payments</Link>
+            <Link href={organizer.billingHref}>Billing</Link>
+            <Link href={organizer.settingsHref}>Settings</Link>
           </nav>
         </header>
 

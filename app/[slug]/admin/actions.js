@@ -3,10 +3,12 @@
 import { redirect } from "next/navigation";
 
 import {
+  changeOrganizerAdminPassword,
   markAdminLogin,
   recordVenuePayment,
   saveOrganizerEvent,
   saveOrganizerOccurrence,
+  updateOrganizerSettings,
   updateOrganizerRegistration
 } from "../../../lib/passreserve-admin-service.js";
 import {
@@ -111,25 +113,32 @@ export async function saveOrganizerOccurrenceAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
 
-  await saveOrganizerOccurrence(
-    slug,
-    {
-      id: value(formData, "id"),
-      eventTypeId: value(formData, "eventTypeId"),
-      status: value(formData, "status"),
-      startsAt: value(formData, "startsAt"),
-      endsAt: value(formData, "endsAt"),
-      capacity: value(formData, "capacity"),
-      priceCents: value(formData, "priceCents"),
-      prepayPercentage: value(formData, "prepayPercentage"),
-      venueTitle: value(formData, "venueTitle"),
-      note: value(formData, "note"),
-      imageUrl: value(formData, "imageUrl"),
-      published: value(formData, "published")
-    },
-    user.userId
-  );
-  redirect(`/${slug}/admin/occurrences?message=saved`);
+  try {
+    await saveOrganizerOccurrence(
+      slug,
+      {
+        id: value(formData, "id"),
+        eventTypeId: value(formData, "eventTypeId"),
+        status: value(formData, "status"),
+        startsAt: value(formData, "startsAt"),
+        endsAt: value(formData, "endsAt"),
+        capacity: value(formData, "capacity"),
+        priceCents: value(formData, "priceCents"),
+        prepayPercentage: value(formData, "prepayPercentage"),
+        venueTitle: value(formData, "venueTitle"),
+        note: value(formData, "note"),
+        imageUrl: value(formData, "imageUrl"),
+        published: value(formData, "published")
+      },
+      user.userId
+    );
+    redirect(`/${slug}/admin/occurrences?message=saved`);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "The occurrence could not be saved.";
+
+    redirect(`/${slug}/admin/occurrences?error=${encodeURIComponent(message)}`);
+  }
 }
 
 export async function updateOrganizerRegistrationAction(formData) {
@@ -156,4 +165,47 @@ export async function recordVenuePaymentAction(formData) {
     user.userId
   );
   redirect(`/${slug}/admin/payments?message=recorded`);
+}
+
+export async function saveOrganizerSettingsAction(formData) {
+  const slug = value(formData, "slug");
+  const user = await requireOrganizerAdminSession(slug);
+
+  await updateOrganizerSettings(
+    slug,
+    {
+      name: value(formData, "name"),
+      tagline: value(formData, "tagline"),
+      description: value(formData, "description"),
+      city: value(formData, "city"),
+      region: value(formData, "region"),
+      publicEmail: value(formData, "publicEmail"),
+      publicPhone: value(formData, "publicPhone"),
+      interestEmail: value(formData, "interestEmail"),
+      venueTitle: value(formData, "venueTitle"),
+      venueDetail: value(formData, "venueDetail"),
+      venueMapHref: value(formData, "venueMapHref"),
+      minAdvanceHours: value(formData, "minAdvanceHours"),
+      maxAdvanceDays: value(formData, "maxAdvanceDays")
+    },
+    user.userId
+  );
+  redirect(`/${slug}/admin/settings?message=saved&tab=general`);
+}
+
+export async function organizerChangePasswordAction(formData) {
+  const slug = value(formData, "slug");
+  const user = await requireOrganizerAdminSession(slug);
+  const result = await changeOrganizerAdminPassword(
+    slug,
+    user.userId,
+    value(formData, "currentPassword"),
+    value(formData, "newPassword")
+  );
+
+  if (!result.ok) {
+    redirect(`/${slug}/admin/settings?error=${encodeURIComponent(result.message)}&tab=security`);
+  }
+
+  redirect(`/${slug}/admin/settings?message=password-updated&tab=security`);
 }

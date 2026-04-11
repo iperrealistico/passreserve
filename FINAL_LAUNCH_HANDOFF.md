@@ -8,10 +8,11 @@ Passreserve.com now has a production-shaped application runtime in this reposito
 - real organizer and platform admin authentication
 - durable registration, payment, settings, CMS, and audit data
 - Prisma schema plus checked-in migration
-- Stripe Checkout and webhook persistence
+- Stripe Connect onboarding, organizer-owned Checkout, and webhook persistence
 - Resend-backed email integration path
 - organizer join-request approval flow
 - organizer event, occurrence, registration, and payment operations
+- organizer public-profile settings, booking-window controls, and password change
 - platform settings, about-page, email-template, organizer, log, and health operations
 
 ## Runtime modes
@@ -20,7 +21,7 @@ Passreserve.com now has a production-shaped application runtime in this reposito
 
 - PostgreSQL via Prisma
 - Vercel deployment
-- Stripe live secrets
+- Stripe Connect platform secrets
 - Resend delivery
 - real custom domain
 
@@ -89,9 +90,10 @@ Database-backed setup:
 5. Deploy the app on Vercel.
 6. Confirm the platform admin can sign in.
 7. Confirm organizer join requests can be submitted and approved.
-8. Confirm a published paid occurrence can complete Stripe Checkout and webhook reconciliation.
-9. Confirm attendee emails and password-reset emails send through Resend.
-10. Attach the final custom domain and set `NEXT_PUBLIC_BASE_URL`.
+8. Confirm an approved organizer can connect Stripe and publish a paid occurrence.
+9. Confirm a published paid occurrence can complete organizer-owned Stripe Checkout and webhook reconciliation.
+10. Confirm attendee emails and password-reset emails send through Resend.
+11. Attach the final custom domain and set `NEXT_PUBLIC_BASE_URL`.
 
 ## What you still need to do
 
@@ -99,7 +101,7 @@ These are the owner-side tasks that cannot be completed from code alone:
 
 1. Buy or connect the final domain and point DNS to Vercel.
 2. Provision the production PostgreSQL database and set `DATABASE_URL`.
-3. Connect the live Stripe account and create the production webhook endpoint.
+3. Use the platform Stripe account for Connect, create the production webhook endpoint for connected-account events, and configure the Stripe secrets in Vercel.
 4. Connect Resend, verify the sender domain, and set `RESEND_API_KEY` and `FROM_EMAIL`.
 5. Set a strong `SESSION_SECRET` and `IP_SALT`.
 6. Decide the real bootstrap platform admin credentials and set them in Vercel.
@@ -113,17 +115,19 @@ After secrets and DNS are in place, verify these flows on the real domain:
 3. Sign in at `/admin/login`.
 4. Approve the join request or create an organizer manually.
 5. Sign in at `/{slug}/admin/login`.
-6. Create or edit an event and publish an occurrence.
-7. Register as an attendee on a free occurrence.
-8. Register as an attendee on a paid occurrence.
-9. Confirm Stripe webhook delivery updated the registration payment ledger.
-10. Confirm attendee confirmation and password-reset emails are delivered.
+6. Connect Stripe from `/{slug}/admin/billing`.
+7. Create or edit an event and publish an occurrence.
+8. Register as an attendee on a free occurrence.
+9. Register as an attendee on a paid occurrence.
+10. Confirm Stripe webhook delivery updated the registration payment ledger.
+11. Confirm attendee confirmation and password-reset emails are delivered.
 
 ## Useful file references
 
 - [`README.md`](/Users/leonardofiori/Documents/Antigravity/gatherpass/README.md)
 - [`prisma/schema.prisma`](/Users/leonardofiori/Documents/Antigravity/gatherpass/prisma/schema.prisma)
 - [`prisma/migrations/20260411104000_init_passreserve_schema/migration.sql`](/Users/leonardofiori/Documents/Antigravity/gatherpass/prisma/migrations/20260411104000_init_passreserve_schema/migration.sql)
+- [`prisma/migrations/20260411143000_add_stripe_connect_self_serve/migration.sql`](/Users/leonardofiori/Documents/Antigravity/gatherpass/prisma/migrations/20260411143000_add_stripe_connect_self_serve/migration.sql)
 - [`lib/passreserve-service.js`](/Users/leonardofiori/Documents/Antigravity/gatherpass/lib/passreserve-service.js)
 - [`lib/passreserve-admin-service.js`](/Users/leonardofiori/Documents/Antigravity/gatherpass/lib/passreserve-admin-service.js)
 - [`lib/passreserve-auth.js`](/Users/leonardofiori/Documents/Antigravity/gatherpass/lib/passreserve-auth.js)

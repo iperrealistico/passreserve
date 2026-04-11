@@ -15,10 +15,19 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
           Occurrence saved successfully.
         </div>
       ) : null}
+      {query.error ? (
+        <div className="registration-message registration-message-error">{query.error}</div>
+      ) : null}
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Occurrence planner</div>
         <h2>Current occurrences</h2>
+        {!data.billing.enabled ? (
+          <p>
+            Paid dates stay blocked until billing is ready. Free events and pay-at-event dates can
+            still be published.
+          </p>
+        ) : null}
         <div className="timeline">
           {data.occurrences.map((occurrence) => (
             <div className="timeline-step" key={occurrence.id}>
@@ -28,6 +37,9 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
               <span>
                 {occurrence.capacitySummary.remaining} remaining · {occurrence.status}
               </span>
+              <span>
+                {occurrence.usesOnlinePayments ? "Online payment enabled" : "No online payment"}
+              </span>
             </div>
           ))}
         </div>
@@ -36,6 +48,10 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
       <section className="panel section-card admin-section">
         <div className="section-kicker">Save occurrence</div>
         <h3>Use full ISO strings to keep the timezone explicit</h3>
+        <p>
+          Publishing a paid occurrence requires Stripe Connect to be ready and, if your monthly fee
+          is above zero, platform billing to be active.
+        </p>
         <form action={saveOrganizerOccurrenceAction} className="registration-field-grid">
           <input name="slug" type="hidden" value={slug} />
           <label className="field">

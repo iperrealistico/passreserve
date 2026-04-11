@@ -1,5 +1,6 @@
 import { getOrganizerDashboard } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
+import Link from "next/link";
 
 export default async function OrganizerDashboardPage({ params, searchParams }) {
   const { slug } = await params;
@@ -36,6 +37,26 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
           </div>
         </div>
       </section>
+
+      {!dashboard.billing.enabled ? (
+        <section className="panel section-card admin-section">
+          <div className="section-kicker">Billing checklist</div>
+          <h3>Paid dates are still blocked</h3>
+          <p>{dashboard.billing.paidPublishingLabel}</p>
+          <div className="timeline">
+            {dashboard.billing.checklist.map((item) => (
+              <div className="timeline-step" key={item}>
+                <strong>{item}</strong>
+              </div>
+            ))}
+          </div>
+          <div className="hero-actions">
+            <Link className="button button-primary" href={`/${slug}/admin/billing`}>
+              Open billing
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section className="admin-grid">
         <article className="panel section-card admin-section">

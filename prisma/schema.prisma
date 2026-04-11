@@ -45,6 +45,19 @@ enum JoinRequestStatus {
   ARCHIVED
 }
 
+enum OrganizerStripeConnectionStatus {
+  NOT_CONNECTED
+  PENDING
+  CONNECTED
+  RESTRICTED
+}
+
+enum OrganizerBillingStatus {
+  NOT_REQUIRED
+  ACTIVE
+  INACTIVE
+}
+
 enum PaymentStatus {
   PENDING
   SUCCEEDED
@@ -96,6 +109,18 @@ model Organizer {
   faq                Json?
   photoStory         Json?
   imageUrl           String?
+  minAdvanceHours    Int                           @default(0)
+  maxAdvanceDays     Int?
+  stripeAccountId    String?                        @unique
+  stripeConnectionStatus OrganizerStripeConnectionStatus @default(NOT_CONNECTED)
+  stripeDetailsSubmitted Boolean                    @default(false)
+  stripeChargesEnabled Boolean                      @default(false)
+  stripePayoutsEnabled Boolean                      @default(false)
+  stripeConnectedAt  DateTime?
+  stripeLastSyncedAt DateTime?
+  onlinePaymentsMonthlyFeeCents Int                 @default(0)
+  onlinePaymentsBillingStatus OrganizerBillingStatus @default(NOT_REQUIRED)
+  onlinePaymentsBillingActivatedAt DateTime?
   createdAt          DateTime              @default(now())
   updatedAt          DateTime              @updatedAt
   admins             OrganizerAdminUser[]
@@ -292,6 +317,7 @@ model RegistrationPayment {
   amountCents        Int
   currency           String        @default("EUR")
   externalEventId    String?       @unique
+  stripeAccountId    String?
   stripeSessionId    String?
   stripePaymentIntentId String?
   note               String        @default("")
@@ -300,6 +326,7 @@ model RegistrationPayment {
   createdAt          DateTime      @default(now())
 
   @@index([registrationId, occurredAt])
+  @@index([stripeAccountId])
   @@index([stripeSessionId])
   @@index([stripePaymentIntentId])
 }

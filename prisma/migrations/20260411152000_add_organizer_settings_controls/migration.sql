@@ -1,0 +1,3 @@
+ALTER TABLE "Organizer"
+ADD COLUMN "minAdvanceHours" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN "maxAdvanceDays" INTEGER;

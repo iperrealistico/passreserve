@@ -17,6 +17,10 @@ export default async function OrganizerPaymentsPage({ params, searchParams }) {
       ) : null}
       <div className="section-kicker">Payments</div>
       <h2>Online and venue-side payment tracking</h2>
+      <p>
+        Stripe Checkout settles directly into the organizer&apos;s connected Stripe account when
+        online payment is enabled.
+      </p>
       <div className="admin-card-grid">
         {data.payments.map((payment) => (
           <article className="admin-card" key={payment.id}>
@@ -42,6 +46,22 @@ export default async function OrganizerPaymentsPage({ params, searchParams }) {
                 <strong>{payment.dueAtEventOpenLabel}</strong>
               </div>
             </div>
+            {payment.ledger.length > 0 ? (
+              <div className="timeline">
+                {payment.ledger.map((entry) => (
+                  <div className="timeline-step" key={entry.id}>
+                    <strong>
+                      {entry.kind} · {entry.status}
+                    </strong>
+                    <span>{entry.note}</span>
+                    <span>
+                      {entry.amountLabel} · {entry.provider} · {entry.occurredAtLabel}
+                    </span>
+                    {entry.stripeAccountId ? <span>{entry.stripeAccountId}</span> : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
             {payment.dueAtEventOpenCents > 0 ? (
               <form action={recordVenuePaymentAction} className="registration-panel-stack">
                 <input name="slug" type="hidden" value={slug} />

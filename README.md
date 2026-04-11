@@ -4,6 +4,8 @@ Passreserve.com is the active event-platform application in this repository. The
 
 As of April 11, 2026, the repo is no longer just a sample-data shell. The public routes, organizer admin, platform admin, registration lifecycle, auth, payment records, CMS content, and launch docs all run through the completed Passreserve runtime.
 
+Compared with the original MTB Reserve tenant tooling, Passreserve now also includes organizer self-service settings, booking-window controls, platform-triggered organizer reset links, and Stripe Connect billing setup adapted for events.
+
 ## Current platform shape
 
 - public discovery at `/`
@@ -21,7 +23,7 @@ As of April 11, 2026, the repo is no longer just a sample-data shell. The public
 - durable runtime file store fallback for local work and Vercel previews when `DATABASE_URL` is absent
 - `iron-session` cookie auth for organizer and platform admins
 - `bcryptjs` password hashing and `zod` validation
-- Stripe Checkout plus durable payment and webhook records
+- Stripe Connect Standard onboarding plus organizer-owned Checkout and durable webhook records
 - Resend-backed transactional email when configured, with log-only fallback in local/test environments
 
 The checked-in Prisma schema and initial migration now live under [`prisma/`](/Users/leonardofiori/Documents/Antigravity/gatherpass/prisma).
@@ -75,6 +77,8 @@ The checked-in Prisma schema and initial migration now live under [`prisma/`](/U
 - `PLATFORM_ADMIN_PASSWORD`
 
 Production should be treated as incomplete without PostgreSQL, Stripe, and Resend configured.
+
+`STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` now belong to the Passreserve platform Stripe account for Connect orchestration. Organizers never paste their own Stripe keys into the app.
 
 ## Important docs
 

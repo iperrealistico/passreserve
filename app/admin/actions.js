@@ -6,12 +6,15 @@ import {
   approveOrganizerRequest,
   createOrganizerFromPlatform,
   markAdminLogin,
+  updateOrganizerBillingSettings,
   updateAboutPage,
   updateEmailTemplate,
   updateSiteSettings
 } from "../../lib/passreserve-admin-service.js";
+import { getBaseUrl } from "../../lib/passreserve-config.js";
 import {
   authenticatePlatformAdmin,
+  requestOrganizerPasswordReset,
   requestPlatformPasswordReset,
   resetPlatformPassword
 } from "../../lib/passreserve-service.js";
@@ -140,4 +143,28 @@ export async function approveOrganizerRequestAction(formData) {
 
   await approveOrganizerRequest(value(formData, "requestId"), user.userId);
   redirect("/admin/organizers?message=approved");
+}
+
+export async function updateOrganizerBillingAction(formData) {
+  const user = await requirePlatformAdminSession();
+  const slug = value(formData, "slug");
+
+  await updateOrganizerBillingSettings(
+    slug,
+    {
+      onlinePaymentsMonthlyFeeCents: value(formData, "onlinePaymentsMonthlyFeeCents"),
+      onlinePaymentsBillingStatus: value(formData, "onlinePaymentsBillingStatus")
+    },
+    user.userId
+  );
+  redirect(`/admin/organizers/${slug}?message=billing-saved`);
+}
+
+export async function sendOrganizerResetFromPlatformAction(formData) {
+  await requirePlatformAdminSession();
+  const slug = value(formData, "slug");
+  const email = value(formData, "email");
+
+  await requestOrganizerPasswordReset(slug, email, getBaseUrl());
+  redirect(`/admin/organizers/${slug}?message=reset-sent`);
 }

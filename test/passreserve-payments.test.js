@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  buildStripeCheckoutSessionRequest,
   formatCurrencyFromMinorUnits,
   getStripeEnvironmentState
 } from "../lib/passreserve-payments";
@@ -57,5 +58,37 @@ describe("passreserve-payments", () => {
       defaultCurrency: "usd",
       baseUrl: "https://passreserve.example.com"
     });
+  });
+
+  it("builds direct-charge Checkout requests against the organizer account", () => {
+    process.env.STRIPE_CURRENCY_DEFAULT = "eur";
+
+    const request = buildStripeCheckoutSessionRequest({
+      attendeeEmail: "ada@example.com",
+      dueAtEventMinor: 0,
+      eventSlug: "spring-festival",
+      eventTitle: "Spring Festival",
+      holdExpiresAt: "2026-04-11T10:00:00.000Z",
+      occurrenceId: "occ_123",
+      occurrenceLabel: "11 Apr 2026",
+      onlineAmountMinor: 10000,
+      organizerName: "Festival House",
+      payment: {
+        dueAtEventLabel: "€0"
+      },
+      paymentFingerprint: "paytok_123",
+      quantity: 2,
+      registrationCode: "PR-123",
+      resolvedBaseUrl: "https://passreserve.example.com",
+      slug: "festival-house",
+      stripeAccountId: "acct_123",
+      ticketCategoryLabel: "General"
+    });
+
+    expect(request.requestOptions).toEqual({
+      stripeAccount: "acct_123"
+    });
+    expect(request.params.payment_intent_data.application_fee_amount).toBeUndefined();
+    expect(request.params.metadata.connected_account_id).toBe("acct_123");
   });
 });
