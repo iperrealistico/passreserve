@@ -163,10 +163,25 @@ async function main() {
         homepage.text.includes("free platform for local experiences"),
       "Homepage should render the host-facing SEO section."
     );
+    assert(
+      !homepage.text.includes("Alpine Switchback Clinic"),
+      "Homepage should not render the event search results list."
+    );
     assert(!homepage.text.includes("All signals"), "Homepage should not render the removed discovery-mode pills.");
     assertIncludesVisual(homepage.text, "/images/passreserve/home-find-event.webp", "Homepage");
     assertIncludesVisual(homepage.text, "/images/passreserve/home-host-event.webp", "Homepage");
     assertNoInternalCopy(homepage.text, "Homepage");
+
+    const eventsPage = await fetchHtml(baseUrl, "/events");
+    assert(eventsPage.response.status === 200, "Events search page should return 200.");
+    assert(
+      eventsPage.text.includes("Search events by host, city, or format") &&
+        eventsPage.text.includes("Featured upcoming events") &&
+        eventsPage.text.includes("Alpine Switchback Clinic"),
+      "Events search page should render the dedicated discovery experience."
+    );
+    assertIncludesVisual(eventsPage.text, "/images/passreserve/home-find-event.webp", "Events search page");
+    assertNoInternalCopy(eventsPage.text, "Events search page");
 
     const aboutPage = await fetchHtml(baseUrl, "/about");
     assert(aboutPage.response.status === 200, "About page should return 200.");

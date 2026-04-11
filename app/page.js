@@ -1,13 +1,10 @@
 import Link from "next/link";
 
-import { submitOrganizerRequestRedirectAction } from "./actions.js";
-import {
-  getDiscoveryResults
-} from "../lib/passreserve-service.js";
+import { HomeOrganizerRequestModal } from "./home-organizer-request-modal.js";
+import { PublicHeader } from "./public-header.js";
 import {
   organizerLaunchWindows,
   organizerPaymentModels,
-  publicNavigation
 } from "../lib/passreserve-domain.js";
 import { PublicVisual } from "../lib/passreserve-visual-component.js";
 import { routeVisuals } from "../lib/passreserve-visuals.js";
@@ -47,28 +44,52 @@ const hostIntentArticles = [
   }
 ];
 
+const discoveryChips = [
+  "workshop",
+  "retreat",
+  "sunrise",
+  "gravel",
+  "family",
+  "dinner"
+];
+
+const discoveryNotes = [
+  {
+    title: "By city",
+    detail: "Search Bologna, Como, Parma, or the next place you want to explore."
+  },
+  {
+    title: "By host",
+    detail: "Start with the host page when you already know who is running the event."
+  },
+  {
+    title: "By format",
+    detail: "Use clear intent words like workshop, sunset, family, retreat, or gravel."
+  }
+];
+
+const hostNotes = [
+  {
+    title: "Free to start",
+    detail: "Publish a clean page before paying for heavier tools you may not need."
+  },
+  {
+    title: "Flexible payments",
+    detail: "Take deposits, charge online, or let guests pay at the event."
+  },
+  {
+    title: "Repeat dates",
+    detail: "Keep recurring classes, retreats, and local experiences easier to run."
+  }
+];
+
 export default async function HomePage({ searchParams }) {
   const query = await searchParams;
-  const search = typeof query.query === "string" ? query.query : "";
-  const results = await getDiscoveryResults(search);
 
   return (
     <main className="shell">
       <div className="content">
-        <header className="topbar">
-          <div className="wordmark">
-            <span className="wordmark-name">Passreserve.com</span>
-            <span className="wordmark-tag">Find an event or launch one with confidence</span>
-          </div>
-          <nav className="nav" aria-label="Primary">
-            {publicNavigation.map((item) => (
-              <a href={item.href} key={item.href}>
-                {item.label}
-              </a>
-            ))}
-            <Link href="/about">About</Link>
-          </nav>
-        </header>
+        <PublicHeader />
 
         {query.message ? (
           <div className="registration-message registration-message-success">
@@ -84,6 +105,7 @@ export default async function HomePage({ searchParams }) {
         <section className="hero home-split-hero" id="discover">
           <article className="panel hero-copy hero-stack home-primary-panel" id="featured">
             <PublicVisual
+              aspectRatio="16 / 10"
               className="home-panel-visual"
               priority
               sizes="(min-width: 1024px) 27vw, 100vw"
@@ -95,69 +117,46 @@ export default async function HomePage({ searchParams }) {
               where it happens, what it costs, and how to join.
             </p>
 
-            <form className="search-lab" method="GET">
+            <form action="/events" className="search-lab home-search-lab" method="GET">
               <label className="search-field">
                 <span className="search-label">Search by host, city, or event type</span>
                 <input
-                  defaultValue={search}
                   name="query"
                   placeholder="Try Bologna, Trail Lab, family festival, or Dolomites"
                   type="text"
                 />
               </label>
-              <div className="hero-actions">
-                <button className="button button-primary" type="submit">
-                  Search
+              <div className="hero-actions search-actions-row">
+                <button className="button button-primary button-compact" type="submit">
+                  Search events
                 </button>
+                <Link className="button button-secondary button-compact" href="/events">
+                  Browse all events
+                </Link>
               </div>
-              <div className="search-caption" aria-live="polite">
-                <strong>
-                  {search ? `${results.length} matches for "${search}"` : "Featured events and hosts"}
-                </strong>
-                <span>Search by host, city, or event style.</span>
+
+              <div className="quick-chip-row">
+                {discoveryChips.map((chip) => (
+                  <Link className="quick-chip" href={`/events?query=${encodeURIComponent(chip)}`} key={chip}>
+                    {chip}
+                  </Link>
+                ))}
               </div>
             </form>
 
-            <div className="event-lineup">
-              {results.map((entry) => (
-                <article className="event-card" key={entry.id}>
-                  <div className="event-card-body">
-                    <h3>{entry.eventTitle}</h3>
-                    <p>{entry.eventSummary}</p>
-                    <div className="event-card-meta">
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Host</span>
-                        <strong>{entry.organizerName}</strong>
-                      </div>
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Location</span>
-                        <strong>
-                          {entry.city}, {entry.region}
-                        </strong>
-                      </div>
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Pricing</span>
-                        <strong>
-                          {entry.priceLabel} · {entry.collectionLabel}
-                        </strong>
-                      </div>
-                    </div>
-                    <div className="hero-actions event-card-actions">
-                      <Link className="button button-primary" href={entry.eventHref}>
-                        Open event page
-                      </Link>
-                      <Link className="button button-secondary" href={entry.organizerHref}>
-                        Open host page
-                      </Link>
-                    </div>
-                  </div>
+            <div className="home-panel-list" aria-label="Search tips">
+              {discoveryNotes.map((note) => (
+                <article className="home-panel-list-item" key={note.title}>
+                  <strong>{note.title}</strong>
+                  <span>{note.detail}</span>
                 </article>
               ))}
             </div>
           </article>
 
-          <aside className="panel hero-copy hero-stack home-primary-panel" id="organizer-launch">
+          <aside className="panel hero-copy hero-stack home-organizer-panel" id="organizer-launch">
             <PublicVisual
+              aspectRatio="16 / 10"
               className="home-panel-visual"
               sizes="(min-width: 1024px) 27vw, 100vw"
               visualId={routeVisuals.homeHost}
@@ -168,61 +167,32 @@ export default async function HomePage({ searchParams }) {
               whether attendees pay online, leave a deposit, or pay at the event.
             </p>
 
-            <form action={submitOrganizerRequestRedirectAction} className="registration-field-grid">
-              <label className="field">
-                <span>Contact name</span>
-                <input name="contactName" required type="text" />
-              </label>
-              <label className="field">
-                <span>Contact email</span>
-                <input name="contactEmail" required type="email" />
-              </label>
-              <label className="field">
-                <span>Contact phone</span>
-                <input name="contactPhone" type="text" />
-              </label>
-              <label className="field">
-                <span>Organizer name</span>
-                <input name="organizerName" required type="text" />
-              </label>
-              <label className="field">
-                <span>City</span>
-                <input name="city" required type="text" />
-              </label>
-              <label className="field">
-                <span>Launch window</span>
-                <select defaultValue={organizerLaunchWindows[1]?.id} name="launchWindow">
-                  {organizerLaunchWindows.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field">
-                <span>Payment model</span>
-                <select defaultValue={organizerPaymentModels[1]?.id} name="paymentModel">
-                  {organizerPaymentModels.map((option) => (
-                    <option key={option.id} value={option.id}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="field field-span">
-                <span>What do you host?</span>
-                <textarea name="eventFocus" required rows="2" />
-              </label>
-              <label className="field field-span">
-                <span>Notes</span>
-                <textarea name="note" rows="2" />
-              </label>
-              <div className="hero-actions">
-                <button className="button button-primary" type="submit">
-                  Send organizer request
-                </button>
-              </div>
-            </form>
+            <div className="home-panel-list" aria-label="Host benefits">
+              {hostNotes.map((note) => (
+                <article className="home-panel-list-item" key={note.title}>
+                  <strong>{note.title}</strong>
+                  <span>{note.detail}</span>
+                </article>
+              ))}
+            </div>
+
+            <div className="home-panel-summary">
+              <strong>Keep the setup simple</strong>
+              <span>
+                Start free, choose the payment flow that fits the event, and move guests to a calm
+                registration page instead of a crowded marketplace listing.
+              </span>
+            </div>
+
+            <div className="home-launch-actions">
+              <HomeOrganizerRequestModal
+                launchWindows={organizerLaunchWindows}
+                paymentModels={organizerPaymentModels}
+              />
+              <Link className="button button-secondary button-compact button-small" href="#how-it-works">
+                How hosting works
+              </Link>
+            </div>
           </aside>
         </section>
 
