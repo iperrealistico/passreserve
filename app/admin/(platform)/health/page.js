@@ -1,77 +1,58 @@
-import {
-  getPlatformHealth,
-  siteSettingsSnapshot
-} from "../../../../lib/passreserve-platform";
+import { getPlatformHealth } from "../../../../lib/passreserve-admin-service.js";
 
 export const metadata = {
-  title: "Service status"
+  title: "Health"
 };
 
 export default async function PlatformHealthPage() {
-  const platformHealth = await getPlatformHealth();
+  const health = await getPlatformHealth();
 
   return (
     <div className="admin-page">
-      <section className="hero admin-hero">
-        <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">Service status</div>
-          <h2>Live site status, checkout mode, and request storage stay visible together.</h2>
-          <p>
-            Use this view to confirm host coverage, email readiness, and checkout status before
-            replying to hosts or guests.
-          </p>
-        </article>
-
-        <aside className="panel hero-aside admin-hero-aside">
-          <div className="status-block">
-            <div className="status-label">Vercel target</div>
-            <h2>{siteSettingsSnapshot.vercel.projectName}</h2>
-            <p>
-              {siteSettingsSnapshot.vercel.teamId}
-              <br />
-              {siteSettingsSnapshot.vercel.projectId}
-            </p>
-          </div>
-          <div className="metrics">
-            {platformHealth.metrics.map((metric) => (
-              <div className="metric" key={metric.label}>
-                <span className="metric-label">{metric.label}</span>
-                <div className="metric-value">{metric.value}</div>
-              </div>
-            ))}
-          </div>
-        </aside>
-      </section>
-
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Checks</div>
-        <h3>Service readiness is explicit.</h3>
-        <div className="admin-card-grid">
-          {platformHealth.checks.map((check) => (
-            <article className="admin-card" key={check.title}>
-              <div className="admin-badge-row">
-                <span className={`admin-badge admin-badge-${check.statusTone}`}>
-                  {check.statusLabel}
-                </span>
-              </div>
-              <h4>{check.title}</h4>
-              <p>{check.detail}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="panel section-card admin-section">
-        <div className="section-kicker">Known risks</div>
-        <h3>Current caveats stay visible to the team.</h3>
-        <div className="admin-note-list">
-          {platformHealth.risks.map((risk) => (
-            <div className="admin-note-item" key={risk.title}>
-              <strong>{risk.title}</strong>
-              <p>{risk.detail}</p>
+        <div className="section-kicker">Health</div>
+        <h2>Environment and launch readiness</h2>
+        <div className="metrics">
+          {health.metrics.map((metric) => (
+            <div className="metric" key={metric.label}>
+              <div className="metric-label">{metric.label}</div>
+              <div className="metric-value">{metric.value}</div>
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="admin-grid">
+        <article className="panel section-card admin-section">
+          <div className="section-kicker">Checks</div>
+          <h3>Current platform checks</h3>
+          <div className="status-list">
+            {health.checks.map((check, index) => (
+              <div className="status-item" key={check.title}>
+                <span className="status-index">{index + 1}</span>
+                <div>
+                  <strong>
+                    {check.title} · {check.statusLabel}
+                  </strong>
+                  {check.detail}
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+
+        <article className="panel section-card admin-section">
+          <div className="section-kicker">Launch blockers</div>
+          <h3>Owner-controlled items still required</h3>
+          <div className="timeline">
+            {health.risks.map((risk) => (
+              <div className="timeline-step" key={risk.title}>
+                <strong>{risk.title}</strong>
+                <span>{risk.detail}</span>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
     </div>
   );

@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 
-import { resumeRegistrationPaymentAction } from "../../../actions";
+import { resumeRegistrationPaymentAction } from "../../../actions.js";
 
 const initialActionState = {
   message: "",

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 
 import {
-  constructStripeWebhookEvent,
-  summarizeStripeWebhookEvent
-} from "../../../../lib/passreserve-payments";
+  constructStripeWebhookEvent
+} from "../../../../lib/passreserve-payments.js";
+import { processStripeWebhook } from "../../../../lib/passreserve-service.js";
 
 export const runtime = "nodejs";
 
@@ -22,19 +22,11 @@ export async function POST(request) {
     );
   }
 
-  const summary = summarizeStripeWebhookEvent(result.event);
-
-  console.info(
-    JSON.stringify({
-      source: "passreserve-phase-09-webhook",
-      level: "info",
-      timestamp: new Date().toISOString(),
-      ...summary
-    })
-  );
+  const processing = await processStripeWebhook(result.event);
 
   return NextResponse.json({
     ok: true,
-    received: true
+    received: true,
+    processing
   });
 }

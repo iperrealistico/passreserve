@@ -2,13 +2,13 @@ import Link from "next/link";
 
 import {
   getRegistrationPaymentPreviewView
-} from "../../../../../../../../lib/passreserve-registrations";
-import { PublicVisual } from "../../../../../../../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../../../../../../../lib/passreserve-visuals";
+} from "../../../../../../../../lib/passreserve-service.js";
+import { PublicVisual } from "../../../../../../../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../../../../../../../lib/passreserve-visuals.js";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
-  const view = getRegistrationPaymentPreviewView(slug, eventSlug, paymentToken);
+  const view = await getRegistrationPaymentPreviewView(slug, eventSlug, paymentToken);
 
   if (view.state !== "ready") {
     return {
@@ -49,7 +49,7 @@ function PreviewStatePanel({ view }) {
 
 export default async function RegistrationPaymentPreviewPage({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
-  const view = getRegistrationPaymentPreviewView(slug, eventSlug, paymentToken);
+  const view = await getRegistrationPaymentPreviewView(slug, eventSlug, paymentToken);
 
   if (view.state !== "ready") {
     return <PreviewStatePanel view={view} />;

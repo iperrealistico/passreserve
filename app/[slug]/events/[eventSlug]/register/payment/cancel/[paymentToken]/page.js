@@ -2,14 +2,14 @@ import Link from "next/link";
 
 import {
   getRegistrationPaymentCancellationView
-} from "../../../../../../../../lib/passreserve-registrations";
-import { PublicVisual } from "../../../../../../../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../../../../../../../lib/passreserve-visuals";
-import ResumePaymentForm from "./resume-payment-form";
+} from "../../../../../../../../lib/passreserve-service.js";
+import { PublicVisual } from "../../../../../../../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../../../../../../../lib/passreserve-visuals.js";
+import ResumePaymentForm from "./resume-payment-form.js";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
-  const view = getRegistrationPaymentCancellationView(slug, eventSlug, paymentToken);
+  const view = await getRegistrationPaymentCancellationView(slug, eventSlug, paymentToken);
 
   if (view.state !== "ready") {
     return {
@@ -50,7 +50,7 @@ function CancellationStatePanel({ view }) {
 
 export default async function RegistrationPaymentCancelPage({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
-  const view = getRegistrationPaymentCancellationView(slug, eventSlug, paymentToken);
+  const view = await getRegistrationPaymentCancellationView(slug, eventSlug, paymentToken);
 
   if (view.state !== "ready") {
     return <CancellationStatePanel view={view} />;

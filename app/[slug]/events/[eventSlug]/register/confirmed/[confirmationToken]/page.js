@@ -2,9 +2,9 @@ import Link from "next/link";
 
 import {
   getConfirmedRegistrationView
-} from "../../../../../../../lib/passreserve-registrations";
-import { PublicVisual } from "../../../../../../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../../../../../../lib/passreserve-visuals";
+} from "../../../../../../../lib/passreserve-service.js";
+import { PublicVisual } from "../../../../../../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../../../../../../lib/passreserve-visuals.js";
 
 function formatRegistrationStatus(status) {
   switch (status) {
@@ -34,7 +34,7 @@ function formatPaymentStatus(status) {
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, confirmationToken } = await params;
-  const view = getConfirmedRegistrationView(slug, eventSlug, confirmationToken);
+  const view = await getConfirmedRegistrationView(slug, eventSlug, confirmationToken);
 
   if (view.state !== "ready") {
     return {
@@ -75,7 +75,7 @@ function ConfirmationStatePanel({ view }) {
 
 export default async function RegistrationConfirmedPage({ params }) {
   const { slug, eventSlug, confirmationToken } = await params;
-  const view = getConfirmedRegistrationView(slug, eventSlug, confirmationToken);
+  const view = await getConfirmedRegistrationView(slug, eventSlug, confirmationToken);
 
   if (view.state !== "ready") {
     return <ConfirmationStatePanel view={view} />;

@@ -1,28 +1,25 @@
-import { platformLogCatalog } from "../../../../lib/passreserve-platform";
+import { listAuditLogs } from "../../../../lib/passreserve-service.js";
 
 export const metadata = {
-  title: "Platform logs"
+  title: "Logs"
 };
 
-export default function PlatformLogsPage() {
+export default async function PlatformLogsPage() {
+  const logs = await listAuditLogs(100);
+
   return (
-    <div className="admin-page">
-      <section className="panel section-card admin-section">
-        <div className="section-kicker">Platform logs</div>
-        <h2>Platform events show deployment, payment, and delivery status in plain terms.</h2>
-        <div className="timeline">
-          {platformLogCatalog.map((entry) => (
-            <div className="timeline-step" key={entry.id}>
-              <strong>{entry.eventType}</strong>
-              <span>
-                {entry.levelLabel} · {entry.actor} · {entry.entity}
-              </span>
-              <span>{entry.message}</span>
-              <span>{entry.detail}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
+    <section className="panel section-card admin-section">
+      <div className="section-kicker">Audit log</div>
+      <h2>Recent platform activity</h2>
+      <div className="timeline">
+        {logs.map((entry) => (
+          <div className="timeline-step" key={entry.id}>
+            <strong>{entry.eventType}</strong>
+            <span>{entry.message}</span>
+            <span>{entry.createdAt}</span>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

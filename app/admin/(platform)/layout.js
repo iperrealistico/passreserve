@@ -2,14 +2,24 @@ import Link from "next/link";
 
 import {
   getPlatformOverview,
-  platformAdminGuidance,
-  platformAdminNavigation
-} from "../../../lib/passreserve-platform";
+} from "../../../lib/passreserve-admin-service.js";
+import { platformLogoutAction } from "../actions.js";
+import { requirePlatformAdminSession } from "../../../lib/passreserve-auth.js";
 
 export const dynamic = "force-dynamic";
 
 export default async function PlatformAdminLayout({ children }) {
+  await requirePlatformAdminSession();
   const overview = await getPlatformOverview();
+  const navigation = [
+    { label: "Overview", href: "/admin" },
+    { label: "Organizers", href: "/admin/organizers" },
+    { label: "Settings", href: "/admin/settings" },
+    { label: "About", href: "/admin/about" },
+    { label: "Emails", href: "/admin/emails" },
+    { label: "Logs", href: "/admin/logs" },
+    { label: "Health", href: "/admin/health" }
+  ];
 
   return (
     <main className="shell admin-shell">
@@ -63,7 +73,7 @@ export default async function PlatformAdminLayout({ children }) {
             <div className="admin-sidebar-block">
               <div className="section-kicker">Quick links</div>
               <div className="admin-nav-list">
-                {platformAdminNavigation.map((item) => (
+                {navigation.map((item) => (
                   <Link className="admin-nav-link" href={item.href} key={item.href}>
                     <span>{item.label}</span>
                     <span aria-hidden="true">/</span>
@@ -75,7 +85,7 @@ export default async function PlatformAdminLayout({ children }) {
             <div className="admin-sidebar-block">
               <div className="section-kicker">What this area covers</div>
               <div className="status-list">
-                {platformAdminGuidance.map((item, index) => (
+                {overview.releaseTracks.map((item, index) => (
                   <div className="status-item" key={item.title}>
                     <span className="status-index">{index + 1}</span>
                     <div>
@@ -91,6 +101,11 @@ export default async function PlatformAdminLayout({ children }) {
               <span className="spotlight-label">Team contact</span>
               <strong>{overview.supportEmail}</strong>
               <span>{overview.summary.onlineCollectedLabel} collected online across active organizers</span>
+              <form action={platformLogoutAction}>
+                <button className="button button-secondary" type="submit">
+                  Sign out
+                </button>
+              </form>
             </div>
           </aside>
 

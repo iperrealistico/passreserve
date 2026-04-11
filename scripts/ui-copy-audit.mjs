@@ -6,7 +6,7 @@ import { findForbiddenUiCopy } from "./ui-copy-policy.mjs";
 
 const sourceFiles = [
   "app/layout.js",
-  "app/home-experience.js",
+  "app/page.js",
   "app/about/page.js",
   "app/not-found.js",
   "app/[slug]/page.js",
@@ -18,6 +18,7 @@ const sourceFiles = [
   "app/[slug]/events/[eventSlug]/register/payment/cancel/[paymentToken]/page.js",
   "app/[slug]/events/[eventSlug]/register/payment/success/[paymentToken]/page.js",
   "app/admin/login/page.js",
+  "app/admin/login/reset/[token]/page.js",
   "app/admin/(platform)/layout.js",
   "app/admin/(platform)/page.js",
   "app/admin/(platform)/about/page.js",
@@ -27,18 +28,14 @@ const sourceFiles = [
   "app/admin/(platform)/organizers/page.js",
   "app/admin/(platform)/organizers/[slug]/page.js",
   "app/[slug]/admin/layout.js",
+  "app/[slug]/admin/login/page.js",
+  "app/[slug]/admin/login/reset/[token]/page.js",
   "app/[slug]/admin/dashboard/page.js",
   "app/[slug]/admin/calendar/page.js",
   "app/[slug]/admin/payments/page.js",
   "app/[slug]/admin/registrations/page.js",
-  "app/[slug]/admin/dashboard/operations-dashboard-experience.js",
-  "app/[slug]/admin/calendar/operations-calendar-experience.js",
-  "app/[slug]/admin/registrations/registration-operations-experience.js",
-  "app/[slug]/admin/payments/payment-operations-experience.js",
-  "lib/passreserve-platform.js",
-  "lib/passreserve-operations.js",
-  "lib/passreserve-admin.js",
-  "lib/passreserve-organizer-requests.js"
+  "app/[slug]/admin/events/page.js",
+  "app/[slug]/admin/occurrences/page.js"
 ];
 
 function sanitizeSource(text) {

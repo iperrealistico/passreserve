@@ -94,50 +94,6 @@ async function fetchHtml(baseUrl, pathname, init) {
   };
 }
 
-async function runRegistrationSmokeHelper(baseUrl) {
-  return new Promise((resolve, reject) => {
-    const child = spawn(
-      process.execPath,
-      [
-        "--experimental-specifier-resolution=node",
-        new URL("./registration-smoke-helper.mjs", import.meta.url).pathname,
-        baseUrl
-      ],
-      {
-        cwd: process.cwd(),
-        env: process.env,
-        stdio: ["ignore", "pipe", "pipe"]
-      }
-    );
-    let stdout = "";
-    let stderr = "";
-
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk.toString();
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk.toString();
-    });
-    child.on("error", reject);
-    child.on("close", (code) => {
-      if (code !== 0) {
-        reject(
-          new Error(
-            stderr.trim() || stdout.trim() || "Registration smoke helper failed."
-          )
-        );
-        return;
-      }
-
-      try {
-        resolve(JSON.parse(stdout));
-      } catch (error) {
-        reject(error);
-      }
-    });
-  });
-}
-
 async function main() {
   assert(
     existsSync(".next/BUILD_ID"),
@@ -150,13 +106,20 @@ async function main() {
     await fs.mkdtemp(path.join(os.tmpdir(), "passreserve-smoke-")),
     "organizer-requests.json"
   );
+  const passreserveStateFile = path.join(
+    await fs.mkdtemp(path.join(os.tmpdir(), "passreserve-state-")),
+    "state.json"
+  );
+  process.env.ORGANIZER_REQUESTS_FILE = organizerRequestsFile;
+  process.env.PASSRESERVE_STATE_FILE = passreserveStateFile;
   const nextBin = new URL("../node_modules/next/dist/bin/next", import.meta.url);
   const child = spawn(process.execPath, [nextBin.pathname, "start", "--port", String(port)], {
     cwd: process.cwd(),
     env: {
       ...process.env,
       PORT: String(port),
-      ORGANIZER_REQUESTS_FILE: organizerRequestsFile
+      ORGANIZER_REQUESTS_FILE: organizerRequestsFile,
+      PASSRESERVE_STATE_FILE: passreserveStateFile
     },
     stdio: ["ignore", "pipe", "pipe"]
   });
@@ -246,8 +209,28 @@ async function main() {
     assertIncludesVisual(registerPage.text, "/images/passreserve/registration-flow.webp", "Registration page");
     assertNoInternalCopy(registerPage.text, "Registration page");
 
-    const registrationSmoke = await runRegistrationSmokeHelper(baseUrl);
-    const holdPage = await fetchHtml(baseUrl, registrationSmoke.holdRedirectHref);
+    const {
+      confirmRegistrationHold,
+      createRegistrationHold,
+      getRegistrationExperienceBySlugs
+    } = await import("../lib/passreserve-service.js");
+    const registrationExperience = await getRegistrationExperienceBySlugs(
+      "alpine-trail-lab",
+      "sunrise-ridge-session"
+    );
+    const holdResult = await createRegistrationHold({
+      slug: "alpine-trail-lab",
+      eventSlug: "sunrise-ridge-session",
+      occurrenceId: registrationExperience.selectedOccurrence.id,
+      ticketCategoryId: registrationExperience.selectedTicketCategory.id,
+      quantity: 1,
+      attendeeName: "Smoke Test Guest",
+      attendeeEmail: "smoke-guest@example.com",
+      attendeePhone: "+39 340 111 1111"
+    });
+    assert(holdResult.ok, "Registration helper should create a hold successfully.");
+
+    const holdPage = await fetchHtml(baseUrl, holdResult.redirectHref);
     assert(holdPage.response.status === 200, "Confirmation route should return 200.");
     assert(
       holdPage.text.includes("Review your details before you confirm your registration"),
@@ -260,7 +243,18 @@ async function main() {
     );
     assertNoInternalCopy(holdPage.text, "Registration confirmation page");
 
-    const paymentPreviewUrl = new URL(registrationSmoke.confirmRedirectHref, baseUrl);
+    const holdToken = getLastPathSegment(holdResult.redirectHref);
+    const confirmationResult = await confirmRegistrationHold({
+      slug: "alpine-trail-lab",
+      eventSlug: "sunrise-ridge-session",
+      holdToken,
+      termsAccepted: "yes",
+      responsibilityAccepted: "yes",
+      baseUrl
+    });
+    assert(confirmationResult.ok, "Registration helper should confirm the hold successfully.");
+
+    const paymentPreviewUrl = new URL(confirmationResult.redirectHref, baseUrl);
     const paymentPreviewPage = await fetchHtml(
       baseUrl,
       `${paymentPreviewUrl.pathname}${paymentPreviewUrl.search}`
@@ -333,16 +327,16 @@ async function main() {
     const dashboardPage = await fetchHtml(baseUrl, "/alpine-trail-lab/admin/dashboard");
     assert(dashboardPage.response.status === 200, "Organizer dashboard should return 200.");
     assert(
-      dashboardPage.text.includes("Open registrations"),
-      "Organizer dashboard should render the host CTAs."
+      dashboardPage.text.includes("Organizer admin sign in"),
+      "Organizer dashboard should redirect unauthenticated users into organizer sign-in."
     );
     assertNoInternalCopy(dashboardPage.text, "Organizer dashboard");
 
     const platformLogin = await fetchHtml(baseUrl, "/admin/login");
     assert(platformLogin.response.status === 200, "Team login should return 200.");
     assert(
-      platformLogin.text.includes("Staff access"),
-      "Team login should render the promoted staff-access heading."
+      platformLogin.text.includes("Sign in to manage organizers, content, and operational checks."),
+      "Team login should render the protected platform sign-in copy."
     );
     assertIncludesVisual(platformLogin.text, "/images/passreserve/staff-login.webp", "Team login page");
     assertNoInternalCopy(platformLogin.text, "Team login page");
@@ -359,24 +353,21 @@ async function main() {
     const platformOverview = await fetchHtml(baseUrl, "/admin");
     assert(platformOverview.response.status === 200, "Team dashboard should return 200.");
     assert(
-      platformOverview.text.includes(
-        "Manage hosts, public pages, email templates, and key admin checks."
-      ),
-      "Team dashboard should render the visitor-safe support overview copy."
+      platformOverview.text.includes("Sign in to manage organizers, content, and operational checks."),
+      "Protected platform routes should redirect unauthenticated visitors to sign-in."
     );
     assertNoInternalCopy(platformOverview.text, "Team dashboard");
 
     const platformOrganizerDetail = await fetchHtml(baseUrl, "/admin/organizers/alpine-trail-lab");
     assert(platformOrganizerDetail.response.status === 200, "Host detail page should return 200.");
     assert(
-      platformOrganizerDetail.text.includes("The team can jump directly into the right host page."),
-      "Host detail page should render the updated support copy."
+      platformOrganizerDetail.text.includes("Sign in to manage organizers, content, and operational checks."),
+      "Protected organizer detail routes should redirect unauthenticated visitors to sign-in."
     );
     assertNoInternalCopy(platformOrganizerDetail.text, "Host detail page");
 
-    process.env.ORGANIZER_REQUESTS_FILE = organizerRequestsFile;
     const { listOrganizerRequests, submitOrganizerRequest } = await import(
-      "../lib/passreserve-organizer-requests.js"
+      "../lib/passreserve-service.js"
     );
     const requestResult = await submitOrganizerRequest({
       contactName: "Smoke Test Host",
@@ -400,8 +391,8 @@ async function main() {
     const emailsPage = await fetchHtml(baseUrl, "/admin/emails");
     assert(emailsPage.response.status === 200, "Platform emails page should return 200.");
     assert(
-      emailsPage.text.includes("Smoke Test Studio"),
-      "Organizer request should appear in the platform inbox."
+      emailsPage.text.includes("Sign in to manage organizers, content, and operational checks."),
+      "Protected platform email routes should redirect unauthenticated visitors to sign-in."
     );
     assertNoInternalCopy(emailsPage.text, "Emails page");
 
@@ -444,6 +435,10 @@ async function main() {
   } finally {
     cleanup();
     await fs.rm(path.dirname(organizerRequestsFile), {
+      recursive: true,
+      force: true
+    });
+    await fs.rm(path.dirname(passreserveStateFile), {
       recursive: true,
       force: true
     });

@@ -2,23 +2,23 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
-  getOrganizerBySlug,
+  getOrganizerPage,
   getOrganizerSlugs
-} from "../../lib/passreserve-public";
-import { PublicVisual } from "../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../lib/passreserve-visuals";
+} from "../../lib/passreserve-service.js";
+import { PublicVisual } from "../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../lib/passreserve-visuals.js";
 
 function buildRegistrationHref(slug, eventSlug, occurrenceId) {
   return `/${slug}/events/${eventSlug}/register?occurrence=${occurrenceId}`;
 }
 
-export function generateStaticParams() {
-  return getOrganizerSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  return (await getOrganizerSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const organizer = getOrganizerBySlug(slug);
+  const organizer = await getOrganizerPage(slug);
 
   if (!organizer) {
     return {
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
 
 export default async function OrganizerPage({ params }) {
   const { slug } = await params;
-  const organizer = getOrganizerBySlug(slug);
+  const organizer = await getOrganizerPage(slug);
 
   if (!organizer) {
     notFound();

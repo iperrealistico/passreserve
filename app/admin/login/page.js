@@ -1,13 +1,33 @@
 import Link from "next/link";
 
-import { PublicVisual } from "../../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../../lib/passreserve-visuals";
+import { platformLoginAction, platformRequestResetAction } from "../actions.js";
+import { PublicVisual } from "../../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../../lib/passreserve-visuals.js";
 
 export const metadata = {
   title: "Team sign in"
 };
 
-export default function PlatformAdminLoginPage() {
+function messageFor(value) {
+  switch (value) {
+    case "invalid":
+      return "The email and password did not match an approved team account.";
+    case "reset-sent":
+      return "If that account exists, a password reset link has been generated.";
+    case "password-updated":
+      return "Password updated. You can sign in now.";
+    case "signed-out":
+      return "You have been signed out.";
+    default:
+      return "";
+  }
+}
+
+export default async function PlatformAdminLoginPage({ searchParams }) {
+  const query = await searchParams;
+  const error = messageFor(typeof query.error === "string" ? query.error : "");
+  const message = messageFor(typeof query.message === "string" ? query.message : "");
+
   return (
     <main className="shell admin-shell">
       <div className="content">
@@ -16,7 +36,7 @@ export default function PlatformAdminLoginPage() {
             <Link className="wordmark-name" href="/">
               Passreserve.com
             </Link>
-            <span className="wordmark-tag">Private sign-in for approved accounts</span>
+            <span className="wordmark-tag">Protected platform access for approved team accounts</span>
           </div>
           <nav className="nav" aria-label="Platform login navigation">
             <Link href="/">Discover</Link>
@@ -24,30 +44,70 @@ export default function PlatformAdminLoginPage() {
           </nav>
         </header>
 
-        <section className="hero hero-single">
-          <article className="panel hero-copy hero-stack hero-single-panel">
+        <section className="hero detail-hero">
+          <article className="panel hero-copy public-hero-copy">
+            <div className="section-kicker">Team access</div>
+            <h1>Sign in to manage organizers, content, and operational checks.</h1>
+            <p>
+              This area is protected with real team sessions. Organizer onboarding, templates,
+              settings, logs, and support views all live behind this sign-in.
+            </p>
+            {error ? (
+              <div className="registration-message registration-message-error">{error}</div>
+            ) : null}
+            {message ? (
+              <div className="registration-message registration-message-success">{message}</div>
+            ) : null}
+
+            <form action={platformLoginAction} className="registration-panel-stack">
+              <label className="field">
+                <span>Email</span>
+                <input name="email" placeholder="admin@passreserve.local" type="email" />
+              </label>
+              <label className="field">
+                <span>Password</span>
+                <input name="password" type="password" />
+              </label>
+              <div className="hero-actions">
+                <button className="button button-primary" type="submit">
+                  Sign in
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <aside className="panel hero-aside public-hero-aside">
             <PublicVisual
-              className="aside-visual admin-login-visual"
-              sizes="(min-width: 1024px) 34rem, 100vw"
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
               visualId={routeVisuals.staffLogin}
             />
-            <h1>Staff access</h1>
-            <p>
-              Sign in here if you already have access to the Passreserve team area.
-            </p>
-            <p>
-              If you want to launch event pages on Passreserve.com, request access from the
-              homepage first.
-            </p>
-            <div className="hero-actions hero-actions-inline">
-              <Link className="button button-primary" href="/admin">
-                Continue to dashboard
-              </Link>
-              <Link className="button button-secondary" href="/#organizer-launch">
-                Request access
-              </Link>
+            <div className="status-block">
+              <div className="status-label">Need a reset?</div>
+              <h2>Request a fresh password link.</h2>
+              <p>
+                If the account exists, Passreserve will generate a one-time reset link and send
+                or log it according to the current email configuration.
+              </p>
             </div>
-          </article>
+
+            <form action={platformRequestResetAction} className="registration-panel-stack">
+              <input
+                name="baseUrl"
+                type="hidden"
+                value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
+              />
+              <label className="field">
+                <span>Account email</span>
+                <input name="email" placeholder="admin@passreserve.local" type="email" />
+              </label>
+              <div className="hero-actions">
+                <button className="button button-secondary" type="submit">
+                  Send reset link
+                </button>
+              </div>
+            </form>
+          </aside>
         </section>
       </div>
     </main>

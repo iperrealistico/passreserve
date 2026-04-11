@@ -3,11 +3,8 @@
 import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 
-import { calculatePaymentBreakdown } from "../../../../../lib/passreserve-domain";
-import {
-  getRegistrationQuantityOptions
-} from "../../../../../lib/passreserve-registrations";
-import { createRegistrationHoldAction } from "./actions";
+import { calculatePaymentBreakdown } from "../../../../../lib/passreserve-domain.js";
+import { createRegistrationHoldAction } from "./actions.js";
 
 const initialActionState = {
   message: "",
@@ -50,6 +47,18 @@ function getTicketCategory(occurrence, ticketCategoryId) {
     occurrence?.ticketCategories.find((category) => category.id === ticketCategoryId) ??
     occurrence?.ticketCategories[0] ??
     null
+  );
+}
+
+function getRegistrationQuantityOptions(occurrence) {
+  const remaining = Math.max(1, occurrence?.capacity?.remaining ?? 1);
+  const max = Math.min(remaining, 8);
+
+  return Array.from(
+    {
+      length: max
+    },
+    (_entry, index) => index + 1
   );
 }
 

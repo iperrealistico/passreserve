@@ -1,6 +1,8 @@
 "use server";
 
-import { submitOrganizerRequest } from "../lib/passreserve-organizer-requests";
+import { redirect } from "next/navigation";
+
+import { submitOrganizerRequest } from "../lib/passreserve-service.js";
 
 const initialOrganizerRequestState = {
   status: "idle",
@@ -89,4 +91,24 @@ export async function submitOrganizerRequestAction(_previousState, formData) {
       paymentModel: result.request.paymentModel
     }
   };
+}
+
+export async function submitOrganizerRequestRedirectAction(formData) {
+  const result = await submitOrganizerRequest({
+    contactName: toValue(formData, "contactName"),
+    contactEmail: toValue(formData, "contactEmail"),
+    contactPhone: toValue(formData, "contactPhone"),
+    organizerName: toValue(formData, "organizerName"),
+    city: toValue(formData, "city"),
+    launchWindow: toValue(formData, "launchWindow"),
+    paymentModel: toValue(formData, "paymentModel"),
+    eventFocus: toValue(formData, "eventFocus"),
+    note: toValue(formData, "note")
+  });
+
+  if (!result.ok) {
+    redirect("/?error=request");
+  }
+
+  redirect("/?message=request-saved");
 }

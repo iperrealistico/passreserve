@@ -4,17 +4,17 @@ import { notFound } from "next/navigation";
 import {
   getRegistrationExperienceBySlugs,
   getRegistrationRouteParams
-} from "../../../../lib/passreserve-registrations";
-import { PublicVisual } from "../../../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../../../lib/passreserve-visuals";
+} from "../../../../lib/passreserve-service.js";
+import { PublicVisual } from "../../../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../../../lib/passreserve-visuals.js";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
   return getRegistrationRouteParams();
 }
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;
-  const entry = getRegistrationExperienceBySlugs(slug, eventSlug);
+  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
 
   if (!entry) {
     return {
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }) {
 
 export default async function EventDetailPage({ params }) {
   const { slug, eventSlug } = await params;
-  const entry = getRegistrationExperienceBySlugs(slug, eventSlug);
+  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
 
   if (!entry) {
     notFound();

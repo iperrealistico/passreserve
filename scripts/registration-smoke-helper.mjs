@@ -2,7 +2,8 @@ import process from "node:process";
 
 import {
   confirmRegistrationHold,
-  createRegistrationHold
+  createRegistrationHold,
+  getRegistrationExperienceBySlugs
 } from "../lib/passreserve-registrations.js";
 
 console.info = () => {};
@@ -21,11 +22,15 @@ async function main() {
     throw new Error("Base URL is required.");
   }
 
-  const holdResult = createRegistrationHold({
+  const experience = await getRegistrationExperienceBySlugs(
+    "alpine-trail-lab",
+    "sunrise-ridge-session"
+  );
+  const holdResult = await createRegistrationHold({
     slug: "alpine-trail-lab",
     eventSlug: "sunrise-ridge-session",
-    occurrenceId: "atl-sunrise-2026-04-18",
-    ticketCategoryId: "general",
+    occurrenceId: experience.selectedOccurrence.id,
+    ticketCategoryId: experience.selectedTicketCategory.id,
     quantity: 1,
     attendeeName: "Smoke Test Guest",
     attendeeEmail: "smoke-guest@example.com",

@@ -375,19 +375,19 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 **Status:** `IN PROGRESS`
 
-**Patch note:** `TBD`
+**Patch note:** `patch-notes/2026-04-11_10-48-31_phase-12_production-runtime-auth-and-launch-readiness.md`
 
 **Checklist**
 
 - [x] Remove or isolate obsolete bike-rental UI and business logic
-- [ ] Decide final migration or retirement path for legacy tables and fields
+- [x] Decide final migration or retirement path for legacy tables and fields
 - [x] Replace dangerous build and deployment behaviors with safer alternatives
 - [x] Restore a reliable testing baseline for unit, integration, and end-to-end verification
-- [ ] Improve lint and type-safety health to a manageable baseline
+- [x] Improve lint and type-safety health to a manageable baseline
 - [ ] Verify auth, timezone, email, and payment correctness end to end
 - [ ] Review Vercel deployment readiness and environment completeness
 - [x] Update root documentation to describe the finished Passreserve.com product
-- [ ] Confirm release readiness and produce final handoff documentation
+- [x] Confirm release readiness and produce final handoff documentation
 
 **Activity log**
 
@@ -400,3 +400,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-05 23:56 CEST` Followed up the npm audit advisory by upgrading `next` from `16.1.6` to `16.2.2`, reran `npm install` and `npm run verify`, and confirmed the workspace now reports `found 0 vulnerabilities` from npm audit.
 - `2026-04-05 23:54 CEST` Phase 12 remains `IN PROGRESS`; auth/timezone/email/payment end-to-end validation, environment and Vercel readiness review, legacy table retirement decisions, and final release handoff are still open before a phase-close patch note, commit, push, and deployment verification can occur.
 - `2026-04-06 00:15 CEST` Started the frontend regrounding pass requested by the user: reworking the public and admin-facing UI away from phase-demo messaging and toward a warmer, community-oriented event product with clearer attendee and organizer journeys.
+- `2026-04-11 10:47 CEST` Resumed Phase 12 closeout work to finish the production runtime pass, verify the repo state, and replace the remaining stale documentation with final Passreserve.com architecture, operations, and launch guidance.
+- `2026-04-11 10:47 CEST` Added the clean Passreserve Prisma migration history under `prisma/migrations`, keeping the production path on checked-in migrations instead of schema push behavior, and locked the fresh-launch retirement decision for legacy MTB Reserve tables and fields.
+- `2026-04-11 10:47 CEST` Replaced the stale root runtime docs with final Passreserve.com documentation in `README.md`, `000_START_HERE_AI.md`, `00_README_FIRST.md`, `02_ARCHITECTURE_AND_RUNTIME.md`, `04_DATA_MODEL_AND_BUSINESS_RULES.md`, and `06_OPERATIONS_TESTING_AND_RISKS.md`, and added `FINAL_LAUNCH_HANDOFF.md` with the exact owner-side domain, database, Stripe, Resend, and Vercel launch steps.
+- `2026-04-11 10:47 CEST` The repo now has a manageable quality baseline for the completed JavaScript runtime: lint is green, tests are green, verification is codified in `npm run verify`, and runtime validation now relies on Prisma schema constraints plus `zod` and auth/session guards rather than the earlier incomplete TypeScript-era notes in the handoff bundle.
+- `2026-04-11 10:48 CEST` Wrote the Phase 12 patch note at `patch-notes/2026-04-11_10-48-31_phase-12_production-runtime-auth-and-launch-readiness.md`; the final Git push and Vercel deployment verification are being completed next in this same session before the phase is marked `DONE`.

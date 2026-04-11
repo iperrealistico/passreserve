@@ -6,7 +6,7 @@ import {
   confirmRegistrationHold,
   createRegistrationHold,
   resumeRegistrationPayment
-} from "../../../../../lib/passreserve-registrations";
+} from "../../../../../lib/passreserve-service.js";
 
 const defaultActionState = {
   message: "",
@@ -18,7 +18,7 @@ function toStringValue(formData, key) {
 }
 
 export async function createRegistrationHoldAction(_previousState, formData) {
-  const result = createRegistrationHold({
+  const result = await createRegistrationHold({
     slug: toStringValue(formData, "slug"),
     eventSlug: toStringValue(formData, "eventSlug"),
     occurrenceId: toStringValue(formData, "occurrenceId"),

@@ -3,14 +3,14 @@ import Link from "next/link";
 import {
   getConfirmationFieldRules,
   getRegistrationHoldView
-} from "../../../../../../../lib/passreserve-registrations";
-import { PublicVisual } from "../../../../../../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../../../../../../lib/passreserve-visuals";
-import ConfirmationForm from "./confirmation-form";
+} from "../../../../../../../lib/passreserve-service.js";
+import { PublicVisual } from "../../../../../../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../../../../../../lib/passreserve-visuals.js";
+import ConfirmationForm from "./confirmation-form.js";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, holdToken } = await params;
-  const holdView = getRegistrationHoldView(slug, eventSlug, holdToken);
+  const holdView = await getRegistrationHoldView(slug, eventSlug, holdToken);
 
   if (holdView.state !== "ready") {
     return {
@@ -57,7 +57,7 @@ function HoldStatePanel({ holdView }) {
 
 export default async function RegistrationConfirmPage({ params }) {
   const { slug, eventSlug, holdToken } = await params;
-  const holdView = getRegistrationHoldView(slug, eventSlug, holdToken);
+  const holdView = await getRegistrationHoldView(slug, eventSlug, holdToken);
 
   if (holdView.state !== "ready") {
     return <HoldStatePanel holdView={holdView} />;

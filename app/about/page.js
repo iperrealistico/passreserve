@@ -1,15 +1,21 @@
 import Link from "next/link";
 
-import { aboutPageStory } from "../../lib/passreserve-platform";
-import { PublicVisual } from "../../lib/passreserve-visual-component";
-import { routeVisuals } from "../../lib/passreserve-visuals";
+import { getPublicSiteContent } from "../../lib/passreserve-service.js";
+import { PublicVisual } from "../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../lib/passreserve-visuals.js";
 
-export const metadata = {
-  title: "About Passreserve.com",
-  description: aboutPageStory.hero.summary
-};
+export async function generateMetadata() {
+  const { aboutPage } = await getPublicSiteContent();
 
-export default function AboutPage() {
+  return {
+    title: "About Passreserve.com",
+    description: aboutPage.heroSummary
+  };
+}
+
+export default async function AboutPage() {
+  const { aboutPage } = await getPublicSiteContent();
+
   return (
     <main className="shell">
       <div className="content">
@@ -18,21 +24,18 @@ export default function AboutPage() {
             <Link className="wordmark-name" href="/">
               Passreserve.com
             </Link>
-            <span className="wordmark-tag">
-              Clear event details for guests and hosts alike
-            </span>
+            <span className="wordmark-tag">Clear event details for guests and hosts alike</span>
           </div>
           <nav className="nav" aria-label="About navigation">
-            <Link href="/#featured">Find an event</Link>
+            <Link href="/">Find an event</Link>
             <Link href="/#organizer-launch">Host an event</Link>
           </nav>
         </header>
 
         <section className="hero">
           <article className="panel hero-copy hero-stack">
-            <h1>{aboutPageStory.hero.title}</h1>
-            <p>{aboutPageStory.hero.summary}</p>
-            <p>{aboutPageStory.hero.secondary}</p>
+            <h1>{aboutPage.heroTitle}</h1>
+            <p>{aboutPage.heroSummary}</p>
             <div className="hero-actions">
               <Link className="button button-primary" href="/">
                 Browse events
@@ -59,7 +62,7 @@ export default function AboutPage() {
             </div>
 
             <div className="metrics" aria-label="About metrics">
-              {aboutPageStory.metrics.map((metric) => (
+              {(aboutPage.sections?.metrics || []).map((metric) => (
                 <div className="metric" key={metric.label}>
                   <div className="metric-label">{metric.label}</div>
                   <div className="metric-value">{metric.value}</div>
@@ -70,16 +73,11 @@ export default function AboutPage() {
         </section>
 
         <section className="section-grid">
-          {aboutPageStory.sections.map((section) => (
+          {(aboutPage.sections?.sections || []).map((section) => (
             <article className="panel section-card" key={section.id}>
               <div className="section-kicker">About section</div>
               <h2>{section.title}</h2>
               <p>{section.detail}</p>
-              <ul>
-                {section.bullets.map((bullet) => (
-                  <li key={bullet}>{bullet}</li>
-                ))}
-              </ul>
             </article>
           ))}
           <article className="panel section-card visual-callout-card">
@@ -102,7 +100,7 @@ export default function AboutPage() {
             <div className="section-kicker">FAQ</div>
             <h2>Public messaging stays direct and practical.</h2>
             <div className="faq-list">
-              {aboutPageStory.faq.map((item) => (
+              {(aboutPage.sections?.faq || []).map((item) => (
                 <div className="faq-item" key={item.question}>
                   <strong>{item.question}</strong>
                   <p>{item.answer}</p>
@@ -115,8 +113,8 @@ export default function AboutPage() {
         <section className="cta-band">
           <div>
             <div className="section-kicker">Next step</div>
-            <h2>{aboutPageStory.cta.title}</h2>
-            <p>{aboutPageStory.cta.detail}</p>
+            <h2>{aboutPage.sections?.cta?.title}</h2>
+            <p>{aboutPage.sections?.cta?.detail}</p>
           </div>
           <div className="hero-actions cta-actions">
             <Link className="button button-primary" href="/#organizer-launch">

@@ -1,18 +1,11 @@
 import { notFound, redirect } from "next/navigation";
 
-import {
-  getOrganizerOperationSlugs,
-  getOrganizerOperationsBySlug
-} from "../../../lib/passreserve-operations";
-
-export function generateStaticParams() {
-  return getOrganizerOperationSlugs().map((slug) => ({ slug }));
-}
+import { getOrganizerShell } from "../../../lib/passreserve-admin-service.js";
 
 export default async function OrganizerAdminIndexPage({ params }) {
   const { slug } = await params;
 
-  if (!getOrganizerOperationsBySlug(slug)) {
+  if (!(await getOrganizerShell(slug))) {
     notFound();
   }
 

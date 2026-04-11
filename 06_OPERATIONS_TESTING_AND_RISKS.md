@@ -1,321 +1,114 @@
 # Operations, Testing, And Risks
 
-## Environment and runtime inputs
+## Runtime env vars
 
-Observed env key names in ignored env files:
-
-- `.env`
-  - `DATABASE_URL`
-- `.env.local`
-  - `DATABASE_URL`
-  - `PRISMA_CLIENT_ENGINE_TYPE`
-
-Documented runtime env vars from code and docs include:
+The current runtime expects these environment variables:
 
 - `DATABASE_URL`
-- `POSTGRES_URL_NON_POOLING`
-- `POSTGRES_PRISMA_URL`
-- `POSTGRES_URL`
-- `SUPABASE_DATABASE_URL`
 - `SESSION_SECRET`
 - `NEXT_PUBLIC_BASE_URL`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_CURRENCY_DEFAULT`
 - `RESEND_API_KEY`
 - `FROM_EMAIL`
-- `EMAIL_DISABLED`
 - `IP_SALT`
-- `SUPER_ADMIN_EMAIL`
-- `SUPER_ADMIN_INITIAL_PASSWORD`
-- `VERCEL_DEPLOY_HOOK_URL`
+- `PLATFORM_ADMIN_EMAIL`
+- `PLATFORM_ADMIN_PASSWORD`
+- optional `PLATFORM_ADMIN_NAME`
+- optional `PASSRESERVE_STATE_FILE`
 
-## Deployment model
+## Storage and deployment modes
 
-The intended deployment target is Vercel with PostgreSQL and optional Vercel Blob.
+### Local development
 
-Operational characteristics visible in code:
+- if `DATABASE_URL` is missing, the app uses `.runtime-data/passreserve-state.json`
+- this mode is durable on the current machine and is suitable for local development and smoke testing
 
-- Next.js server-side rendering / server actions
-- Prisma with pg adapter
-- structured console logs intended for Vercel logging
-- Blob storage for admin-uploaded image assets
-- optional deploy hook for rebuild-style content publishing
+### Preview deployments
 
-## Critical operational caveat: build script is destructive
+- if `DATABASE_URL` is missing on Vercel, the app uses `/tmp/passreserve-state.json`
+- this is useful for previews but remains ephemeral and should not be treated as production persistence
 
-`package.json` defines:
+### Production
 
-- `build`: `npx prisma generate && npx prisma db push --accept-data-loss && next build`
+Production is expected to use:
 
-This is the single most important operational warning in the repository.
+- PostgreSQL through Prisma
+- `npm run db:migrate` against the checked-in migration history
+- real Stripe secrets
+- real Resend credentials
+- a real `NEXT_PUBLIC_BASE_URL`
 
-Why it matters:
+## Build and migration safety
 
-- `npm run build` is not just a compile/build step,
-- it performs schema push against the configured database,
-- it explicitly uses `--accept-data-loss`.
+The current build path is intentionally non-destructive:
 
-Because the request for this handoff explicitly said not to alter the repo or its live operational state, this command was not run during analysis.
+- `npm run build` runs `next build`
+- Prisma generation runs separately via `npm run db:generate`
+- schema migrations run separately via `npm run db:migrate`
 
-Any future maintainer should treat this as a major risk until it is redesigned.
+There is no checked-in `prisma db push --accept-data-loss` path in the active build pipeline anymore.
 
-## Quality verification performed for this bundle
+## Verification baseline
 
-The following non-destructive checks were executed on April 4, 2026:
+The current verification stack is:
 
-### 1. `npm run typecheck`
-
-Result:
-
-- passed
-
-Meaning:
-
-- the repository currently satisfies TypeScript compilation under `tsc --noEmit`
-
-### 2. `npm run test:unit`
-
-Result:
-
-- failed
-
-Observed summary:
-
-- 5 test files executed
-- 4 passed
-- 1 failed
-
-Failing file:
-
-- `test/unit/confirm.test.ts`
-
-Why it fails:
-
-- the test expects the old confirmation-action contract,
-- the runtime action now requires a `responsibility` checkbox,
-- the test still sends a legacy `recaptchaToken`,
-- the test setup also does not fully mock the rate-limit dependency path.
-
-Interpretation:
-
-- the product behavior evolved faster than the test suite,
-- and the unit suite is currently partially stale.
-
-### 3. `npm run lint`
-
-Result:
-
-- failed
-
-Observed summary:
-
-- 174 total problems
-- 99 errors
-- 75 warnings
-
-Dominant categories:
-
-- many `no-explicit-any` errors
-- unused imports/variables
-- some React purity/effect warnings
-- some raw `<a>` navigation lint violations
-- some `react/no-unescaped-entities`
-- image-optimization warnings for `<img>`
-
-Interpretation:
-
-- lint is not a green gate right now,
-- type safety is acceptable at compile time but not stylistically or strictly enforced in code quality.
-
-## Test suite reality vs documented intent
-
-`TESTING.md` presents a broader testing strategy:
-
-- unit
-- integration
-- E2E
-
-What is actually tracked:
-
-- unit tests only
-- no tracked integration test files
-- no tracked Playwright spec files or Playwright config file
-
-That means the current repository should be understood as:
-
-- unit-tested in a limited way,
-- not truly integration-tested from tracked source,
-- not truly E2E-tested from tracked source.
-
-## Operational scripts and what they imply
-
-The `scripts/` directory tells a lot about the development process.
-
-The repository has separate scripts for:
-
-- diagnosing DB access
-- verifying slot logic
-- verifying timezone math
-- verifying settings persistence
-- verifying availability behavior
-- verifying calendar behavior
-- resetting admin credentials
-
-This implies:
-
-- individual behaviors have been manually proven in isolation,
-- but those proofs live as ad hoc scripts rather than a fully institutionalized automated suite.
-
-That is common in fast-moving product work, but it also means:
-
-- team knowledge may be embedded in scripts,
-- not all confidence is encoded in tests.
-
-## Main implementation risks and inconsistencies
-
-## 1. Build/deploy risk
-
-The build script can mutate or damage the target database.
-
-This is the highest operational risk in the repo.
-
-## 2. Runtime customization fields are only partially wired
-
-Tenant settings collect:
-
-- `bookingTitle`
-- `bookingSubtitle`
-- `emailSubjectConfirmation`
-- `emailSubjectRecap`
-
-But in the checked-in runtime:
-
-- `infoBox` is clearly rendered publicly,
-- `pickupLocationUrl` is clearly used in confirmation email,
-- `bookingTitle` and `bookingSubtitle` are not clearly consumed by the public booking page,
-- the email-subject customization fields are stored but not wired into the live email send path.
-
-This means parts of the settings UI are ahead of the runtime usage.
-
-## 3. Password-reset destination inconsistency
-
-The forgot-password flow verifies against:
-
-- `Tenant.registrationEmail`
-
-But the reset-password completion email is sent to:
-
-- `tenant.contactEmail`
-
-That is a real conceptual mismatch:
-
-- the admin identity email and the public contact email are not necessarily the same.
-
-## 4. Timezone consistency is uneven
-
-The codebase clearly cares about tenant timezones:
-
-- `createZonedDate`
-- tenant `timezone`
-- timezone verification script
-- calendar action uses zoned day boundaries
-
-But not every feature is equally careful:
-
-- dashboard "today" calculations use `startOfDay/endOfDay(today)` from server-local time,
-- which may diverge from tenant-local "today".
-
-This is a meaningful business-risk area for non-local deployments or multi-timezone tenants.
-
-## 5. Security docs and runtime are not perfectly aligned
-
-The repo has solid security intent, but current implementation includes pragmatic exceptions:
-
-- CSP still allows unsafe inline/eval,
-- Google CSP allowances remain although reCAPTCHA is mostly removed,
-- docs mention some controls more strongly than the code currently enforces.
-
-This is not necessarily a crisis, but it is drift.
-
-## 6. Sound UX implementation is ahead of policy compliance
-
-The design system says sound should respect mute/reduced-motion style user preferences.
-
-The actual sound implementation:
-
-- initializes `AudioContext`,
-- plays sounds on interactive clicks,
-- does not visibly enforce user preference handling.
-
-So the feature exists, but not with the full policy sophistication described in docs.
-
-## 7. Stale and orphaned code/doc artifacts exist
-
-Examples:
-
-- default `README.md`
-- `app/[slug]/admin/reset-password/placeholder.tsx`
-- comments referencing removed reCAPTCHA flow
-- `lint-results.json` as tracked artifact
-
-These do not break the app by themselves, but they signal incomplete cleanup after feature evolution.
-
-## 8. Singleton super-admin assumption
-
-The super-admin login flow effectively works as:
-
-- fetch first super admin
-- validate password
-
-That is simpler than full operator account management, but it also limits future multi-operator governance.
-
-## 9. Heavy use of `any`
-
-Lint output shows many uses of `any` in:
-
-- server actions
-- admin pages
-- email handling
-- scripts
-- tests
-
-This increases maintenance cost because:
-
-- business logic becomes harder to refactor safely,
-- implicit data shape drift is more likely,
-- tests do less to enforce contract stability.
-
-## 10. Source docs are not equally trustworthy
-
-Practical trust ranking from highest to lowest:
-
-1. source code and Prisma schema
-2. runtime-oriented helper modules in `lib/`
-3. `SETUP.md` and `OBSERVABILITY.md`
-4. `TESTING.md` and `SECURITY_HARDENING.md`
-5. default root `README.md`
-
-## Suggested immediate maintenance priorities for a new owner
-
-If someone is taking over this repo seriously, the first wave of work should probably be:
-
-1. Replace the build script so build is non-destructive.
-2. Repair and expand the automated test suite.
-3. Bring lint to a manageable baseline.
-4. Reconcile tenant settings UI with actual runtime usage.
-5. Fix email/contact/registration-email inconsistencies.
-6. Audit timezone correctness on dashboard and daily views.
-7. Refresh the root README and operational docs.
-8. Decide whether to normalize some JSON settings or keep the JSON model intentionally.
-
-## What was intentionally not run during this analysis
-
-To stay non-destructive, the following were intentionally avoided:
-
+- `npm run lint`
+- `npm run test`
+- `npm run test:copy`
+- `npm run db:generate`
 - `npm run build`
-  - because it runs `prisma db push --accept-data-loss`
-- any script that would write to the production-configured database
-- any git push or remote update
+- `npm run test:smoke`
+- `npm run verify`
 
-That is important context for the person receiving this bundle:
+`npm run verify` is the repo-standard gate and currently combines the checks above into one end-to-end local validation flow.
 
-- this handoff describes the repository deeply,
-- but it does not claim every DB-writing script was executed in this environment.
+## What the smoke suite proves
+
+The smoke suite validates the built app against key production-shaped routes and behaviors, including:
+
+- homepage and about page rendering
+- organizer hub rendering
+- event route rendering
+- registration flow primitives
+- organizer-admin auth redirect behavior
+- platform-admin login route
+- organizer join-request persistence
+
+## Current operational strengths
+
+- Auth is now real for organizer and platform admin routes.
+- Registrations, payments, email activity, settings, and CMS content are durable runtime records.
+- The Prisma schema and initial migration are checked in.
+- The local developer experience works with or without PostgreSQL.
+- The repo has a real top-level launch handoff and production env checklist.
+
+## Remaining owner-controlled launch tasks
+
+These are not code gaps. They are external provisioning tasks:
+
+1. Buy or attach the production domain and point it to Vercel.
+2. Provision the production PostgreSQL database and set `DATABASE_URL`.
+3. Connect live Stripe secrets and configure the production webhook.
+4. Connect Resend, verify the sender domain, and set `RESEND_API_KEY` and `FROM_EMAIL`.
+5. Set `NEXT_PUBLIC_BASE_URL` to the final public domain.
+6. Replace bootstrap admin credentials with real production credentials.
+
+## Live risks to keep in mind
+
+### 1. Preview storage is not production storage
+
+Vercel previews can function without Postgres, but `/tmp/passreserve-state.json` is ephemeral. Preview success does not mean persistence is production-ready.
+
+### 2. Local bootstrap credentials are intentionally weak
+
+The fallback local admin passwords are there to accelerate development. They are not safe for production and must be rotated.
+
+### 3. Stripe and Resend are still environment-dependent
+
+The code paths are implemented, but production behavior is only fully real once those services are connected with valid secrets and verified sender/webhook configuration.
+
+### 4. Historical docs still exist
+
+Some earlier repository docs preserve the MTB Reserve analysis and transformation journey. They remain useful context, but they are no longer the runtime source of truth.

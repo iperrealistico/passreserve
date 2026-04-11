@@ -1,68 +1,50 @@
-import Link from "next/link";
-
-import { aboutCmsBlocks, aboutPageStory } from "../../../../lib/passreserve-platform";
+import { getEditablePlatformContent } from "../../../../lib/passreserve-admin-service.js";
+import { updateAboutPageAction } from "../../actions.js";
 
 export const metadata = {
   title: "About page"
 };
 
-export default function PlatformAboutCmsPage() {
+export default async function PlatformAboutPage({ searchParams }) {
+  const query = await searchParams;
+  const { aboutPage } = await getEditablePlatformContent();
+
   return (
-    <div className="admin-page">
-      <section className="hero admin-hero">
-        <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">About page</div>
-          <h2>Keep the about page warm, clear, and event-first.</h2>
-          <p>
-            The about page should explain what Passreserve is for, how attendees sign up, and how
-            organizers manage events without exposing internal project history.
-          </p>
-          <div className="hero-actions">
-            <Link className="button button-primary" href="/about">
-              Open public about page
-            </Link>
-          </div>
-        </article>
-
-        <aside className="panel hero-aside admin-hero-aside">
-          <div className="status-block">
-            <div className="status-label">Live summary</div>
-            <h2>{aboutPageStory.hero.eyebrow}</h2>
-            <p>{aboutPageStory.hero.summary}</p>
-          </div>
-        </aside>
-      </section>
-
-      <section className="panel section-card admin-section">
-        <div className="section-kicker">Content blocks</div>
-        <h3>Each block supports the public page.</h3>
-        <div className="admin-card-grid">
-          {aboutCmsBlocks.map((block) => (
-            <article className="admin-card" key={block.title}>
-              <div className="admin-badge-row">
-                <span className={`admin-badge admin-badge-${block.statusTone}`}>
-                  {block.statusLabel}
-                </span>
-              </div>
-              <h4>{block.title}</h4>
-              <p>{block.summary}</p>
-            </article>
-          ))}
+    <section className="panel section-card admin-section">
+      {query.message ? (
+        <div className="registration-message registration-message-success">
+          About-page content saved successfully.
         </div>
-      </section>
-
-      <section className="panel section-card admin-section">
-        <div className="section-kicker">Published sections</div>
-        <h3>The live about page is arranged for clear reading.</h3>
-        <div className="timeline">
-          {aboutPageStory.sections.map((section) => (
-            <div className="timeline-step" key={section.id}>
-              <strong>{section.title}</strong>
-              <span>{section.detail}</span>
-            </div>
-          ))}
+      ) : null}
+      <div className="section-kicker">About page</div>
+      <h2>Edit the public Passreserve story</h2>
+      <form action={updateAboutPageAction} className="registration-field-grid">
+        <label className="field">
+          <span>Hero eyebrow</span>
+          <input defaultValue={aboutPage.heroEyebrow} name="heroEyebrow" type="text" />
+        </label>
+        <label className="field field-span">
+          <span>Hero title</span>
+          <textarea defaultValue={aboutPage.heroTitle} name="heroTitle" rows="2" />
+        </label>
+        <label className="field field-span">
+          <span>Hero summary</span>
+          <textarea defaultValue={aboutPage.heroSummary} name="heroSummary" rows="3" />
+        </label>
+        <label className="field">
+          <span>CTA title</span>
+          <input defaultValue={aboutPage.sections?.cta?.title || ""} name="ctaTitle" type="text" />
+        </label>
+        <label className="field field-span">
+          <span>CTA detail</span>
+          <textarea defaultValue={aboutPage.sections?.cta?.detail || ""} name="ctaDetail" rows="2" />
+        </label>
+        <div className="hero-actions">
+          <button className="button button-primary" type="submit">
+            Save about page
+          </button>
         </div>
-      </section>
-    </div>
+      </form>
+    </section>
   );
 }

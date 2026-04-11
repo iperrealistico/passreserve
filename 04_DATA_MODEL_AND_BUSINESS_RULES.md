@@ -1,510 +1,281 @@
 # Data Model And Business Rules
 
-## Prisma models
+## Authoritative schema
 
-The authoritative schema is `prisma/schema.prisma`.
+The authoritative schema is [`prisma/schema.prisma`](/Users/leonardofiori/Documents/Antigravity/gatherpass/prisma/schema.prisma).
 
-## `Tenant`
+The initial checked-in migration is:
 
-Primary business entity.
+- [`prisma/migrations/20260411104000_init_passreserve_schema/migration.sql`](/Users/leonardofiori/Documents/Antigravity/gatherpass/prisma/migrations/20260411104000_init_passreserve_schema/migration.sql)
 
-Key fields:
+## Core models
+
+### Organizer
+
+Public host and organizer identity.
+
+Important fields:
 
 - `slug`
-  - primary key
-  - route anchor for public and admin pages
 - `name`
-  - displayed publicly and operationally
-- `adminPasswordHash`
-  - tenant-admin credential storage
-- `contactEmail`
-  - public/customer-facing contact
-- `registrationEmail`
-  - admin/reset/onboarding email identity
-- `contactPhone`
-  - public/customer-facing phone
-- `timezone`
-  - IANA timezone string
-- `settings`
-  - JSON settings payload
-- `tokenVersion`
-  - session invalidation version
-- `passwordResetToken`
-  - single-use password-reset token
-- `passwordResetExpires`
-  - reset token expiry
-
-Relationships:
-
-- one tenant has many `BikeType`
-- one tenant has many `Booking`
-
-## `BikeType`
-
-This is the bookable inventory unit, not an individual serial-numbered bike.
-
-Key fields:
-
-- `name`
-- `totalStock`
-- `brokenCount`
+- `status`
 - `description`
-- `notes`
-- `costPerHour`
+- `city`
+- `region`
+- `timeZone`
+- `publicEmail`
+- `venueTitle`
+- `faq`
+- `policies`
+- `imageUrl`
 
-Interpretation:
+### OrganizerAdminUser
 
-- a `BikeType` represents a category of bikes available in quantity,
-- not a specific physical bike asset register.
+Organizer-scoped admin account.
 
-That is why the booking system can do stock arithmetic quickly.
+Important fields:
 
-## `Booking`
+- `organizerId`
+- `email`
+- `name`
+- `passwordHash`
+- `isPrimary`
+- `isActive`
+- `passwordResetToken`
+- `passwordResetExpires`
 
-Reservation header record.
+### PlatformAdminUser
 
-Key fields:
+Platform-wide operator account.
+
+Important fields:
+
+- `email`
+- `name`
+- `passwordHash`
+- `isActive`
+- `passwordResetToken`
+- `passwordResetExpires`
+
+### OrganizerJoinRequest
+
+Public inbound request from a prospective organizer.
+
+Important fields:
 
 - `status`
-- `bookingCode`
-- `startTime`
-- `endTime`
-- `customerName`
-- `customerEmail`
-- `customerPhone`
+- `contactName`
+- `contactEmail`
+- `organizerName`
+- `city`
+- `launchWindow`
+- `paymentModel`
+- `eventFocus`
+- `approvedById`
+- `organizerId`
+
+### EventType
+
+Organizer-owned reusable event definition.
+
+Important fields:
+
+- `organizerId`
+- `slug`
+- `title`
+- `category`
+- `visibility`
+- `summary`
+- `description`
+- `durationMinutes`
+- `basePriceCents`
+- `prepayPercentage`
+- `cancellationPolicy`
+- `imageUrl`
+
+### TicketCategory
+
+Single-line ticket option model for v1.
+
+Important fields:
+
+- `eventTypeId`
+- `slug`
+- `name`
+- `unitPriceCents`
+- `isDefault`
+- `sortOrder`
+
+### EventOccurrence
+
+Specific scheduled instance of an event.
+
+Important fields:
+
+- `eventTypeId`
+- `status`
+- `startsAt`
+- `endsAt`
+- `capacity`
+- `priceCents`
+- `prepayPercentage`
+- `venueTitle`
+- `published`
+
+### Registration
+
+Durable attendee registration record.
+
+Important fields:
+
+- `organizerId`
+- `eventTypeId`
+- `occurrenceId`
+- `ticketCategoryId`
+- `status`
+- `attendeeName`
+- `attendeeEmail`
+- `attendeePhone`
 - `quantity`
-- `totalPrice`
-- `paidAmount`
+- `subtotalCents`
+- `onlineAmountCents`
+- `dueAtEventCents`
+- `onlineCollectedCents`
+- `venueCollectedCents`
+- `refundedCents`
+- `holdToken`
+- `paymentToken`
 - `confirmationToken`
-- `expiresAt`
-- `tosAcceptedAt`
-
-Important note:
-
-`Booking` still contains legacy direct-bike fields:
-
-- `bikeTypeId`
-- `quantity`
-
-That exists alongside `BookingItem[]`.
-
-## `BookingItem`
-
-Line items for multi-bike bookings.
-
-Key fields:
-
-- `bookingId`
-- `bikeTypeId`
-- `quantity`
-- `price`
-
-This is the more future-facing booking representation.
-
-## `SuperAdmin`
-
-Platform operator account table.
-
-Important details:
-
-- unique by `email`
-- but the runtime login flow currently behaves like a singleton admin flow
-- `tokenVersion` supports session invalidation
-
-## `AdminLoginAttempt`
-
-Apparently intended for login-attempt tracking, but in practice most runtime abuse tracking is handled through `RateLimit` and `EventLog`, not through broad operational use of this table.
-
-## `RateLimit`
-
-Minimal durable rate-limit store:
-
-- `key`
-- `count`
+- `registrationCode`
 - `expiresAt`
 
-The runtime rate limiter is a DB-backed counter window, not Redis/KV-based in the current checked-in implementation.
+### RegistrationPayment
 
-## `EventLog`
+Payment ledger entry for a registration.
 
-Persistent audit/ops log.
+Important fields:
 
-Key fields:
+- `registrationId`
+- `provider`
+- `kind`
+- `status`
+- `amountCents`
+- `externalEventId`
+- `stripeSessionId`
+- `stripePaymentIntentId`
+- `occurredAt`
 
-- `level`
-- `tenantId`
-- `actorType`
-- `actorId`
-- `eventType`
-- `entityType`
-- `entityId`
-- `ipHash`
-- `userAgent`
-- `message`
-- `metadata`
+### Content and ops models
 
-This is the backbone of the logs page and parts of the health page.
+- `EmailTemplate`
+- `SiteSettings`
+- `AboutPageContent`
+- `AuditLog`
 
-## `EmailTemplate`
+## Lifecycle enums
 
-Stores editable templates for transactional emails.
-
-Key fields:
-
-- `id`
-- `subject`
-- `senderName`
-- `senderEmail`
-- `html`
-
-## `SystemSettings`
-
-Singleton global platform settings row.
-
-Holds:
-
-- SEO metadata
-- favicon/social image URLs
-- admin notification email
-
-## `SignupRequest`
-
-Lead-capture record for prospective partners.
-
-Holds:
-
-- person name
-- organization
-- email
-- phone
-- address
-- message
-- status
-
-## `AboutPageContent`
-
-Singleton structured marketing/CMS content row for `/about`.
-
-## Tenant settings JSON schema
-
-Runtime helper type lives in `lib/tenants.ts`.
-
-The JSON settings payload can contain:
-
-- `slots`
-- `fullDayEnabled`
-- `blockedDates`
-  - legacy single-date array
-- `blockedDateRanges`
-  - newer structured range model
-- `minAdvanceHours`
-  - legacy field
-- `minAdvanceDays`
-  - current field
-- `maxAdvanceDays`
-  - current field
-- `content`
-  - `bookingTitle`
-  - `bookingSubtitle`
-  - `emailSubjectConfirmation`
-  - `emailSubjectRecap`
-  - `infoBox`
-- `pickupLocationUrl`
-
-The JSON strategy makes the settings flexible, but there are two consequences:
-
-1. backward-compatibility logic exists in the app code,
-2. some fields can exist in storage before they are fully wired into the runtime UI.
-
-## Booking lifecycle
-
-The core lifecycle states are:
+### Registration status
 
 - `PENDING_CONFIRM`
-- `CONFIRMED`
-- `REJECTED`
-- `CANCELLED`
-- `COMPLETED`
-- `PAID`
+- `PENDING_PAYMENT`
+- `CONFIRMED_UNPAID`
+- `CONFIRMED_PARTIALLY_PAID`
+- `CONFIRMED_PAID`
+- `ATTENDED`
 - `NO_SHOW`
+- `CANCELLED`
 
-### Typical lifecycle
+### Join request status
 
-1. rider submits request
-2. booking created as `PENDING_CONFIRM`
-3. pending hold lasts 30 minutes
-4. rider confirms via email token
-5. booking becomes `CONFIRMED`
-6. shop may later mark as:
-   - `PAID`
-   - `COMPLETED`
-   - `NO_SHOW`
-   - `CANCELLED`
+- `PENDING`
+- `APPROVED`
+- `REJECTED`
+- `ARCHIVED`
 
-### Why pending bookings matter
+### Payment status
 
-Pending bookings are not passive records. They actively consume stock until:
+- `PENDING`
+- `SUCCEEDED`
+- `FAILED`
+- `CANCELED`
+- `REFUNDED`
 
-- they expire,
-- or they are confirmed,
-- or they are cancelled/rejected.
+### Payment provider
 
-This prevents race conditions where two people request the same bike during the confirmation window.
+- `STRIPE`
+- `VENUE`
+- `MANUAL`
 
-## Availability rules
+## Core business rules
 
-The availability logic is one of the most important business-rule clusters in the repo.
+### 1. Production launches fresh
 
-## Rule 1: Stock is category-based
+Passreserve production is a fresh event-platform launch, not a live MTB Reserve data migration.
 
-Available count is computed per `BikeType`.
+Legacy MTB Reserve artifacts remain reference-only and must not be treated as production runtime dependencies.
 
-There is no reservation against a specific serial-numbered bike.
+### 2. Holds are real records
 
-## Rule 2: Broken bikes reduce stock
+Starting a registration creates a durable `Registration` row in `PENDING_CONFIRM`.
 
-Available inventory is:
+That hold:
 
-`totalStock - brokenCount - bookedQuantity`
+- reserves capacity
+- has an `expiresAt`
+- becomes invalid after the hold window
+- is excluded from availability once expired
 
-## Rule 3: Overlap is interval-based
+### 3. Payments are platform-owned
 
-A booking overlaps if:
+Stripe Checkout is platform-owned in v1.
 
-- booking start `<` requested end
-- and booking end `>` requested start
+This means:
 
-This is the correct interval-overlap test, and it allows different slots on the same day to coexist without false conflicts.
+- no Stripe Connect in the current completion pass
+- organizer payouts and venue reconciliations are modeled operationally, not as automated marketplace transfers
+- Stripe payment state is mirrored into `RegistrationPayment`
 
-## Rule 4: Pending-but-valid bookings count
+### 4. Organizer onboarding is manual approval
 
-When computing availability, the app counts:
+The public join-request flow writes a durable request record.
 
-- `CONFIRMED`
-- `PENDING_CONFIRM` where `expiresAt > now`
+Platform admins then:
 
-Expired pending bookings are ignored.
+- review the request
+- approve it manually
+- create the organizer and primary organizer admin
+- trigger a password setup/reset path
 
-## Rule 5: Blocked dates can be fixed or recurring
+### 5. Auth is email + password
 
-Blocked dates can come from:
+Organizer admins sign in with organizer-scoped `email + password`.
 
-- legacy `blockedDates` exact string list
-- newer `blockedDateRanges`
-  - fixed range
-  - yearly recurring range
+Platform admins sign in with platform-wide `email + password`.
 
-Recurring ranges can cross year boundaries, such as:
+Both account types support password-reset tokens and session invalidation through server-side session handling.
 
-- December 20 to January 10
+### 6. Publication is explicit
 
-## Rule 6: Advance-notice window is enforced
+Occurrences are not automatically public just because they exist.
 
-The app checks both:
+Organizer operations must explicitly publish occurrences, and production publication should only be treated as launch-ready when the required Stripe and Resend configuration is present.
 
-- minimum days before booking
-- maximum days into the future
+### 7. Seeds are bootstrap data, not production truth
 
-There is also a legacy `minAdvanceHours` path for older settings.
+The in-repo organizer/event dataset is now seed material for:
 
-## Rule 7: Full-day slot is synthetic
+- local development
+- smoke checks
+- first-run empty environments
 
-If full-day mode is enabled:
+It is not meant to be the long-term production authority.
 
-- the app computes the earliest slot start,
-- the latest slot end,
-- creates a synthetic slot with id `full-day`.
+## Local bootstrap credentials
 
-This is generated in code rather than stored as primary configuration.
+Development environments without custom bootstrap envs get default local credentials from [`lib/passreserve-config.js`](/Users/leonardofiori/Documents/Antigravity/gatherpass/lib/passreserve-config.js):
 
-## Authentication and authorization rules
+- platform admin email: `admin@passreserve.local`
+- organizer admin email pattern: `admin@{slug}.passreserve.local`
+- default password: `Passreserve123!`
 
-## Session model
-
-Session data includes:
-
-- `tenantSlug`
-- `isLoggedIn`
-- `isSuperAdmin`
-- `superAdminId`
-- `tokenVersion`
-
-## Tenant authorization
-
-Protected tenant actions require:
-
-- active session,
-- either matching `tenantSlug`,
-- or super-admin privileges.
-
-## Super-admin authorization
-
-Protected super-admin actions require:
-
-- active session
-- `isSuperAdmin === true`
-
-## Token-version invalidation
-
-Both tenant and super-admin users have a `tokenVersion`.
-
-On authenticated access the app checks whether the DB version matches the session version.
-
-If not:
-
-- session is destroyed,
-- user must log in again.
-
-This is how password changes invalidate old sessions.
-
-## Password rules
-
-### Tenant password generation
-
-Generated passwords are memorable phrase-style values:
-
-- Italian noun
-- Italian adjective
-- English noun
-- 4-digit number
-
-Example pattern:
-
-- `Montagna-Grande-Trail-4821`
-
-### Tenant password change
-
-Manual password change requires:
-
-- 8-32 characters
-- uppercase
-- number
-- special character
-
-### Reset flow
-
-Reset does not let the user choose a password.
-
-Instead:
-
-- server generates a new one,
-- stores its hash,
-- emails the plaintext once.
-
-## Email rules
-
-## Email transport mode
-
-Email sending has two operating modes:
-
-1. real send via Resend
-2. mock/log-only send if:
-   - `EMAIL_DISABLED === "1"`
-   - or no `RESEND_API_KEY` is present
-
-In mock mode, the app still logs an email event.
-
-## Template resolution
-
-When sending an email:
-
-1. default subject/html are prepared in code,
-2. DB template with matching id is loaded if it exists,
-3. placeholders are replaced,
-4. send occurs with sender overrides if configured.
-
-## Email categories implemented
-
-- booking confirmation link
-- booking recap
-- tenant admin notification
-- onboarding
-- password reset
-- signup request acknowledgment
-- signup request admin alert
-- booking cancelled
-- booking no-show
-- generic manual send
-
-## Logging and observability rules
-
-## Metadata sanitization
-
-`lib/events.ts` redacts keys containing terms such as:
-
-- password
-- token
-- secret
-- key
-- authorization
-- cookie
-- session
-- creditcard
-- cvv
-
-## IP handling
-
-The app does not persist raw IPs in the audit log metadata path by default.
-
-Instead it stores:
-
-- a salted, truncated HMAC hash
-
-This allows correlation without preserving raw IP in the event table.
-
-## Log fan-out
-
-Each event is written to:
-
-1. Postgres `EventLog`
-2. structured JSON console output
-
-That gives both in-app history and platform-log visibility.
-
-## Rate-limit rules
-
-Current rate-limited flows include:
-
-- super-admin login
-- tenant login
-- booking requests
-- booking confirmation
-- forgot-password flow
-
-The implementation is deliberately simple:
-
-- find record by key
-- create/reset/increment count
-- enforce fixed threshold within expiry window
-
-Operationally this is enough for a low-volume SaaS, but it is not a distributed high-scale limiter.
-
-## Security-rule reality vs policy
-
-The repo includes serious security intent:
-
-- CSP
-- HSTS
-- SameSite/secure cookies
-- session invalidation
-- IP-hashed event logs
-- rate limiting
-
-At the same time, the actual implementation remains pragmatic:
-
-- CSP still allows `'unsafe-inline'` and `'unsafe-eval'`
-- Google domains remain in CSP even though reCAPTCHA has mostly been removed
-- some security documentation appears more aspirational than strictly runtime-accurate
-
-That does not make the app insecure by default, but it does mean the documented threat model and the checked-in implementation should be read together rather than assumed identical.
-
-## Global UI/UX behavior rules
-
-Some non-obvious UX rules are enforced globally:
-
-- the app plays synthesized sounds on interactive clicks,
-- booking step changes can trigger reset-confirmation dialogs,
-- password strength is shown live,
-- settings forms use client-side overlap detection before save.
-
-These are not mere styling choices; they shape user behavior and data quality.
+These are for local work only and must be rotated or replaced in production.

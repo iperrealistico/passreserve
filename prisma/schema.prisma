@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrganizerStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum EventVisibility {
+  PUBLIC
+  UNLISTED
+  DRAFT
+  ARCHIVED
+}
+
+enum OccurrenceStatus {
+  DRAFT
+  SCHEDULED
+  CANCELLED
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  PENDING_CONFIRM
+  PENDING_PAYMENT
+  CONFIRMED_UNPAID
+  CONFIRMED_PARTIALLY_PAID
+  CONFIRMED_PAID
+  ATTENDED
+  NO_SHOW
+  CANCELLED
+}
+
+enum JoinRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ARCHIVED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  VENUE
+  MANUAL
+}
+
+enum PaymentKind {
+  CHECKOUT_SESSION
+  CAPTURE
+  REFUND
+  WEBHOOK
+  ADJUSTMENT
+}
+
+enum AuditActorType {
+  SYSTEM
+  PLATFORM_ADMIN
+  ORGANIZER_ADMIN
+  ATTENDEE
+  STRIPE
+}
+
+model Organizer {
+  id                 String                @id @default(cuid())
+  slug               String                @unique
+  name               String
+  status             OrganizerStatus       @default(ACTIVE)
+  description        String                @default("")
+  tagline            String                @default("")
+  city               String                @default("")
+  region             String                @default("")
+  timeZone           String                @default("Europe/Rome")
+  publicEmail        String                @default("")
+  publicPhone        String                @default("")
+  venueTitle         String                @default("")
+  venueDetail        String                @default("")
+  venueMapHref       String                @default("")
+  interestEmail      String                @default("")
+  themeTags          Json?
+  policies           Json?
+  faq                Json?
+  photoStory         Json?
+  imageUrl           String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  admins             OrganizerAdminUser[]
+  events             EventType[]
+  registrations      Registration[]
+  joinRequests       OrganizerJoinRequest[]
+  auditLogs          AuditLog[]
+}
+
+model OrganizerAdminUser {
+  id                    String    @id @default(cuid())
+  organizerId           String
+  organizer             Organizer @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  email                 String
+  name                  String
+  passwordHash          String
+  isPrimary             Boolean   @default(false)
+  isActive              Boolean   @default(true)
+  passwordResetToken    String?   @unique
+  passwordResetExpires  DateTime?
+  lastLoginAt           DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([organizerId, email])
+  @@index([organizerId])
+}
+
+model PlatformAdminUser {
+  id                    String   @id @default(cuid())
+  email                 String   @unique
+  name                  String
+  passwordHash          String
+  isActive              Boolean  @default(true)
+  passwordResetToken    String?  @unique
+  passwordResetExpires  DateTime?
+  lastLoginAt           DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  approvedJoinRequests  OrganizerJoinRequest[] @relation("JoinRequestApprover")
+}
+
+model OrganizerJoinRequest {
+  id             String            @id @default(cuid())
+  status         JoinRequestStatus @default(PENDING)
+  contactName    String
+  contactEmail   String
+  contactPhone   String            @default("")
+  organizerName  String
+  city           String
+  launchWindow   String
+  paymentModel   String
+  eventFocus     String
+  note           String            @default("")
+  approvedAt     DateTime?
+  approvedById   String?
+  approvedBy     PlatformAdminUser? @relation("JoinRequestApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+  organizerId    String?
+  organizer      Organizer?        @relation(fields: [organizerId], references: [id], onDelete: SetNull)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  @@index([status])
+  @@index([contactEmail])
+}
+
+model EventType {
+  id                    String          @id @default(cuid())
+  organizerId           String
+  organizer             Organizer       @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  slug                  String
+  title                 String
+  category              String          @default("")
+  visibility            EventVisibility @default(DRAFT)
+  summary               String          @default("")
+  description           String          @default("")
+  audience              String          @default("")
+  durationMinutes       Int             @default(180)
+  venueTitle            String          @default("")
+  venueDetail           String          @default("")
+  mapHref               String          @default("")
+  basePriceCents        Int             @default(0)
+  prepayPercentage      Int             @default(0)
+  attendeeInstructions  String          @default("")
+  organizerNotes        String          @default("")
+  cancellationPolicy    String          @default("")
+  highlights            Json?
+  included              Json?
+  policies              Json?
+  faq                   Json?
+  gallery               Json?
+  imageUrl              String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  ticketCategories      TicketCategory[]
+  occurrences           EventOccurrence[]
+  registrations         Registration[]
+
+  @@unique([organizerId, slug])
+  @@index([organizerId, visibility])
+}
+
+model TicketCategory {
+  id             String        @id @default(cuid())
+  eventTypeId    String
+  eventType      EventType     @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  slug           String
+  name           String
+  description    String        @default("")
+  unitPriceCents Int
+  isDefault      Boolean       @default(false)
+  sortOrder      Int           @default(0)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  registrations  Registration[]
+
+  @@unique([eventTypeId, slug])
+  @@index([eventTypeId, sortOrder])
+}
+
+model EventOccurrence {
+  id                String           @id @default(cuid())
+  eventTypeId       String
+  eventType         EventType        @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  status            OccurrenceStatus @default(SCHEDULED)
+  startsAt          DateTime
+  endsAt            DateTime
+  capacity          Int
+  priceCents        Int
+  prepayPercentage  Int
+  venueTitle        String           @default("")
+  note              String           @default("")
+  published         Boolean          @default(false)
+  imageUrl          String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  registrations     Registration[]
+
+  @@index([eventTypeId, startsAt])
+  @@index([published, startsAt])
+}
+
+model Registration {
+  id                   String             @id @default(cuid())
+  organizerId          String
+  organizer            Organizer          @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  eventTypeId          String
+  eventType            EventType          @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  occurrenceId         String
+  occurrence           EventOccurrence    @relation(fields: [occurrenceId], references: [id], onDelete: Cascade)
+  ticketCategoryId     String
+  ticketCategory       TicketCategory     @relation(fields: [ticketCategoryId], references: [id], onDelete: Restrict)
+  status               RegistrationStatus @default(PENDING_CONFIRM)
+  attendeeName         String
+  attendeeEmail        String
+  attendeePhone        String
+  quantity             Int
+  currency             String             @default("EUR")
+  subtotalCents        Int
+  onlineAmountCents    Int
+  dueAtEventCents      Int
+  onlineCollectedCents Int                @default(0)
+  venueCollectedCents  Int                @default(0)
+  refundedCents        Int                @default(0)
+  holdToken            String?            @unique
+  paymentToken         String?            @unique
+  confirmationToken    String?            @unique
+  registrationCode     String?            @unique
+  expiresAt            DateTime?
+  confirmedAt          DateTime?
+  cancelledAt          DateTime?
+  attendedAt           DateTime?
+  noShowAt             DateTime?
+  termsAcceptedAt      DateTime?
+  responsibilityAt     DateTime?
+  note                 String             @default("")
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  payments             RegistrationPayment[]
+  auditLogs            AuditLog[]
+
+  @@index([organizerId, status])
+  @@index([occurrenceId, status])
+  @@index([attendeeEmail])
+}
+
+model RegistrationPayment {
+  id                 String        @id @default(cuid())
+  registrationId     String
+  registration       Registration  @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  provider           PaymentProvider
+  kind               PaymentKind
+  status             PaymentStatus
+  amountCents        Int
+  currency           String        @default("EUR")
+  externalEventId    String?       @unique
+  stripeSessionId    String?
+  stripePaymentIntentId String?
+  note               String        @default("")
+  metadata           Json?
+  occurredAt         DateTime      @default(now())
+  createdAt          DateTime      @default(now())
+
+  @@index([registrationId, occurredAt])
+  @@index([stripeSessionId])
+  @@index([stripePaymentIntentId])
+}
+
+model EmailTemplate {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  audience     String
+  category     String
+  subject      String
+  preview      String   @default("")
+  trigger      String   @default("")
+  placeholders Json?
+  bodyHtml     String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteSettings {
+  id                    String   @id @default("site-settings")
+  siteName              String
+  siteDescription       String
+  keywords              Json?
+  platformEmail         String
+  launchInbox           String
+  adminNotifications    String
+  supportResponseTarget String
+  stripeCurrencyDefault String   @default("eur")
+  deploymentRule        String   @default("")
+  customDomain          String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model AboutPageContent {
+  id          String   @id @default("about-page")
+  heroEyebrow String   @default("")
+  heroTitle   String   @default("")
+  heroSummary String   @default("")
+  sections    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id             String        @id @default(cuid())
+  actorType      AuditActorType
+  actorId        String?
+  organizerId    String?
+  organizer      Organizer?    @relation(fields: [organizerId], references: [id], onDelete: SetNull)
+  registrationId String?
+  registration   Registration? @relation(fields: [registrationId], references: [id], onDelete: SetNull)
+  eventType      String
+  entityType     String
+  entityId       String?
+  message        String
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+
+  @@index([eventType, createdAt])
+  @@index([organizerId, createdAt])
+}
