@@ -60,7 +60,9 @@
 
 ## Vercel deployment status
 
-- Final push and Vercel deployment verification are being completed immediately after this patch note is written in the same completion session.
+- Verified via the Vercel integration after pushing commit `1e94d8d873fc2efe06964b2a7808ad7c4ce020b8`.
+- Deployment `dpl_3Z1e6LYT1c1y7MgEY9JPcDb5cu6b` for commit `1e94d8d873fc2efe06964b2a7808ad7c4ce020b8` reached `READY`.
+- Observed aliases included `passreserve.vercel.app`, `passreserve-iperrealisticos-projects.vercel.app`, and `passreserve-git-main-iperrealisticos-projects.vercel.app`.
 
 ## Problems and risks
 
@@ -70,7 +72,8 @@
 
 ## Commit and push status
 
-- Commit and push are being completed immediately after this patch note is written in the same completion session.
+- Commit created successfully: `1e94d8d873fc2efe06964b2a7808ad7c4ce020b8`
+- Push completed successfully: `origin/main`
 
 ## Notes for the next AI agent
 
