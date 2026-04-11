@@ -3,16 +3,13 @@ import { notFound } from "next/navigation";
 
 import {
   getRegistrationExperienceBySlugs,
-  getRegistrationFieldRules,
-  getRegistrationRouteParams
+  getRegistrationFieldRules
 } from "../../../../../lib/passreserve-service.js";
 import { PublicVisual } from "../../../../../lib/passreserve-visual-component.js";
 import { routeVisuals } from "../../../../../lib/passreserve-visuals.js";
 import RegistrationFlowExperience from "./registration-flow-experience.js";
 
-export async function generateStaticParams() {
-  return getRegistrationRouteParams();
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;

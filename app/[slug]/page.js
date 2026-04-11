@@ -2,18 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
-  getOrganizerPage,
-  getOrganizerSlugs
+  getOrganizerPage
 } from "../../lib/passreserve-service.js";
 import { PublicVisual } from "../../lib/passreserve-visual-component.js";
 import { routeVisuals } from "../../lib/passreserve-visuals.js";
 
+export const dynamic = "force-dynamic";
+
 function buildRegistrationHref(slug, eventSlug, occurrenceId) {
   return `/${slug}/events/${eventSlug}/register?occurrence=${occurrenceId}`;
-}
-
-export async function generateStaticParams() {
-  return (await getOrganizerSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({ params }) {

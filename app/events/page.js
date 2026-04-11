@@ -5,6 +5,8 @@ import { getDiscoveryResults } from "../../lib/passreserve-service.js";
 import { PublicVisual } from "../../lib/passreserve-visual-component.js";
 import { routeVisuals } from "../../lib/passreserve-visuals.js";
 
+export const dynamic = "force-dynamic";
+
 const discoveryChips = [
   "workshop",
   "retreat",
