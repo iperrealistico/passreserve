@@ -160,8 +160,8 @@ async function main() {
     assert(
       homepage.text.includes("Free event registration software for hosts who want flexible payments") &&
         homepage.text.includes("event software without forced checkout") &&
-        homepage.text.includes("free platform for local experiences"),
-      "Homepage should render the host-facing SEO section."
+        homepage.text.includes("How Passreserve compares with typical event platforms"),
+      "Homepage should render the host-facing SEO and comparison section."
     );
     assert(
       !homepage.text.includes("Alpine Switchback Clinic"),
@@ -170,6 +170,7 @@ async function main() {
     assert(!homepage.text.includes("All signals"), "Homepage should not render the removed discovery-mode pills.");
     assertIncludesVisual(homepage.text, "/images/passreserve/home-find-event.webp", "Homepage");
     assertIncludesVisual(homepage.text, "/images/passreserve/home-host-event.webp", "Homepage");
+    assertIncludesVisual(homepage.text, "/images/passreserve/icons/host-setup.webp", "Homepage");
     assertNoInternalCopy(homepage.text, "Homepage");
 
     const eventsPage = await fetchHtml(baseUrl, "/events");

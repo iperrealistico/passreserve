@@ -1192,7 +1192,7 @@ select {
 .seo-icon-grid,
 .seo-highlight-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
   gap: 0.95rem;
 }
 
@@ -1206,10 +1206,24 @@ select {
 
 .seo-icon-card,
 .seo-highlight-card {
+  display: grid;
+  align-content: start;
   padding: 1rem 1.05rem;
   border-radius: 1.2rem;
   border: 1px solid rgba(23, 50, 40, 0.08);
   background: rgba(255, 255, 255, 0.58);
+}
+
+.seo-icon-media {
+  display: grid;
+  place-items: start;
+  min-height: 8rem;
+}
+
+.seo-icon-image {
+  width: 8rem;
+  height: 8rem;
+  object-fit: contain;
 }
 
 .seo-icon-mark,
@@ -1251,6 +1265,10 @@ select {
   margin: 0.55rem 0 0;
   color: var(--muted);
   line-height: 1.7;
+}
+
+.seo-icon-card p + p {
+  margin-top: 0.8rem;
 }
 
 .comparison-table-wrap {
@@ -1351,32 +1369,13 @@ select {
   line-height: 1.75;
 }
 
-.host-intent-rail {
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  padding-bottom: 0.35rem;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
-  overscroll-behavior-x: contain;
+.host-card-grid {
+  margin-top: 0.2rem;
 }
 
-.host-intent-rail::-webkit-scrollbar {
-  height: 0.7rem;
-}
-
-.host-intent-rail::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(23, 50, 40, 0.18);
-}
-
-.host-intent-card {
-  flex: 0 0 min(24rem, calc(100vw - 4rem));
-  padding: 1.2rem;
-  border-radius: 1.3rem;
-  border: 1px solid rgba(23, 50, 40, 0.08);
-  background: rgba(255, 255, 255, 0.62);
-  scroll-snap-align: start;
+.host-seo-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 250, 245, 0.88) 100%);
 }
 
 .host-intent-tag {
@@ -1406,6 +1405,32 @@ select {
   margin: 0.8rem 0 0;
   color: var(--muted);
   line-height: 1.72;
+}
+
+.seo-comparison-copy {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 52rem;
+  margin-top: 0.35rem;
+}
+
+.seo-comparison-copy h3 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 3vw, 2.5rem);
+  line-height: 1.04;
+}
+
+.seo-comparison-copy p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.comparison-footnote {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 .journey-card,

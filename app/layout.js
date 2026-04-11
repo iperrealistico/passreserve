@@ -7,7 +7,7 @@ export const metadata = {
     template: "%s | Passreserve.com"
   },
   description:
-    "Free event registration software for organizers. Create event pages, collect signups, take deposits, or let guests pay at the event.",
+    "Free event registration software for organizers. Create event pages, collect signups, take deposits, accept pay-at-the-event bookings, or use your own Stripe account for online payments.",
   applicationName: "Passreserve.com",
   keywords: [
     "Passreserve.com",
@@ -17,7 +17,14 @@ export const metadata = {
     "free event page builder",
     "event signup software",
     "pay at the event",
+    "pay later event booking",
     "deposit event registration",
+    "event software without forced checkout",
+    "let guests pay at the venue",
+    "no platform fee event software",
+    "Stripe event payments",
+    "own Stripe integration",
+    "recurring event booking",
     "workshop registration software",
     "retreat registration software",
     "class registration software",
@@ -30,7 +37,7 @@ export const metadata = {
   openGraph: {
     title: "Passreserve.com",
     description:
-      "Free event registration software for organizers. Create event pages, collect signups, take deposits, or let guests pay at the event.",
+      "Free event registration software for organizers. Create event pages, collect signups, take deposits, accept pay-at-the-event bookings, or use your own Stripe account for online payments.",
     siteName: "Passreserve.com",
     type: "website",
     locale: "en_US"
@@ -39,7 +46,7 @@ export const metadata = {
     card: "summary_large_image",
     title: "Passreserve.com",
     description:
-      "Free event registration software for organizers. Create event pages, collect signups, take deposits, or let guests pay at the event."
+      "Free event registration software for organizers. Create event pages, collect signups, take deposits, accept pay-at-the-event bookings, or use your own Stripe account for online payments."
   }
 };
 
