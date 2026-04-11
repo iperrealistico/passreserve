@@ -1259,6 +1259,92 @@ select {
   text-transform: uppercase;
 }
 
+.seo-intent-section {
+  display: grid;
+  gap: 1.4rem;
+  margin-top: 1.5rem;
+  background:
+    radial-gradient(circle at top right, rgba(203, 93, 45, 0.12), transparent 24%),
+    linear-gradient(180deg, rgba(255, 251, 246, 0.92) 0%, rgba(255, 247, 238, 0.82) 100%);
+}
+
+.seo-intent-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
+  gap: 1rem 1.5rem;
+  align-items: end;
+}
+
+.seo-intent-head h2 {
+  margin-top: 0.45rem;
+  max-width: 16ch;
+}
+
+.seo-intent-lead {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+.seo-post-carousel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(19rem, 24rem);
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.35rem;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+
+.seo-post-carousel::-webkit-scrollbar {
+  height: 0.7rem;
+}
+
+.seo-post-carousel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(23, 50, 40, 0.18);
+}
+
+.seo-post-card {
+  min-height: 100%;
+  padding: 1.25rem;
+  border: 1px solid rgba(23, 50, 40, 0.08);
+  border-radius: 1.35rem;
+  background: rgba(255, 255, 255, 0.62);
+  scroll-snap-align: start;
+}
+
+.seo-post-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.9rem;
+  padding: 0 0.7rem;
+  border-radius: 999px;
+  background: rgba(203, 93, 45, 0.12);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.seo-post-card h3 {
+  margin: 0.85rem 0 0;
+  color: var(--text);
+  font-family: var(--display);
+  font-size: 1.6rem;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.seo-post-card p {
+  margin: 0.85rem 0 0;
+  color: var(--muted);
+  line-height: 1.72;
+}
+
 .journey-card,
 .principle-item,
 .submission-card,
@@ -2433,6 +2519,7 @@ select {
   }
 
   .seo-host-hero,
+  .seo-intent-head,
   .seo-icon-grid,
   .seo-highlight-grid {
     grid-template-columns: 1fr;
@@ -2508,6 +2595,10 @@ select {
   .registration-field-grid,
   .registration-review-grid {
     grid-template-columns: 1fr;
+  }
+
+  .seo-post-carousel {
+    grid-auto-columns: minmax(17.5rem, 88vw);
   }
 
   .button,

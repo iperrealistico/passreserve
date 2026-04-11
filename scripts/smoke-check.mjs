@@ -157,6 +157,14 @@ async function main() {
         homepage.text.includes("Search by host, city, or event style"),
       "Homepage should render the simplified two-path hero."
     );
+    assert(
+      homepage.text.includes(
+        "Free event registration software for organizers who want clear pages and flexible payments"
+      ) &&
+        homepage.text.includes("event software without forced checkout") &&
+        homepage.text.includes("free event software for recurring dates"),
+      "Homepage should render the host-facing SEO intent section."
+    );
     assert(!homepage.text.includes("All signals"), "Homepage should not render the removed discovery-mode pills.");
     assertIncludesVisual(homepage.text, "/images/passreserve/home-find-event.webp", "Homepage");
     assertIncludesVisual(homepage.text, "/images/passreserve/home-host-event.webp", "Homepage");
