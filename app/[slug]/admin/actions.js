@@ -37,6 +37,19 @@ function withEventFilter(path, eventFilter = "") {
   return `${path}${path.includes("?") ? "&" : "?"}event=${encodeURIComponent(eventFilter)}`;
 }
 
+function parseEurosToCents(rawValue) {
+  const normalized = String(rawValue || "")
+    .trim()
+    .replace(/[^\d,.-]/g, "")
+    .replace(",", ".");
+
+  if (!normalized) {
+    return 0;
+  }
+
+  return Math.max(0, Math.round(Number(normalized) * 100));
+}
+
 export async function organizerLoginAction(formData) {
   const slug = value(formData, "slug");
   const login = await authenticateOrganizerAdmin(
@@ -191,12 +204,22 @@ export async function updateOrganizerRegistrationAction(formData) {
   const user = await requireOrganizerAdminSession(slug);
   const eventFilter = value(formData, "eventFilter");
 
-  await updateOrganizerRegistration(
-    slug,
-    value(formData, "registrationId"),
-    value(formData, "action"),
-    user.userId
-  );
+  try {
+    await updateOrganizerRegistration(
+      slug,
+      value(formData, "registrationId"),
+      value(formData, "action"),
+      user.userId
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "The registration could not be updated.";
+
+    redirect(
+      withEventFilter(`/${slug}/admin/registrations?error=${encodeURIComponent(message)}`, eventFilter)
+    );
+  }
+
   redirect(withEventFilter(`/${slug}/admin/registrations?message=updated`, eventFilter));
 }
 
@@ -204,14 +227,29 @@ export async function recordVenuePaymentAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
   const eventFilter = value(formData, "eventFilter");
+  const amountCents = parseEurosToCents(formData.get("amountEuros"));
 
-  await recordVenuePayment(
-    slug,
-    value(formData, "registrationId"),
-    value(formData, "amountCents"),
-    user.userId
-  );
-  redirect(withEventFilter(`/${slug}/admin/payments?message=recorded`, eventFilter));
+  if (amountCents <= 0) {
+    redirect(
+      withEventFilter(
+        `/${slug}/admin/registrations?error=${encodeURIComponent("Enter a valid amount collected at the venue.")}`,
+        eventFilter
+      )
+    );
+  }
+
+  try {
+    await recordVenuePayment(slug, value(formData, "registrationId"), amountCents, user.userId);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "The venue payment could not be recorded.";
+
+    redirect(
+      withEventFilter(`/${slug}/admin/registrations?error=${encodeURIComponent(message)}`, eventFilter)
+    );
+  }
+
+  redirect(withEventFilter(`/${slug}/admin/registrations?message=recorded`, eventFilter));
 }
 
 export async function saveOrganizerSettingsAction(formData) {

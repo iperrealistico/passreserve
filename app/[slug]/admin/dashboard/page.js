@@ -24,7 +24,7 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
         description="Start here when you want the quickest read on what needs attention today: upcoming dates, recent signups, and whether any attendee still needs payment follow-up."
         eyebrow="Dashboard"
         query={query}
-        tip="Use Events for the event pages themselves, Dates for the scheduled sessions, Registrations for attendee status, Payments for reconciliation, and Billing for Stripe setup."
+        tip="Use Events for the event pages themselves, Dates for the scheduled sessions, Registrations for attendee status and payment collection, and Billing for Stripe setup."
         title={`${dashboard.organizer.name} overview`}
       />
 

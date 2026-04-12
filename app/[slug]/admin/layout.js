@@ -37,12 +37,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
     {
       label: "Registrations",
       href: organizer.registrationsHref,
-      hint: "Track attendee status, confirmations, and check-in progress."
-    },
-    {
-      label: "Payments",
-      href: organizer.paymentsHref,
-      hint: "Reconcile online payments and balances still due at the venue."
+      hint: "Track attendee status, online payments, and balances still due at the venue."
     },
     {
       label: "Billing",
@@ -80,7 +75,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
               Passreserve.com
             </Link>
             <span className="wordmark-tag">
-              Host dashboard for dates, registrations, and payments
+              Host dashboard for dates, registrations, and billing
             </span>
           </div>
           <nav className="nav" aria-label="Host dashboard shortcuts">
@@ -89,7 +84,6 @@ export default async function OrganizerAdminLayout({ children, params }) {
             <Link href={organizer.dashboardHref}>Dashboard</Link>
             <Link href={organizer.calendarHref}>Calendar</Link>
             <Link href={organizer.registrationsHref}>Registrations</Link>
-            <Link href={organizer.paymentsHref}>Payments</Link>
             <Link href={organizer.billingHref}>Billing</Link>
             <Link href={organizer.eventsHref}>Events</Link>
             <Link href={organizer.occurrencesHref}>Dates</Link>
@@ -163,9 +157,9 @@ export default async function OrganizerAdminLayout({ children, params }) {
                 <div className="status-item">
                   <span className="status-index">3</span>
                   <div>
-                    <strong>Registrations and payments are the live queue</strong>
-                    Check these tabs during the run-up to the event to follow confirmations,
-                    deposits, and balances still due at the venue.
+                    <strong>Registrations are the live queue</strong>
+                    Use the registration cards to track confirmations, online payments, and any
+                    balance you collect at the venue.
                   </div>
                 </div>
               </div>

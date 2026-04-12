@@ -6,6 +6,7 @@ import {
 } from "../../lib/passreserve-service.js";
 import { PublicVisual } from "../../lib/passreserve-visual-component.js";
 import { routeVisuals } from "../../lib/passreserve-visuals.js";
+import { OrganizerPhotoGallery } from "./organizer-photo-gallery.js";
 
 export const dynamic = "force-dynamic";
 
@@ -32,10 +33,21 @@ export async function generateMetadata({ params }) {
 export default async function OrganizerPage({ params }) {
   const { slug } = await params;
   const organizer = await getOrganizerPage(slug);
+  const galleryVisualIds = [
+    "organizer-gallery-01",
+    "organizer-gallery-02",
+    "event-gallery-01",
+    "event-gallery-02"
+  ];
 
   if (!organizer) {
     notFound();
   }
+
+  const galleryPhotos = organizer.photoStory.map((photo, index) => ({
+    ...photo,
+    visualId: galleryVisualIds[index % galleryVisualIds.length]
+  }));
 
   return (
     <main className="shell">
@@ -221,7 +233,7 @@ export default async function OrganizerPage({ params }) {
         </section>
 
         <section className="section-grid" id="dates">
-          <article className="panel section-card">
+          <article className="panel section-card section-span">
             <div className="section-kicker">Upcoming dates</div>
             <h3>Browse the next available dates at a glance.</h3>
             <p>
@@ -265,31 +277,17 @@ export default async function OrganizerPage({ params }) {
               )}
             </div>
           </article>
+        </section>
 
-          <article className="panel section-card">
+        <section className="section-grid">
+          <article className="panel section-card section-span">
             <div className="section-kicker">Atmosphere</div>
             <h3>Get a feel for the place before you sign up.</h3>
             <p>
               These photos help show the pace, setting, and hosting style behind the events before
               you choose a date.
             </p>
-            <div className="photo-grid">
-              {organizer.photoStory.map((photo) => (
-                <article className="photo-story-card" key={photo.title}>
-                  <PublicVisual
-                    alt={`${photo.title}. ${photo.caption}`}
-                    className="photo-story-visual"
-                    sizes="(min-width: 1024px) 20vw, 100vw"
-                    visualId={photo.visualId}
-                  />
-                  <div className="photo-story-body">
-                    <span className="spotlight-label">Venue feel</span>
-                    <strong>{photo.title}</strong>
-                    <p>{photo.caption}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <OrganizerPhotoGallery photos={galleryPhotos} />
           </article>
         </section>
 
