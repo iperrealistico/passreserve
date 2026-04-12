@@ -142,13 +142,14 @@ export async function createOrganizerAction(formData) {
       },
       user.userId
     );
-    redirect("/admin/organizers?message=created");
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "The organizer could not be created.";
 
     redirect(`/admin/organizers?error=${encodeURIComponent(message)}`);
   }
+
+  redirect("/admin/organizers?message=created");
 }
 
 export async function approveOrganizerRequestAction(formData) {

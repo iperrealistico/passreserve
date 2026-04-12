@@ -113,33 +113,39 @@ export async function saveOrganizerEventAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
 
-  await saveOrganizerEvent(
-    slug,
-    {
-      id: value(formData, "id"),
-      title: value(formData, "title"),
-      slug: value(formData, "eventSlug"),
-      category: value(formData, "category"),
-      visibility: value(formData, "visibility"),
-      summary: value(formData, "summary"),
-      description: value(formData, "description"),
-      audience: value(formData, "audience"),
-      durationMinutes: value(formData, "durationMinutes"),
-      venueTitle: value(formData, "venueTitle"),
-      venueDetail: value(formData, "venueDetail"),
-      mapHref: value(formData, "mapHref"),
-      basePriceCents: value(formData, "basePriceCents"),
-      prepayPercentage: value(formData, "prepayPercentage"),
-      attendeeInstructions: value(formData, "attendeeInstructions"),
-      organizerNotes: value(formData, "organizerNotes"),
-      cancellationPolicy: value(formData, "cancellationPolicy"),
-      highlights: value(formData, "highlights"),
-      included: value(formData, "included"),
-      policies: value(formData, "policies"),
-      imageUrl: value(formData, "imageUrl")
-    },
-    user.userId
-  );
+  try {
+    await saveOrganizerEvent(
+      slug,
+      {
+        id: value(formData, "id"),
+        title: value(formData, "title"),
+        slug: value(formData, "eventSlug"),
+        category: value(formData, "category"),
+        visibility: value(formData, "visibility"),
+        summary: value(formData, "summary"),
+        description: value(formData, "description"),
+        audience: value(formData, "audience"),
+        durationMinutes: value(formData, "durationMinutes"),
+        venueTitle: value(formData, "venueTitle"),
+        venueDetail: value(formData, "venueDetail"),
+        mapHref: value(formData, "mapHref"),
+        basePriceCents: value(formData, "basePriceCents"),
+        prepayPercentage: value(formData, "prepayPercentage"),
+        attendeeInstructions: value(formData, "attendeeInstructions"),
+        organizerNotes: value(formData, "organizerNotes"),
+        cancellationPolicy: value(formData, "cancellationPolicy"),
+        highlights: value(formData, "highlights"),
+        included: value(formData, "included"),
+        policies: value(formData, "policies"),
+        imageUrl: value(formData, "imageUrl")
+      },
+      user.userId
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "The event could not be saved.";
+    redirect(`/${slug}/admin/events?error=${encodeURIComponent(message)}`);
+  }
+
   redirect(`/${slug}/admin/events?message=saved`);
 }
 
