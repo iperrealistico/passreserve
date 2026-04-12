@@ -1,28 +1,46 @@
-import { getOrganizerPaymentsAdmin } from "../../../../lib/passreserve-admin-service.js";
+import {
+  getOrganizerEventsAdmin,
+  getOrganizerPaymentsAdmin
+} from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { recordVenuePaymentAction } from "../actions.js";
+import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 export default async function OrganizerPaymentsPage({ params, searchParams }) {
   const { slug } = await params;
   await requireOrganizerAdminSession(slug);
   const query = await searchParams;
-  const data = await getOrganizerPaymentsAdmin(slug);
+  const [data, eventsData] = await Promise.all([
+    getOrganizerPaymentsAdmin(slug),
+    getOrganizerEventsAdmin(slug)
+  ]);
+  const selectedEvent = typeof query.event === "string" ? query.event : "";
+  const payments = selectedEvent
+    ? data.payments.filter((payment) => payment.eventSlug === selectedEvent)
+    : data.payments;
 
   return (
-    <section className="panel section-card admin-section">
+    <div className="admin-page">
       {query.message ? (
         <div className="registration-message registration-message-success">
           Venue payment recorded successfully.
         </div>
       ) : null}
-      <div className="section-kicker">Payments</div>
-      <h2>Online and venue-side payment tracking</h2>
-      <p>
-        Stripe Checkout settles directly into the organizer&apos;s connected Stripe account when
-        online payment is enabled.
-      </p>
+
+      <OrganizerAdminPageHeader
+        basePath={`/${slug}/admin/payments`}
+        description="Use payments to reconcile what was collected online, what was collected at the venue, and what is still outstanding."
+        eyebrow="Payments"
+        events={eventsData.events}
+        query={query}
+        selectedEvent={selectedEvent}
+        tip="Filter by event whenever different pricing models are active, so deposits and venue balances do not get mixed together."
+        title={selectedEvent ? "Payment tracking for one event" : "Online and venue-side payment tracking"}
+      />
+
+      <section className="panel section-card admin-section">
       <div className="admin-card-grid">
-        {data.payments.map((payment) => (
+        {payments.map((payment) => (
           <article className="admin-card" key={payment.id}>
             <div className="admin-card-head">
               <div>
@@ -64,6 +82,7 @@ export default async function OrganizerPaymentsPage({ params, searchParams }) {
             ) : null}
             {payment.dueAtEventOpenCents > 0 ? (
               <form action={recordVenuePaymentAction} className="registration-panel-stack">
+                <input name="eventFilter" type="hidden" value={selectedEvent} />
                 <input name="slug" type="hidden" value={slug} />
                 <input name="registrationId" type="hidden" value={payment.id} />
                 <label className="field">
@@ -79,7 +98,14 @@ export default async function OrganizerPaymentsPage({ params, searchParams }) {
             ) : null}
           </article>
         ))}
+        {payments.length === 0 ? (
+          <article className="admin-card">
+            <h4>No payments match this filter.</h4>
+            <p>Choose another event or clear the filter to review all organizer payment records.</p>
+          </article>
+        ) : null}
       </div>
-    </section>
+      </section>
+    </div>
   );
 }

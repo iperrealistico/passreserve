@@ -26,39 +26,48 @@ export default async function OrganizerAdminLayout({ children, params }) {
   const navigation = [
     {
       label: "Dashboard",
-      href: organizer.dashboardHref
+      href: organizer.dashboardHref,
+      hint: "See the overall queue, next dates, and open follow-up."
     },
     {
       label: "Calendar",
-      href: organizer.calendarHref
+      href: organizer.calendarHref,
+      hint: "See scheduled dates in date order across your events."
     },
     {
       label: "Registrations",
-      href: organizer.registrationsHref
+      href: organizer.registrationsHref,
+      hint: "Track attendee status, confirmations, and check-in progress."
     },
     {
       label: "Payments",
-      href: organizer.paymentsHref
+      href: organizer.paymentsHref,
+      hint: "Reconcile online payments and balances still due at the venue."
     },
     {
       label: "Billing",
-      href: organizer.billingHref
+      href: organizer.billingHref,
+      hint: "Connect Stripe and review how online checkout is configured."
     },
     {
       label: "Settings",
-      href: organizer.settingsHref
+      href: organizer.settingsHref,
+      hint: "Edit your host details, venue information, and admin profile."
     },
     {
-      label: "Event catalog",
-      href: organizer.eventsHref
+      label: "Events",
+      href: organizer.eventsHref,
+      hint: "Manage event pages, copy, pricing, and visibility."
     },
     {
-      label: "Occurrences",
-      href: organizer.occurrencesHref
+      label: "Dates",
+      href: organizer.occurrencesHref,
+      hint: "Create and publish the actual dates attached to each event."
     },
     {
-      label: "Public host page",
-      href: organizer.publicHref
+      label: "Public page",
+      href: organizer.publicHref,
+      hint: "Preview the page attendees see before they register."
     }
   ];
 
@@ -82,6 +91,8 @@ export default async function OrganizerAdminLayout({ children, params }) {
             <Link href={organizer.registrationsHref}>Registrations</Link>
             <Link href={organizer.paymentsHref}>Payments</Link>
             <Link href={organizer.billingHref}>Billing</Link>
+            <Link href={organizer.eventsHref}>Events</Link>
+            <Link href={organizer.occurrencesHref}>Dates</Link>
             <Link href={organizer.settingsHref}>Settings</Link>
           </nav>
         </header>
@@ -120,7 +131,10 @@ export default async function OrganizerAdminLayout({ children, params }) {
               <div className="admin-nav-list">
                 {navigation.map((item) => (
                   <Link className="admin-nav-link" href={item.href} key={item.href}>
-                    <span>{item.label}</span>
+                    <span className="admin-nav-link-body">
+                      <span className="admin-nav-title">{item.label}</span>
+                      <span className="admin-nav-hint">{item.hint}</span>
+                    </span>
                     <span aria-hidden="true">/</span>
                   </Link>
                 ))}
@@ -128,20 +142,30 @@ export default async function OrganizerAdminLayout({ children, params }) {
             </div>
 
             <div className="admin-sidebar-block">
-              <div className="section-kicker">Current focus</div>
+              <div className="section-kicker">How to use these tools</div>
               <div className="status-list">
                 <div className="status-item">
                   <span className="status-index">1</span>
                   <div>
-                    <strong>Keep published dates current</strong>
-                    Update events and occurrences when schedules, pricing, or venue details change.
+                    <strong>Events describe what you host</strong>
+                    Use the Events area for titles, copy, pricing defaults, and whether an event
+                    should be public, draft, or paused.
                   </div>
                 </div>
                 <div className="status-item">
                   <span className="status-index">2</span>
                   <div>
-                    <strong>Review registrations often</strong>
-                    Payment follow-up, attendance status, and venue balances are all tracked here.
+                    <strong>Dates are the actual scheduled sessions</strong>
+                    The Dates area is where you add the real calendar instances that attendees can
+                    book, publish, or cancel.
+                  </div>
+                </div>
+                <div className="status-item">
+                  <span className="status-index">3</span>
+                  <div>
+                    <strong>Registrations and payments are the live queue</strong>
+                    Check these tabs during the run-up to the event to follow confirmations,
+                    deposits, and balances still due at the venue.
                   </div>
                 </div>
               </div>

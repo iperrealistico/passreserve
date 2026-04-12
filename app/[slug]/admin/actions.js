@@ -4,10 +4,12 @@ import { redirect } from "next/navigation";
 
 import {
   changeOrganizerAdminPassword,
+  deleteOrganizerEvent,
   markAdminLogin,
   recordVenuePayment,
   saveOrganizerEvent,
   saveOrganizerOccurrence,
+  toggleOrganizerEventSuspended,
   updateOrganizerSettings,
   updateOrganizerRegistration
 } from "../../../lib/passreserve-admin-service.js";
@@ -25,6 +27,14 @@ import {
 
 function value(formData, key) {
   return String(formData.get(key) || "").trim();
+}
+
+function withEventFilter(path, eventFilter = "") {
+  if (!eventFilter) {
+    return path;
+  }
+
+  return `${path}${path.includes("?") ? "&" : "?"}event=${encodeURIComponent(eventFilter)}`;
 }
 
 export async function organizerLoginAction(formData) {
@@ -120,9 +130,33 @@ export async function saveOrganizerEventAction(formData) {
   redirect(`/${slug}/admin/events?message=saved`);
 }
 
+export async function suspendOrganizerEventAction(formData) {
+  const slug = value(formData, "slug");
+  const user = await requireOrganizerAdminSession(slug);
+
+  await toggleOrganizerEventSuspended(slug, value(formData, "eventId"), user.userId);
+  redirect(`/${slug}/admin/events?message=status-updated`);
+}
+
+export async function deleteOrganizerEventAction(formData) {
+  const slug = value(formData, "slug");
+  const user = await requireOrganizerAdminSession(slug);
+
+  try {
+    await deleteOrganizerEvent(slug, value(formData, "eventId"), user.userId);
+    redirect(`/${slug}/admin/events?message=deleted`);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "The event could not be deleted.";
+
+    redirect(`/${slug}/admin/events?error=${encodeURIComponent(message)}`);
+  }
+}
+
 export async function saveOrganizerOccurrenceAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
+  const eventFilter = value(formData, "eventFilter");
 
   try {
     await saveOrganizerOccurrence(
@@ -143,18 +177,19 @@ export async function saveOrganizerOccurrenceAction(formData) {
       },
       user.userId
     );
-    redirect(`/${slug}/admin/occurrences?message=saved`);
+    redirect(withEventFilter(`/${slug}/admin/occurrences?message=saved`, eventFilter));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "The occurrence could not be saved.";
 
-    redirect(`/${slug}/admin/occurrences?error=${encodeURIComponent(message)}`);
+    redirect(withEventFilter(`/${slug}/admin/occurrences?error=${encodeURIComponent(message)}`, eventFilter));
   }
 }
 
 export async function updateOrganizerRegistrationAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
+  const eventFilter = value(formData, "eventFilter");
 
   await updateOrganizerRegistration(
     slug,
@@ -162,12 +197,13 @@ export async function updateOrganizerRegistrationAction(formData) {
     value(formData, "action"),
     user.userId
   );
-  redirect(`/${slug}/admin/registrations?message=updated`);
+  redirect(withEventFilter(`/${slug}/admin/registrations?message=updated`, eventFilter));
 }
 
 export async function recordVenuePaymentAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
+  const eventFilter = value(formData, "eventFilter");
 
   await recordVenuePayment(
     slug,
@@ -175,7 +211,7 @@ export async function recordVenuePaymentAction(formData) {
     value(formData, "amountCents"),
     user.userId
   );
-  redirect(`/${slug}/admin/payments?message=recorded`);
+  redirect(withEventFilter(`/${slug}/admin/payments?message=recorded`, eventFilter));
 }
 
 export async function saveOrganizerSettingsAction(formData) {

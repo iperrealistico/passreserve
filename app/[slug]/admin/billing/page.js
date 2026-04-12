@@ -1,5 +1,9 @@
-import { getOrganizerBillingAdmin } from "../../../../lib/passreserve-admin-service.js";
+import {
+  getOrganizerBillingAdmin,
+  getOrganizerEventsAdmin
+} from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
+import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 function messageFor(value) {
   switch (value) {
@@ -16,7 +20,17 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
   const { slug } = await params;
   await requireOrganizerAdminSession(slug);
   const query = await searchParams;
-  const data = await getOrganizerBillingAdmin(slug);
+  const [data, eventsData] = await Promise.all([
+    getOrganizerBillingAdmin(slug),
+    getOrganizerEventsAdmin(slug)
+  ]);
+  const selectedEvent = typeof query.event === "string" ? query.event : "";
+  const selectedEventRecord =
+    eventsData.events.find((event) => event.slug === selectedEvent) || null;
+  const appendEventQuery = (path) =>
+    selectedEvent
+      ? `${path}${path.includes("?") ? "&" : "?"}event=${encodeURIComponent(selectedEvent)}`
+      : path;
   const message = messageFor(typeof query.message === "string" ? query.message : "");
   const error = typeof query.error === "string" ? query.error : "";
 
@@ -27,13 +41,18 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
       ) : null}
       {error ? <div className="registration-message registration-message-error">{error}</div> : null}
 
+      <OrganizerAdminPageHeader
+        basePath={`/${slug}/admin/billing`}
+        description="Use billing to connect Stripe, understand whether online checkout is ready, and review how your current events will handle payment."
+        eyebrow="Billing"
+        events={eventsData.events}
+        query={query}
+        selectedEvent={selectedEvent}
+        tip="Billing is organizer-wide, but filtering by event helps you focus on one event’s pricing and published dates while you check payment readiness."
+        title={selectedEventRecord ? `Billing focus for ${selectedEventRecord.title}` : `Stripe and payout setup for ${data.organizer.name}`}
+      />
+
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Billing and payouts</div>
-        <h2>Stripe Connect for {data.organizer.name}</h2>
-        <p>
-          Attendee payments settle directly into this organizer&apos;s Stripe account. Passreserve
-          only orchestrates onboarding and Checkout.
-        </p>
         <div className="pill-list">
           <span className="pill">Connection: {data.billing.stripeConnectionStatusLabel}</span>
           <span className="pill">Charges: {data.billing.stripeChargesEnabled ? "Enabled" : "Blocked"}</span>
@@ -43,14 +62,43 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
         </div>
         <p>{data.billing.paidPublishingLabel}</p>
         <div className="hero-actions">
-          <a className="button button-primary" href={`/${slug}/admin/billing/connect`}>
+          <a className="button button-primary" href={appendEventQuery(`/${slug}/admin/billing/connect`)}>
             {data.billing.stripeAccountId ? "Reconnect Stripe" : "Connect Stripe"}
           </a>
-          <a className="button button-secondary" href={`/${slug}/admin/billing/return?manual=1`}>
+          <a className="button button-secondary" href={appendEventQuery(`/${slug}/admin/billing/return?manual=1`)}>
             Refresh status
           </a>
         </div>
       </section>
+
+      {selectedEventRecord ? (
+        <section className="panel section-card admin-section">
+          <div className="section-kicker">Event focus</div>
+          <h3>{selectedEventRecord.title}</h3>
+          <div className="admin-card-metrics">
+            <div>
+              <span className="metric-label">Visibility</span>
+              <strong>{selectedEventRecord.visibility}</strong>
+            </div>
+            <div>
+              <span className="metric-label">Base price</span>
+              <strong>{selectedEventRecord.basePriceLabel}</strong>
+            </div>
+            <div>
+              <span className="metric-label">All dates</span>
+              <strong>{selectedEventRecord.occurrenceCount}</strong>
+            </div>
+            <div>
+              <span className="metric-label">Published dates</span>
+              <strong>{selectedEventRecord.publishedOccurrenceCount}</strong>
+            </div>
+          </div>
+          <p className="admin-page-tip">
+            This event will only accept live online checkout once the organizer-wide Stripe setup is ready.
+            Until then, keep it free, pay-at-event, or in draft while you finish billing setup.
+          </p>
+        </section>
+      ) : null}
 
       <section className="admin-grid">
         <article className="panel section-card admin-section">
@@ -89,11 +137,11 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
 
       <section className="panel section-card admin-section">
         <div className="section-kicker">Environment</div>
-        <h3>Current Stripe runtime</h3>
+        <h3>Stripe setup in this environment</h3>
         <p>
           {data.stripeEnvironment.mode === "live"
-            ? "Stripe API credentials are configured, so Connect onboarding and direct-charge Checkout can run here."
-            : "This environment is in preview mode. Connect onboarding needs a Stripe secret key, but existing preview payment links still work for local smoke testing."}
+            ? "Stripe is connected in live mode, so organizer onboarding and online checkout can run in production."
+            : "Live Stripe is not connected yet in this environment. Hosts can still use free events or collect payment at the venue while you finish the Stripe setup."}
         </p>
       </section>
     </div>

@@ -467,6 +467,19 @@ select {
   color: var(--text);
 }
 
+.admin-sidebar .status-index {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(244, 248, 245, 0.92);
+}
+
+.admin-sidebar .status-item div:last-child {
+  color: rgba(239, 244, 241, 0.82);
+}
+
+.admin-sidebar .status-item strong {
+  color: #f6f8f7;
+}
+
 .section-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2026,8 +2039,36 @@ select {
   margin-top: 1.2rem;
 }
 
-.photo-card p {
-  color: rgba(255, 255, 255, 0.84);
+.photo-story-card {
+  display: grid;
+  gap: 0.9rem;
+  padding: 0.95rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.46);
+  border: 1px solid rgba(23, 50, 40, 0.08);
+}
+
+.photo-story-visual {
+  min-height: 12rem;
+  border-radius: 1rem;
+}
+
+.photo-story-body {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.photo-story-body strong {
+  color: var(--text);
+  font-family: var(--display);
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.photo-story-body p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .visual-callout-card {
@@ -2101,6 +2142,34 @@ select {
   margin-top: 0.35rem;
   color: var(--text);
   font-size: 1rem;
+}
+
+.admin-page-lead,
+.admin-page-tip {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.admin-page-tip {
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.44);
+  border: 1px solid rgba(23, 50, 40, 0.08);
+}
+
+.admin-filter-strip {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.admin-filter-label {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .policy-item {
@@ -2220,7 +2289,7 @@ select {
 
 .admin-nav-link {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
   padding: 0.9rem 1rem;
@@ -2235,6 +2304,22 @@ select {
   transform: translateY(-1px);
   border-color: rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-nav-link-body {
+  display: grid;
+  gap: 0.22rem;
+}
+
+.admin-nav-title {
+  color: #f6f8f7;
+  font-weight: 600;
+}
+
+.admin-nav-hint {
+  color: rgba(239, 244, 241, 0.72);
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 .admin-sidebar-footer {

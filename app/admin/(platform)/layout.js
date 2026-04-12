@@ -12,13 +12,13 @@ export default async function PlatformAdminLayout({ children }) {
   await requirePlatformAdminSession();
   const overview = await getPlatformOverview();
   const navigation = [
-    { label: "Overview", href: "/admin" },
-    { label: "Organizers", href: "/admin/organizers" },
-    { label: "Settings", href: "/admin/settings" },
-    { label: "About", href: "/admin/about" },
-    { label: "Emails", href: "/admin/emails" },
-    { label: "Logs", href: "/admin/logs" },
-    { label: "Health", href: "/admin/health" }
+    { label: "Overview", href: "/admin", hint: "Start here for the current queue, totals, and follow-up." },
+    { label: "Organizers", href: "/admin/organizers", hint: "Approve hosts, update accounts, and open organizer dashboards." },
+    { label: "Settings", href: "/admin/settings", hint: "Manage site-wide details such as contact info and defaults." },
+    { label: "About", href: "/admin/about", hint: "Review the site story and shared public-facing copy." },
+    { label: "Emails", href: "/admin/emails", hint: "Check templates and inbox-style organizer request activity." },
+    { label: "Logs", href: "/admin/logs", hint: "Review recent system, registration, and payment activity." },
+    { label: "Health", href: "/admin/health", hint: "Check storage, email, and Stripe readiness for production." }
   ];
 
   return (
@@ -75,7 +75,10 @@ export default async function PlatformAdminLayout({ children }) {
               <div className="admin-nav-list">
                 {navigation.map((item) => (
                   <Link className="admin-nav-link" href={item.href} key={item.href}>
-                    <span>{item.label}</span>
+                    <span className="admin-nav-link-body">
+                      <span className="admin-nav-title">{item.label}</span>
+                      <span className="admin-nav-hint">{item.hint}</span>
+                    </span>
                     <span aria-hidden="true">/</span>
                   </Link>
                 ))}
@@ -83,9 +86,25 @@ export default async function PlatformAdminLayout({ children }) {
             </div>
 
             <div className="admin-sidebar-block">
-              <div className="section-kicker">What this area covers</div>
+              <div className="section-kicker">How to use this area</div>
               <div className="status-list">
-                {overview.releaseTracks.map((item, index) => (
+                {[
+                  {
+                    title: "Organizers and requests",
+                    detail:
+                      "Use the Organizers area to approve new hosts, update their details, suspend accounts, or jump straight into their dashboard."
+                  },
+                  {
+                    title: "Settings and public copy",
+                    detail:
+                      "Use Settings and About when you want to adjust shared brand details, contact information, or public-facing wording."
+                  },
+                  {
+                    title: "Emails, logs, and checks",
+                    detail:
+                      "Use Emails, Logs, and Health when you need to confirm delivery, investigate an issue, or verify that payments and storage are ready."
+                  }
+                ].map((item, index) => (
                   <div className="status-item" key={item.title}>
                     <span className="status-index">{index + 1}</span>
                     <div>

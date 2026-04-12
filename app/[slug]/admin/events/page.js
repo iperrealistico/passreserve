@@ -1,6 +1,11 @@
 import { getOrganizerEventsAdmin } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
-import { saveOrganizerEventAction } from "../actions.js";
+import {
+  deleteOrganizerEventAction,
+  saveOrganizerEventAction,
+  suspendOrganizerEventAction
+} from "../actions.js";
+import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 export default async function OrganizerEventsPage({ params, searchParams }) {
   const { slug } = await params;
@@ -12,13 +17,29 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
     <div className="admin-page">
       {query.message ? (
         <div className="registration-message registration-message-success">
-          Event saved successfully.
+          {query.message === "status-updated"
+            ? "Event visibility updated successfully."
+            : query.message === "deleted"
+              ? "Event deleted successfully."
+              : "Event saved successfully."}
         </div>
       ) : null}
+      {query.error ? (
+        <div className="registration-message registration-message-error">{query.error}</div>
+      ) : null}
+
+      <OrganizerAdminPageHeader
+        basePath={`/${slug}/admin/events`}
+        description="Use this page to manage the event pages themselves: title, copy, pricing defaults, and whether an event should be visible to the public."
+        eyebrow="Events"
+        query={query}
+        tip="Think of an event as the reusable page template. The separate Dates area is where you add the actual scheduled sessions people can book."
+        title="Create, pause, or update event pages"
+      />
 
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Event catalog</div>
-        <h2>Create or update organizer events</h2>
+        <div className="section-kicker">Event list</div>
+        <h3>Existing event pages</h3>
         <div className="admin-card-grid">
           {data.events.map((event) => (
             <article className="admin-card" key={event.id}>
@@ -34,10 +55,43 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                   <strong>{event.basePriceLabel}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Occurrences</span>
+                  <span className="metric-label">Dates</span>
                   <strong>{event.occurrenceCount}</strong>
                 </div>
+                <div>
+                  <span className="metric-label">Public dates</span>
+                  <strong>{event.publishedOccurrenceCount}</strong>
+                </div>
+                <div>
+                  <span className="metric-label">Registrations</span>
+                  <strong>{event.registrationCount}</strong>
+                </div>
               </div>
+              <div className="hero-actions">
+                <form action={suspendOrganizerEventAction}>
+                  <input name="slug" type="hidden" value={slug} />
+                  <input name="eventId" type="hidden" value={event.id} />
+                  <button className="button button-secondary" type="submit">
+                    {event.visibility === "ARCHIVED" ? "Restore as draft" : "Suspend event"}
+                  </button>
+                </form>
+                <form action={deleteOrganizerEventAction}>
+                  <input name="slug" type="hidden" value={slug} />
+                  <input name="eventId" type="hidden" value={event.id} />
+                  <button
+                    className="button button-secondary button-danger"
+                    disabled={event.registrationCount > 0}
+                    type="submit"
+                  >
+                    Delete event
+                  </button>
+                </form>
+              </div>
+              {event.registrationCount > 0 ? (
+                <p className="admin-page-tip">
+                  This event already has registrations, so it can be suspended but not deleted.
+                </p>
+              ) : null}
             </article>
           ))}
         </div>

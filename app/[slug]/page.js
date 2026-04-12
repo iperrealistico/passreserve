@@ -275,17 +275,19 @@ export default async function OrganizerPage({ params }) {
             </p>
             <div className="photo-grid">
               {organizer.photoStory.map((photo) => (
-                <PublicVisual
-                  alt={`${photo.title}. ${photo.caption}`}
-                  className="photo-card"
-                  key={photo.title}
-                  sizes="(min-width: 1024px) 20vw, 100vw"
-                  visualId={photo.visualId}
-                >
-                  <span className="route-label">Venue feel</span>
-                  <strong>{photo.title}</strong>
-                  <p>{photo.caption}</p>
-                </PublicVisual>
+                <article className="photo-story-card" key={photo.title}>
+                  <PublicVisual
+                    alt={`${photo.title}. ${photo.caption}`}
+                    className="photo-story-visual"
+                    sizes="(min-width: 1024px) 20vw, 100vw"
+                    visualId={photo.visualId}
+                  />
+                  <div className="photo-story-body">
+                    <span className="spotlight-label">Venue feel</span>
+                    <strong>{photo.title}</strong>
+                    <p>{photo.caption}</p>
+                  </div>
+                </article>
               ))}
             </div>
           </article>

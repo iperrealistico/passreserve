@@ -1,6 +1,7 @@
 import { getOrganizerDashboard } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import Link from "next/link";
+import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 export default async function OrganizerDashboardPage({ params, searchParams }) {
   const { slug } = await params;
@@ -17,9 +18,17 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
             : "Organizer admin update saved successfully."}
         </div>
       ) : null}
+
+      <OrganizerAdminPageHeader
+        basePath={`/${slug}/admin/dashboard`}
+        description="Start here when you want the quickest read on what needs attention today: upcoming dates, recent signups, and whether any attendee still needs payment follow-up."
+        eyebrow="Dashboard"
+        query={query}
+        tip="Use Events for the event pages themselves, Dates for the scheduled sessions, Registrations for attendee status, Payments for reconciliation, and Billing for Stripe setup."
+        title={`${dashboard.organizer.name} overview`}
+      />
+
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Organizer dashboard</div>
-        <h2>{dashboard.organizer.name}</h2>
         <div className="metrics">
           <div className="metric">
             <div className="metric-label">Active registrations</div>
