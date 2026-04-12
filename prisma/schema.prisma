@@ -103,6 +103,7 @@ model Organizer {
   venueTitle         String                @default("")
   venueDetail        String                @default("")
   venueMapHref       String                @default("")
+  venues             Json?
   interestEmail      String                @default("")
   themeTags          Json?
   policies           Json?

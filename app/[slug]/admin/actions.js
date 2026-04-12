@@ -18,6 +18,7 @@ import {
 } from "../../../lib/passreserve-service.js";
 import {
   requireOrganizerAdminSession,
+  restorePlatformAdminSession,
   signInOrganizerAdmin,
   signOutPassreserve
 } from "../../../lib/passreserve-auth.js";
@@ -48,6 +49,16 @@ export async function organizerLogoutAction(formData) {
 
   await signOutPassreserve();
   redirect(`/${slug}/admin/login?message=signed-out`);
+}
+
+export async function returnToPlatformDashboardAction() {
+  const restored = await restorePlatformAdminSession();
+
+  if (!restored) {
+    redirect("/admin/login");
+  }
+
+  redirect("/admin");
 }
 
 export async function organizerRequestResetAction(formData) {
@@ -185,6 +196,9 @@ export async function saveOrganizerSettingsAction(formData) {
       venueTitle: value(formData, "venueTitle"),
       venueDetail: value(formData, "venueDetail"),
       venueMapHref: value(formData, "venueMapHref"),
+      venuesText: value(formData, "venuesText"),
+      adminEmail: value(formData, "adminEmail"),
+      adminName: value(formData, "adminName"),
       minAdvanceHours: value(formData, "minAdvanceHours"),
       maxAdvanceDays: value(formData, "maxAdvanceDays")
     },

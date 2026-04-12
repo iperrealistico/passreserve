@@ -6,7 +6,8 @@ import {
 } from "../../../../lib/passreserve-admin-service.js";
 import {
   approveOrganizerRequestAction,
-  createOrganizerAction
+  createOrganizerAction,
+  openOrganizerDashboardAction
 } from "../../actions.js";
 
 export const metadata = {
@@ -22,7 +23,14 @@ export default async function PlatformOrganizersPage({ searchParams }) {
     <div className="admin-page">
       {query.message ? (
         <div className="registration-message registration-message-success">
-          Organizer workflow updated successfully.
+          {query.message === "deleted"
+            ? "Organizer deleted successfully."
+            : "Organizer workflow updated successfully."}
+        </div>
+      ) : null}
+      {query.error ? (
+        <div className="registration-message registration-message-error">
+          {query.error}
         </div>
       ) : null}
 
@@ -116,11 +124,11 @@ export default async function PlatformOrganizersPage({ searchParams }) {
             <input name="adminName" type="text" />
           </label>
           <label className="field">
-            <span>Venue title</span>
+            <span>Primary venue title</span>
             <input name="venueTitle" type="text" />
           </label>
           <label className="field">
-            <span>Venue map URL</span>
+            <span>Primary venue map URL</span>
             <input name="venueMapHref" type="url" />
           </label>
           <label className="field field-span">
@@ -128,8 +136,15 @@ export default async function PlatformOrganizersPage({ searchParams }) {
             <textarea name="description" rows="3" />
           </label>
           <label className="field field-span">
-            <span>Venue detail</span>
+            <span>Primary venue detail</span>
             <textarea name="venueDetail" rows="3" />
+          </label>
+          <label className="field field-span">
+            <span>Additional venues</span>
+            <textarea name="venuesText" rows="5" />
+            <small className="field-hint">
+              Use one venue per line in this format: <code>Title | Detail | Map URL</code>
+            </small>
           </label>
           <div className="hero-actions">
             <button className="button button-primary" type="submit">
@@ -183,9 +198,12 @@ export default async function PlatformOrganizersPage({ searchParams }) {
                 <Link className="button button-primary" href={organizer.detailHref}>
                   Open detail
                 </Link>
-                <Link className="button button-secondary" href={organizer.dashboardHref}>
-                  Organizer dashboard
-                </Link>
+                <form action={openOrganizerDashboardAction}>
+                  <input name="slug" type="hidden" value={organizer.slug} />
+                  <button className="button button-secondary" type="submit">
+                    Open organizer dashboard
+                  </button>
+                </form>
               </div>
             </article>
           ))}

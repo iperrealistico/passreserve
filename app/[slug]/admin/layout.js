@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import {
   getOrganizerShell
 } from "../../../lib/passreserve-admin-service.js";
-import { getCurrentSessionUser } from "../../../lib/passreserve-auth.js";
-import { organizerLogoutAction } from "./actions.js";
+import { getCurrentSessionUser, getStoredPlatformSessionUser } from "../../../lib/passreserve-auth.js";
+import { organizerLogoutAction, returnToPlatformDashboardAction } from "./actions.js";
 
 export default async function OrganizerAdminLayout({ children, params }) {
   const { slug } = await params;
@@ -16,6 +16,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
   }
   const organizer = shell.organizer;
   const sessionUser = await getCurrentSessionUser();
+  const platformUser = await getStoredPlatformSessionUser();
   const signedIn = sessionUser?.type === "organizer" && sessionUser.organizerSlug === slug;
 
   const navigation = [
@@ -147,6 +148,13 @@ export default async function OrganizerAdminLayout({ children, params }) {
                 <span className="spotlight-label">Support contact</span>
                 <strong>{organizer.supportEmail}</strong>
                 <span>{organizer.timeZone}</span>
+                {platformUser?.type === "platform" ? (
+                  <form action={returnToPlatformDashboardAction}>
+                    <button className="button button-secondary" type="submit">
+                      Return to support dashboard
+                    </button>
+                  </form>
+                ) : null}
                 <form action={organizerLogoutAction}>
                   <input name="slug" type="hidden" value={slug} />
                   <button className="button button-secondary" type="submit">

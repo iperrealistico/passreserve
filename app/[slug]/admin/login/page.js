@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { organizerLoginAction, organizerRequestResetAction } from "../actions.js";
 import { getOrganizerShell } from "../../../../lib/passreserve-admin-service.js";
+import { PublicVisual } from "../../../../lib/passreserve-visual-component.js";
+import { routeVisuals } from "../../../../lib/passreserve-visuals.js";
 
 export const metadata = {
   title: "Organizer sign in"
@@ -45,69 +47,91 @@ export default async function OrganizerLoginPage({ params, searchParams }) {
   }
 
   return (
-    <section className="hero detail-hero">
-      <article className="panel hero-copy public-hero-copy">
-        <div className="section-kicker">{shell.organizer.name}</div>
-        <h1>Organizer admin sign in</h1>
-        <p>
-          Manage events, occurrences, registrations, and payments for this organizer from the
-          protected admin area.
-        </p>
-        {error ? (
-          <div className="registration-message registration-message-error">{error}</div>
-        ) : null}
-        {message ? (
-          <div className="registration-message registration-message-success">{message}</div>
-        ) : null}
-
-        <form action={organizerLoginAction} className="registration-panel-stack">
-          <input name="slug" type="hidden" value={slug} />
-          <label className="field">
-            <span>Email</span>
-            <input name="email" placeholder={`admin@${slug}.passreserve.local`} type="email" />
-          </label>
-          <label className="field">
-            <span>Password</span>
-            <input name="password" type="password" />
-          </label>
-          <div className="hero-actions">
-            <button className="button button-primary" type="submit">
-              Sign in
-            </button>
-          </div>
-        </form>
-      </article>
-
-      <aside className="panel hero-aside public-hero-aside">
-        <div className="status-block">
-          <div className="status-label">Need a reset?</div>
-          <h2>Generate a fresh organizer reset link.</h2>
-          <p>
-            Passreserve will email or log a reset link for this organizer admin account, depending
-            on the configured delivery mode.
-          </p>
-        </div>
-        <form action={organizerRequestResetAction} className="registration-panel-stack">
-          <input name="slug" type="hidden" value={slug} />
-          <input
-            name="baseUrl"
-            type="hidden"
-            value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
-          />
-          <label className="field">
-            <span>Account email</span>
-            <input name="email" placeholder={`admin@${slug}.passreserve.local`} type="email" />
-          </label>
-          <div className="hero-actions">
-            <button className="button button-secondary" type="submit">
-              Send reset link
-            </button>
-            <Link className="button button-secondary" href={`/${slug}`}>
-              Public organizer page
+    <main className="shell admin-shell">
+      <div className="content">
+        <header className="topbar admin-topbar">
+          <div className="wordmark">
+            <Link className="wordmark-name" href="/">
+              Passreserve.com
             </Link>
+            <span className="wordmark-tag">Protected host access for approved organizer admins</span>
           </div>
-        </form>
-      </aside>
-    </section>
+          <nav className="nav" aria-label="Organizer login navigation">
+            <Link href="/">Public home</Link>
+            <Link href={`/${slug}`}>Host page</Link>
+          </nav>
+        </header>
+
+        <section className="hero detail-hero">
+          <article className="panel hero-copy public-hero-copy">
+            <div className="section-kicker">{shell.organizer.name}</div>
+            <h1>Organizer admin sign in</h1>
+            <p>
+              Manage events, dates, registrations, and payments for this organizer from the
+              protected admin area.
+            </p>
+            {error ? (
+              <div className="registration-message registration-message-error">{error}</div>
+            ) : null}
+            {message ? (
+              <div className="registration-message registration-message-success">{message}</div>
+            ) : null}
+
+            <form action={organizerLoginAction} className="registration-panel-stack">
+              <input name="slug" type="hidden" value={slug} />
+              <label className="field">
+                <span>Email</span>
+                <input name="email" placeholder="host-admin@example.com" type="email" />
+              </label>
+              <label className="field">
+                <span>Password</span>
+                <input name="password" type="password" />
+              </label>
+              <div className="hero-actions">
+                <button className="button button-primary" type="submit">
+                  Sign in
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <aside className="panel hero-aside public-hero-aside">
+            <PublicVisual
+              className="aside-visual"
+              sizes="(min-width: 1024px) 28vw, 100vw"
+              visualId={routeVisuals.staffLogin}
+            />
+            <div className="status-block">
+              <div className="status-label">Need a reset?</div>
+              <h2>Generate a fresh organizer reset link.</h2>
+              <p>
+                Passreserve will email or log a reset link for this organizer admin account,
+                depending on the configured delivery mode.
+              </p>
+            </div>
+            <form action={organizerRequestResetAction} className="registration-panel-stack">
+              <input name="slug" type="hidden" value={slug} />
+              <input
+                name="baseUrl"
+                type="hidden"
+                value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
+              />
+              <label className="field">
+                <span>Account email</span>
+                <input name="email" placeholder="host-admin@example.com" type="email" />
+              </label>
+              <div className="hero-actions">
+                <button className="button button-secondary" type="submit">
+                  Send reset link
+                </button>
+                <Link className="button button-secondary" href={`/${slug}`}>
+                  Public organizer page
+                </Link>
+              </div>
+            </form>
+          </aside>
+        </section>
+      </div>
+    </main>
   );
 }

@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 import {
   approveOrganizerRequest,
   createOrganizerFromPlatform,
+  deleteOrganizerFromPlatform,
+  getOrganizerImpersonationTarget,
   markAdminLogin,
+  suspendOrganizerFromPlatform,
   updateOrganizerBillingSettings,
   updateAboutPage,
   updateEmailTemplate,
@@ -20,6 +23,8 @@ import {
 } from "../../lib/passreserve-service.js";
 import {
   requirePlatformAdminSession,
+  restorePlatformAdminSession,
+  signInOrganizerAdmin,
   signInPlatformAdmin,
   signOutPassreserve
 } from "../../lib/passreserve-auth.js";
@@ -117,25 +122,33 @@ export async function updateEmailTemplateAction(formData) {
 export async function createOrganizerAction(formData) {
   const user = await requirePlatformAdminSession();
 
-  await createOrganizerFromPlatform(
-    {
-      name: value(formData, "name"),
-      slug: value(formData, "slug"),
-      tagline: value(formData, "tagline"),
-      description: value(formData, "description"),
-      city: value(formData, "city"),
-      region: value(formData, "region"),
-      publicEmail: value(formData, "publicEmail"),
-      publicPhone: value(formData, "publicPhone"),
-      venueTitle: value(formData, "venueTitle"),
-      venueDetail: value(formData, "venueDetail"),
-      venueMapHref: value(formData, "venueMapHref"),
-      adminEmail: value(formData, "adminEmail"),
-      adminName: value(formData, "adminName")
-    },
-    user.userId
-  );
-  redirect("/admin/organizers?message=created");
+  try {
+    await createOrganizerFromPlatform(
+      {
+        name: value(formData, "name"),
+        slug: value(formData, "slug"),
+        tagline: value(formData, "tagline"),
+        description: value(formData, "description"),
+        city: value(formData, "city"),
+        region: value(formData, "region"),
+        publicEmail: value(formData, "publicEmail"),
+        publicPhone: value(formData, "publicPhone"),
+        venueTitle: value(formData, "venueTitle"),
+        venueDetail: value(formData, "venueDetail"),
+        venueMapHref: value(formData, "venueMapHref"),
+        venuesText: value(formData, "venuesText"),
+        adminEmail: value(formData, "adminEmail"),
+        adminName: value(formData, "adminName")
+      },
+      user.userId
+    );
+    redirect("/admin/organizers?message=created");
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "The organizer could not be created.";
+
+    redirect(`/admin/organizers?error=${encodeURIComponent(message)}`);
+  }
 }
 
 export async function approveOrganizerRequestAction(formData) {
@@ -167,4 +180,45 @@ export async function sendOrganizerResetFromPlatformAction(formData) {
 
   await requestOrganizerPasswordReset(slug, email, getBaseUrl());
   redirect(`/admin/organizers/${slug}?message=reset-sent`);
+}
+
+export async function openOrganizerDashboardAction(formData) {
+  await requirePlatformAdminSession();
+  const slug = value(formData, "slug");
+  const login = await getOrganizerImpersonationTarget(slug);
+
+  if (!login) {
+    redirect(`/admin/organizers/${slug}?error=${encodeURIComponent("No active organizer admin is available.")}`);
+  }
+
+  await signInOrganizerAdmin(login.admin, login.organizer, {
+    preservePlatformSession: true
+  });
+  redirect(`/${slug}/admin/dashboard?message=impersonated`);
+}
+
+export async function restorePlatformDashboardAction() {
+  const restored = await restorePlatformAdminSession();
+
+  if (!restored) {
+    redirect("/admin/login");
+  }
+
+  redirect("/admin");
+}
+
+export async function suspendOrganizerAction(formData) {
+  const user = await requirePlatformAdminSession();
+  const slug = value(formData, "slug");
+
+  await suspendOrganizerFromPlatform(slug, user.userId);
+  redirect(`/admin/organizers/${slug}?message=status-updated`);
+}
+
+export async function deleteOrganizerAction(formData) {
+  const user = await requirePlatformAdminSession();
+  const slug = value(formData, "slug");
+
+  await deleteOrganizerFromPlatform(slug, user.userId);
+  redirect("/admin/organizers?message=deleted");
 }

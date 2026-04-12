@@ -11,6 +11,12 @@ export const metadata = {
   title: "Organizer settings"
 };
 
+function formatVenuesForTextarea(venues = []) {
+  return venues
+    .map((venue) => [venue.title, venue.detail, venue.mapHref].map((value) => value || "").join(" | "))
+    .join("\n");
+}
+
 function resolveMessage(value) {
   switch (value) {
     case "saved":
@@ -120,20 +126,39 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
               <input defaultValue={data.organizer.interestEmail} name="interestEmail" type="email" />
             </label>
             <label className="field">
-              <span>Venue title</span>
+              <span>Primary venue title</span>
               <input defaultValue={data.organizer.venueTitle} name="venueTitle" type="text" />
+            </label>
+            <label className="field">
+              <span>Primary admin email</span>
+              <input defaultValue={data.primaryAdmin?.email || ""} name="adminEmail" type="email" />
+            </label>
+            <label className="field">
+              <span>Primary admin name</span>
+              <input defaultValue={data.primaryAdmin?.name || ""} name="adminName" type="text" />
             </label>
             <label className="field field-span">
               <span>Description</span>
               <textarea defaultValue={data.organizer.description} name="description" rows="3" />
             </label>
             <label className="field field-span">
-              <span>Venue detail</span>
+              <span>Primary venue detail</span>
               <textarea defaultValue={data.organizer.venueDetail} name="venueDetail" rows="3" />
             </label>
             <label className="field field-span">
-              <span>Venue map URL</span>
+              <span>Primary venue map URL</span>
               <input defaultValue={data.organizer.venueMapHref} name="venueMapHref" type="url" />
+            </label>
+            <label className="field field-span">
+              <span>Additional venues</span>
+              <textarea
+                defaultValue={formatVenuesForTextarea(data.organizer.venues)}
+                name="venuesText"
+                rows="5"
+              />
+              <small className="field-hint">
+                Use one venue per line in this format: <code>Title | Detail | Map URL</code>
+              </small>
             </label>
             <label className="field">
               <span>Minimum advance hours</span>
@@ -155,7 +180,11 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
             </label>
             <div className="field field-span">
               <span className="metric-label">Current primary admin</span>
-              <strong>{data.primaryAdmin?.email || "No organizer admin found"}</strong>
+              <strong>
+                {data.primaryAdmin
+                  ? `${data.primaryAdmin.name} · ${data.primaryAdmin.email}`
+                  : "No organizer admin found"}
+              </strong>
             </div>
             <div className="hero-actions">
               <button className="button button-primary" type="submit">

@@ -74,9 +74,11 @@ export default async function OrganizerPage({ params }) {
               ))}
             </div>
             <div className="hero-actions">
-              <Link className="button button-primary" href={organizer.featuredEvent.detailHref}>
-                Open featured event
-              </Link>
+              {organizer.featuredEvent ? (
+                <Link className="button button-primary" href={organizer.featuredEvent.detailHref}>
+                  Open featured event
+                </Link>
+              ) : null}
               <a className="button button-secondary" href="#dates">
                 Review upcoming dates
               </a>
@@ -94,10 +96,11 @@ export default async function OrganizerPage({ params }) {
             />
             <div className="status-block">
               <div className="status-label">Featured next</div>
-              <h2>{organizer.featuredEvent.title}</h2>
+              <h2>{organizer.featuredEvent?.title || "New organizer page"}</h2>
               <p>
-                Start with the featured event, then browse the upcoming dates below to compare the
-                host, the place, and the price before you register.
+                {organizer.featuredEvent
+                  ? "Start with the featured event, then browse the upcoming dates below to compare the host, the place, and the price before you register."
+                  : "This organizer page is live, and the first public event can be published as soon as the host finishes the setup."}
               </p>
             </div>
 
@@ -155,57 +158,64 @@ export default async function OrganizerPage({ params }) {
               options without losing the personality of the host.
             </p>
             <div className="event-lineup">
-              {organizer.events.map((event) => (
-                <article className="event-card" key={event.slug}>
-                  <PublicVisual
-                    className="event-card-cover"
-                    sizes="(min-width: 1024px) 24vw, 100vw"
-                    visualId={event.gallery[0].visualId}
-                  >
-                    <span className="route-label">{event.category}</span>
-                    <strong>{event.nextOccurrence.label}</strong>
-                    <span>{event.collectionLabel}</span>
-                  </PublicVisual>
-                  <div className="event-card-body">
-                    <h3>{event.title}</h3>
-                    <p>{event.summary}</p>
-                    <div className="event-card-meta">
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Next live date</span>
-                        <strong>{event.nextOccurrenceLabel}</strong>
+              {organizer.events.length ? (
+                organizer.events.map((event) => (
+                  <article className="event-card" key={event.slug}>
+                    <PublicVisual
+                      className="event-card-cover"
+                      sizes="(min-width: 1024px) 24vw, 100vw"
+                      visualId={event.gallery[0].visualId}
+                    >
+                      <span className="route-label">{event.category}</span>
+                      <strong>{event.nextOccurrence.label}</strong>
+                      <span>{event.collectionLabel}</span>
+                    </PublicVisual>
+                    <div className="event-card-body">
+                      <h3>{event.title}</h3>
+                      <p>{event.summary}</p>
+                      <div className="event-card-meta">
+                        <div className="spotlight-note">
+                          <span className="spotlight-label">Next live date</span>
+                          <strong>{event.nextOccurrenceLabel}</strong>
+                        </div>
+                        <div className="spotlight-note">
+                          <span className="spotlight-label">Price and collection</span>
+                          <strong>
+                            {event.priceLabel} total, {event.collectionLabel}
+                          </strong>
+                        </div>
                       </div>
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Price and collection</span>
-                        <strong>
-                          {event.priceLabel} total, {event.collectionLabel}
-                        </strong>
+                      <div className="pill-list">
+                        {event.highlights.slice(0, 3).map((highlight) => (
+                          <span className="pill" key={highlight}>
+                            {highlight}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="hero-actions event-card-actions">
+                        <Link className="button button-primary" href={event.detailHref}>
+                          Open event page
+                        </Link>
+                        <Link
+                          className="button button-secondary"
+                          href={buildRegistrationHref(
+                            organizer.slug,
+                            event.slug,
+                            event.nextOccurrence.id
+                          )}
+                        >
+                          Start registration
+                        </Link>
                       </div>
                     </div>
-                    <div className="pill-list">
-                      {event.highlights.slice(0, 3).map((highlight) => (
-                        <span className="pill" key={highlight}>
-                          {highlight}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="hero-actions event-card-actions">
-                      <Link className="button button-primary" href={event.detailHref}>
-                        Open event page
-                      </Link>
-                      <Link
-                        className="button button-secondary"
-                        href={buildRegistrationHref(
-                          organizer.slug,
-                          event.slug,
-                          event.nextOccurrence.id
-                        )}
-                      >
-                        Start registration
-                      </Link>
-                    </div>
-                  </div>
+                  </article>
+                ))
+              ) : (
+                <article className="search-empty">
+                  <h3>This organizer has not published a public event yet.</h3>
+                  <p>The host page is ready, and upcoming dates can appear here once the first event is live.</p>
                 </article>
-              ))}
+              )}
             </div>
           </article>
         </section>
@@ -219,33 +229,40 @@ export default async function OrganizerPage({ params }) {
               list straight into the date that works for you.
             </p>
             <div className="agenda-list">
-              {organizer.agenda.map((occurrence) => (
-                <article className="agenda-item" key={occurrence.id}>
-                  <div className="agenda-head">
-                    <div>
-                      <strong>{occurrence.eventTitle}</strong>
-                      <span>{occurrence.label}</span>
+              {organizer.agenda.length ? (
+                organizer.agenda.map((occurrence) => (
+                  <article className="agenda-item" key={occurrence.id}>
+                    <div className="agenda-head">
+                      <div>
+                        <strong>{occurrence.eventTitle}</strong>
+                        <span>{occurrence.label}</span>
+                      </div>
+                      <span className="route-label">{occurrence.capacity}</span>
                     </div>
-                    <span className="route-label">{occurrence.capacity}</span>
-                  </div>
-                  <p>{occurrence.note}</p>
-                  <div className="agenda-meta">
-                    <span>{occurrence.time}</span>
-                    <span>{occurrence.priceLabel}</span>
-                    <span>{occurrence.collectionLabel}</span>
-                  </div>
-                  <Link
-                    className="inline-link"
-                    href={buildRegistrationHref(
-                      organizer.slug,
-                      occurrence.eventSlug,
-                      occurrence.id
-                    )}
-                  >
-                    Start registration
-                  </Link>
+                    <p>{occurrence.note}</p>
+                    <div className="agenda-meta">
+                      <span>{occurrence.time}</span>
+                      <span>{occurrence.priceLabel}</span>
+                      <span>{occurrence.collectionLabel}</span>
+                    </div>
+                    <Link
+                      className="inline-link"
+                      href={buildRegistrationHref(
+                        organizer.slug,
+                        occurrence.eventSlug,
+                        occurrence.id
+                      )}
+                    >
+                      Start registration
+                    </Link>
+                  </article>
+                ))
+              ) : (
+                <article className="search-empty">
+                  <h3>No upcoming dates yet.</h3>
+                  <p>The organizer can publish the first dates from the host dashboard.</p>
                 </article>
-              ))}
+              )}
             </div>
           </article>
 
@@ -279,6 +296,17 @@ export default async function OrganizerPage({ params }) {
             <div className="section-kicker">Venue and contact</div>
             <h3>{organizer.venue.title}</h3>
             <p>{organizer.venue.detail}</p>
+            {organizer.venues.length > 1 ? (
+              <div className="timeline">
+                {organizer.venues.map((venue, index) => (
+                  <div className="timeline-step" key={`${venue.title}-${index}`}>
+                    <strong>{venue.title || `Venue ${index + 1}`}</strong>
+                    {venue.detail ? <span>{venue.detail}</span> : null}
+                    {venue.mapHref ? <span>{venue.mapHref}</span> : null}
+                  </div>
+                ))}
+              </div>
+            ) : null}
             <div className="contact-list">
               <div className="contact-item">
                 <span className="spotlight-label">Organizer email</span>
@@ -290,14 +318,16 @@ export default async function OrganizerPage({ params }) {
               </div>
             </div>
             <div className="hero-actions">
-              <a
-                className="button button-secondary"
-                href={organizer.venue.mapHref}
-                rel="noreferrer"
-                target="_blank"
-              >
-                {organizer.venue.mapLabel}
-              </a>
+              {organizer.venue.mapHref ? (
+                <a
+                  className="button button-secondary"
+                  href={organizer.venue.mapHref}
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  {organizer.venue.mapLabel}
+                </a>
+              ) : null}
               <a className="button button-secondary" href={organizer.interestHref}>
                 Ask a venue question
               </a>

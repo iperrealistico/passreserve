@@ -12,7 +12,9 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
     <div className="admin-page">
       {query.message ? (
         <div className="registration-message registration-message-success">
-          Organizer admin update saved successfully.
+          {query.message === "impersonated"
+            ? "Organizer dashboard opened successfully."
+            : "Organizer admin update saved successfully."}
         </div>
       ) : null}
       <section className="panel section-card admin-section">

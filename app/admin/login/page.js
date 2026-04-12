@@ -62,7 +62,7 @@ export default async function PlatformAdminLoginPage({ searchParams }) {
             <form action={platformLoginAction} className="registration-panel-stack">
               <label className="field">
                 <span>Email</span>
-                <input name="email" placeholder="admin@passreserve.local" type="email" />
+                <input name="email" placeholder="mario@admin.com" type="email" />
               </label>
               <label className="field">
                 <span>Password</span>
@@ -99,7 +99,7 @@ export default async function PlatformAdminLoginPage({ searchParams }) {
               />
               <label className="field">
                 <span>Account email</span>
-                <input name="email" placeholder="admin@passreserve.local" type="email" />
+                <input name="email" placeholder="mario@admin.com" type="email" />
               </label>
               <div className="hero-actions">
                 <button className="button button-secondary" type="submit">

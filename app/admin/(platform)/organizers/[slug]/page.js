@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 
 import { getPlatformOrganizerDetail } from "../../../../../lib/passreserve-admin-service.js";
 import {
+  deleteOrganizerAction,
+  openOrganizerDashboardAction,
   sendOrganizerResetFromPlatformAction,
+  suspendOrganizerAction,
   updateOrganizerBillingAction
 } from "../../../actions.js";
 
@@ -28,6 +31,14 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
           Organizer reset email generated successfully.
         </div>
       ) : null}
+      {query.message === "status-updated" ? (
+        <div className="registration-message registration-message-success">
+          Organizer status updated successfully.
+        </div>
+      ) : null}
+      {query.error ? (
+        <div className="registration-message registration-message-error">{query.error}</div>
+      ) : null}
       <section className="panel section-card admin-section">
         <div className="section-kicker">Organizer detail</div>
         <h2>{detail.organizer.name}</h2>
@@ -41,12 +52,27 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
           <span className="pill">{detail.organizer.summary.dueAtEventLabel} due at venue</span>
         </div>
         <div className="hero-actions">
-          <Link className="button button-primary" href={detail.organizer.dashboardHref}>
-            Open organizer dashboard
-          </Link>
+          <form action={openOrganizerDashboardAction}>
+            <input name="slug" type="hidden" value={slug} />
+            <button className="button button-primary" type="submit">
+              Open organizer dashboard
+            </button>
+          </form>
           <Link className="button button-secondary" href={detail.organizer.publicHref}>
             Public organizer page
           </Link>
+          <form action={suspendOrganizerAction}>
+            <input name="slug" type="hidden" value={slug} />
+            <button className="button button-secondary" type="submit">
+              {detail.organizer.status === "ARCHIVED" ? "Reactivate organizer" : "Suspend organizer"}
+            </button>
+          </form>
+          <form action={deleteOrganizerAction}>
+            <input name="slug" type="hidden" value={slug} />
+            <button className="button button-secondary button-danger" type="submit">
+              Delete organizer
+            </button>
+          </form>
         </div>
       </section>
 
@@ -107,6 +133,28 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
               </button>
             </div>
           </form>
+        </article>
+
+        <article className="panel section-card admin-section">
+          <div className="section-kicker">Venues</div>
+          <h3>Organizer venues</h3>
+          <div className="timeline">
+            {(detail.organizer.venues?.length ? detail.organizer.venues : [
+              {
+                title: detail.organizer.venueTitle,
+                detail: detail.organizer.venueDetail,
+                mapHref: detail.organizer.venueMapHref
+              }
+            ])
+              .filter((venue) => venue.title || venue.detail || venue.mapHref)
+              .map((venue, index) => (
+                <div className="timeline-step" key={`${venue.title}-${index}`}>
+                  <strong>{venue.title || `Venue ${index + 1}`}</strong>
+                  {venue.detail ? <span>{venue.detail}</span> : null}
+                  {venue.mapHref ? <span>{venue.mapHref}</span> : null}
+                </div>
+              ))}
+          </div>
         </article>
 
         <article className="panel section-card admin-section">
