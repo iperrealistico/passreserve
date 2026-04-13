@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { getOrganizerEventsAdmin } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import {
@@ -7,11 +9,18 @@ import {
 } from "../actions.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
+function multilineValue(entries) {
+  return Array.isArray(entries) ? entries.join("\n") : "";
+}
+
 export default async function OrganizerEventsPage({ params, searchParams }) {
   const { slug } = await params;
   await requireOrganizerAdminSession(slug);
   const query = await searchParams;
   const data = await getOrganizerEventsAdmin(slug);
+  const editId = typeof query.edit === "string" ? query.edit : "";
+  const selectedEvent = editId ? data.events.find((event) => event.id === editId) ?? null : null;
+  const isEditing = Boolean(selectedEvent);
 
   return (
     <div className="admin-page">
@@ -42,7 +51,10 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
         <h3>Existing event pages</h3>
         <div className="admin-card-grid">
           {data.events.map((event) => (
-            <article className="admin-card" key={event.id}>
+            <article
+              className={`admin-card${selectedEvent?.id === event.id ? " admin-card-active" : ""}`}
+              key={event.id}
+            >
               <h4>{event.title}</h4>
               <p>{event.summary}</p>
               <div className="admin-card-metrics">
@@ -68,6 +80,12 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                 </div>
               </div>
               <div className="hero-actions">
+                <Link
+                  className="button button-primary"
+                  href={`/${slug}/admin/events?edit=${encodeURIComponent(event.id)}#event-form`}
+                >
+                  Edit event
+                </Link>
                 <form action={suspendOrganizerEventAction}>
                   <input name="slug" type="hidden" value={slug} />
                   <input name="eventId" type="hidden" value={event.id} />
@@ -97,30 +115,32 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
         </div>
       </section>
 
-      <section className="panel section-card admin-section">
-        <div className="section-kicker">Save event</div>
-        <h3>New or existing event</h3>
+      <section className="panel section-card admin-section" id="event-form">
+        <div className="section-kicker">{isEditing ? "Edit event" : "Create event"}</div>
+        <h3>{isEditing ? selectedEvent.title : "Create a new event page"}</h3>
+        <p className="admin-page-tip">
+          {isEditing
+            ? "You are editing an existing event. Update the details below, then save your changes."
+            : "Start a fresh event page here. Once saved, you can add bookable dates in the Dates area."}
+        </p>
         <form action={saveOrganizerEventAction} className="registration-field-grid">
           <input name="slug" type="hidden" value={slug} />
-          <label className="field">
-            <span>Existing event id</span>
-            <input name="id" placeholder="leave blank to create new" type="text" />
-          </label>
+          <input name="id" type="hidden" value={selectedEvent?.id || ""} />
           <label className="field">
             <span>Title</span>
-            <input name="title" required type="text" />
+            <input defaultValue={selectedEvent?.title || ""} name="title" required type="text" />
           </label>
           <label className="field">
             <span>Event slug</span>
-            <input name="eventSlug" type="text" />
+            <input defaultValue={selectedEvent?.slug || ""} name="eventSlug" type="text" />
           </label>
           <label className="field">
             <span>Category</span>
-            <input name="category" type="text" />
+            <input defaultValue={selectedEvent?.category || ""} name="category" type="text" />
           </label>
           <label className="field">
             <span>Visibility</span>
-            <select name="visibility">
+            <select defaultValue={selectedEvent?.visibility || "DRAFT"} name="visibility">
               <option value="DRAFT">Draft</option>
               <option value="PUBLIC">Public</option>
               <option value="UNLISTED">Unlisted</option>
@@ -129,72 +149,113 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
           </label>
           <label className="field">
             <span>Base price cents</span>
-            <input name="basePriceCents" type="number" />
+            <input defaultValue={selectedEvent?.basePriceCents ?? ""} name="basePriceCents" type="number" />
           </label>
           <label className="field">
             <span>Prepay percentage</span>
-            <input name="prepayPercentage" type="number" />
+            <input
+              defaultValue={selectedEvent?.prepayPercentage ?? ""}
+              name="prepayPercentage"
+              type="number"
+            />
           </label>
           <label className="field">
             <span>Duration minutes</span>
-            <input name="durationMinutes" type="number" />
+            <input
+              defaultValue={selectedEvent?.durationMinutes ?? ""}
+              name="durationMinutes"
+              type="number"
+            />
           </label>
           <label className="field field-span">
             <span>Summary</span>
-            <textarea name="summary" rows="2" />
+            <textarea defaultValue={selectedEvent?.summary || ""} name="summary" rows="2" />
           </label>
           <label className="field field-span">
             <span>Description</span>
-            <textarea name="description" rows="3" />
+            <textarea defaultValue={selectedEvent?.description || ""} name="description" rows="3" />
           </label>
           <label className="field field-span">
             <span>Audience</span>
-            <textarea name="audience" rows="2" />
+            <textarea defaultValue={selectedEvent?.audience || ""} name="audience" rows="2" />
           </label>
           <label className="field">
             <span>Venue title</span>
-            <input name="venueTitle" type="text" />
+            <input defaultValue={selectedEvent?.venueTitle || ""} name="venueTitle" type="text" />
           </label>
           <label className="field field-span">
             <span>Venue detail</span>
-            <textarea name="venueDetail" rows="2" />
+            <textarea
+              defaultValue={selectedEvent?.venueDetail || ""}
+              name="venueDetail"
+              rows="2"
+            />
           </label>
           <label className="field">
             <span>Map URL</span>
-            <input name="mapHref" type="url" />
+            <input defaultValue={selectedEvent?.mapHref || ""} name="mapHref" type="url" />
           </label>
           <label className="field field-span">
             <span>Attendee instructions</span>
-            <textarea name="attendeeInstructions" rows="2" />
+            <textarea
+              defaultValue={selectedEvent?.attendeeInstructions || ""}
+              name="attendeeInstructions"
+              rows="2"
+            />
           </label>
           <label className="field field-span">
             <span>Organizer notes</span>
-            <textarea name="organizerNotes" rows="2" />
+            <textarea
+              defaultValue={selectedEvent?.organizerNotes || ""}
+              name="organizerNotes"
+              rows="2"
+            />
           </label>
           <label className="field field-span">
             <span>Cancellation policy</span>
-            <textarea name="cancellationPolicy" rows="2" />
+            <textarea
+              defaultValue={selectedEvent?.cancellationPolicy || ""}
+              name="cancellationPolicy"
+              rows="2"
+            />
           </label>
           <label className="field field-span">
             <span>Highlights (one per line)</span>
-            <textarea name="highlights" rows="3" />
+            <textarea
+              defaultValue={multilineValue(selectedEvent?.highlights)}
+              name="highlights"
+              rows="3"
+            />
           </label>
           <label className="field field-span">
             <span>Included (one per line)</span>
-            <textarea name="included" rows="3" />
+            <textarea
+              defaultValue={multilineValue(selectedEvent?.included)}
+              name="included"
+              rows="3"
+            />
           </label>
           <label className="field field-span">
             <span>Policies (one per line)</span>
-            <textarea name="policies" rows="3" />
+            <textarea
+              defaultValue={multilineValue(selectedEvent?.policies)}
+              name="policies"
+              rows="3"
+            />
           </label>
           <label className="field field-span">
             <span>Image URL</span>
-            <input name="imageUrl" type="url" />
+            <input defaultValue={selectedEvent?.imageUrl || ""} name="imageUrl" type="url" />
           </label>
           <div className="hero-actions">
             <button className="button button-primary" type="submit">
-              Save event
+              {isEditing ? "Save changes" : "Create event"}
             </button>
+            {isEditing ? (
+              <Link className="button button-secondary" href={`/${slug}/admin/events#event-form`}>
+                Create new event
+              </Link>
+            ) : null}
           </div>
         </form>
       </section>

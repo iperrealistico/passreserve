@@ -114,7 +114,7 @@ export async function saveOrganizerEventAction(formData) {
   const user = await requireOrganizerAdminSession(slug);
 
   try {
-    await saveOrganizerEvent(
+    const savedEvent = await saveOrganizerEvent(
       slug,
       {
         id: value(formData, "id"),
@@ -141,6 +141,10 @@ export async function saveOrganizerEventAction(formData) {
       },
       user.userId
     );
+
+    if (savedEvent?.id) {
+      redirect(`/${slug}/admin/events?message=saved&edit=${encodeURIComponent(savedEvent.id)}#event-form`);
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "The event could not be saved.";
     redirect(`/${slug}/admin/events?error=${encodeURIComponent(message)}`);
