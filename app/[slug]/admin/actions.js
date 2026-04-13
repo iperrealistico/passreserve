@@ -50,6 +50,16 @@ function parseEurosToCents(rawValue) {
   return Math.max(0, Math.round(Number(normalized) * 100));
 }
 
+function parseOptionalEurosToCents(rawValue) {
+  const normalized = String(rawValue || "").trim();
+
+  if (!normalized) {
+    return "";
+  }
+
+  return String(parseEurosToCents(normalized));
+}
+
 export async function organizerLoginAction(formData) {
   const slug = value(formData, "slug");
   const login = await authenticateOrganizerAdmin(
@@ -182,7 +192,7 @@ export async function saveOrganizerOccurrenceAction(formData) {
   const eventFilter = value(formData, "eventFilter");
 
   try {
-    await saveOrganizerOccurrence(
+    const savedOccurrence = await saveOrganizerOccurrence(
       slug,
       {
         id: value(formData, "id"),
@@ -191,7 +201,7 @@ export async function saveOrganizerOccurrenceAction(formData) {
         startsAt: value(formData, "startsAt"),
         endsAt: value(formData, "endsAt"),
         capacity: value(formData, "capacity"),
-        priceCents: value(formData, "priceCents"),
+        priceCents: parseOptionalEurosToCents(formData.get("priceEuros")),
         prepayPercentage: value(formData, "prepayPercentage"),
         venueTitle: value(formData, "venueTitle"),
         note: value(formData, "note"),
@@ -200,7 +210,15 @@ export async function saveOrganizerOccurrenceAction(formData) {
       },
       user.userId
     );
-    redirect(withEventFilter(`/${slug}/admin/occurrences?message=saved`, eventFilter));
+
+    if (savedOccurrence?.id) {
+      redirect(
+        withEventFilter(
+          `/${slug}/admin/occurrences?message=saved&edit=${encodeURIComponent(savedOccurrence.id)}#date-form`,
+          eventFilter
+        )
+      );
+    }
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "The occurrence could not be saved.";
