@@ -33,6 +33,19 @@ function assertIncludesVisual(text, src, routeLabel) {
   );
 }
 
+function assertIncludesAnyVisual(text, sources, routeLabel) {
+  const matches = sources.some((src) => {
+    const encoded = encodeURIComponent(src);
+
+    return text.includes(src) || text.includes(encoded);
+  });
+
+  assert(
+    matches,
+    `${routeLabel} should include at least one expected visual: ${sources.join(", ")}.`
+  );
+}
+
 function getLastPathSegment(urlLike) {
   const pathname = new URL(urlLike, "http://127.0.0.1").pathname;
   const segments = pathname.split("/").filter(Boolean);
@@ -221,7 +234,17 @@ async function main() {
       eventPage.text.includes("Pick the date that works for you."),
       "Event detail page should render the event-detail registration copy."
     );
-    assertIncludesVisual(eventPage.text, "/images/passreserve/event-hero-still.webp", "Event page");
+    assertIncludesAnyVisual(
+      eventPage.text,
+      [
+        "/images/passreserve/event-hero-still.webp",
+        "/images/passreserve/event-gallery-01.webp",
+        "/images/passreserve/event-gallery-02.webp",
+        "/images/passreserve/organizer-gallery-01.webp",
+        "/images/passreserve/organizer-gallery-02.webp"
+      ],
+      "Event page"
+    );
     assertNoInternalCopy(eventPage.text, "Event page");
 
     const registerPage = await fetchHtml(
@@ -257,7 +280,20 @@ async function main() {
     });
     assert(holdResult.ok, "Registration helper should create a hold successfully.");
 
-    const holdPage = await fetchHtml(baseUrl, holdResult.redirectHref);
+    const pendingPage = await fetchHtml(baseUrl, holdResult.redirectHref);
+    assert(pendingPage.response.status === 200, "Pending-confirmation route should return 200.");
+    assert(
+      pendingPage.text.includes("Open the email we just sent you."),
+      "Pending-confirmation route should render the check-email heading."
+    );
+    assertIncludesVisual(
+      pendingPage.text,
+      "/images/passreserve/registration-flow.webp",
+      "Registration pending page"
+    );
+    assertNoInternalCopy(pendingPage.text, "Registration pending page");
+
+    const holdPage = await fetchHtml(baseUrl, holdResult.confirmationHref);
     assert(holdPage.response.status === 200, "Confirmation route should return 200.");
     assert(
       holdPage.text.includes("Review your details before you confirm your registration"),
@@ -270,7 +306,7 @@ async function main() {
     );
     assertNoInternalCopy(holdPage.text, "Registration confirmation page");
 
-    const holdToken = getLastPathSegment(holdResult.redirectHref);
+    const holdToken = getLastPathSegment(holdResult.confirmationHref);
     const confirmationResult = await confirmRegistrationHold({
       slug: "alpine-trail-lab",
       eventSlug: "sunrise-ridge-session",

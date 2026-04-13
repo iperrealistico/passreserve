@@ -7,6 +7,7 @@ import {
   saveOrganizerEventAction,
   suspendOrganizerEventAction
 } from "../actions.js";
+import { EventGalleryEditor } from "../event-gallery-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 function multilineValue(entries) {
@@ -21,6 +22,16 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
   const editId = typeof query.edit === "string" ? query.edit : "";
   const selectedEvent = editId ? data.events.find((event) => event.id === editId) ?? null : null;
   const isEditing = Boolean(selectedEvent);
+  const initialGalleryItems =
+    selectedEvent?.gallery?.length
+      ? selectedEvent.gallery
+      : selectedEvent?.imageUrl
+        ? [
+            {
+              imageUrl: selectedEvent.imageUrl
+            }
+          ]
+        : [];
 
   return (
     <div className="admin-page">
@@ -243,10 +254,10 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
               rows="3"
             />
           </label>
-          <label className="field field-span">
-            <span>Image URL</span>
-            <input defaultValue={selectedEvent?.imageUrl || ""} name="imageUrl" type="url" />
-          </label>
+          <div className="field field-span">
+            <span>Event photo gallery</span>
+            <EventGalleryEditor initialItems={initialGalleryItems} />
+          </div>
           <div className="hero-actions">
             <button className="button button-primary" type="submit">
               {isEditing ? "Save changes" : "Create event"}

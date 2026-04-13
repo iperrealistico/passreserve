@@ -30,7 +30,7 @@ const steps = [
   {
     id: "review",
     title: "Review",
-    detail: "Create the 30-minute confirmation hold."
+    detail: "Send the confirmation email."
   }
 ];
 
@@ -137,8 +137,8 @@ export default function RegistrationFlowExperience({
         <div className="section-kicker">Register</div>
         <h2>Choose your date, ticket, and contact details.</h2>
         <p>
-          You&apos;ll review everything before the registration is confirmed, including whether
-          anything is due online today.
+          We&apos;ll send a confirmation email before anything is finalized, including the exact
+          online amount due today if this event uses one.
         </p>
 
         <div className="registration-stepper">
@@ -282,8 +282,8 @@ export default function RegistrationFlowExperience({
             <div className="section-kicker">Step 3</div>
             <h3>Capture the attendee contact details</h3>
             <p>
-              We&apos;ll use these details for the confirmation step, your registration code,
-              and any important updates from the organizer.
+              We&apos;ll use these details for the confirmation email, your registration code, and
+              any important updates from the organizer.
             </p>
             <div className="registration-field-grid">
               <label className="field">
@@ -343,10 +343,10 @@ export default function RegistrationFlowExperience({
         {activeStep === 3 ? (
           <div className="registration-panel-stack">
             <div className="section-kicker">Step 4</div>
-            <h3>Review the hold before creating it</h3>
+            <h3>Review everything before we email the confirmation link</h3>
             <p>
-              This step creates a 30-minute hold so you can confirm the registration safely on
-              the next screen.
+              This step creates a 30-minute hold and sends the confirmation email to the attendee
+              address you entered.
             </p>
 
             <div className="registration-review-grid">
@@ -410,7 +410,7 @@ export default function RegistrationFlowExperience({
                   disabled={isPending || !quote}
                   type="submit"
                 >
-                  {isPending ? "Creating hold..." : "Create 30-minute hold"}
+                  {isPending ? "Sending confirmation email..." : "Email the confirmation link"}
                 </button>
               </div>
             </form>
@@ -482,15 +482,15 @@ export default function RegistrationFlowExperience({
         <div className="registration-rule-list">
           <div className="registration-rule-item">
             <strong>30-minute hold</strong>
-            <span>Your place is temporarily protected while you confirm the registration.</span>
+            <span>Your place is temporarily protected while you open the confirmation email.</span>
           </div>
           <div className="registration-rule-item">
             <strong>Clear payment split</strong>
             <span>Any amount due online is shown separately from what remains due at the event.</span>
           </div>
           <div className="registration-rule-item">
-            <strong>Registration code next</strong>
-            <span>After confirmation, you&apos;ll receive a registration code and the next steps for your date.</span>
+            <strong>Confirmation email first</strong>
+            <span>Open the email we send next to review the hold, accept the checkboxes, and finish the registration.</span>
           </div>
         </div>
 

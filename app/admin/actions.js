@@ -34,6 +34,10 @@ function value(formData, key) {
   return String(formData.get(key) || "").trim();
 }
 
+function checked(formData, key) {
+  return formData.get(key) === "on";
+}
+
 export async function platformLoginAction(formData) {
   const email = value(formData, "email");
   const password = value(formData, "password");
@@ -81,6 +85,7 @@ export async function updateSiteSettingsAction(formData) {
       platformEmail: value(formData, "platformEmail"),
       launchInbox: value(formData, "launchInbox"),
       adminNotifications: value(formData, "adminNotifications"),
+      registrationRemindersEnabled: checked(formData, "registrationRemindersEnabled"),
       supportResponseTarget: value(formData, "supportResponseTarget"),
       customDomain: value(formData, "customDomain")
     },

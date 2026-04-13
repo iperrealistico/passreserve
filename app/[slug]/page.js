@@ -4,9 +4,10 @@ import { notFound } from "next/navigation";
 import {
   getOrganizerPage
 } from "../../lib/passreserve-service.js";
+import { PassreserveMedia } from "../../lib/passreserve-media.js";
 import { PublicVisual } from "../../lib/passreserve-visual-component.js";
 import { routeVisuals, selectCatalogVisualId } from "../../lib/passreserve-visuals.js";
-import { OrganizerPhotoGallery } from "./organizer-photo-gallery.js";
+import { PublicPhotoGallery } from "./public-photo-gallery.js";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,18 @@ function buildRegistrationHref(slug, eventSlug, occurrenceId) {
 
 function toList(value) {
   return Array.isArray(value) ? value : [];
+}
+
+function getCoverMedia(mediaItems, seed, index = 0) {
+  const firstMedia = toList(mediaItems)[0];
+
+  if (firstMedia?.imageUrl || firstMedia?.visualId) {
+    return firstMedia;
+  }
+
+  return {
+    visualId: selectCatalogVisualId(seed, index)
+  };
 }
 
 export async function generateMetadata({ params }) {
@@ -98,8 +111,8 @@ export default async function OrganizerPage({ params }) {
               {organizer.city}, {organizer.region}
             </div>
             <h1>{organizer.name}</h1>
-            <p>{organizer.tagline}</p>
-            <p>{organizer.description}</p>
+            {organizer.tagline ? <p>{organizer.tagline}</p> : null}
+            {organizer.description ? <p>{organizer.description}</p> : null}
             <div className="pill-list">
               {themeTags.map((tag) => (
                 <span className="pill" key={tag}>
@@ -162,7 +175,7 @@ export default async function OrganizerPage({ params }) {
                 <span className="status-index">1</span>
                 <div>
                   <strong>Meeting point</strong>
-                  {organizer.venue.title}
+                  {organizer.venue.title || "Venue details coming soon"}
                 </div>
               </div>
               <div className="status-item">
@@ -195,29 +208,34 @@ export default async function OrganizerPage({ params }) {
               {events.length ? (
                 events.map((event, index) => {
                   const nextOccurrence = event.nextOccurrence;
-                  const eventVisualId =
-                    event.gallery?.[0]?.visualId ||
-                    selectCatalogVisualId(`${organizer.slug}:${event.slug}`, index);
+                  const eventCover = getCoverMedia(
+                    event.gallery,
+                    `${organizer.slug}:${event.slug}`,
+                    index
+                  );
 
                   return (
                   <article className="event-card" key={event.slug}>
-                    <PublicVisual
+                    <PassreserveMedia
+                      alt={`${event.title} cover`}
                       className="event-card-cover"
+                      imageClassName="event-card-cover-image"
+                      media={eventCover}
                       sizes="(min-width: 1024px) 24vw, 100vw"
-                      visualId={eventVisualId}
-                    >
-                      <span className="route-label">{event.category}</span>
-                      <strong>{nextOccurrence?.label || "No upcoming dates yet"}</strong>
-                      <span>{event.collectionLabel}</span>
-                    </PublicVisual>
+                    />
                     <div className="event-card-body">
-                      <h3>{event.title}</h3>
-                      <p>{event.summary}</p>
-                      <div className="event-card-meta">
+                      <div className="event-card-head">
+                        <div>
+                          <div className="page-place">{event.category}</div>
+                          <h3>{event.title}</h3>
+                        </div>
                         <div className="spotlight-note">
                           <span className="spotlight-label">Next live date</span>
                           <strong>{event.nextOccurrenceLabel}</strong>
                         </div>
+                      </div>
+                      <p>{event.summary}</p>
+                      <div className="event-card-meta">
                         <div className="spotlight-note">
                           <span className="spotlight-label">Price and collection</span>
                           <strong>
@@ -318,15 +336,15 @@ export default async function OrganizerPage({ params }) {
               These photos help show the pace, setting, and hosting style behind the events before
               you choose a date.
             </p>
-            <OrganizerPhotoGallery photos={galleryPhotos} />
+            <PublicPhotoGallery items={galleryPhotos} title={`${organizer.name} gallery`} />
           </article>
         </section>
 
         <section className="section-grid" id="venue">
           <article className="panel section-card">
             <div className="section-kicker">Venue and contact</div>
-            <h3>{organizer.venue.title}</h3>
-            <p>{organizer.venue.detail}</p>
+            <h3>{organizer.venue.title || "Venue details coming soon"}</h3>
+            {organizer.venue.detail ? <p>{organizer.venue.detail}</p> : null}
             {venues.length > 1 ? (
               <div className="timeline">
                 {venues.map((venue, index) => (

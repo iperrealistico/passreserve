@@ -39,6 +39,19 @@ export default async function PlatformSettingsPage({ searchParams }) {
             type="email"
           />
         </label>
+        <div className="field field-span checkbox-field">
+          <span>Guest reminders</span>
+          <label className="checkbox-row">
+            <input
+              defaultChecked={siteSettings.registrationRemindersEnabled}
+              name="registrationRemindersEnabled"
+              type="checkbox"
+            />
+            <span>
+              Let organizers send reminder emails before an event date starts.
+            </span>
+          </label>
+        </div>
         <label className="field field-span">
           <span>Site description</span>
           <textarea defaultValue={siteSettings.siteDescription} name="siteDescription" rows="3" />

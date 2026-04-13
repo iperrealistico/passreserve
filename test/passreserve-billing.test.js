@@ -60,7 +60,9 @@ describe("passreserve billing gates", () => {
     });
 
     const state = await loadPersistentState();
-    const created = state.occurrences.find((entry) => entry.startsAt === "2026-06-05T18:30:00+02:00");
+    const created = state.occurrences.find(
+      (entry) => entry.venueTitle === "Venue Hall" && entry.capacity === 20
+    );
 
     expect(created?.published).toBe(true);
     expect(created?.prepayPercentage).toBe(0);
@@ -96,7 +98,9 @@ describe("passreserve billing gates", () => {
     });
 
     const state = await loadPersistentState();
-    const created = state.occurrences.find((entry) => entry.startsAt === "2026-06-10T18:30:00+02:00");
+    const created = state.occurrences.find(
+      (entry) => entry.venueTitle === "Summit Hall" && entry.capacity === 25
+    );
 
     expect(created?.published).toBe(true);
     expect(created?.prepayPercentage).toBe(100);

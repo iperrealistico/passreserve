@@ -88,6 +88,16 @@ describe("passreserve Stripe webhooks", () => {
     const capture = state.payments.find(
       (entry) => entry.registrationId === registration.id && entry.kind === "CAPTURE"
     );
+    const confirmationEmail = state.emailDeliveries.find(
+      (entry) =>
+        entry.registrationId === registration.id &&
+        entry.templateSlug === "attendee_registration_confirmed"
+    );
+    const paymentEmail = state.emailDeliveries.find(
+      (entry) =>
+        entry.registrationId === registration.id &&
+        entry.templateSlug === "attendee_payment_received"
+    );
 
     expect(registration.status).toBe("CONFIRMED_PARTIALLY_PAID");
     expect(capture).toMatchObject({
@@ -96,5 +106,7 @@ describe("passreserve Stripe webhooks", () => {
       stripeSessionId: "cs_live",
       stripePaymentIntentId: "pi_live"
     });
+    expect(confirmationEmail).toBeTruthy();
+    expect(paymentEmail).toBeTruthy();
   });
 });

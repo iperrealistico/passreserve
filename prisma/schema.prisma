@@ -112,6 +112,9 @@ model Organizer {
   imageUrl           String?
   minAdvanceHours    Int                           @default(0)
   maxAdvanceDays     Int?
+  registrationRemindersEnabled Boolean            @default(false)
+  registrationReminderLeadHours Int               @default(24)
+  registrationReminderNote     String             @default("")
   stripeAccountId    String?                        @unique
   stripeConnectionStatus OrganizerStripeConnectionStatus @default(NOT_CONNECTED)
   stripeDetailsSubmitted Boolean                    @default(false)
@@ -354,12 +357,33 @@ model SiteSettings {
   platformEmail         String
   launchInbox           String
   adminNotifications    String
+  registrationRemindersEnabled Boolean @default(false)
   supportResponseTarget String
   stripeCurrencyDefault String   @default("eur")
   deploymentRule        String   @default("")
   customDomain          String?
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+}
+
+model EmailDeliveryLog {
+  id              String   @id @default(cuid())
+  recipientEmail  String
+  templateSlug    String
+  organizerId     String?
+  registrationId  String?
+  occurrenceId    String?
+  dedupeKey       String   @unique
+  deliveryStatus  String   @default("SENT")
+  providerMessageId String?
+  sentAt          DateTime @default(now())
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  @@index([templateSlug, sentAt])
+  @@index([organizerId, sentAt])
+  @@index([registrationId, sentAt])
+  @@index([occurrenceId, sentAt])
 }
 
 model AboutPageContent {

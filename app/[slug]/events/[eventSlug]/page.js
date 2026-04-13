@@ -4,13 +4,26 @@ import { notFound } from "next/navigation";
 import {
   getRegistrationExperienceBySlugs
 } from "../../../../lib/passreserve-service.js";
-import { PublicVisual } from "../../../../lib/passreserve-visual-component.js";
+import { PassreserveMedia } from "../../../../lib/passreserve-media.js";
 import { routeVisuals, selectCatalogVisualId } from "../../../../lib/passreserve-visuals.js";
+import { PublicPhotoGallery } from "../../public-photo-gallery.js";
 
 export const dynamic = "force-dynamic";
 
 function toList(value) {
   return Array.isArray(value) ? value : [];
+}
+
+function getCoverMedia(items, fallbackVisualId, seed) {
+  const firstMedia = toList(items)[0];
+
+  if (firstMedia?.imageUrl || firstMedia?.visualId) {
+    return firstMedia;
+  }
+
+  return {
+    visualId: fallbackVisualId || selectCatalogVisualId(seed, 0)
+  };
 }
 
 export async function generateMetadata({ params }) {
@@ -49,17 +62,13 @@ export default async function EventDetailPage({ params }) {
     ? gallery
     : [
         {
-          title: "Event overview",
-          caption: "A closer look at the setting while new dates are being prepared.",
           visualId: selectCatalogVisualId(`${organizer.slug}:${event.slug}`, 0)
         },
         {
-          title: "On-site feel",
-          caption: "The organizer can add more event photos as the public page is completed.",
           visualId: selectCatalogVisualId(`${organizer.slug}:${event.slug}`, 1)
         }
       ];
-  const coverVisualId = galleryPhotos[0]?.visualId || routeVisuals.eventHero;
+  const coverMedia = getCoverMedia(galleryPhotos, routeVisuals.eventHero, `${organizer.slug}:${event.slug}`);
 
   return (
     <main className="shell">
@@ -81,8 +90,8 @@ export default async function EventDetailPage({ params }) {
           </nav>
         </header>
 
-        <section className="hero detail-hero">
-          <article className="panel hero-copy public-hero-copy">
+        <section className="detail-hero">
+          <article className="panel detail-hero-copy">
             <div className="breadcrumb">
               <Link href={organizer.organizerHref}>{organizer.name}</Link>
               <span>/</span>
@@ -92,13 +101,13 @@ export default async function EventDetailPage({ params }) {
               {organizer.city}, {organizer.region}
             </div>
             <h1>{event.title}</h1>
-            <p>{event.summary}</p>
-            <p>{event.description}</p>
+            {event.summary ? <p>{event.summary}</p> : null}
             <div className="pill-list">
               <span className="pill">{event.category}</span>
               <span className="pill">{event.duration}</span>
               <span className="pill">{event.collectionLabel}</span>
             </div>
+            {event.description ? <p>{event.description}</p> : null}
             <div className="hero-actions">
               {nextOccurrence?.registrationHref ? (
                 <Link className="button button-primary" href={nextOccurrence.registrationHref}>
@@ -118,64 +127,54 @@ export default async function EventDetailPage({ params }) {
             </div>
           </article>
 
-          <aside className="panel hero-aside public-hero-aside">
-            <PublicVisual
-              className="aside-visual"
-              sizes="(min-width: 1024px) 28vw, 100vw"
-              visualId={routeVisuals.eventHero}
+          <aside className="panel detail-hero-summary">
+            <PassreserveMedia
+              alt={`${event.title} cover`}
+              className="detail-hero-image"
+              media={coverMedia}
+              priority
+              sizes="(min-width: 1024px) 44vw, 100vw"
             />
-            <div className="status-block">
-              <div className="status-label">Hosted by {organizer.name}</div>
-              <h2>{nextOccurrence?.label || "Dates coming soon"}</h2>
-              <p>
-                Everything you need is kept on one page: what this event is, who it is for,
-                what it includes, how much it costs, and which dates are open right now.
-              </p>
-            </div>
+            <div className="detail-hero-summary-body">
+              <div className="detail-hero-summary-head">
+                <div className="section-kicker">Hosted by {organizer.name}</div>
+                <h2>{nextOccurrence?.label || "Dates coming soon"}</h2>
+                <p>{nextOccurrence?.time || "The first public date will appear here once it is published."}</p>
+              </div>
 
-            <div className="metrics">
-              <div className="metric">
-                <div className="metric-label">Price</div>
-                <div className="metric-value">{event.priceLabel}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Online collection</div>
-                <div className="metric-value">{event.collectionLabel}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Occurrences</div>
-                <div className="metric-value">{occurrences.length}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Next capacity</div>
-                <div className="metric-value">{nextOccurrence?.capacityLabel || "No dates yet"}</div>
-              </div>
-            </div>
-
-            <div className="status-list">
-              <div className="status-item">
-                <span className="status-index">1</span>
-                <div>
-                  <strong>Audience fit</strong>
-                  {event.audience}
+              <div className="detail-hero-stat-grid">
+                <div className="detail-hero-stat">
+                  <span className="metric-label">Price</span>
+                  <strong>{event.priceLabel}</strong>
+                </div>
+                <div className="detail-hero-stat">
+                  <span className="metric-label">Payment</span>
+                  <strong>{event.collectionLabel}</strong>
+                </div>
+                <div className="detail-hero-stat">
+                  <span className="metric-label">Capacity</span>
+                  <strong>{nextOccurrence?.capacityLabel || "No dates yet"}</strong>
+                </div>
+                <div className="detail-hero-stat">
+                  <span className="metric-label">Venue</span>
+                  <strong>{event.venueDetail || organizer.venue.title}</strong>
                 </div>
               </div>
-              <div className="status-item">
-                <span className="status-index">2</span>
-                <div>
-                  <strong>Venue detail</strong>
-                  {event.venueDetail}
+
+              <div className="detail-hero-notes">
+                <div className="detail-hero-note">
+                  <span className="spotlight-label">Audience fit</span>
+                  <p>{event.audience || "The organizer can use this area to explain who the event is best for before registration opens."}</p>
                 </div>
-              </div>
-              <div className="status-item">
-                <span className="status-index">3</span>
-                <div>
-                  <strong>Payment</strong>
-                  {nextOccurrence
-                    ? event.prepayPercentage > 0
-                      ? `${nextOccurrence.time}, with the online amount collected after confirmation`
-                      : `${nextOccurrence.time}, with payment handled at the event`
-                    : "Publish a first date to show the live time and payment plan here."}
+                <div className="detail-hero-note">
+                  <span className="spotlight-label">Payment plan</span>
+                  <p>
+                    {nextOccurrence
+                      ? event.prepayPercentage > 0
+                        ? `${nextOccurrence.time}, with the online amount collected after confirmation`
+                        : `${nextOccurrence.time}, with payment handled at the event`
+                      : "Publish a first date to show the live time and payment plan here."}
+                  </p>
                 </div>
               </div>
             </div>
@@ -246,30 +245,30 @@ export default async function EventDetailPage({ params }) {
               {occurrences.length ? (
                 occurrences.map((occurrence) => (
                   <article className="occurrence-card" key={occurrence.id}>
-                    <PublicVisual
-                      className="occurrence-cover"
-                      sizes="(min-width: 1024px) 24vw, 100vw"
-                      visualId={coverVisualId}
-                    >
-                      <span className="route-label">{occurrence.capacityLabel}</span>
-                      <strong>{occurrence.label}</strong>
-                      <span>{occurrence.time}</span>
-                    </PublicVisual>
                     <div className="occurrence-body">
-                      <h3>{event.title}</h3>
-                      <p>{occurrence.note}</p>
-                      <div className="event-card-meta">
-                        <div className="spotlight-note">
-                          <span className="spotlight-label">Ticket total</span>
+                      <div className="occurrence-head">
+                        <div>
+                          <div className="page-place">{occurrence.label}</div>
+                          <h3>{occurrence.time}</h3>
+                        </div>
+                        <div className="occurrence-price">
+                          <span className="metric-label">Ticket total</span>
                           <strong>{event.priceLabel}</strong>
                         </div>
+                      </div>
+                      <p>{occurrence.note}</p>
+                      <div className="event-card-meta occurrence-meta">
                         <div className="spotlight-note">
-                          <span className="spotlight-label">Online collection</span>
+                          <span className="spotlight-label">Capacity</span>
+                          <strong>{occurrence.capacity.statusLabel}</strong>
+                        </div>
+                        <div className="spotlight-note">
+                          <span className="spotlight-label">Payment</span>
                           <strong>{event.collectionLabel}</strong>
                         </div>
                         <div className="spotlight-note">
-                          <span className="spotlight-label">Capacity state</span>
-                          <strong>{occurrence.capacity.statusLabel}</strong>
+                          <span className="spotlight-label">Venue</span>
+                          <strong>{event.venueDetail || organizer.venue.title}</strong>
                         </div>
                       </div>
                       <div className="hero-actions event-card-actions">
@@ -312,23 +311,9 @@ export default async function EventDetailPage({ params }) {
           </article>
 
           <article className="panel section-card">
-            <div className="section-kicker">Visual feel</div>
-            <h3>Get a sense of the event before you commit.</h3>
-            <div className="photo-grid">
-              {galleryPhotos.map((photo) => (
-                <PublicVisual
-                  alt={`${photo.title}. ${photo.caption}`}
-                  className="photo-card"
-                  key={photo.title}
-                  sizes="(min-width: 1024px) 20vw, 100vw"
-                  visualId={photo.visualId}
-                >
-                  <span className="route-label">Event photo</span>
-                  <strong>{photo.title}</strong>
-                  <p>{photo.caption}</p>
-                </PublicVisual>
-              ))}
-            </div>
+            <div className="section-kicker">Gallery</div>
+            <h3>See the setting before you commit.</h3>
+            <PublicPhotoGallery items={galleryPhotos} title={`${event.title} gallery`} />
           </article>
         </section>
 

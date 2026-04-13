@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getOrganizerSettingsAdmin } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
+import { REGISTRATION_REMINDER_LEAD_OPTIONS } from "../../../../lib/passreserve-email-delivery.js";
 import {
   organizerChangePasswordAction,
   saveOrganizerSettingsAction
@@ -95,6 +96,10 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
         <section className="panel section-card admin-section">
           <div className="section-kicker">General</div>
           <h3>Public profile and registration rules</h3>
+          <p>
+            Update the public organizer profile, booking window, and the guest reminder settings
+            tied to your registrations.
+          </p>
           <form action={saveOrganizerSettingsAction} className="registration-field-grid">
             <input name="slug" type="hidden" value={slug} />
             <label className="field">
@@ -177,6 +182,61 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                 name="maxAdvanceDays"
                 type="number"
               />
+            </label>
+            <div className="field field-span">
+              <span className="metric-label">Reminder availability</span>
+              <strong>
+                {data.siteSettings?.registrationRemindersEnabled
+                  ? "Platform reminders are enabled."
+                  : "Platform reminders are currently turned off."}
+              </strong>
+              <small className="field-hint">
+                Organizers can only send reminder emails when the platform team has enabled them.
+              </small>
+            </div>
+            <div className="field field-span checkbox-field">
+              <span>Guest reminder email</span>
+              <label className="checkbox-row">
+                <input
+                  defaultChecked={
+                    Boolean(data.siteSettings?.registrationRemindersEnabled) &&
+                    Boolean(data.organizer.registrationRemindersEnabled)
+                  }
+                  disabled={!data.siteSettings?.registrationRemindersEnabled}
+                  name="registrationRemindersEnabled"
+                  type="checkbox"
+                />
+                <span>
+                  Send a reminder email before each confirmed event date.
+                </span>
+              </label>
+            </div>
+            <label className="field">
+              <span>Reminder timing</span>
+              <select
+                defaultValue={String(data.organizer.registrationReminderLeadHours || 24)}
+                disabled={!data.siteSettings?.registrationRemindersEnabled}
+                name="registrationReminderLeadHours"
+              >
+                {REGISTRATION_REMINDER_LEAD_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="field field-span">
+              <span>Reminder note</span>
+              <textarea
+                defaultValue={data.organizer.registrationReminderNote || ""}
+                disabled={!data.siteSettings?.registrationRemindersEnabled}
+                name="registrationReminderNote"
+                rows="4"
+              />
+              <small className="field-hint">
+                This note is added below the platform reminder template, so you can share arrival
+                tips, parking guidance, or what guests should bring.
+              </small>
             </label>
             <div className="field field-span">
               <span className="metric-label">Current primary admin</span>

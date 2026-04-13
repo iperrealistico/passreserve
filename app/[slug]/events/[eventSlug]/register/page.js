@@ -23,7 +23,7 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `Register for ${entry.event.title}`,
-    description: `Create a registration hold for ${entry.event.title} on Passreserve.com.`
+    description: `Start the registration for ${entry.event.title} and confirm it from the email link Passreserve.com sends next.`
   };
 }
 
@@ -73,8 +73,8 @@ export default async function RegistrationPage({ params, searchParams }) {
             </div>
             <h1>Start your registration.</h1>
             <p>
-              Choose a date, select the right ticket, add your contact details, and review your
-              total before you confirm anything.
+              Choose a date, select the right ticket, and add your contact details. We&apos;ll email
+              you a confirmation link before anything is finalized.
             </p>
             <div className="pill-list">
               <span className="pill">{event.collectionLabel}</span>
@@ -94,8 +94,8 @@ export default async function RegistrationPage({ params, searchParams }) {
               <div className="status-label">Selected date</div>
               <h2>{selectedOccurrence?.label}</h2>
               <p>
-                Your place is only reserved after you confirm on the next screen. If an online
-                payment is required, you&apos;ll see that split clearly before it opens.
+                Your place is only reserved after you confirm from the email we send next. If an
+                online payment is required, you&apos;ll still see that split clearly before checkout opens.
               </p>
             </div>
 
@@ -129,8 +129,9 @@ export default async function RegistrationPage({ params, searchParams }) {
               <div className="status-item">
                 <span className="status-index">2</span>
                 <div>
-                  <strong>Review before you commit</strong>
-                  You&apos;ll confirm your details and payment split before the registration is finalized.
+                  <strong>Confirm from your inbox</strong>
+                  We&apos;ll email you the confirmation link so you can review the details from the
+                  address you entered.
                 </div>
               </div>
               <div className="status-item">

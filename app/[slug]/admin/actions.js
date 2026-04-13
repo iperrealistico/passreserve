@@ -152,6 +152,7 @@ export async function saveOrganizerEventAction(formData) {
         highlights: value(formData, "highlights"),
         included: value(formData, "included"),
         policies: value(formData, "policies"),
+        galleryJson: value(formData, "galleryJson"),
         imageUrl: value(formData, "imageUrl")
       },
       user.userId
