@@ -5,9 +5,13 @@ import {
   getRegistrationExperienceBySlugs
 } from "../../../../lib/passreserve-service.js";
 import { PublicVisual } from "../../../../lib/passreserve-visual-component.js";
-import { routeVisuals } from "../../../../lib/passreserve-visuals.js";
+import { routeVisuals, selectCatalogVisualId } from "../../../../lib/passreserve-visuals.js";
 
 export const dynamic = "force-dynamic";
+
+function toList(value) {
+  return Array.isArray(value) ? value : [];
+}
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;
@@ -34,6 +38,28 @@ export default async function EventDetailPage({ params }) {
   }
 
   const { organizer, event } = entry;
+  const nextOccurrence = event.nextOccurrence;
+  const occurrences = toList(event.occurrences);
+  const highlights = toList(event.highlights);
+  const included = toList(event.included);
+  const policies = toList(event.policies);
+  const faqItems = toList(event.faq);
+  const gallery = toList(event.gallery);
+  const galleryPhotos = gallery.length
+    ? gallery
+    : [
+        {
+          title: "Event overview",
+          caption: "A closer look at the setting while new dates are being prepared.",
+          visualId: selectCatalogVisualId(`${organizer.slug}:${event.slug}`, 0)
+        },
+        {
+          title: "On-site feel",
+          caption: "The organizer can add more event photos as the public page is completed.",
+          visualId: selectCatalogVisualId(`${organizer.slug}:${event.slug}`, 1)
+        }
+      ];
+  const coverVisualId = galleryPhotos[0]?.visualId || routeVisuals.eventHero;
 
   return (
     <main className="shell">
@@ -74,9 +100,15 @@ export default async function EventDetailPage({ params }) {
               <span className="pill">{event.collectionLabel}</span>
             </div>
             <div className="hero-actions">
-              <Link className="button button-primary" href={event.nextOccurrence.registrationHref}>
-                Register for the next date
-              </Link>
+              {nextOccurrence?.registrationHref ? (
+                <Link className="button button-primary" href={nextOccurrence.registrationHref}>
+                  Register for the next date
+                </Link>
+              ) : (
+                <a className="button button-primary" href="#occurrences">
+                  Check upcoming dates
+                </a>
+              )}
               <a className="button button-secondary" href={event.interestHref}>
                 Email the organizer
               </a>
@@ -94,7 +126,7 @@ export default async function EventDetailPage({ params }) {
             />
             <div className="status-block">
               <div className="status-label">Hosted by {organizer.name}</div>
-              <h2>{event.nextOccurrence.label}</h2>
+              <h2>{nextOccurrence?.label || "Dates coming soon"}</h2>
               <p>
                 Everything you need is kept on one page: what this event is, who it is for,
                 what it includes, how much it costs, and which dates are open right now.
@@ -112,11 +144,11 @@ export default async function EventDetailPage({ params }) {
               </div>
               <div className="metric">
                 <div className="metric-label">Occurrences</div>
-                <div className="metric-value">{event.occurrences.length}</div>
+                <div className="metric-value">{occurrences.length}</div>
               </div>
               <div className="metric">
                 <div className="metric-label">Next capacity</div>
-                <div className="metric-value">{event.nextOccurrence.capacityLabel}</div>
+                <div className="metric-value">{nextOccurrence?.capacityLabel || "No dates yet"}</div>
               </div>
             </div>
 
@@ -139,9 +171,11 @@ export default async function EventDetailPage({ params }) {
                 <span className="status-index">3</span>
                 <div>
                   <strong>Payment</strong>
-                  {event.prepayPercentage > 0
-                    ? `${event.nextOccurrence.time}, with the online amount collected after confirmation`
-                    : `${event.nextOccurrence.time}, with payment handled at the event`}
+                  {nextOccurrence
+                    ? event.prepayPercentage > 0
+                      ? `${nextOccurrence.time}, with the online amount collected after confirmation`
+                      : `${nextOccurrence.time}, with payment handled at the event`
+                    : "Publish a first date to show the live time and payment plan here."}
                 </div>
               </div>
             </div>
@@ -156,11 +190,15 @@ export default async function EventDetailPage({ params }) {
               Use this section to understand the feel of the event before you compare dates.
             </p>
             <div className="policy-list">
-              {event.highlights.map((highlight) => (
-                <div className="policy-item" key={highlight}>
-                  {highlight}
-                </div>
-              ))}
+              {highlights.length ? (
+                highlights.map((highlight) => (
+                  <div className="policy-item" key={highlight}>
+                    {highlight}
+                  </div>
+                ))
+              ) : (
+                <div className="policy-item">Key event highlights will appear here as the organizer finishes the public page.</div>
+              )}
             </div>
           </article>
 
@@ -205,45 +243,52 @@ export default async function EventDetailPage({ params }) {
               sign up without guessing what is still open.
             </p>
             <div className="occurrence-list">
-              {event.occurrences.map((occurrence) => (
-                <article className="occurrence-card" key={occurrence.id}>
-                  <PublicVisual
-                    className="occurrence-cover"
-                    sizes="(min-width: 1024px) 24vw, 100vw"
-                    visualId={event.gallery[0].visualId}
-                  >
-                    <span className="route-label">{occurrence.capacityLabel}</span>
-                    <strong>{occurrence.label}</strong>
-                    <span>{occurrence.time}</span>
-                  </PublicVisual>
-                  <div className="occurrence-body">
-                    <h3>{event.title}</h3>
-                    <p>{occurrence.note}</p>
-                    <div className="event-card-meta">
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Ticket total</span>
-                        <strong>{event.priceLabel}</strong>
+              {occurrences.length ? (
+                occurrences.map((occurrence) => (
+                  <article className="occurrence-card" key={occurrence.id}>
+                    <PublicVisual
+                      className="occurrence-cover"
+                      sizes="(min-width: 1024px) 24vw, 100vw"
+                      visualId={coverVisualId}
+                    >
+                      <span className="route-label">{occurrence.capacityLabel}</span>
+                      <strong>{occurrence.label}</strong>
+                      <span>{occurrence.time}</span>
+                    </PublicVisual>
+                    <div className="occurrence-body">
+                      <h3>{event.title}</h3>
+                      <p>{occurrence.note}</p>
+                      <div className="event-card-meta">
+                        <div className="spotlight-note">
+                          <span className="spotlight-label">Ticket total</span>
+                          <strong>{event.priceLabel}</strong>
+                        </div>
+                        <div className="spotlight-note">
+                          <span className="spotlight-label">Online collection</span>
+                          <strong>{event.collectionLabel}</strong>
+                        </div>
+                        <div className="spotlight-note">
+                          <span className="spotlight-label">Capacity state</span>
+                          <strong>{occurrence.capacity.statusLabel}</strong>
+                        </div>
                       </div>
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Online collection</span>
-                        <strong>{event.collectionLabel}</strong>
-                      </div>
-                      <div className="spotlight-note">
-                        <span className="spotlight-label">Capacity state</span>
-                        <strong>{occurrence.capacity.statusLabel}</strong>
+                      <div className="hero-actions event-card-actions">
+                        <Link className="button button-primary" href={occurrence.registrationHref}>
+                          Register for this date
+                        </Link>
+                        <Link className="button button-secondary" href={organizer.organizerHref}>
+                          View host page
+                        </Link>
                       </div>
                     </div>
-                    <div className="hero-actions event-card-actions">
-                      <Link className="button button-primary" href={occurrence.registrationHref}>
-                        Register for this date
-                      </Link>
-                      <Link className="button button-secondary" href={organizer.organizerHref}>
-                        View host page
-                      </Link>
-                    </div>
-                  </div>
+                  </article>
+                ))
+              ) : (
+                <article className="search-empty">
+                  <h3>No public dates are open yet.</h3>
+                  <p>The event page is live, and the organizer can publish the first bookable date from the host dashboard.</p>
                 </article>
-              ))}
+              )}
             </div>
           </article>
         </section>
@@ -254,11 +299,15 @@ export default async function EventDetailPage({ params }) {
             <h3>{organizer.venue.title}</h3>
             <p>{event.venueDetail}</p>
             <div className="policy-list">
-              {event.included.map((item) => (
-                <div className="policy-item" key={item}>
-                  {item}
-                </div>
-              ))}
+              {included.length ? (
+                included.map((item) => (
+                  <div className="policy-item" key={item}>
+                    {item}
+                  </div>
+                ))
+              ) : (
+                <div className="policy-item">Included items and on-site details will appear here once the organizer finishes the event setup.</div>
+              )}
             </div>
           </article>
 
@@ -266,7 +315,7 @@ export default async function EventDetailPage({ params }) {
             <div className="section-kicker">Visual feel</div>
             <h3>Get a sense of the event before you commit.</h3>
             <div className="photo-grid">
-              {event.gallery.map((photo) => (
+              {galleryPhotos.map((photo) => (
                 <PublicVisual
                   alt={`${photo.title}. ${photo.caption}`}
                   className="photo-card"
@@ -288,11 +337,15 @@ export default async function EventDetailPage({ params }) {
             <div className="section-kicker">Policies</div>
             <h3>Important details before you register.</h3>
             <div className="policy-list">
-              {event.policies.map((policy) => (
-                <div className="policy-item" key={policy}>
-                  {policy}
-                </div>
-              ))}
+              {policies.length ? (
+                policies.map((policy) => (
+                  <div className="policy-item" key={policy}>
+                    {policy}
+                  </div>
+                ))
+              ) : (
+                <div className="policy-item">Policies will be published here before registration opens for the first date.</div>
+              )}
             </div>
           </article>
 
@@ -300,12 +353,19 @@ export default async function EventDetailPage({ params }) {
             <div className="section-kicker">Attendee FAQ</div>
             <h3>Common questions before signup.</h3>
             <div className="faq-list">
-              {event.faq.map((item) => (
-                <article className="faq-item" key={item.question}>
-                  <strong>{item.question}</strong>
-                  <p>{item.answer}</p>
+              {faqItems.length ? (
+                faqItems.map((item) => (
+                  <article className="faq-item" key={item.question}>
+                    <strong>{item.question}</strong>
+                    <p>{item.answer}</p>
+                  </article>
+                ))
+              ) : (
+                <article className="faq-item">
+                  <strong>When will more attendee details be available?</strong>
+                  <p>The organizer can add event-specific answers here as the public registration page is completed.</p>
                 </article>
-              ))}
+              )}
             </div>
           </article>
         </section>
@@ -320,9 +380,15 @@ export default async function EventDetailPage({ params }) {
             </p>
           </div>
           <div className="hero-actions cta-actions">
-            <Link className="button button-primary" href={event.nextOccurrence.registrationHref}>
-              Register now
-            </Link>
+            {nextOccurrence?.registrationHref ? (
+              <Link className="button button-primary" href={nextOccurrence.registrationHref}>
+                Register now
+              </Link>
+            ) : (
+              <a className="button button-primary" href="#occurrences">
+                See when dates go live
+              </a>
+            )}
             <a className="button button-secondary" href={event.interestHref}>
               Email the organizer
             </a>

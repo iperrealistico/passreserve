@@ -5,13 +5,17 @@ import {
   getOrganizerPage
 } from "../../lib/passreserve-service.js";
 import { PublicVisual } from "../../lib/passreserve-visual-component.js";
-import { routeVisuals } from "../../lib/passreserve-visuals.js";
+import { routeVisuals, selectCatalogVisualId } from "../../lib/passreserve-visuals.js";
 import { OrganizerPhotoGallery } from "./organizer-photo-gallery.js";
 
 export const dynamic = "force-dynamic";
 
 function buildRegistrationHref(slug, eventSlug, occurrenceId) {
   return `/${slug}/events/${eventSlug}/register?occurrence=${occurrenceId}`;
+}
+
+function toList(value) {
+  return Array.isArray(value) ? value : [];
 }
 
 export async function generateMetadata({ params }) {
@@ -44,9 +48,27 @@ export default async function OrganizerPage({ params }) {
     notFound();
   }
 
-  const galleryPhotos = organizer.photoStory.map((photo, index) => ({
+  const photoStory = toList(organizer.photoStory);
+  const themeTags = toList(organizer.themeTags);
+  const events = toList(organizer.events);
+  const agenda = toList(organizer.agenda);
+  const venues = toList(organizer.venues);
+  const policies = toList(organizer.policies);
+  const faqItems = toList(organizer.faq);
+  const galleryPhotos = (photoStory.length
+    ? photoStory
+    : [
+        {
+          title: "Venue overview",
+          caption: "See the setting before the first public date is announced."
+        },
+        {
+          title: "Arrival details",
+          caption: "Preview the place, meeting point, and hosting style before you choose a date."
+        }
+      ]).map((photo, index) => ({
     ...photo,
-    visualId: galleryVisualIds[index % galleryVisualIds.length]
+    visualId: photo.visualId || galleryVisualIds[index % galleryVisualIds.length]
   }));
 
   return (
@@ -79,7 +101,7 @@ export default async function OrganizerPage({ params }) {
             <p>{organizer.tagline}</p>
             <p>{organizer.description}</p>
             <div className="pill-list">
-              {organizer.themeTags.map((tag) => (
+              {themeTags.map((tag) => (
                 <span className="pill" key={tag}>
                   {tag}
                 </span>
@@ -119,7 +141,7 @@ export default async function OrganizerPage({ params }) {
             <div className="metrics">
               <div className="metric">
                 <div className="metric-label">Event types</div>
-                <div className="metric-value">{organizer.events.length}</div>
+                <div className="metric-value">{events.length}</div>
               </div>
               <div className="metric">
                 <div className="metric-label">Upcoming dates</div>
@@ -170,16 +192,22 @@ export default async function OrganizerPage({ params }) {
               options without losing the personality of the host.
             </p>
             <div className="event-lineup">
-              {organizer.events.length ? (
-                organizer.events.map((event) => (
+              {events.length ? (
+                events.map((event, index) => {
+                  const nextOccurrence = event.nextOccurrence;
+                  const eventVisualId =
+                    event.gallery?.[0]?.visualId ||
+                    selectCatalogVisualId(`${organizer.slug}:${event.slug}`, index);
+
+                  return (
                   <article className="event-card" key={event.slug}>
                     <PublicVisual
                       className="event-card-cover"
                       sizes="(min-width: 1024px) 24vw, 100vw"
-                      visualId={event.gallery[0].visualId}
+                      visualId={eventVisualId}
                     >
                       <span className="route-label">{event.category}</span>
-                      <strong>{event.nextOccurrence.label}</strong>
+                      <strong>{nextOccurrence?.label || "No upcoming dates yet"}</strong>
                       <span>{event.collectionLabel}</span>
                     </PublicVisual>
                     <div className="event-card-body">
@@ -198,7 +226,7 @@ export default async function OrganizerPage({ params }) {
                         </div>
                       </div>
                       <div className="pill-list">
-                        {event.highlights.slice(0, 3).map((highlight) => (
+                        {toList(event.highlights).slice(0, 3).map((highlight) => (
                           <span className="pill" key={highlight}>
                             {highlight}
                           </span>
@@ -208,20 +236,23 @@ export default async function OrganizerPage({ params }) {
                         <Link className="button button-primary" href={event.detailHref}>
                           Open event page
                         </Link>
-                        <Link
-                          className="button button-secondary"
-                          href={buildRegistrationHref(
-                            organizer.slug,
-                            event.slug,
-                            event.nextOccurrence.id
-                          )}
-                        >
-                          Start registration
-                        </Link>
+                        {nextOccurrence?.id ? (
+                          <Link
+                            className="button button-secondary"
+                            href={buildRegistrationHref(organizer.slug, event.slug, nextOccurrence.id)}
+                          >
+                            Start registration
+                          </Link>
+                        ) : (
+                          <a className="button button-secondary" href="#dates">
+                            Watch for dates
+                          </a>
+                        )}
                       </div>
                     </div>
                   </article>
-                ))
+                  );
+                })
               ) : (
                 <article className="search-empty">
                   <h3>This organizer has not published a public event yet.</h3>
@@ -241,8 +272,8 @@ export default async function OrganizerPage({ params }) {
               list straight into the date that works for you.
             </p>
             <div className="agenda-list">
-              {organizer.agenda.length ? (
-                organizer.agenda.map((occurrence) => (
+              {agenda.length ? (
+                agenda.map((occurrence) => (
                   <article className="agenda-item" key={occurrence.id}>
                     <div className="agenda-head">
                       <div>
@@ -296,9 +327,9 @@ export default async function OrganizerPage({ params }) {
             <div className="section-kicker">Venue and contact</div>
             <h3>{organizer.venue.title}</h3>
             <p>{organizer.venue.detail}</p>
-            {organizer.venues.length > 1 ? (
+            {venues.length > 1 ? (
               <div className="timeline">
-                {organizer.venues.map((venue, index) => (
+                {venues.map((venue, index) => (
                   <div className="timeline-step" key={`${venue.title}-${index}`}>
                     <strong>{venue.title || `Venue ${index + 1}`}</strong>
                     {venue.detail ? <span>{venue.detail}</span> : null}
@@ -338,11 +369,15 @@ export default async function OrganizerPage({ params }) {
             <div className="section-kicker">Before you book</div>
             <h3>Know the basics before you choose a date.</h3>
             <div className="policy-list">
-              {organizer.policies.map((policy) => (
-                <div className="policy-item" key={policy}>
-                  {policy}
-                </div>
-              ))}
+              {policies.length ? (
+                policies.map((policy) => (
+                  <div className="policy-item" key={policy}>
+                    {policy}
+                  </div>
+                ))
+              ) : (
+                <div className="policy-item">The organizer will add practical booking details here before registrations open.</div>
+              )}
             </div>
           </article>
         </section>
@@ -352,12 +387,19 @@ export default async function OrganizerPage({ params }) {
             <div className="section-kicker">FAQ</div>
             <h3>Common questions, answered before registration.</h3>
             <div className="faq-list">
-              {organizer.faq.map((item) => (
-                <article className="faq-item" key={item.question}>
-                  <strong>{item.question}</strong>
-                  <p>{item.answer}</p>
+              {faqItems.length ? (
+                faqItems.map((item) => (
+                  <article className="faq-item" key={item.question}>
+                    <strong>{item.question}</strong>
+                    <p>{item.answer}</p>
+                  </article>
+                ))
+              ) : (
+                <article className="faq-item">
+                  <strong>When will more attendee details appear?</strong>
+                  <p>This organizer page is live now, and more answers will appear here as public dates and event details are finalized.</p>
                 </article>
-              ))}
+              )}
             </div>
           </article>
         </section>

@@ -29,6 +29,10 @@ function value(formData, key) {
   return String(formData.get(key) || "").trim();
 }
 
+function checked(formData, key) {
+  return formData.get(key) === "on";
+}
+
 function withEventFilter(path, eventFilter = "") {
   if (!eventFilter) {
     return path;
@@ -122,9 +126,10 @@ export async function organizerResetPasswordAction(formData) {
 export async function saveOrganizerEventAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
+  let savedEvent;
 
   try {
-    const savedEvent = await saveOrganizerEvent(
+    savedEvent = await saveOrganizerEvent(
       slug,
       {
         id: value(formData, "id"),
@@ -151,13 +156,13 @@ export async function saveOrganizerEventAction(formData) {
       },
       user.userId
     );
-
-    if (savedEvent?.id) {
-      redirect(`/${slug}/admin/events?message=saved&edit=${encodeURIComponent(savedEvent.id)}#event-form`);
-    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "The event could not be saved.";
     redirect(`/${slug}/admin/events?error=${encodeURIComponent(message)}`);
+  }
+
+  if (savedEvent?.id) {
+    redirect(`/${slug}/admin/events?message=saved&edit=${encodeURIComponent(savedEvent.id)}#event-form`);
   }
 
   redirect(`/${slug}/admin/events?message=saved`);
@@ -190,9 +195,10 @@ export async function saveOrganizerOccurrenceAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
   const eventFilter = value(formData, "eventFilter");
+  let savedOccurrence;
 
   try {
-    const savedOccurrence = await saveOrganizerOccurrence(
+    savedOccurrence = await saveOrganizerOccurrence(
       slug,
       {
         id: value(formData, "id"),
@@ -210,20 +216,20 @@ export async function saveOrganizerOccurrenceAction(formData) {
       },
       user.userId
     );
-
-    if (savedOccurrence?.id) {
-      redirect(
-        withEventFilter(
-          `/${slug}/admin/occurrences?message=saved&edit=${encodeURIComponent(savedOccurrence.id)}#date-form`,
-          eventFilter
-        )
-      );
-    }
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "The occurrence could not be saved.";
 
     redirect(withEventFilter(`/${slug}/admin/occurrences?error=${encodeURIComponent(message)}`, eventFilter));
+  }
+
+  if (savedOccurrence?.id) {
+    redirect(
+      withEventFilter(
+        `/${slug}/admin/occurrences?message=saved&edit=${encodeURIComponent(savedOccurrence.id)}#date-form`,
+        eventFilter
+      )
+    );
   }
 }
 
@@ -302,7 +308,10 @@ export async function saveOrganizerSettingsAction(formData) {
       adminEmail: value(formData, "adminEmail"),
       adminName: value(formData, "adminName"),
       minAdvanceHours: value(formData, "minAdvanceHours"),
-      maxAdvanceDays: value(formData, "maxAdvanceDays")
+      maxAdvanceDays: value(formData, "maxAdvanceDays"),
+      registrationRemindersEnabled: checked(formData, "registrationRemindersEnabled"),
+      registrationReminderLeadHours: value(formData, "registrationReminderLeadHours"),
+      registrationReminderNote: value(formData, "registrationReminderNote")
     },
     user.userId
   );
