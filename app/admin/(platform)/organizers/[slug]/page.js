@@ -6,6 +6,7 @@ import {
   deleteOrganizerAction,
   openOrganizerDashboardAction,
   sendOrganizerResetFromPlatformAction,
+  setOrganizerPasswordFromPlatformAction,
   suspendOrganizerAction,
   updateOrganizerBillingAction
 } from "../../../actions.js";
@@ -29,6 +30,11 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
       {query.message === "reset-sent" ? (
         <div className="registration-message registration-message-success">
           Organizer reset email generated successfully.
+        </div>
+      ) : null}
+      {query.message === "password-updated" ? (
+        <div className="registration-message registration-message-success">
+          Organizer password updated successfully.
         </div>
       ) : null}
       {query.message === "status-updated" ? (
@@ -166,12 +172,32 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
                 <strong>{admin.name}</strong>
                 <span>{admin.email}</span>
                 <span>{admin.isPrimary ? "Primary admin" : "Organizer admin"}</span>
-                <form action={sendOrganizerResetFromPlatformAction}>
+                <div className="hero-actions">
+                  <form action={sendOrganizerResetFromPlatformAction}>
+                    <input name="slug" type="hidden" value={slug} />
+                    <input name="email" type="hidden" value={admin.email} />
+                    <button className="button button-secondary" type="submit">
+                      Send reset link
+                    </button>
+                  </form>
+                </div>
+                <form action={setOrganizerPasswordFromPlatformAction} className="registration-panel-stack">
                   <input name="slug" type="hidden" value={slug} />
-                  <input name="email" type="hidden" value={admin.email} />
-                  <button className="button button-secondary" type="submit">
-                    Send reset link
-                  </button>
+                  <input name="adminUserId" type="hidden" value={admin.id} />
+                  <label className="field">
+                    <span>Set new password directly</span>
+                    <input
+                      minLength="8"
+                      name="newPassword"
+                      placeholder="At least 8 characters"
+                      type="password"
+                    />
+                  </label>
+                  <div className="hero-actions">
+                    <button className="button button-primary" type="submit">
+                      Update password
+                    </button>
+                  </div>
                 </form>
               </div>
             ))}

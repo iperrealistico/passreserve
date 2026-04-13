@@ -8,6 +8,7 @@ import {
   deleteOrganizerFromPlatform,
   getOrganizerImpersonationTarget,
   markAdminLogin,
+  setOrganizerAdminPasswordFromPlatform,
   suspendOrganizerFromPlatform,
   updateOrganizerBillingSettings,
   updateAboutPage,
@@ -181,6 +182,25 @@ export async function sendOrganizerResetFromPlatformAction(formData) {
 
   await requestOrganizerPasswordReset(slug, email, getBaseUrl());
   redirect(`/admin/organizers/${slug}?message=reset-sent`);
+}
+
+export async function setOrganizerPasswordFromPlatformAction(formData) {
+  const user = await requirePlatformAdminSession();
+  const slug = value(formData, "slug");
+  const adminUserId = value(formData, "adminUserId");
+  const nextPassword = value(formData, "newPassword");
+  const result = await setOrganizerAdminPasswordFromPlatform(
+    slug,
+    adminUserId,
+    nextPassword,
+    user.userId
+  );
+
+  if (!result.ok) {
+    redirect(`/admin/organizers/${slug}?error=${encodeURIComponent(result.message)}`);
+  }
+
+  redirect(`/admin/organizers/${slug}?message=password-updated`);
 }
 
 export async function openOrganizerDashboardAction(formData) {
