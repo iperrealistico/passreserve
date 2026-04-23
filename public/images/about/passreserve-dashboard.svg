@@ -1,0 +1,48 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1000" rx="48" fill="#F7F6F2"/>
+  <rect x="86" y="86" width="1428" height="828" rx="36" fill="#FFFFFF" stroke="#E7E2D7" stroke-width="4"/>
+  <rect x="138" y="138" width="1324" height="92" rx="28" fill="#F3F1EA" stroke="#E5E1D6" stroke-width="3"/>
+  <text x="184" y="193" fill="#2C2A24" font-family="Arial, sans-serif" font-size="32" font-weight="700">Organizer admin</text>
+  <text x="512" y="193" fill="#6A655B" font-family="Arial, sans-serif" font-size="22">Today</text>
+  <text x="622" y="193" fill="#6A655B" font-family="Arial, sans-serif" font-size="22">Calendar</text>
+  <text x="760" y="193" fill="#6A655B" font-family="Arial, sans-serif" font-size="22">Events</text>
+  <rect x="870" y="156" width="160" height="48" rx="24" fill="#244231"/>
+  <text x="904" y="187" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="22" font-weight="700">Registrations</text>
+  <text x="1074" y="193" fill="#6A655B" font-family="Arial, sans-serif" font-size="22">Billing</text>
+  <text x="1178" y="193" fill="#6A655B" font-family="Arial, sans-serif" font-size="22">Settings</text>
+
+  <rect x="138" y="272" width="290" height="158" rx="28" fill="#ECF5EF" stroke="#D6E7DE" stroke-width="3"/>
+  <text x="174" y="320" fill="#73917F" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">TODAY</text>
+  <text x="174" y="378" fill="#244231" font-family="Arial, sans-serif" font-size="52" font-weight="700">18</text>
+  <text x="174" y="412" fill="#244231" font-family="Arial, sans-serif" font-size="26">confirmed registrations</text>
+
+  <rect x="456" y="272" width="290" height="158" rx="28" fill="#FFF4E8" stroke="#F0DDC3" stroke-width="3"/>
+  <text x="492" y="320" fill="#A7793D" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">DIETARY</text>
+  <text x="492" y="378" fill="#8E5D1E" font-family="Arial, sans-serif" font-size="52" font-weight="700">6</text>
+  <text x="492" y="412" fill="#8E5D1E" font-family="Arial, sans-serif" font-size="26">participants flagged</text>
+
+  <rect x="774" y="272" width="290" height="158" rx="28" fill="#EEF4FF" stroke="#D7E2F4" stroke-width="3"/>
+  <text x="810" y="320" fill="#5E79A2" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">PAYMENTS</text>
+  <text x="810" y="378" fill="#234A85" font-family="Arial, sans-serif" font-size="52" font-weight="700">4</text>
+  <text x="810" y="412" fill="#234A85" font-family="Arial, sans-serif" font-size="26">need follow-up</text>
+
+  <rect x="1092" y="272" width="370" height="158" rx="28" fill="#244231"/>
+  <text x="1128" y="320" fill="#BFD4C8" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">WINDOWS</text>
+  <text x="1128" y="378" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="42" font-weight="700">Sales close automatically</text>
+
+  <rect x="138" y="470" width="1324" height="364" rx="30" fill="#FBFAF7" stroke="#E5DED2" stroke-width="3"/>
+  <text x="180" y="534" fill="#8A8377" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">REGISTRATION QUEUE</text>
+  <rect x="180" y="576" width="1240" height="74" rx="24" fill="#FFFFFF" stroke="#E0DBCF" stroke-width="3"/>
+  <text x="216" y="621" fill="#2C2A24" font-family="Arial, sans-serif" font-size="26" font-weight="700">Marta Bianchi</text>
+  <rect x="566" y="594" width="148" height="38" rx="19" fill="#ECF5EF"/>
+  <text x="596" y="619" fill="#244231" font-family="Arial, sans-serif" font-size="18" font-weight="700">Gluten free</text>
+  <rect x="734" y="594" width="122" height="38" rx="19" fill="#FFF4E8"/>
+  <text x="766" y="619" fill="#8E5D1E" font-family="Arial, sans-serif" font-size="18" font-weight="700">No nuts</text>
+  <rect x="1198" y="590" width="178" height="46" rx="23" fill="#244231"/>
+  <text x="1246" y="620" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="20" font-weight="700">Confirmed</text>
+
+  <rect x="180" y="676" width="1240" height="74" rx="24" fill="#FFFFFF" stroke="#E0DBCF" stroke-width="3"/>
+  <text x="216" y="721" fill="#2C2A24" font-family="Arial, sans-serif" font-size="26" font-weight="700">Luca Rossi</text>
+  <rect x="1198" y="690" width="178" height="46" rx="23" fill="#EEF4FF"/>
+  <text x="1242" y="720" fill="#234A85" font-family="Arial, sans-serif" font-size="20" font-weight="700">Deposit due</text>
+</svg>

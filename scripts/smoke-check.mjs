@@ -162,9 +162,9 @@ async function main() {
     const aboutPage = await fetchHtml(baseUrl, "/about");
     assert(aboutPage.response.status === 200, "About page should return 200.");
     assert(
-      aboutPage.text.includes("A calmer way to publish and operate events.") ||
-        aboutPage.text.includes("A calmer way to publish and operate events"),
-      "About page should render the new long-form about experience."
+      aboutPage.text.includes("The event registration system built for local organizers.") &&
+        aboutPage.text.includes("What is Passreserve?"),
+      "About page should render the MTB Reserve-inspired long-form about experience."
     );
 
     const organizerPage = await fetchHtml(baseUrl, "/alpine-trail-lab");
@@ -321,8 +321,9 @@ async function main() {
     const platformLogin = await fetchHtml(baseUrl, "/admin/login");
     assert(platformLogin.response.status === 200, "Team login should return 200.");
     assert(
-      platformLogin.text.includes("Sign in to manage organizers, content, and operational checks."),
-      "Team login should render the protected platform sign-in copy."
+      platformLogin.text.includes("Admin sign in") &&
+        platformLogin.text.includes("Send reset link"),
+      "Team login should render the simplified platform sign-in page."
     );
     assertNoInternalCopy(platformLogin.text, "Team login page");
 
@@ -339,7 +340,7 @@ async function main() {
     const platformOverview = await fetchHtml(baseUrl, "/admin");
     assert(platformOverview.response.status === 200, "Team dashboard should return 200.");
     assert(
-      platformOverview.text.includes("Sign in to manage organizers, content, and operational checks."),
+      platformOverview.text.includes("Admin sign in"),
       "Protected platform routes should redirect unauthenticated visitors to sign-in."
     );
     assertNoInternalCopy(platformOverview.text, "Team dashboard");
@@ -347,7 +348,7 @@ async function main() {
     const platformOrganizerDetail = await fetchHtml(baseUrl, "/admin/organizers/alpine-trail-lab");
     assert(platformOrganizerDetail.response.status === 200, "Host detail page should return 200.");
     assert(
-      platformOrganizerDetail.text.includes("Sign in to manage organizers, content, and operational checks."),
+      platformOrganizerDetail.text.includes("Admin sign in"),
       "Protected organizer detail routes should redirect unauthenticated visitors to sign-in."
     );
     assertNoInternalCopy(platformOrganizerDetail.text, "Host detail page");
@@ -377,7 +378,7 @@ async function main() {
     const emailsPage = await fetchHtml(baseUrl, "/admin/emails");
     assert(emailsPage.response.status === 200, "Platform emails page should return 200.");
     assert(
-      emailsPage.text.includes("Sign in to manage organizers, content, and operational checks."),
+      emailsPage.text.includes("Admin sign in"),
       "Protected platform email routes should redirect unauthenticated visitors to sign-in."
     );
     assertNoInternalCopy(emailsPage.text, "Emails page");

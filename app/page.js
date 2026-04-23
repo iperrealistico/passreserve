@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { LocaleSwitcher } from "../components/locale-switcher.js";
 import { HomeOrganizerRequestModal } from "./home-organizer-request-modal.js";
+import { PublicHeader } from "./public-header.js";
 import {
   organizerLaunchWindows,
   organizerPaymentModels
@@ -37,19 +37,7 @@ export default async function HomePage({ searchParams }) {
   return (
     <main className="shell">
       <div className="content">
-        <header className="flex flex-col gap-4 py-5 sm:flex-row sm:items-start sm:justify-between">
-          <Link className="wordmark" href="/">
-            <span className="wordmark-name">Passreserve.com</span>
-            <span className="wordmark-tag">{dictionary.home.eyebrow}</span>
-          </Link>
-          <div className="flex flex-col items-start gap-3 sm:items-end">
-            <LocaleSwitcher
-              label={dictionary.languageLabel}
-              labels={dictionary.locales}
-              locale={locale}
-            />
-          </div>
-        </header>
+        <PublicHeader currentPath="/" dictionary={dictionary} locale={locale} />
         <Notice query={query} />
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">

@@ -1,0 +1,58 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1000" rx="48" fill="#F7F6F2"/>
+  <rect x="56" y="56" width="1488" height="888" rx="36" fill="#FFFFFF" stroke="#E9E6DE" stroke-width="4"/>
+  <rect x="96" y="96" width="300" height="808" rx="28" fill="#183022"/>
+  <rect x="438" y="96" width="1066" height="116" rx="28" fill="#F3F1EA" stroke="#E5E1D8" stroke-width="3"/>
+  <rect x="486" y="132" width="312" height="44" rx="22" fill="#FFFFFF" stroke="#E1DDD3" stroke-width="3"/>
+  <rect x="832" y="132" width="144" height="44" rx="22" fill="#244231"/>
+  <rect x="1000" y="132" width="144" height="44" rx="22" fill="#FFFFFF" stroke="#DCD7CC" stroke-width="3"/>
+  <rect x="1168" y="132" width="144" height="44" rx="22" fill="#FFFFFF" stroke="#DCD7CC" stroke-width="3"/>
+  <rect x="1336" y="132" width="120" height="44" rx="22" fill="#FFFFFF" stroke="#DCD7CC" stroke-width="3"/>
+  <rect x="438" y="252" width="648" height="304" rx="32" fill="#FBFAF7" stroke="#E8E3D8" stroke-width="3"/>
+  <rect x="1118" y="252" width="386" height="304" rx="32" fill="#244231"/>
+  <rect x="438" y="588" width="458" height="276" rx="32" fill="#FFFFFF" stroke="#E8E3D8" stroke-width="3"/>
+  <rect x="928" y="588" width="576" height="276" rx="32" fill="#F3F8F5" stroke="#D8E7DE" stroke-width="3"/>
+
+  <text x="144" y="174" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="34" font-weight="700">Passreserve</text>
+  <text x="144" y="222" fill="#A8C0B1" font-family="Arial, sans-serif" font-size="18" letter-spacing="4">CALMER EVENT REGISTRATION</text>
+
+  <rect x="144" y="288" width="204" height="54" rx="27" fill="#2A4B37"/>
+  <text x="210" y="322" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="22" font-weight="700">Home</text>
+  <text x="144" y="408" fill="#DDE8E1" font-family="Arial, sans-serif" font-size="22">Events</text>
+  <text x="144" y="462" fill="#DDE8E1" font-family="Arial, sans-serif" font-size="22">About</text>
+  <text x="144" y="516" fill="#DDE8E1" font-family="Arial, sans-serif" font-size="22">Organizer access</text>
+  <rect x="144" y="736" width="204" height="116" rx="26" fill="#24382C"/>
+  <text x="172" y="784" fill="#A8C0B1" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">LIVE DATES</text>
+  <text x="172" y="824" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="28" font-weight="700">18</text>
+  <text x="238" y="824" fill="#DDE8E1" font-family="Arial, sans-serif" font-size="22">published</text>
+
+  <text x="486" y="324" fill="#2C2A24" font-family="Arial, sans-serif" font-size="54" font-weight="700">Find an event</text>
+  <text x="486" y="388" fill="#5F5A50" font-family="Arial, sans-serif" font-size="28">Calendar-first public pages and quieter admin operations.</text>
+  <rect x="486" y="438" width="234" height="56" rx="28" fill="#244231"/>
+  <text x="548" y="473" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="24" font-weight="700">Browse</text>
+  <rect x="748" y="438" width="198" height="56" rx="28" fill="#FFFFFF" stroke="#D7D1C4" stroke-width="3"/>
+  <text x="804" y="473" fill="#2C2A24" font-family="Arial, sans-serif" font-size="24" font-weight="700">About</text>
+
+  <rect x="486" y="626" width="362" height="86" rx="24" fill="#FBFAF7" stroke="#E3DDD0" stroke-width="3"/>
+  <text x="522" y="664" fill="#8E8679" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">PUBLIC ORGANIZER PAGE</text>
+  <text x="522" y="708" fill="#2C2A24" font-family="Arial, sans-serif" font-size="30" font-weight="700">Calendar. Venue. Dates.</text>
+  <rect x="486" y="736" width="164" height="76" rx="24" fill="#F2F5F3"/>
+  <text x="522" y="782" fill="#244231" font-family="Arial, sans-serif" font-size="22" font-weight="700">No noise</text>
+  <rect x="666" y="736" width="182" height="76" rx="24" fill="#F8F2E9"/>
+  <text x="702" y="782" fill="#8E5D1E" font-family="Arial, sans-serif" font-size="22" font-weight="700">Direct flow</text>
+
+  <text x="1160" y="324" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="28" font-weight="700">Today</text>
+  <rect x="1160" y="362" width="302" height="62" rx="20" fill="#2C513B"/>
+  <text x="1192" y="400" fill="#DDE8E1" font-family="Arial, sans-serif" font-size="20">12 registrations confirmed</text>
+  <rect x="1160" y="444" width="302" height="62" rx="20" fill="#2C513B"/>
+  <text x="1192" y="482" fill="#DDE8E1" font-family="Arial, sans-serif" font-size="20">4 dietary notes to review</text>
+  <rect x="968" y="636" width="248" height="84" rx="24" fill="#FFFFFF"/>
+  <text x="1004" y="675" fill="#88918A" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">REGISTRATIONS</text>
+  <text x="1004" y="715" fill="#244231" font-family="Arial, sans-serif" font-size="30" font-weight="700">Lead + attendees</text>
+  <rect x="1236" y="636" width="220" height="84" rx="24" fill="#FFFFFF"/>
+  <text x="1272" y="675" fill="#88918A" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">PAYMENTS</text>
+  <text x="1272" y="715" fill="#244231" font-family="Arial, sans-serif" font-size="30" font-weight="700">Deposits clear</text>
+  <rect x="968" y="744" width="488" height="84" rx="24" fill="#FFFFFF"/>
+  <text x="1004" y="783" fill="#88918A" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">QUESTIONNAIRE</text>
+  <text x="1004" y="823" fill="#244231" font-family="Arial, sans-serif" font-size="28" font-weight="700">Allergies, contacts, and notes in one queue</text>
+</svg>

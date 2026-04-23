@@ -26,20 +26,6 @@ export default async function EventsPage({ searchParams }) {
               <h1>{dictionary.events.title}</h1>
               <p>{dictionary.events.summary}</p>
             </div>
-            <div className="rounded-[1.75rem] border border-border bg-muted/50 p-5">
-              <div className="section-kicker">{dictionary.home.supportTitle}</div>
-              <div className="mt-4 grid gap-3">
-                <div className="text-sm text-muted-foreground">
-                  {dictionary.home.supportItems[0]}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {dictionary.home.supportItems[1]}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {dictionary.home.supportItems[2]}
-                </div>
-              </div>
-            </div>
           </div>
 
           <form action="/events" className="search-lab search-lab-compact" method="GET">

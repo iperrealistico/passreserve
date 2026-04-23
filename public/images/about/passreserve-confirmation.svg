@@ -1,0 +1,28 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1000" rx="48" fill="#F6F5F0"/>
+  <rect x="94" y="94" width="1412" height="812" rx="36" fill="#FFFFFF" stroke="#E7E2D7" stroke-width="4"/>
+  <rect x="150" y="150" width="580" height="700" rx="30" fill="#FBFAF7" stroke="#E7E2D6" stroke-width="3"/>
+  <rect x="770" y="150" width="680" height="700" rx="30" fill="#244231"/>
+
+  <text x="194" y="230" fill="#8A8377" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">EMAIL VERIFICATION</text>
+  <rect x="194" y="272" width="492" height="120" rx="26" fill="#FFFFFF" stroke="#E0DBCF" stroke-width="3"/>
+  <text x="228" y="320" fill="#2C2A24" font-family="Arial, sans-serif" font-size="28" font-weight="700">Confirm your Passreserve registration</text>
+  <text x="228" y="362" fill="#6A655B" font-family="Arial, sans-serif" font-size="22">A secure link keeps the seat reserved while the attendee reviews the details.</text>
+  <rect x="194" y="430" width="492" height="68" rx="22" fill="#ECF5EF"/>
+  <text x="228" y="472" fill="#244231" font-family="Arial, sans-serif" font-size="24" font-weight="700">1 Hold created</text>
+  <rect x="194" y="520" width="492" height="68" rx="22" fill="#FFFFFF" stroke="#E0DBCF" stroke-width="3"/>
+  <text x="228" y="562" fill="#2C2A24" font-family="Arial, sans-serif" font-size="24" font-weight="700">2 Email received</text>
+  <rect x="194" y="610" width="492" height="68" rx="22" fill="#FFFFFF" stroke="#E0DBCF" stroke-width="3"/>
+  <text x="228" y="652" fill="#2C2A24" font-family="Arial, sans-serif" font-size="24" font-weight="700">3 Details reviewed</text>
+  <rect x="194" y="700" width="492" height="68" rx="22" fill="#FFFFFF" stroke="#E0DBCF" stroke-width="3"/>
+  <text x="228" y="742" fill="#2C2A24" font-family="Arial, sans-serif" font-size="24" font-weight="700">4 Registration confirmed</text>
+
+  <text x="818" y="238" fill="#D4E4DB" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">CONFIRMED REGISTRATION</text>
+  <circle cx="1110" cy="384" r="84" fill="#ECF5EF"/>
+  <path d="M1070 384L1100 414L1152 352" stroke="#244231" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="944" y="548" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="44" font-weight="700">Registration confirmed</text>
+  <text x="926" y="602" fill="#D4E4DB" font-family="Arial, sans-serif" font-size="24">Dietary notes and attendee details are now visible to the organizer.</text>
+  <rect x="910" y="664" width="400" height="88" rx="28" fill="#2E523D"/>
+  <text x="954" y="700" fill="#BFD4C8" font-family="Arial, sans-serif" font-size="16" letter-spacing="3">REGISTRATION CODE</text>
+  <text x="954" y="736" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="34" font-weight="700">PSR-8K4LQ2</text>
+</svg>

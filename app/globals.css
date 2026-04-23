@@ -121,6 +121,10 @@
     @apply flex flex-col gap-4 border-b border-border py-5 sm:flex-row sm:items-center sm:justify-between;
   }
 
+  .topbar-actions {
+    @apply flex flex-wrap items-center gap-3;
+  }
+
   .wordmark {
     @apply flex flex-col gap-1;
   }
@@ -143,6 +147,18 @@
 
   .nav a[aria-current="page"] {
     @apply bg-primary text-primary-foreground;
+  }
+
+  .locale-switcher {
+    @apply inline-flex h-10 items-center gap-2 rounded-full border border-border bg-background px-3 text-sm text-muted-foreground;
+  }
+
+  .locale-switcher-label {
+    @apply text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground;
+  }
+
+  .locale-switcher select {
+    @apply h-8 rounded-full border-0 bg-transparent pr-6 text-sm font-medium text-foreground outline-none focus:ring-0;
   }
 
   .hero {
@@ -624,7 +640,59 @@
   }
 
   .results-page-hero {
-    @apply grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-end;
+    @apply grid gap-6 lg:items-end;
+  }
+
+  .auth-page {
+    @apply min-h-screen;
+  }
+
+  .auth-content {
+    @apply flex min-h-screen items-center justify-center py-8;
+  }
+
+  .auth-grid {
+    @apply grid w-full max-w-4xl gap-6 lg:grid-cols-[minmax(0,1fr)_360px];
+  }
+
+  .auth-card {
+    @apply p-6 sm:p-8;
+  }
+
+  .auth-card-secondary {
+    @apply bg-muted/30;
+  }
+
+  .auth-head {
+    @apply flex flex-col gap-3;
+  }
+
+  .not-found-shell,
+  .empty-state {
+    @apply flex min-h-[70vh] items-center justify-center;
+  }
+
+  .not-found-card,
+  .empty-card {
+    @apply mx-auto flex w-full max-w-3xl flex-col items-center rounded-[2rem] p-8 text-center sm:p-12;
+  }
+
+  .not-found-display {
+    @apply font-heading text-7xl font-semibold leading-none text-primary/15 sm:text-8xl;
+  }
+
+  .not-found-card h1,
+  .empty-card h1 {
+    @apply mt-4 text-3xl font-semibold tracking-tight sm:text-5xl;
+  }
+
+  .not-found-card p,
+  .empty-card p {
+    @apply mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg;
+  }
+
+  .not-found-actions {
+    @apply mt-8 justify-center;
   }
 
   .search-lab {

@@ -24,8 +24,8 @@ export function LocaleSwitcher({ locale = "en", label = "Language", labels = {} 
   }
 
   return (
-    <label className="field min-w-[8rem]">
-      <span>{label}</span>
+    <label className="locale-switcher">
+      <span className="locale-switcher-label">{label}</span>
       <select onChange={(event) => handleLocaleChange(event.target.value)} value={locale}>
         {SUPPORTED_LOCALES.map((entry) => (
           <option key={entry} value={entry}>
