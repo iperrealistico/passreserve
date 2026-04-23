@@ -1,0 +1,16 @@
+.DS_Store
+.git
+.gitignore
+.next
+.playwright-cli
+.runtime-data
+coverage
+documents-local
+manifests
+mtb-reserve-full-directory.zip
+node_modules
+patch-notes
+playwright-report
+test-results
+unpacked
+*.log
