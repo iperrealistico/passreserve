@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { LocaleSwitcher } from "../../../components/locale-switcher.js";
+import { TopNav } from "../../../components/top-nav.js";
+import { getTranslations } from "../../../lib/passreserve-i18n.js";
 import {
   getOrganizerShell
 } from "../../../lib/passreserve-admin-service.js";
@@ -10,6 +13,7 @@ import { organizerLogoutAction, returnToPlatformDashboardAction } from "./action
 export default async function OrganizerAdminLayout({ children, params }) {
   const { slug } = await params;
   const shell = await getOrganizerShell(slug);
+  const { locale, dictionary } = await getTranslations();
 
   if (!shell) {
     notFound();
@@ -25,42 +29,42 @@ export default async function OrganizerAdminLayout({ children, params }) {
 
   const navigation = [
     {
-      label: "Dashboard",
+      label: dictionary.admin.today,
       href: organizer.dashboardHref,
       hint: "See the overall queue, next dates, and open follow-up."
     },
     {
-      label: "Calendar",
+      label: dictionary.admin.calendar,
       href: organizer.calendarHref,
       hint: "See scheduled dates in date order across your events."
     },
     {
-      label: "Registrations",
+      label: dictionary.admin.registrations,
       href: organizer.registrationsHref,
       hint: "Track attendee status, online payments, and balances still due at the venue."
     },
     {
-      label: "Billing",
+      label: dictionary.admin.billing,
       href: organizer.billingHref,
       hint: "Connect Stripe and review how online checkout is configured."
     },
     {
-      label: "Settings",
+      label: dictionary.admin.settings,
       href: organizer.settingsHref,
       hint: "Edit your host details, venue information, and admin profile."
     },
     {
-      label: "Events",
+      label: dictionary.admin.events,
       href: organizer.eventsHref,
       hint: "Manage event pages, copy, pricing, and visibility."
     },
     {
-      label: "Dates",
+      label: dictionary.admin.dates,
       href: organizer.occurrencesHref,
       hint: "Create and publish the actual dates attached to each event."
     },
     {
-      label: "Public page",
+      label: dictionary.admin.publicPage,
       href: organizer.publicHref,
       hint: "Preview the page attendees see before they register."
     }
@@ -69,27 +73,26 @@ export default async function OrganizerAdminLayout({ children, params }) {
   return (
     <main className="shell admin-shell">
       <div className="content admin-content">
-        <header className="topbar admin-topbar">
-          <div className="wordmark">
-            <Link className="wordmark-name" href="/">
-              Passreserve.com
-            </Link>
-            <span className="wordmark-tag">
-              Host dashboard for dates, registrations, and billing
-            </span>
-          </div>
-          <nav className="nav" aria-label="Host dashboard shortcuts">
-            <Link href="/">Public home</Link>
-            <Link href={organizer.publicHref}>Host page</Link>
-            <Link href={organizer.dashboardHref}>Dashboard</Link>
-            <Link href={organizer.calendarHref}>Calendar</Link>
-            <Link href={organizer.registrationsHref}>Registrations</Link>
-            <Link href={organizer.billingHref}>Billing</Link>
-            <Link href={organizer.eventsHref}>Events</Link>
-            <Link href={organizer.occurrencesHref}>Dates</Link>
-            <Link href={organizer.settingsHref}>Settings</Link>
-          </nav>
-        </header>
+        <TopNav
+          brand={`${organizer.name} · ${dictionary.admin.organizerTitle}`}
+          brandHref={organizer.dashboardHref}
+          links={navigation}
+          rightSlot={
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <LocaleSwitcher
+                label={dictionary.admin.localeHint}
+                labels={dictionary.locales}
+                locale={locale}
+              />
+              <form action={organizerLogoutAction}>
+                <input name="slug" type="hidden" value={slug} />
+                <button className="button button-secondary" type="submit">
+                  {dictionary.admin.signOut}
+                </button>
+              </form>
+            </div>
+          }
+        />
 
         <section className="admin-layout">
           <aside className="panel admin-sidebar">
@@ -176,12 +179,6 @@ export default async function OrganizerAdminLayout({ children, params }) {
                   </button>
                 </form>
               ) : null}
-              <form action={organizerLogoutAction}>
-                <input name="slug" type="hidden" value={slug} />
-                <button className="button button-secondary" type="submit">
-                  Sign out
-                </button>
-              </form>
             </div>
           </aside>
 

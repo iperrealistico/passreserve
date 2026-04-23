@@ -1,8 +1,11 @@
 import Link from "next/link";
 
+import { LocaleSwitcher } from "../../../components/locale-switcher.js";
+import { TopNav } from "../../../components/top-nav.js";
 import {
   getPlatformOverview,
 } from "../../../lib/passreserve-admin-service.js";
+import { getTranslations } from "../../../lib/passreserve-i18n.js";
 import { platformLogoutAction } from "../actions.js";
 import { requirePlatformAdminSession } from "../../../lib/passreserve-auth.js";
 
@@ -11,34 +14,39 @@ export const dynamic = "force-dynamic";
 export default async function PlatformAdminLayout({ children }) {
   await requirePlatformAdminSession();
   const overview = await getPlatformOverview();
+  const { locale, dictionary } = await getTranslations();
   const navigation = [
-    { label: "Overview", href: "/admin", hint: "Start here for the current queue, totals, and follow-up." },
-    { label: "Organizers", href: "/admin/organizers", hint: "Approve hosts, update accounts, and open organizer dashboards." },
-    { label: "Settings", href: "/admin/settings", hint: "Manage site-wide details such as contact info and defaults." },
-    { label: "About", href: "/admin/about", hint: "Review the site story and shared public-facing copy." },
-    { label: "Emails", href: "/admin/emails", hint: "Check templates and inbox-style organizer request activity." },
-    { label: "Logs", href: "/admin/logs", hint: "Review recent system, registration, and payment activity." },
-    { label: "Health", href: "/admin/health", hint: "Check storage, email, and Stripe readiness for production." }
+    { label: dictionary.admin.overview, href: "/admin", exact: true, hint: "Start here for the current queue, totals, and follow-up." },
+    { label: dictionary.admin.organizers, href: "/admin/organizers", hint: "Approve hosts, update accounts, and open organizer dashboards." },
+    { label: dictionary.admin.settings, href: "/admin/settings", hint: "Manage site-wide details such as contact info and defaults." },
+    { label: dictionary.admin.about, href: "/admin/about", hint: "Review the site story and shared public-facing copy." },
+    { label: dictionary.admin.emails, href: "/admin/emails", hint: "Check templates and inbox-style organizer request activity." },
+    { label: dictionary.admin.logs, href: "/admin/logs", hint: "Review recent system, registration, and payment activity." },
+    { label: dictionary.admin.health, href: "/admin/health", hint: "Check storage, email, and Stripe readiness for production." }
   ];
 
   return (
     <main className="shell admin-shell">
       <div className="content admin-content">
-        <header className="topbar admin-topbar">
-          <div className="wordmark">
-            <Link className="wordmark-name" href="/">
-              Passreserve.com
-            </Link>
-            <span className="wordmark-tag">Private tools for approved Passreserve staff</span>
-          </div>
-          <nav className="nav" aria-label="Team shortcuts">
-            <Link href="/">Public home</Link>
-            <Link href="/#faq">FAQ</Link>
-            <Link href="/admin/organizers">Hosts</Link>
-            <Link href="/admin/emails">Emails</Link>
-            <Link href="/admin/health">Checks</Link>
-          </nav>
-        </header>
+        <TopNav
+          brand={`Passreserve · ${dictionary.admin.platformTitle}`}
+          brandHref="/admin"
+          links={navigation}
+          rightSlot={
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <LocaleSwitcher
+                label={dictionary.admin.localeHint}
+                labels={dictionary.locales}
+                locale={locale}
+              />
+              <form action={platformLogoutAction}>
+                <button className="button button-secondary" type="submit">
+                  {dictionary.admin.signOut}
+                </button>
+              </form>
+            </div>
+          }
+        />
 
         <section className="admin-layout">
           <aside className="panel admin-sidebar">
@@ -120,11 +128,6 @@ export default async function PlatformAdminLayout({ children }) {
               <span className="spotlight-label">Team contact</span>
               <strong>{overview.supportEmail}</strong>
               <span>{overview.summary.onlineCollectedLabel} collected online across active organizers</span>
-              <form action={platformLogoutAction}>
-                <button className="button button-secondary" type="submit">
-                  Sign out
-                </button>
-              </form>
             </div>
           </aside>
 

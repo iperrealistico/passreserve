@@ -211,6 +211,8 @@ model EventType {
   attendeeInstructions  String          @default("")
   organizerNotes        String          @default("")
   cancellationPolicy    String          @default("")
+  salesWindowStartsAt   DateTime?
+  salesWindowEndsAt     DateTime?
   highlights            Json?
   included              Json?
   policies              Json?
@@ -257,6 +259,8 @@ model EventOccurrence {
   prepayPercentage  Int
   venueTitle        String           @default("")
   note              String           @default("")
+  salesWindowStartsAt DateTime?
+  salesWindowEndsAt DateTime?
   published         Boolean          @default(false)
   imageUrl          String?
   createdAt         DateTime         @default(now())
@@ -281,6 +285,7 @@ model Registration {
   attendeeName         String
   attendeeEmail        String
   attendeePhone        String
+  registrationLocale   String             @default("en")
   quantity             Int
   currency             String             @default("EUR")
   subtotalCents        Int
@@ -303,12 +308,31 @@ model Registration {
   note                 String             @default("")
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
+  attendees            RegistrationAttendee[]
   payments             RegistrationPayment[]
   auditLogs            AuditLog[]
 
   @@index([organizerId, status])
   @@index([occurrenceId, status])
   @@index([attendeeEmail])
+}
+
+model RegistrationAttendee {
+  id             String       @id @default(cuid())
+  registrationId String
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  sortOrder      Int          @default(0)
+  firstName      String
+  lastName       String
+  address        String
+  phone          String
+  email          String
+  dietaryFlags   Json?
+  dietaryOther   String       @default("")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([registrationId, sortOrder])
 }
 
 model RegistrationPayment {

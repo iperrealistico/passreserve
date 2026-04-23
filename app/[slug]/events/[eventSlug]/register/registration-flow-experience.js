@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { calculatePaymentBreakdown } from "../../../../../lib/passreserve-domain.js";
 import { createRegistrationHoldAction } from "./actions.js";
@@ -11,28 +11,17 @@ const initialActionState = {
   fieldErrors: {}
 };
 
-const steps = [
-  {
-    id: "occurrence",
-    title: "Occurrence",
-    detail: "Pick the live date and time window."
-  },
-  {
-    id: "ticket",
-    title: "Ticket",
-    detail: "Choose the admission format and quantity."
-  },
-  {
-    id: "attendee",
-    title: "Attendee",
-    detail: "Capture the contact details used for the registration."
-  },
-  {
-    id: "review",
-    title: "Review",
-    detail: "Send the confirmation email."
-  }
-];
+function createBlankAttendee() {
+  return {
+    firstName: "",
+    lastName: "",
+    address: "",
+    phone: "",
+    email: "",
+    dietaryFlags: [],
+    dietaryOther: ""
+  };
+}
 
 function getOccurrenceById(event, occurrenceId) {
   return (
@@ -54,20 +43,26 @@ function getRegistrationQuantityOptions(occurrence) {
   const remaining = Math.max(1, occurrence?.capacity?.remaining ?? 1);
   const max = Math.min(remaining, 8);
 
-  return Array.from(
-    {
-      length: max
-    },
-    (_entry, index) => index + 1
+  return Array.from({ length: max }, (_entry, index) => index + 1);
+}
+
+function isAttendeeComplete(attendee) {
+  return Boolean(
+    attendee.firstName.trim() &&
+      attendee.lastName.trim() &&
+      attendee.address.trim() &&
+      attendee.phone.trim() &&
+      attendee.email.trim()
   );
 }
 
 export default function RegistrationFlowExperience({
-  organizer,
   event,
   initialOccurrenceId,
   initialTicketCategoryId,
-  fieldRules
+  locale,
+  dictionary,
+  dietaryOptions
 }) {
   const [actionState, formAction, isPending] = useActionState(
     createRegistrationHoldAction,
@@ -79,27 +74,25 @@ export default function RegistrationFlowExperience({
   );
   const [ticketCategoryId, setTicketCategoryId] = useState(initialTicketCategoryId ?? "");
   const [quantity, setQuantity] = useState("1");
-  const [attendeeName, setAttendeeName] = useState("");
-  const [attendeeEmail, setAttendeeEmail] = useState("");
-  const [attendeePhone, setAttendeePhone] = useState("");
+  const [attendees, setAttendees] = useState([createBlankAttendee()]);
 
   const selectedOccurrence = getOccurrenceById(event, occurrenceId);
   const selectedTicketCategory = getTicketCategory(selectedOccurrence, ticketCategoryId);
-  const quantityOptions = selectedOccurrence
-    ? getRegistrationQuantityOptions(selectedOccurrence)
-    : [];
+  const quantityOptions = selectedOccurrence ? getRegistrationQuantityOptions(selectedOccurrence) : [];
   const quote =
     selectedOccurrence && selectedTicketCategory
       ? calculatePaymentBreakdown({
           unitPrice: selectedTicketCategory.unitPrice,
           quantity: Number(quantity || 1),
-          prepayPercentage: event.prepayPercentage
+          prepayPercentage: selectedOccurrence.prepayPercentage ?? event.prepayPercentage
         })
       : null;
-  const canMoveToAttendee =
-    Boolean(selectedOccurrence) && Boolean(selectedTicketCategory);
-  const attendeeComplete =
-    attendeeName.trim() && attendeeEmail.trim() && attendeePhone.trim();
+
+  useEffect(() => {
+    if (actionState.message) {
+      toast.error(actionState.message);
+    }
+  }, [actionState.message]);
 
   useEffect(() => {
     if (!selectedOccurrence) {
@@ -123,6 +116,20 @@ export default function RegistrationFlowExperience({
     }
   }, [quantity, quantityOptions, selectedOccurrence, ticketCategoryId]);
 
+  useEffect(() => {
+    const nextQuantity = Number(quantity || 1);
+
+    setAttendees((current) => {
+      const next = current.slice(0, nextQuantity);
+
+      while (next.length < nextQuantity) {
+        next.push(createBlankAttendee());
+      }
+
+      return next;
+    });
+  }, [quantity]);
+
   function handleOccurrenceChange(nextOccurrenceId) {
     const nextOccurrence = getOccurrenceById(event, nextOccurrenceId);
 
@@ -131,40 +138,72 @@ export default function RegistrationFlowExperience({
     setQuantity("1");
   }
 
+  function updateAttendee(index, patch) {
+    setAttendees((current) =>
+      current.map((attendee, attendeeIndex) =>
+        attendeeIndex === index ? { ...attendee, ...patch } : attendee
+      )
+    );
+  }
+
+  function toggleDietaryFlag(index, flagId) {
+    setAttendees((current) =>
+      current.map((attendee, attendeeIndex) => {
+        if (attendeeIndex !== index) {
+          return attendee;
+        }
+
+        const flags = new Set(attendee.dietaryFlags);
+
+        if (flags.has(flagId)) {
+          flags.delete(flagId);
+        } else {
+          flags.add(flagId);
+        }
+
+        return {
+          ...attendee,
+          dietaryFlags: Array.from(flags)
+        };
+      })
+    );
+  }
+
+  const attendeesComplete = attendees.every(isAttendeeComplete);
+  const attendeeSummary = useMemo(
+    () =>
+      attendees.map((attendee) => ({
+        name: [attendee.firstName, attendee.lastName].filter(Boolean).join(" "),
+        email: attendee.email
+      })),
+    [attendees]
+  );
+  const serializedAttendees = JSON.stringify(attendees);
+
   return (
     <section className="registration-grid">
       <article className="panel section-card registration-flow-card">
-        <div className="section-kicker">Register</div>
-        <h2>Choose your date, ticket, and contact details.</h2>
-        <p>
-          We&apos;ll send a confirmation email before anything is finalized, including the exact
-          online amount due today if this event uses one.
-        </p>
+        <div className="section-kicker">{dictionary.registration.eyebrow}</div>
+        <h2>{dictionary.registration.title}</h2>
+        <p>{dictionary.registration.summary}</p>
 
         <div className="registration-stepper">
-          {steps.map((step, index) => (
+          {Object.entries(dictionary.registration.steps).map(([id, label], index) => (
             <button
               className={`registration-step${index === activeStep ? " registration-step-active" : ""}`}
-              key={step.id}
+              key={id}
               onClick={() => setActiveStep(index)}
               type="button"
             >
               <span className="registration-step-index">{index + 1}</span>
-              <span>
-                <strong>{step.title}</strong>
-                <small>{step.detail}</small>
-              </span>
+              <strong>{label}</strong>
             </button>
           ))}
         </div>
 
         {activeStep === 0 ? (
           <div className="registration-panel-stack">
-            <div className="section-kicker">Step 1</div>
-            <h3>Choose an occurrence</h3>
-            <p>
-              Pick the date that suits you best. Each one keeps its own timing and availability.
-            </p>
+            <h3>{dictionary.event.dates}</h3>
             <div className="registration-choice-grid">
               {event.occurrences.map((occurrence) => {
                 const isActive = occurrence.id === selectedOccurrence?.id;
@@ -184,21 +223,18 @@ export default function RegistrationFlowExperience({
                       <span className="route-label">{occurrence.capacityLabel}</span>
                     </div>
                     <p>{occurrence.note}</p>
-                    <div className="registration-choice-meta">
-                      <span>{occurrence.capacity.statusLabel}</span>
-                      <span>{occurrence.registrationStatusLabel}</span>
-                    </div>
+                    {!occurrence.registrationAvailable ? (
+                      <div className="rounded-[1.25rem] bg-muted px-4 py-3 text-sm text-muted-foreground">
+                        {occurrence.registrationGate?.reason || dictionary.registration.blocked}
+                      </div>
+                    ) : null}
                   </button>
                 );
               })}
             </div>
             <div className="hero-actions">
-              <button
-                className="button button-primary"
-                onClick={() => setActiveStep(1)}
-                type="button"
-              >
-                Continue to ticket options
+              <button className="button button-primary" onClick={() => setActiveStep(1)} type="button">
+                {dictionary.registration.continue}
               </button>
             </div>
           </div>
@@ -206,12 +242,7 @@ export default function RegistrationFlowExperience({
 
         {activeStep === 1 ? (
           <div className="registration-panel-stack">
-            <div className="section-kicker">Step 2</div>
-            <h3>Select the ticket category and quantity</h3>
-            <p>
-              Some events offer more than one ticket type. Choose the option that matches how
-              you&apos;re joining, then set the right quantity.
-            </p>
+            <h3>{dictionary.registration.steps.ticket}</h3>
             <div className="registration-choice-grid">
               {selectedOccurrence?.ticketCategories.map((category) => {
                 const isActive = category.id === selectedTicketCategory?.id;
@@ -228,22 +259,16 @@ export default function RegistrationFlowExperience({
                         <strong>{category.label}</strong>
                         <span>{category.unitPriceLabel}</span>
                       </div>
-                      <span className="route-label">
-                        {category.payment.onlineAmountLabel} online
-                      </span>
+                      <span className="route-label">{category.payment.onlineAmountLabel} online</span>
                     </div>
                     <p>{category.summary}</p>
-                    <div className="registration-choice-meta">
-                      <span>{category.payment.onlineAmountLabel} online</span>
-                      <span>{category.payment.dueAtEventLabel} due at event</span>
-                    </div>
                   </button>
                 );
               })}
             </div>
 
-            <label className="field registration-quantity-field">
-              <span>Quantity</span>
+            <label className="field">
+              <span>{dictionary.registration.quantity}</span>
               <select
                 name="quantity"
                 onChange={(changeEvent) => setQuantity(changeEvent.target.value)}
@@ -251,27 +276,18 @@ export default function RegistrationFlowExperience({
               >
                 {quantityOptions.map((value) => (
                   <option key={value} value={value}>
-                    {value} {value === 1 ? "attendee" : "attendees"}
+                    {value}
                   </option>
                 ))}
               </select>
             </label>
 
             <div className="hero-actions">
-              <button
-                className="button button-secondary"
-                onClick={() => setActiveStep(0)}
-                type="button"
-              >
-                Back to occurrences
+              <button className="button button-secondary" onClick={() => setActiveStep(0)} type="button">
+                {dictionary.registration.back}
               </button>
-              <button
-                className="button button-primary"
-                disabled={!canMoveToAttendee}
-                onClick={() => setActiveStep(2)}
-                type="button"
-              >
-                Continue to attendee details
+              <button className="button button-primary" onClick={() => setActiveStep(2)} type="button">
+                {dictionary.registration.continue}
               </button>
             </div>
           </div>
@@ -279,225 +295,192 @@ export default function RegistrationFlowExperience({
 
         {activeStep === 2 ? (
           <div className="registration-panel-stack">
-            <div className="section-kicker">Step 3</div>
-            <h3>Capture the attendee contact details</h3>
-            <p>
-              We&apos;ll use these details for the confirmation email, your registration code, and
-              any important updates from the organizer.
-            </p>
-            <div className="registration-field-grid">
-              <label className="field">
-                <span>Attendee name</span>
-                <input
-                  name="attendeeName"
-                  onChange={(changeEvent) => setAttendeeName(changeEvent.target.value)}
-                  placeholder="Giulia Bernardi"
-                  type="text"
-                  value={attendeeName}
-                />
-              </label>
+            <h3>{dictionary.registration.steps.attendees}</h3>
+            <div className="registration-choice-grid">
+              {attendees.map((attendee, index) => (
+                <article className="registration-choice registration-choice-active" key={`attendee-${index}`}>
+                  <div className="registration-choice-head">
+                    <div>
+                      <strong>
+                        {dictionary.registration.participant} {index + 1}
+                      </strong>
+                      <span>
+                        {index === 0 ? dictionary.registration.leadAttendee : dictionary.registration.participant}
+                      </span>
+                    </div>
+                  </div>
 
-              <label className="field">
-                <span>Attendee email</span>
-                <input
-                  name="attendeeEmail"
-                  onChange={(changeEvent) => setAttendeeEmail(changeEvent.target.value)}
-                  placeholder="giulia@example.com"
-                  type="email"
-                  value={attendeeEmail}
-                />
-              </label>
+                  <div className="registration-field-grid mt-4">
+                    <label className="field">
+                      <span>{dictionary.registration.firstName}</span>
+                      <input
+                        onChange={(event) => updateAttendee(index, { firstName: event.target.value })}
+                        type="text"
+                        value={attendee.firstName}
+                      />
+                    </label>
+                    <label className="field">
+                      <span>{dictionary.registration.lastName}</span>
+                      <input
+                        onChange={(event) => updateAttendee(index, { lastName: event.target.value })}
+                        type="text"
+                        value={attendee.lastName}
+                      />
+                    </label>
+                    <label className="field field-span">
+                      <span>{dictionary.registration.address}</span>
+                      <input
+                        onChange={(event) => updateAttendee(index, { address: event.target.value })}
+                        type="text"
+                        value={attendee.address}
+                      />
+                    </label>
+                    <label className="field">
+                      <span>{dictionary.registration.phone}</span>
+                      <input
+                        onChange={(event) => updateAttendee(index, { phone: event.target.value })}
+                        type="text"
+                        value={attendee.phone}
+                      />
+                    </label>
+                    <label className="field">
+                      <span>{dictionary.registration.email}</span>
+                      <input
+                        onChange={(event) => updateAttendee(index, { email: event.target.value })}
+                        type="email"
+                        value={attendee.email}
+                      />
+                    </label>
+                    <div className="field field-span">
+                      <span>{dictionary.registration.dietary}</span>
+                      <div className="flex flex-wrap gap-2">
+                        {dietaryOptions.map((option) => {
+                          const selected = attendee.dietaryFlags.includes(option.id);
 
-              <label className="field">
-                <span>Attendee phone</span>
-                <input
-                  name="attendeePhone"
-                  onChange={(changeEvent) => setAttendeePhone(changeEvent.target.value)}
-                  placeholder="+39 348 555 1122"
-                  type="tel"
-                  value={attendeePhone}
-                />
-              </label>
+                          return (
+                            <button
+                              className={`filter-pill ${selected ? "filter-pill-active" : ""}`}
+                              key={option.id}
+                              onClick={() => toggleDietaryFlag(index, option.id)}
+                              type="button"
+                            >
+                              {option.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <label className="field field-span">
+                      <span>{dictionary.registration.dietaryOther}</span>
+                      <textarea
+                        onChange={(event) => updateAttendee(index, { dietaryOther: event.target.value })}
+                        placeholder={dictionary.registration.dietaryPlaceholder}
+                        rows="2"
+                        value={attendee.dietaryOther}
+                      />
+                    </label>
+                  </div>
+                </article>
+              ))}
             </div>
 
+            {!attendeesComplete ? (
+              <div className="registration-message-error">{dictionary.registration.missingParticipants}</div>
+            ) : null}
+
             <div className="hero-actions">
-              <button
-                className="button button-secondary"
-                onClick={() => setActiveStep(1)}
-                type="button"
-              >
-                Back to ticket options
+              <button className="button button-secondary" onClick={() => setActiveStep(1)} type="button">
+                {dictionary.registration.back}
               </button>
               <button
                 className="button button-primary"
-                disabled={!attendeeComplete}
+                disabled={!attendeesComplete}
                 onClick={() => setActiveStep(3)}
                 type="button"
               >
-                Review hold summary
+                {dictionary.registration.continue}
               </button>
             </div>
           </div>
         ) : null}
 
         {activeStep === 3 ? (
-          <div className="registration-panel-stack">
-            <div className="section-kicker">Step 4</div>
-            <h3>Review everything before we email the confirmation link</h3>
-            <p>
-              This step creates a 30-minute hold and sends the confirmation email to the attendee
-              address you entered.
-            </p>
+          <form action={formAction} className="registration-panel-stack">
+            <input name="slug" type="hidden" value={event.organizerSlug} />
+            <input name="eventSlug" type="hidden" value={event.slug} />
+            <input name="occurrenceId" type="hidden" value={selectedOccurrence?.id || ""} />
+            <input name="ticketCategoryId" type="hidden" value={selectedTicketCategory?.id || ""} />
+            <input name="quantity" type="hidden" value={quantity} />
+            <input name="registrationLocale" type="hidden" value={locale} />
+            <input name="attendeesJson" type="hidden" value={serializedAttendees} />
 
-            <div className="registration-review-grid">
-              <div className="registration-review-card">
-                <span className="spotlight-label">Occurrence</span>
-                <strong>{selectedOccurrence?.label}</strong>
+            <h3>{dictionary.registration.summaryCard}</h3>
+            <div className="registration-choice-grid">
+              <div className="registration-choice registration-choice-active">
+                <div className="registration-choice-head">
+                  <strong>{dictionary.registration.steps.occurrence}</strong>
+                  <span>{selectedOccurrence?.capacityLabel}</span>
+                </div>
+                <span>{selectedOccurrence?.label}</span>
                 <span>{selectedOccurrence?.time}</span>
               </div>
-              <div className="registration-review-card">
-                <span className="spotlight-label">Ticket</span>
-                <strong>{selectedTicketCategory?.label}</strong>
-                <span>{quantity} attendees</span>
+              <div className="registration-choice registration-choice-active">
+                <div className="registration-choice-head">
+                  <strong>{dictionary.registration.steps.ticket}</strong>
+                  <span>{quantity}</span>
+                </div>
+                <span>{selectedTicketCategory?.label}</span>
+                <span>{selectedTicketCategory?.unitPriceLabel}</span>
               </div>
-              <div className="registration-review-card">
-                <span className="spotlight-label">Attendee</span>
-                <strong>{attendeeName || "Pending"}</strong>
-                <span>{attendeeEmail || "Pending"}</span>
+              <div className="registration-choice registration-choice-active">
+                <div className="registration-choice-head">
+                  <strong>{dictionary.registration.steps.attendees}</strong>
+                  <span>{attendees.length}</span>
+                </div>
+                {attendeeSummary.map((attendee, index) => (
+                  <span key={`${attendee.email}-${index}`}>
+                    {attendee.name || `${dictionary.registration.participant} ${index + 1}`} · {attendee.email || "Pending"}
+                  </span>
+                ))}
               </div>
             </div>
 
             {actionState.message ? (
-              <div className="registration-message registration-message-error">
-                <strong>Registration hold could not be created.</strong>
-                <span>{actionState.message}</span>
-              </div>
+              <div className="registration-message-error">{actionState.message}</div>
             ) : null}
 
-            <form action={formAction} className="registration-submit-form">
-              <input name="slug" type="hidden" value={organizer.slug} />
-              <input name="eventSlug" type="hidden" value={event.slug} />
-              <input name="occurrenceId" type="hidden" value={selectedOccurrence?.id ?? ""} />
-              <input
-                name="ticketCategoryId"
-                type="hidden"
-                value={selectedTicketCategory?.id ?? ""}
-              />
-              <input name="quantity" type="hidden" value={quantity} />
-              <input name="attendeeName" type="hidden" value={attendeeName} />
-              <input name="attendeeEmail" type="hidden" value={attendeeEmail} />
-              <input name="attendeePhone" type="hidden" value={attendeePhone} />
-
-              <div className="registration-error-list">
-                {Object.entries(actionState.fieldErrors || {}).map(([field, message]) => (
-                  <div className="registration-error-item" key={field}>
-                    <strong>{field}</strong>
-                    <span>{message}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="hero-actions">
-                <button
-                  className="button button-secondary"
-                  onClick={() => setActiveStep(2)}
-                  type="button"
-                >
-                  Back to attendee details
-                </button>
-                <button
-                  className="button button-primary"
-                  disabled={isPending || !quote}
-                  type="submit"
-                >
-                  {isPending ? "Sending confirmation email..." : "Email the confirmation link"}
-                </button>
-              </div>
-            </form>
-          </div>
+            <div className="hero-actions">
+              <button className="button button-secondary" onClick={() => setActiveStep(2)} type="button">
+                {dictionary.registration.back}
+              </button>
+              <button className="button button-primary" disabled={isPending} type="submit">
+                {dictionary.registration.createHold}
+              </button>
+            </div>
+          </form>
         ) : null}
       </article>
 
-      <aside className="panel section-card registration-aside">
-        <div className="section-kicker">Selected summary</div>
-        <h3>{event.title}</h3>
-        <p>Check the essentials before you move forward.</p>
-
-        <div className="registration-summary-list">
-          <div className="registration-summary-card">
-            <span className="spotlight-label">Organizer</span>
-            <strong>{organizer.name}</strong>
-            <span>
-              {organizer.city}, {organizer.region}
-            </span>
+      <aside className="panel section-card registration-summary-card">
+        <div className="section-kicker">{dictionary.registration.summaryCard}</div>
+        <h3>{selectedOccurrence?.label || dictionary.event.noDates}</h3>
+        <div className="timeline mt-6">
+          <div className="timeline-step">
+            <strong>{selectedTicketCategory?.label || "Ticket"}</strong>
+            <span>{quantity}</span>
           </div>
-          <div className="registration-summary-card">
-            <span className="spotlight-label">Occurrence</span>
-            <strong>{selectedOccurrence?.label}</strong>
-            <span>{selectedOccurrence?.capacityLabel}</span>
+          <div className="timeline-step">
+            <strong>Total</strong>
+            <span>{quote?.subtotalLabel || "Pending"}</span>
           </div>
-          <div className="registration-summary-card">
-            <span className="spotlight-label">Ticket and quantity</span>
-            <strong>{selectedTicketCategory?.label ?? "Select a ticket"}</strong>
-            <span>{quantity} attendees</span>
+          <div className="timeline-step">
+            <strong>Online</strong>
+            <span>{quote?.onlineAmountLabel || "Pending"}</span>
           </div>
-        </div>
-
-        {quote ? (
-          <div className="payment-card registration-payment-card">
-            <div className="payment-heading">
-              <strong>Payment breakdown</strong>
-              <span>
-                {selectedTicketCategory?.unitPriceLabel} each, {event.collectionLabel}
-              </span>
-            </div>
-            <div className="payment-amounts">
-              <div className="payment-amount">
-                <span className="payment-label">Ticket total</span>
-                <span className="payment-value">{quote.subtotalLabel}</span>
-              </div>
-              <div className="payment-amount">
-                <span className="payment-label">Paid online</span>
-                <span className="payment-value">{quote.onlineAmountLabel}</span>
-              </div>
-              <div className="payment-amount">
-                <span className="payment-label">Due at event</span>
-                <span className="payment-value">{quote.dueAtEventLabel}</span>
-              </div>
-            </div>
+          <div className="timeline-step">
+            <strong>Due at event</strong>
+            <span>{quote?.dueAtEventLabel || "Pending"}</span>
           </div>
-        ) : null}
-
-        <div className="section-kicker">Before you continue</div>
-        <div className="registration-rule-list">
-          {fieldRules.map((rule) => (
-            <div className="registration-rule-item" key={rule.field}>
-              <strong>{rule.label}</strong>
-              <span>{rule.detail}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="section-kicker">Good to know</div>
-        <div className="registration-rule-list">
-          <div className="registration-rule-item">
-            <strong>30-minute hold</strong>
-            <span>Your place is temporarily protected while you open the confirmation email.</span>
-          </div>
-          <div className="registration-rule-item">
-            <strong>Clear payment split</strong>
-            <span>Any amount due online is shown separately from what remains due at the event.</span>
-          </div>
-          <div className="registration-rule-item">
-            <strong>Confirmation email first</strong>
-            <span>Open the email we send next to review the hold, accept the checkboxes, and finish the registration.</span>
-          </div>
-        </div>
-
-        <div className="hero-actions">
-          <Link className="button button-secondary" href={event.detailHref}>
-            Back to event page
-          </Link>
         </div>
       </aside>
     </section>

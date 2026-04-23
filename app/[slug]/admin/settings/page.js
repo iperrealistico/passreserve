@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getOrganizerSettingsAdmin } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { REGISTRATION_REMINDER_LEAD_OPTIONS } from "../../../../lib/passreserve-email-delivery.js";
+import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import {
   organizerChangePasswordAction,
   saveOrganizerSettingsAction
@@ -33,6 +34,8 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
   const { slug } = await params;
   await requireOrganizerAdminSession(slug);
   const query = await searchParams;
+  const { locale } = await getTranslations();
+  const isItalian = locale === "it";
   const tab = typeof query.tab === "string" ? query.tab : "general";
   const data = await getOrganizerSettingsAdmin(slug);
   const successMessage = resolveMessage(typeof query.message === "string" ? query.message : "");
@@ -50,19 +53,25 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
       <section className="panel section-card admin-section">
         <div className="section-kicker">Organizer settings</div>
         <h2>{data.organizer.name}</h2>
-        <p>Manage your public organizer profile, booking rules, and account security.</p>
-        <div className="hero-actions">
+        <p>
+          {isItalian
+            ? "Gestisci profilo pubblico, regole di prenotazione e sicurezza account."
+            : "Manage your public organizer profile, booking rules, and account security."}
+        </p>
+        <div className="hero-actions" role="tablist" aria-label={isItalian ? "Tab impostazioni" : "Settings tabs"}>
           <Link
             className={`button ${tab === "general" ? "button-primary" : "button-secondary"}`}
+            aria-current={tab === "general" ? "page" : undefined}
             href={`/${slug}/admin/settings?tab=general`}
           >
-            General
+            {isItalian ? "Generale" : "General"}
           </Link>
           <Link
             className={`button ${tab === "security" ? "button-primary" : "button-secondary"}`}
+            aria-current={tab === "security" ? "page" : undefined}
             href={`/${slug}/admin/settings?tab=security`}
           >
-            Security
+            {isItalian ? "Sicurezza" : "Security"}
           </Link>
         </div>
       </section>

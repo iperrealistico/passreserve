@@ -1,13 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  getOrganizerPage
-} from "../../lib/passreserve-service.js";
+import { PublicHeader } from "../public-header.js";
+import { getTranslations } from "../../lib/passreserve-i18n.js";
+import { getOrganizerPage } from "../../lib/passreserve-service.js";
 import { PassreserveMedia } from "../../lib/passreserve-media.js";
-import { PublicVisual } from "../../lib/passreserve-visual-component.js";
-import { routeVisuals, selectCatalogVisualId } from "../../lib/passreserve-visuals.js";
-import { PublicPhotoGallery } from "./public-photo-gallery.js";
 
 export const dynamic = "force-dynamic";
 
@@ -19,276 +16,184 @@ function toList(value) {
   return Array.isArray(value) ? value : [];
 }
 
-function getCoverMedia(mediaItems, seed, index = 0) {
-  const firstMedia = toList(mediaItems)[0];
-
-  if (firstMedia?.imageUrl || firstMedia?.visualId) {
-    return firstMedia;
-  }
-
-  return {
-    visualId: selectCatalogVisualId(seed, index)
-  };
-}
-
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const organizer = await getOrganizerPage(slug);
 
   if (!organizer) {
-    return {
-      title: "Page not found"
-    };
+    return { title: "Page not found" };
   }
 
   return {
-    title: `${organizer.name} events`,
+    title: `${organizer.name} · Organizer`,
     description: organizer.description
   };
 }
 
 export default async function OrganizerPage({ params }) {
   const { slug } = await params;
+  const { locale, dictionary } = await getTranslations();
   const organizer = await getOrganizerPage(slug);
-  const galleryVisualIds = [
-    "organizer-gallery-01",
-    "organizer-gallery-02",
-    "event-gallery-01",
-    "event-gallery-02"
-  ];
 
   if (!organizer) {
     notFound();
   }
 
-  const photoStory = toList(organizer.photoStory);
-  const themeTags = toList(organizer.themeTags);
   const events = toList(organizer.events);
   const agenda = toList(organizer.agenda);
   const venues = toList(organizer.venues);
-  const policies = toList(organizer.policies);
   const faqItems = toList(organizer.faq);
-  const galleryPhotos = (photoStory.length
-    ? photoStory
-    : [
-        {
-          title: "Venue overview",
-          caption: "See the setting before the first public date is announced."
-        },
-        {
-          title: "Arrival details",
-          caption: "Preview the place, meeting point, and hosting style before you choose a date."
-        }
-      ]).map((photo, index) => ({
-    ...photo,
-    visualId: photo.visualId || galleryVisualIds[index % galleryVisualIds.length]
-  }));
+  const policies = toList(organizer.policies);
 
   return (
     <main className="shell">
       <div className="content">
-        <header className="topbar">
-          <div className="wordmark">
-            <Link className="wordmark-name" href="/">
-              Passreserve.com
-            </Link>
-            <span className="wordmark-tag">
-              Hosted events with clear dates, pricing, and venue details
-            </span>
-          </div>
-          <nav className="nav" aria-label="Host page navigation">
-            <Link href="/">Discover</Link>
-            <a href="#events">Event lineup</a>
-            <a href="#dates">Upcoming dates</a>
-            <a href="#venue">Venue and contact</a>
-            <a href="#faq">FAQ</a>
-          </nav>
-        </header>
+        <PublicHeader dictionary={dictionary} locale={locale} />
 
-        <section className="hero public-hero">
-          <article className="panel hero-copy public-hero-copy">
+        <section className="hero">
+          <article className="hero-copy">
             <div className="page-place">
               {organizer.city}, {organizer.region}
             </div>
             <h1>{organizer.name}</h1>
             {organizer.tagline ? <p>{organizer.tagline}</p> : null}
             {organizer.description ? <p>{organizer.description}</p> : null}
-            <div className="pill-list">
-              {themeTags.map((tag) => (
+            <div className="pill-list mt-6">
+              {toList(organizer.themeTags).map((tag) => (
                 <span className="pill" key={tag}>
                   {tag}
                 </span>
               ))}
             </div>
-            <div className="hero-actions">
+            <div className="hero-actions mt-6">
               {organizer.featuredEvent ? (
                 <Link className="button button-primary" href={organizer.featuredEvent.detailHref}>
-                  Open featured event
+                  {dictionary.organizer.events}
                 </Link>
               ) : null}
-              <a className="button button-secondary" href="#dates">
-                Review upcoming dates
+              <a className="button button-secondary" href="#agenda">
+                {dictionary.organizer.agenda}
               </a>
-              <a className="button button-secondary" href={organizer.interestHref}>
-                Email organizer
+              <a className="button button-secondary" href={`mailto:${organizer.contact.email}`}>
+                {dictionary.organizer.emailOrganizer}
               </a>
             </div>
           </article>
 
-          <aside className="panel hero-aside public-hero-aside">
-            <PublicVisual
-              className="aside-visual"
-              sizes="(min-width: 1024px) 28vw, 100vw"
-              visualId={routeVisuals.organizerHero}
-            />
-            <div className="status-block">
-              <div className="status-label">Featured next</div>
-              <h2>{organizer.featuredEvent?.title || "New organizer page"}</h2>
-              <p>
-                {organizer.featuredEvent
-                  ? "Start with the featured event, then browse the upcoming dates below to compare the host, the place, and the price before you register."
-                  : "This organizer page is live, and the first public event can be published as soon as the host finishes the setup."}
-              </p>
-            </div>
-
+          <aside className="hero-aside">
             <div className="metrics">
               <div className="metric">
-                <div className="metric-label">Event types</div>
+                <div className="metric-label">{dictionary.organizer.events}</div>
                 <div className="metric-value">{events.length}</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Upcoming dates</div>
+                <div className="metric-label">{dictionary.organizer.agenda}</div>
                 <div className="metric-value">{organizer.totalUpcomingOccurrences}</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Online payment</div>
+                <div className="metric-label">Default payment</div>
                 <div className="metric-value">{organizer.defaultCollectionLabel}</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Host city</div>
-                <div className="metric-value">{organizer.city}</div>
+                <div className="metric-label">{dictionary.organizer.contact}</div>
+                <div className="metric-value">{organizer.contact.email}</div>
               </div>
             </div>
 
-            <div className="status-list">
+            <div className="status-list mt-6">
               <div className="status-item">
                 <span className="status-index">1</span>
                 <div>
-                  <strong>Meeting point</strong>
-                  {organizer.venue.title || "Venue details coming soon"}
+                  <strong>{dictionary.organizer.venue}</strong>
+                  {organizer.venue.title || organizer.venue.detail || "Venue details coming soon"}
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">2</span>
                 <div>
-                  <strong>Questions</strong>
-                  {organizer.contact.email}
+                  <strong>{dictionary.organizer.contact}</strong>
+                  {organizer.contact.phone || organizer.contact.email}
                 </div>
               </div>
               <div className="status-item">
                 <span className="status-index">3</span>
                 <div>
-                  <strong>Payment style</strong>
-                  {organizer.defaultCollectionLabel}, shown clearly before anyone starts registration.
+                  <strong>Payment clarity</strong>
+                  {organizer.defaultCollectionLabel} is shown before anyone starts registration.
                 </div>
               </div>
             </div>
           </aside>
         </section>
 
-        <section className="section-grid" id="events">
+        <section className="section-grid mt-6" id="events">
           <article className="panel section-card section-span">
-            <div className="section-kicker">Event lineup</div>
-            <h2>Choose the format that feels right for you.</h2>
-            <p>
-              Each event keeps its own tone, next date, and payment approach so you can compare
-              options without losing the personality of the host.
-            </p>
-            <div className="event-lineup">
-              {events.length ? (
-                events.map((event, index) => {
-                  const nextOccurrence = event.nextOccurrence;
-                  const eventCover = getCoverMedia(
-                    event.gallery,
-                    `${organizer.slug}:${event.slug}`,
-                    index
-                  );
+            <div className="section-kicker">{dictionary.organizer.events}</div>
+            <h2>Choose the format that fits your plan.</h2>
+            <div className="result-grid">
+              {events.map((event) => {
+                const firstPhoto = toList(event.gallery).find((item) => item?.imageUrl) || null;
+                const nextAvailableOccurrence =
+                  event.occurrences.find((occurrence) => occurrence.registrationAvailable) ||
+                  event.nextOccurrence ||
+                  null;
 
-                  return (
+                return (
                   <article className="event-card" key={event.slug}>
-                    <PassreserveMedia
-                      alt={`${event.title} cover`}
-                      className="event-card-cover"
-                      imageClassName="event-card-cover-image"
-                      media={eventCover}
-                      sizes="(min-width: 1024px) 24vw, 100vw"
-                    />
+                    {firstPhoto ? (
+                      <PassreserveMedia
+                        alt={`${event.title} cover`}
+                        className="event-card-cover"
+                        imageClassName="event-card-cover-image"
+                        media={firstPhoto}
+                      />
+                    ) : null}
                     <div className="event-card-body">
                       <div className="event-card-head">
                         <div>
-                          <div className="page-place">{event.category}</div>
+                          <div className="section-kicker">{event.category}</div>
                           <h3>{event.title}</h3>
                         </div>
                         <div className="spotlight-note">
-                          <span className="spotlight-label">Next live date</span>
-                          <strong>{event.nextOccurrenceLabel}</strong>
-                        </div>
-                      </div>
-                      <p>{event.summary}</p>
-                      <div className="event-card-meta">
-                        <div className="spotlight-note">
-                          <span className="spotlight-label">Price and collection</span>
+                          <span className="spotlight-label">Payment</span>
                           <strong>
-                            {event.priceLabel} total, {event.collectionLabel}
+                            {event.priceLabel} · {event.collectionLabel}
                           </strong>
                         </div>
                       </div>
-                      <div className="pill-list">
+                      <p>{event.summary}</p>
+                      <div className="pill-list mt-4">
                         {toList(event.highlights).slice(0, 3).map((highlight) => (
                           <span className="pill" key={highlight}>
                             {highlight}
                           </span>
                         ))}
                       </div>
-                      <div className="hero-actions event-card-actions">
+                      <div className="hero-actions mt-5">
                         <Link className="button button-primary" href={event.detailHref}>
-                          Open event page
+                          {dictionary.events.openEvent}
                         </Link>
-                        {nextOccurrence?.id ? (
+                        {nextAvailableOccurrence?.id ? (
                           <Link
                             className="button button-secondary"
-                            href={buildRegistrationHref(organizer.slug, event.slug, nextOccurrence.id)}
+                            href={buildRegistrationHref(organizer.slug, event.slug, nextAvailableOccurrence.id)}
                           >
-                            Start registration
+                            {dictionary.organizer.cta}
                           </Link>
-                        ) : (
-                          <a className="button button-secondary" href="#dates">
-                            Watch for dates
-                          </a>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </article>
-                  );
-                })
-              ) : (
-                <article className="search-empty">
-                  <h3>This organizer has not published a public event yet.</h3>
-                  <p>The host page is ready, and upcoming dates can appear here once the first event is live.</p>
-                </article>
-              )}
+                );
+              })}
             </div>
           </article>
         </section>
 
-        <section className="section-grid" id="dates">
+        <section className="section-grid mt-6" id="agenda">
           <article className="panel section-card section-span">
-            <div className="section-kicker">Upcoming dates</div>
-            <h3>Browse the next available dates at a glance.</h3>
-            <p>
-              If you already know you want this organizer, you should be able to go from this
-              list straight into the date that works for you.
-            </p>
+            <div className="section-kicker">{dictionary.organizer.agenda}</div>
+            <h2>See the next dates at a glance.</h2>
             <div className="agenda-list">
               {agenda.length ? (
                 agenda.map((occurrence) => (
@@ -308,124 +213,56 @@ export default async function OrganizerPage({ params }) {
                     </div>
                     <Link
                       className="inline-link"
-                      href={buildRegistrationHref(
-                        organizer.slug,
-                        occurrence.eventSlug,
-                        occurrence.id
-                      )}
+                      href={buildRegistrationHref(organizer.slug, occurrence.eventSlug, occurrence.id)}
                     >
-                      Start registration
+                      {dictionary.organizer.cta}
                     </Link>
                   </article>
                 ))
               ) : (
                 <article className="search-empty">
                   <h3>No upcoming dates yet.</h3>
-                  <p>The organizer can publish the first dates from the host dashboard.</p>
+                  <p>The organizer can publish the first dates from the admin area.</p>
                 </article>
               )}
             </div>
           </article>
         </section>
 
-        <section className="section-grid">
-          <article className="panel section-card section-span">
-            <div className="section-kicker">Atmosphere</div>
-            <h3>Get a feel for the place before you sign up.</h3>
-            <p>
-              These photos help show the pace, setting, and hosting style behind the events before
-              you choose a date.
-            </p>
-            <PublicPhotoGallery items={galleryPhotos} title={`${organizer.name} gallery`} />
-          </article>
-        </section>
-
-        <section className="section-grid" id="venue">
+        <section className="section-grid mt-6">
           <article className="panel section-card">
-            <div className="section-kicker">Venue and contact</div>
-            <h3>{organizer.venue.title || "Venue details coming soon"}</h3>
-            {organizer.venue.detail ? <p>{organizer.venue.detail}</p> : null}
-            {venues.length > 1 ? (
-              <div className="timeline">
-                {venues.map((venue, index) => (
-                  <div className="timeline-step" key={`${venue.title}-${index}`}>
-                    <strong>{venue.title || `Venue ${index + 1}`}</strong>
-                    {venue.detail ? <span>{venue.detail}</span> : null}
-                    {venue.mapHref ? <span>{venue.mapHref}</span> : null}
-                  </div>
-                ))}
-              </div>
-            ) : null}
-            <div className="contact-list">
-              <div className="contact-item">
-                <span className="spotlight-label">Organizer email</span>
-                <strong>{organizer.contact.email}</strong>
-              </div>
-              <div className="contact-item">
-                <span className="spotlight-label">Organizer phone</span>
-                <strong>{organizer.contact.phone}</strong>
-              </div>
-            </div>
-            <div className="hero-actions">
-              {organizer.venue.mapHref ? (
-                <a
-                  className="button button-secondary"
-                  href={organizer.venue.mapHref}
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  {organizer.venue.mapLabel}
-                </a>
-              ) : null}
-              <a className="button button-secondary" href={organizer.interestHref}>
-                Ask a venue question
-              </a>
+            <div className="section-kicker">{dictionary.organizer.venue}</div>
+            <h2>{organizer.venue.title || "Venue details"}</h2>
+            <p>{organizer.venue.detail}</p>
+            <div className="timeline mt-6">
+              {venues.map((venue, index) => (
+                <div className="timeline-step" key={`${venue.title}-${index}`}>
+                  <strong>{venue.title || `Venue ${index + 1}`}</strong>
+                  <span>{venue.detail}</span>
+                </div>
+              ))}
             </div>
           </article>
 
-          <article className="panel section-card">
-            <div className="section-kicker">Before you book</div>
-            <h3>Know the basics before you choose a date.</h3>
-            <div className="policy-list">
-              {policies.length ? (
-                policies.map((policy) => (
-                  <div className="policy-item" key={policy}>
-                    {policy}
-                  </div>
-                ))
-              ) : (
-                <div className="policy-item">The organizer will add practical booking details here before registrations open.</div>
-              )}
-            </div>
-          </article>
-        </section>
-
-        <section className="section-grid" id="faq">
-          <article className="panel section-card section-span">
+          <article className="panel section-card" id="faq">
             <div className="section-kicker">FAQ</div>
-            <h3>Common questions, answered before registration.</h3>
+            <h2>Before you register</h2>
             <div className="faq-list">
-              {faqItems.length ? (
-                faqItems.map((item) => (
-                  <article className="faq-item" key={item.question}>
-                    <strong>{item.question}</strong>
-                    <p>{item.answer}</p>
-                  </article>
-                ))
-              ) : (
-                <article className="faq-item">
-                  <strong>When will more attendee details appear?</strong>
-                  <p>This organizer page is live now, and more answers will appear here as public dates and event details are finalized.</p>
+              {faqItems.map((item) => (
+                <article className="faq-item" key={item.question}>
+                  <strong>{item.question}</strong>
+                  <p>{item.answer}</p>
                 </article>
-              )}
+              ))}
+              {policies.map((policy) => (
+                <article className="faq-item" key={policy}>
+                  <strong>Policy</strong>
+                  <p>{policy}</p>
+                </article>
+              ))}
             </div>
           </article>
         </section>
-
-        <footer className="footer">
-          <span>Open an event page to compare dates, pricing, and what&apos;s included.</span>
-          <Link href="/">Return to discovery</Link>
-        </footer>
       </div>
     </main>
   );

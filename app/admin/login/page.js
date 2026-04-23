@@ -1,23 +1,30 @@
 import Link from "next/link";
 
 import { platformLoginAction, platformRequestResetAction } from "../actions.js";
-import { PublicVisual } from "../../../lib/passreserve-visual-component.js";
-import { routeVisuals } from "../../../lib/passreserve-visuals.js";
+import { getTranslations } from "../../../lib/passreserve-i18n.js";
 
 export const metadata = {
   title: "Team sign in"
 };
 
-function messageFor(value) {
+function messageFor(value, locale) {
+  const isItalian = locale === "it";
+
   switch (value) {
     case "invalid":
-      return "The email and password did not match an approved team account.";
+      return isItalian
+        ? "Email o password non corrispondono a un account team approvato."
+        : "The email and password did not match an approved team account.";
     case "reset-sent":
-      return "If that account exists, a password reset link has been generated.";
+      return isItalian
+        ? "Se l'account esiste, è stato generato un link di reset password."
+        : "If that account exists, a password reset link has been generated.";
     case "password-updated":
-      return "Password updated. You can sign in now.";
+      return isItalian
+        ? "Password aggiornata. Ora puoi accedere."
+        : "Password updated. You can sign in now.";
     case "signed-out":
-      return "You have been signed out.";
+      return isItalian ? "Sei uscito dalla sessione." : "You have been signed out.";
     default:
       return "";
   }
@@ -25,33 +32,34 @@ function messageFor(value) {
 
 export default async function PlatformAdminLoginPage({ searchParams }) {
   const query = await searchParams;
-  const error = messageFor(typeof query.error === "string" ? query.error : "");
-  const message = messageFor(typeof query.message === "string" ? query.message : "");
+  const { locale } = await getTranslations();
+  const isItalian = locale === "it";
+  const error = messageFor(typeof query.error === "string" ? query.error : "", locale);
+  const message = messageFor(typeof query.message === "string" ? query.message : "", locale);
 
   return (
     <main className="shell admin-shell">
       <div className="content">
-        <header className="topbar admin-topbar">
-          <div className="wordmark">
-            <Link className="wordmark-name" href="/">
-              Passreserve.com
-            </Link>
-            <span className="wordmark-tag">Protected platform access for approved team accounts</span>
-          </div>
-          <nav className="nav" aria-label="Platform login navigation">
-            <Link href="/">Discover</Link>
-            <Link href="/#faq">FAQ</Link>
-          </nav>
-        </header>
-
         <section className="hero detail-hero">
           <article className="panel hero-copy public-hero-copy">
-            <div className="section-kicker">Team access</div>
-            <h1>Sign in to manage organizers, content, and operational checks.</h1>
+            <div className="section-kicker">
+              {isItalian ? "Accesso piattaforma" : "Platform access"}
+            </div>
+            <h1>
+              {isItalian
+                ? "Accedi per gestire organizer, contenuti e controlli operativi."
+                : "Sign in to manage organizers, content, and operational checks."}
+            </h1>
             <p>
-              This area is protected with real team sessions. Organizer onboarding, templates,
-              settings, logs, and support views all live behind this sign-in.
+              {isItalian
+                ? "Questa area è riservata al team. Da qui gestisci onboarding organizer, contenuti condivisi, email e health checks."
+                : "This area is reserved for the team. Use it for organizer onboarding, shared content, email delivery, and health checks."}
             </p>
+            <div className="pill-list">
+              <span className="pill">{isItalian ? "Organizer" : "Organizers"}</span>
+              <span className="pill">{isItalian ? "Email" : "Emails"}</span>
+              <span className="pill">{isItalian ? "Health" : "Health"}</span>
+            </div>
             {error ? (
               <div className="registration-message registration-message-error">{error}</div>
             ) : null}
@@ -62,7 +70,7 @@ export default async function PlatformAdminLoginPage({ searchParams }) {
             <form action={platformLoginAction} className="registration-panel-stack">
               <label className="field">
                 <span>Email</span>
-                <input name="email" placeholder="mario@admin.com" type="email" />
+                <input name="email" placeholder="team@passreserve.com" type="email" />
               </label>
               <label className="field">
                 <span>Password</span>
@@ -70,24 +78,27 @@ export default async function PlatformAdminLoginPage({ searchParams }) {
               </label>
               <div className="hero-actions">
                 <button className="button button-primary" type="submit">
-                  Sign in
+                  {isItalian ? "Accedi" : "Sign in"}
                 </button>
+                <Link className="button button-secondary" href="/">
+                  {isItalian ? "Vai al sito" : "Open site"}
+                </Link>
               </div>
             </form>
           </article>
 
           <aside className="panel hero-aside public-hero-aside">
-            <PublicVisual
-              className="aside-visual"
-              sizes="(min-width: 1024px) 28vw, 100vw"
-              visualId={routeVisuals.staffLogin}
-            />
             <div className="status-block">
-              <div className="status-label">Need a reset?</div>
-              <h2>Request a fresh password link.</h2>
+              <div className="status-label">{isItalian ? "Reset password" : "Password reset"}</div>
+              <h2>
+                {isItalian
+                  ? "Genera un nuovo link di accesso in pochi secondi."
+                  : "Generate a fresh access link in a few seconds."}
+              </h2>
               <p>
-                If the account exists, Passreserve will generate a one-time reset link and send
-                or log it according to the current email configuration.
+                {isItalian
+                  ? "Se l'account esiste, Passreserve invierà o registrerà il link in base alla configurazione email corrente."
+                  : "If the account exists, Passreserve will send or log the link according to the current email configuration."}
               </p>
             </div>
 
@@ -98,12 +109,12 @@ export default async function PlatformAdminLoginPage({ searchParams }) {
                 value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
               />
               <label className="field">
-                <span>Account email</span>
-                <input name="email" placeholder="mario@admin.com" type="email" />
+                <span>{isItalian ? "Email account" : "Account email"}</span>
+                <input name="email" placeholder="team@passreserve.com" type="email" />
               </label>
               <div className="hero-actions">
                 <button className="button button-secondary" type="submit">
-                  Send reset link
+                  {isItalian ? "Invia link reset" : "Send reset link"}
                 </button>
               </div>
             </form>

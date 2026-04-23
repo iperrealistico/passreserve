@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getOrganizerOccurrencesAdmin } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
+import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import { saveOrganizerOccurrenceAction } from "../actions.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
@@ -37,7 +38,6 @@ function formatEurosInput(cents) {
   }
 
   const euros = cents / 100;
-
   return Number.isInteger(euros) ? String(euros) : euros.toFixed(2);
 }
 
@@ -45,6 +45,8 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
   const { slug } = await params;
   await requireOrganizerAdminSession(slug);
   const query = await searchParams;
+  const { locale } = await getTranslations();
+  const isItalian = locale === "it";
   const data = await getOrganizerOccurrencesAdmin(slug);
   const selectedEventFilter = typeof query.event === "string" ? query.event : "";
   const editId = typeof query.edit === "string" ? query.edit : "";
@@ -67,7 +69,7 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
     <div className="admin-page">
       {query.message ? (
         <div className="registration-message registration-message-success">
-          Date saved successfully.
+          {isItalian ? "Data salvata." : "Date saved successfully."}
         </div>
       ) : null}
       {query.error ? (
@@ -76,24 +78,60 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
 
       <OrganizerAdminPageHeader
         basePath={`/${slug}/admin/occurrences`}
-        description="A date is one scheduled instance of an event. Use this page to create, publish, cancel, or review the actual bookable dates that sit under each event."
-        eyebrow="Dates"
+        description={
+          isItalian
+            ? "Ogni data è un'istanza reale prenotabile di un evento. Qui gestisci orari, capienza, prezzo e override della finestra di vendita."
+            : "Each date is a real bookable session under an event. Use this area for timing, capacity, price, and sales-window overrides."
+        }
+        eyebrow={isItalian ? "Date" : "Dates"}
         events={data.events}
         query={query}
         selectedEvent={selectedEvent}
-        tip="If Events are the templates, Dates are the real sessions attendees can pick from. This is the place to change timing, capacity, price, and publication state for each date."
-        title={selectedEvent ? "Manage dates for one event" : "Manage scheduled dates"}
+        tip={
+          isItalian
+            ? "Se una data ha esigenze particolari, puoi sovrascrivere la finestra di vendita dell'evento e bloccare la registrazione con precisione."
+            : "If one date has special needs, override the event sales window here and block registration precisely when needed."
+        }
+        title={
+          selectedEvent
+            ? isItalian
+              ? "Gestisci le date di un singolo evento"
+              : "Manage dates for one event"
+            : isItalian
+              ? "Gestisci tutte le date programmate"
+              : "Manage all scheduled dates"
+        }
       />
 
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Date planner</div>
-        <h3>{selectedEvent ? "Current dates for this event" : "Current dates"}</h3>
+        <div className="admin-section-header">
+          <div>
+            <div className="section-kicker">{isItalian ? "Planner date" : "Date planner"}</div>
+            <h3>
+              {selectedEvent
+                ? isItalian
+                  ? "Date correnti per questo evento"
+                  : "Current dates for this event"
+                : isItalian
+                  ? "Date correnti"
+                  : "Current dates"}
+            </h3>
+          </div>
+          <div className="pill-list">
+            <span className="pill">
+              {occurrences.length} {isItalian ? "date" : "dates"}
+            </span>
+          </div>
+        </div>
+
         {!data.billing.enabled ? (
           <p className="admin-page-tip">
-            You can still publish free or pay-at-event dates now. Passreserve will stop paid dates
-            only if billing setup is still missing.
+            {isItalian
+              ? "Puoi pubblicare date gratuite o pay-at-event. Le date con pagamento online restano bloccate finché il billing non è pronto."
+              : "You can publish free or pay-at-event dates now. Dates using online payments stay blocked until billing is ready."}
           </p>
         ) : null}
+
         <div className="admin-card-grid">
           {occurrences.map((occurrence) => (
             <article
@@ -107,77 +145,136 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
                       {occurrence.status}
                     </span>
                     <span className={`admin-badge admin-badge-${occurrence.published ? "public" : "draft"}`}>
-                      {occurrence.published ? "Published" : "Draft only"}
+                      {occurrence.published
+                        ? isItalian
+                          ? "Pubblicata"
+                          : "Published"
+                        : isItalian
+                          ? "Solo draft"
+                          : "Draft only"}
                     </span>
                   </div>
                   <h4>{occurrence.eventTitle}</h4>
                   <p>{occurrence.startsAtLabel}</p>
                 </div>
               </div>
+
               <div className="admin-card-metrics">
                 <div>
-                  <span className="metric-label">Ends</span>
+                  <span className="metric-label">{isItalian ? "Fine" : "Ends"}</span>
                   <strong>{occurrence.endsAtLabel}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Seats left</span>
+                  <span className="metric-label">{isItalian ? "Posti rimasti" : "Seats left"}</span>
                   <strong>{occurrence.capacitySummary.remaining}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Capacity</span>
+                  <span className="metric-label">{isItalian ? "Capienza" : "Capacity"}</span>
                   <strong>{occurrence.capacity}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Price</span>
+                  <span className="metric-label">{isItalian ? "Prezzo" : "Price"}</span>
                   <strong>{formatEurosInput(occurrence.priceCents)} EUR</strong>
                 </div>
               </div>
+
               <div className="admin-note-list">
                 <div className="admin-note-item">
-                  <span className="spotlight-label">Collection</span>
+                  <span className="spotlight-label">{isItalian ? "Incasso" : "Collection"}</span>
                   <strong>
                     {occurrence.usesOnlinePayments
-                      ? `${occurrence.prepayPercentage}% collected online`
-                      : "Pay at the event"}
+                      ? `${occurrence.prepayPercentage}% ${
+                          isItalian ? "raccolto online" : "collected online"
+                        }`
+                      : isItalian
+                        ? "Pagamento sul posto"
+                        : "Pay at the event"}
                   </strong>
                 </div>
                 <div className="admin-note-item">
-                  <span className="spotlight-label">Venue</span>
-                  <strong>{occurrence.venueTitle || activeEvent?.venueTitle || "Use event default"}</strong>
+                  <span className="spotlight-label">{isItalian ? "Vendita da" : "Sales window start"}</span>
+                  <strong>{occurrence.salesWindowStartsAtLabel}</strong>
+                </div>
+                <div className="admin-note-item">
+                  <span className="spotlight-label">{isItalian ? "Vendita fino a" : "Sales window end"}</span>
+                  <strong>{occurrence.salesWindowEndsAtLabel}</strong>
                 </div>
               </div>
+
               <div className="hero-actions">
                 <Link
                   className="button button-primary"
                   href={`/${slug}/admin/occurrences?event=${encodeURIComponent(occurrence.eventSlug)}&edit=${encodeURIComponent(occurrence.id)}#date-form`}
                 >
-                  Edit date
+                  {isItalian ? "Modifica data" : "Edit date"}
                 </Link>
               </div>
             </article>
           ))}
+
           {occurrences.length === 0 ? (
             <div className="timeline-step">
-              <strong>No dates match this event filter yet.</strong>
-              <span>Choose another event or clear the filter to review every scheduled date.</span>
+              <strong>
+                {isItalian
+                  ? "Nessuna data corrisponde ancora a questo filtro."
+                  : "No dates match this event filter yet."}
+              </strong>
+              <span>
+                {isItalian
+                  ? "Scegli un altro evento o rimuovi il filtro per vedere tutte le date."
+                  : "Choose another event or clear the filter to review every scheduled date."}
+              </span>
             </div>
           ) : null}
         </div>
       </section>
 
       <section className="panel section-card admin-section" id="date-form">
-        <div className="section-kicker">{isEditing ? "Edit date" : "Create date"}</div>
-        <h3>{isEditing ? `${selectedOccurrence.eventTitle} date` : "Create a new date"}</h3>
+        <div className="admin-section-header">
+          <div>
+            <div className="section-kicker">
+              {isEditing
+                ? isItalian
+                  ? "Modifica data"
+                  : "Edit date"
+                : isItalian
+                  ? "Nuova data"
+                  : "Create date"}
+            </div>
+            <h3>
+              {isEditing
+                ? `${selectedOccurrence.eventTitle}`
+                : isItalian
+                  ? "Crea una nuova data"
+                  : "Create a new date"}
+            </h3>
+          </div>
+          {isEditing ? (
+            <Link
+              className="button button-secondary"
+              href={
+                selectedEvent
+                  ? `/${slug}/admin/occurrences?event=${encodeURIComponent(selectedEvent)}#date-form`
+                  : `/${slug}/admin/occurrences#date-form`
+              }
+            >
+              {isItalian ? "Nuova data" : "Create new date"}
+            </Link>
+          ) : null}
+        </div>
+
         <p className="admin-page-tip">
-          Pick the event, choose the start and end time, then set capacity and payment settings.
-          Times follow {data.organizer.timeZone}.
+          {isItalian
+            ? `Gli orari seguono ${data.organizer.timeZone}. Lascia vuota la finestra di vendita se vuoi usare quella di default dell'evento.`
+            : `Times follow ${data.organizer.timeZone}. Leave the sales window blank if you want to inherit the event default.`}
         </p>
+
         <form action={saveOrganizerOccurrenceAction} className="registration-field-grid">
           <input name="eventFilter" type="hidden" value={selectedEvent} />
           <input name="slug" type="hidden" value={slug} />
           <input name="id" type="hidden" value={selectedOccurrence?.id || ""} />
           <label className="field">
-            <span>Event</span>
+            <span>{isItalian ? "Evento" : "Event"}</span>
             <select defaultValue={defaultEventTypeId} name="eventTypeId">
               {data.events.map((event) => (
                 <option key={event.id} value={event.id}>
@@ -187,16 +284,16 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             </select>
           </label>
           <label className="field">
-            <span>Status</span>
+            <span>{isItalian ? "Stato" : "Status"}</span>
             <select defaultValue={selectedOccurrence?.status || "SCHEDULED"} name="status">
-              <option value="SCHEDULED">Scheduled</option>
+              <option value="SCHEDULED">{isItalian ? "Programmato" : "Scheduled"}</option>
               <option value="DRAFT">Draft</option>
-              <option value="CANCELLED">Cancelled</option>
-              <option value="COMPLETED">Completed</option>
+              <option value="CANCELLED">{isItalian ? "Cancellato" : "Cancelled"}</option>
+              <option value="COMPLETED">{isItalian ? "Completato" : "Completed"}</option>
             </select>
           </label>
           <label className="field">
-            <span>Starts</span>
+            <span>{isItalian ? "Inizio" : "Starts"}</span>
             <input
               defaultValue={formatDateTimeLocal(selectedOccurrence?.startsAt, data.organizer.timeZone)}
               name="startsAt"
@@ -204,7 +301,7 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>Ends</span>
+            <span>{isItalian ? "Fine" : "Ends"}</span>
             <input
               defaultValue={formatDateTimeLocal(selectedOccurrence?.endsAt, data.organizer.timeZone)}
               name="endsAt"
@@ -212,7 +309,7 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>Capacity</span>
+            <span>{isItalian ? "Capienza" : "Capacity"}</span>
             <input
               defaultValue={selectedOccurrence?.capacity ?? 12}
               min="1"
@@ -221,7 +318,7 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>Price (EUR)</span>
+            <span>{isItalian ? "Prezzo (EUR)" : "Price (EUR)"}</span>
             <input
               defaultValue={formatEurosInput(selectedOccurrence?.priceCents ?? activeEvent?.basePriceCents)}
               min="0"
@@ -231,7 +328,7 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>Prepay percentage</span>
+            <span>{isItalian ? "Percentuale prepagata" : "Prepay percentage"}</span>
             <input
               defaultValue={
                 selectedOccurrence?.prepayPercentage ?? activeEvent?.prepayPercentage ?? 0
@@ -243,7 +340,7 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>Venue title</span>
+            <span>{isItalian ? "Venue title" : "Venue title"}</span>
             <input
               defaultValue={selectedOccurrence?.venueTitle || activeEvent?.venueTitle || ""}
               name="venueTitle"
@@ -251,35 +348,57 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>Published</span>
+            <span>{isItalian ? "Pubblicazione" : "Published"}</span>
             <select
               defaultValue={selectedOccurrence ? String(Boolean(selectedOccurrence.published)) : "false"}
               name="published"
             >
-              <option value="false">Draft only</option>
-              <option value="true">Published</option>
+              <option value="false">{isItalian ? "Solo draft" : "Draft only"}</option>
+              <option value="true">{isItalian ? "Pubblicata" : "Published"}</option>
             </select>
           </label>
+          <label className="field">
+            <span>{isItalian ? "Vendita da" : "Sales open from"}</span>
+            <input
+              defaultValue={formatDateTimeLocal(selectedOccurrence?.salesWindowStartsAt, data.organizer.timeZone)}
+              name="salesWindowStartsAt"
+              type="datetime-local"
+            />
+          </label>
+          <label className="field">
+            <span>{isItalian ? "Vendita fino a" : "Sales close at"}</span>
+            <input
+              defaultValue={formatDateTimeLocal(selectedOccurrence?.salesWindowEndsAt, data.organizer.timeZone)}
+              name="salesWindowEndsAt"
+              type="datetime-local"
+            />
+          </label>
           <label className="field field-span">
-            <span>Note</span>
+            <span>{isItalian ? "Nota" : "Note"}</span>
             <textarea defaultValue={selectedOccurrence?.note || ""} name="note" rows="2" />
           </label>
           <label className="field field-span">
-            <span>Image URL</span>
+            <span>{isItalian ? "Image URL" : "Image URL"}</span>
             <input defaultValue={selectedOccurrence?.imageUrl || ""} name="imageUrl" type="url" />
           </label>
+          <div className="field field-span">
+            <span className="metric-label">{isItalian ? "Regola override" : "Override rule"}</span>
+            <strong>
+              {isItalian
+                ? "Se imposti questi campi, questa data sovrascrive la finestra vendita di default dell'evento."
+                : "If these fields are set, this date overrides the event's default sales window."}
+            </strong>
+          </div>
           <div className="hero-actions">
             <button className="button button-primary" type="submit">
-              {isEditing ? "Save changes" : "Create date"}
+              {isEditing
+                ? isItalian
+                  ? "Salva modifiche"
+                  : "Save changes"
+                : isItalian
+                  ? "Crea data"
+                  : "Create date"}
             </button>
-            {isEditing ? (
-              <Link
-                className="button button-secondary"
-                href={selectedEvent ? `/${slug}/admin/occurrences?event=${encodeURIComponent(selectedEvent)}#date-form` : `/${slug}/admin/occurrences#date-form`}
-              >
-                Create new date
-              </Link>
-            ) : null}
           </div>
         </form>
       </section>

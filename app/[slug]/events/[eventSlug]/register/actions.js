@@ -17,6 +17,20 @@ function toStringValue(formData, key) {
   return String(formData.get(key) || "");
 }
 
+function toJsonValue(formData, key) {
+  const raw = toStringValue(formData, key);
+
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
 export async function createRegistrationHoldAction(_previousState, formData) {
   const result = await createRegistrationHold({
     slug: toStringValue(formData, "slug"),
@@ -24,9 +38,8 @@ export async function createRegistrationHoldAction(_previousState, formData) {
     occurrenceId: toStringValue(formData, "occurrenceId"),
     ticketCategoryId: toStringValue(formData, "ticketCategoryId"),
     quantity: toStringValue(formData, "quantity"),
-    attendeeName: toStringValue(formData, "attendeeName"),
-    attendeeEmail: toStringValue(formData, "attendeeEmail"),
-    attendeePhone: toStringValue(formData, "attendeePhone")
+    registrationLocale: toStringValue(formData, "registrationLocale"),
+    attendees: toJsonValue(formData, "attendeesJson")
   });
 
   if (!result.ok) {

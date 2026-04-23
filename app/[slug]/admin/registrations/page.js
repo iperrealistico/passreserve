@@ -3,6 +3,7 @@ import {
   getOrganizerRegistrationsAdmin
 } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
+import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import {
   recordVenuePaymentAction,
   updateOrganizerRegistrationAction
@@ -13,6 +14,8 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
   const { slug } = await params;
   await requireOrganizerAdminSession(slug);
   const query = await searchParams;
+  const { locale } = await getTranslations();
+  const isItalian = locale === "it";
   const [data, eventsData] = await Promise.all([
     getOrganizerRegistrationsAdmin(slug),
     getOrganizerEventsAdmin(slug)
@@ -30,8 +33,12 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
       {query.message ? (
         <div className="registration-message registration-message-success">
           {query.message === "recorded"
-            ? "Venue payment recorded successfully."
-            : "Registration updated successfully."}
+            ? isItalian
+              ? "Pagamento registrato correttamente."
+              : "Venue payment recorded successfully."
+            : isItalian
+              ? "Registrazione aggiornata."
+              : "Registration updated successfully."}
         </div>
       ) : null}
       {query.error ? (
@@ -40,13 +47,28 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
 
       <OrganizerAdminPageHeader
         basePath={`/${slug}/admin/registrations`}
-        description="Use this queue to manage attendee status, review what has been paid online, and record anything collected in person at the venue."
-        eyebrow="Registrations"
+        description={
+          isItalian
+            ? "Qui gestisci stato partecipanti, pagamenti, questionario obbligatorio e restrizioni alimentari registrate per ogni persona."
+            : "Use this queue for attendee status, payments, the required questionnaire, and dietary restrictions captured for each participant."
+        }
+        eyebrow={isItalian ? "Registrazioni" : "Registrations"}
         events={eventsData.events}
         query={query}
         selectedEvent={selectedEvent}
-        tip="Keep everything in one place: attendee status, online payment history, venue balance still due, and any in-person payment you collect before or during the event."
-        title={selectedEvent ? "Registrations and payments for one event" : "Attendee and payment queue"}
+        tip={
+          isItalian
+            ? "Ogni card mostra il partecipante principale per compatibilità, ma sotto trovi il dettaglio completo di tutti i partecipanti registrati."
+            : "Each card still shows the lead attendee for compatibility, but the full participant breakdown appears underneath."}
+        title={
+          selectedEvent
+            ? isItalian
+              ? "Registrazioni di un singolo evento"
+              : "Registrations for one event"
+            : isItalian
+              ? "Coda registrazioni e pagamenti"
+              : "Registration and payment queue"
+        }
       />
 
       <section className="panel section-card admin-section">
@@ -55,6 +77,14 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
             <article className="admin-card" key={registration.id}>
               <div className="admin-card-head">
                 <div>
+                  <div className="admin-badge-row">
+                    <span className={`admin-badge admin-badge-${registration.dietary.participantsWithRestrictions > 0 ? "capacity-watch" : "public"}`}>
+                      {registration.quantityLabel}
+                    </span>
+                    <span className="admin-badge admin-badge-public">
+                      {registration.registrationLocale.toUpperCase()}
+                    </span>
+                  </div>
                   <h4>
                     {registration.registrationCode} · {registration.attendeeName}
                   </h4>
@@ -63,27 +93,68 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                   </p>
                 </div>
               </div>
+
               <div className="admin-card-metrics">
                 <div>
-                  <span className="metric-label">Status</span>
+                  <span className="metric-label">{isItalian ? "Stato" : "Status"}</span>
                   <strong>{registration.status}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Ticket</span>
+                  <span className="metric-label">{isItalian ? "Ticket" : "Ticket"}</span>
                   <strong>{registration.ticketLabel}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Online collected</span>
+                  <span className="metric-label">{isItalian ? "Incassato online" : "Online collected"}</span>
                   <strong>{registration.onlineCollectedLabel}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Collected at venue</span>
+                  <span className="metric-label">{isItalian ? "Incassato sul posto" : "Collected at venue"}</span>
                   <strong>{registration.venueCollectedLabel}</strong>
                 </div>
                 <div>
-                  <span className="metric-label">Still due at venue</span>
+                  <span className="metric-label">{isItalian ? "Ancora da incassare" : "Still due at venue"}</span>
                   <strong>{registration.dueAtEventOpenLabel}</strong>
                 </div>
+              </div>
+
+              <div className="admin-note-list">
+                <div className="admin-note-item">
+                  <span className="spotlight-label">{isItalian ? "Lead contact" : "Lead contact"}</span>
+                  <strong>{registration.attendeeEmail}</strong>
+                  <p>{registration.attendeePhone}</p>
+                </div>
+                <div className="admin-note-item">
+                  <span className="spotlight-label">
+                    {isItalian ? "Partecipanti con restrizioni" : "Participants with restrictions"}
+                  </span>
+                  <strong>{registration.dietary.participantsWithRestrictions}</strong>
+                  <p>
+                    {registration.dietary.breakdown.length
+                      ? registration.dietary.breakdown.map((item) => `${item.label} (${item.count})`).join(", ")
+                      : isItalian
+                        ? "Nessuna restrizione"
+                        : "No restrictions"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="timeline">
+                {registration.attendees.map((attendee, index) => (
+                  <div className="timeline-step" key={`${registration.id}-${attendee.email}-${index}`}>
+                    <strong>
+                      {attendee.fullName || `${isItalian ? "Partecipante" : "Participant"} ${index + 1}`}
+                    </strong>
+                    <span>{attendee.email}</span>
+                    <span>{attendee.phone}</span>
+                    <span>{attendee.address}</span>
+                    {attendee.dietaryFlagLabels.length ? (
+                      <span>{attendee.dietaryFlagLabels.join(", ")}</span>
+                    ) : (
+                      <span>{isItalian ? "Nessuna intolleranza selezionata" : "No selected intolerance"}</span>
+                    )}
+                    {attendee.dietaryOther ? <span>{attendee.dietaryOther}</span> : null}
+                  </div>
+                ))}
               </div>
 
               {registration.ledger.length > 0 ? (
@@ -100,6 +171,17 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                 </div>
               ) : null}
 
+              {registration.dietary.customNotes.length ? (
+                <div className="admin-note-list">
+                  {registration.dietary.customNotes.map((note, index) => (
+                    <div className="admin-note-item" key={`${registration.id}-dietary-${index}`}>
+                      <span className="spotlight-label">{note.attendeeName || (isItalian ? "Nota custom" : "Custom note")}</span>
+                      <strong>{note.detail}</strong>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
               {canRecordVenuePayment(registration) ? (
                 <form action={recordVenuePaymentAction} className="admin-inline-form">
                   <input name="eventFilter" type="hidden" value={selectedEvent} />
@@ -107,7 +189,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                   <input name="registrationId" type="hidden" value={registration.id} />
                   <div className="admin-inline-form-row">
                     <label className="field admin-inline-field">
-                      <span>Amount collected at venue</span>
+                      <span>{isItalian ? "Importo incassato sul posto" : "Amount collected at venue"}</span>
                       <input
                         inputMode="decimal"
                         name="amountEuros"
@@ -117,19 +199,27 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                       />
                     </label>
                     <button className="button button-primary" type="submit">
-                      Record venue payment
+                      {isItalian ? "Registra pagamento" : "Record venue payment"}
                     </button>
                   </div>
                   <p className="admin-form-hint">
-                    Enter the amount in euros, for example {(registration.dueAtEventOpenCents / 100).toFixed(2)}.
+                    {isItalian
+                      ? `Inserisci l'importo in euro, ad esempio ${(registration.dueAtEventOpenCents / 100).toFixed(2)}.`
+                      : `Enter the amount in euros, for example ${(registration.dueAtEventOpenCents / 100).toFixed(2)}.`}
                   </p>
                 </form>
               ) : registration.dueAtEventOpenCents > 0 ? (
                 <p className="admin-page-tip">
-                  Record the venue balance after this attendee is confirmed or once the event is underway.
+                  {isItalian
+                    ? "Registra il saldo sul posto dopo la conferma o quando l'evento è in corso."
+                    : "Record the venue balance after this attendee is confirmed or once the event is underway."}
                 </p>
               ) : (
-                <p className="admin-page-tip">No venue balance is left open for this registration.</p>
+                <p className="admin-page-tip">
+                  {isItalian
+                    ? "Non resta nessun saldo aperto da incassare sul posto."
+                    : "No venue balance is left open for this registration."}
+                </p>
               )}
 
               <div className="hero-actions">
@@ -147,10 +237,19 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
               </div>
             </article>
           ))}
+
           {registrations.length === 0 ? (
             <article className="admin-card">
-              <h4>No registrations match this filter.</h4>
-              <p>Choose another event or clear the filter to see the full registration queue.</p>
+              <h4>
+                {isItalian
+                  ? "Nessuna registrazione corrisponde a questo filtro."
+                  : "No registrations match this filter."}
+              </h4>
+              <p>
+                {isItalian
+                  ? "Scegli un altro evento o rimuovi il filtro per vedere l'intera coda."
+                  : "Choose another event or clear the filter to see the full queue."}
+              </p>
             </article>
           ) : null}
         </div>

@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  getRegistrationExperienceBySlugs,
-  getRegistrationFieldRules
-} from "../../../../../lib/passreserve-service.js";
-import { PublicVisual } from "../../../../../lib/passreserve-visual-component.js";
-import { routeVisuals } from "../../../../../lib/passreserve-visuals.js";
+import { PublicHeader } from "../../../../public-header.js";
+import { dietaryFlags } from "../../../../../lib/passreserve-dietary.js";
+import { getTranslations } from "../../../../../lib/passreserve-i18n.js";
+import { getRegistrationExperienceBySlugs } from "../../../../../lib/passreserve-service.js";
 import RegistrationFlowExperience from "./registration-flow-experience.js";
 
 export const dynamic = "force-dynamic";
@@ -16,20 +14,19 @@ export async function generateMetadata({ params }) {
   const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
 
   if (!entry) {
-    return {
-      title: "Registration not found"
-    };
+    return { title: "Registration not found" };
   }
 
   return {
     title: `Register for ${entry.event.title}`,
-    description: `Start the registration for ${entry.event.title} and confirm it from the email link Passreserve.com sends next.`
+    description: `Start the registration for ${entry.event.title} and complete the attendee questionnaire.`
   };
 }
 
 export default async function RegistrationPage({ params, searchParams }) {
   const { slug, eventSlug } = await params;
   const query = await searchParams;
+  const { locale, dictionary } = await getTranslations();
   const entry = await getRegistrationExperienceBySlugs(slug, eventSlug, {
     occurrenceId: typeof query.occurrence === "string" ? query.occurrence : undefined
   });
@@ -39,124 +36,68 @@ export default async function RegistrationPage({ params, searchParams }) {
   }
 
   const { organizer, event, selectedOccurrence, selectedTicketCategory } = entry;
+  const dietaryOptions = dietaryFlags.map((flag) => ({
+    id: flag.id,
+    label: flag.label[locale]
+  }));
 
   return (
     <main className="shell">
       <div className="content">
-        <header className="topbar">
-          <div className="wordmark">
-            <Link className="wordmark-name" href="/">
-              Passreserve.com
-            </Link>
-            <span className="wordmark-tag">
-              Simple registration with clear dates and payment expectations
-            </span>
-          </div>
-          <nav className="nav" aria-label="Registration navigation">
-            <Link href="/">Discover</Link>
-            <Link href={organizer.organizerHref}>Host page</Link>
-            <Link href={event.detailHref}>Event page</Link>
-          </nav>
-        </header>
+        <PublicHeader dictionary={dictionary} locale={locale} />
 
-        <section className="hero detail-hero">
-          <article className="panel hero-copy public-hero-copy">
+        <section className="hero">
+          <article className="hero-copy">
             <div className="breadcrumb">
               <Link href={organizer.organizerHref}>{organizer.name}</Link>
               <span>/</span>
               <Link href={event.detailHref}>{event.title}</Link>
               <span>/</span>
-              <span>Register</span>
+              <span>{dictionary.registration.eyebrow}</span>
             </div>
             <div className="page-place">
               {organizer.city}, {organizer.region}
             </div>
-            <h1>Start your registration.</h1>
-            <p>
-              Choose a date, select the right ticket, and add your contact details. We&apos;ll email
-              you a confirmation link before anything is finalized.
-            </p>
-            <div className="pill-list">
-              <span className="pill">{event.collectionLabel}</span>
-              <span className="pill">{event.occurrences.length} upcoming dates</span>
-              <span className="pill">{selectedOccurrence?.capacityLabel}</span>
-              <span className="pill">{selectedTicketCategory?.label}</span>
-            </div>
+            <h1>{dictionary.registration.title}</h1>
+            <p>{dictionary.registration.summary}</p>
           </article>
 
-          <aside className="panel hero-aside public-hero-aside">
-            <PublicVisual
-              className="aside-visual"
-              sizes="(min-width: 1024px) 28vw, 100vw"
-              visualId={routeVisuals.registrationStart}
-            />
-            <div className="status-block">
-              <div className="status-label">Selected date</div>
-              <h2>{selectedOccurrence?.label}</h2>
-              <p>
-                Your place is only reserved after you confirm from the email we send next. If an
-                online payment is required, you&apos;ll still see that split clearly before checkout opens.
-              </p>
-            </div>
-
+          <aside className="hero-aside">
             <div className="metrics">
               <div className="metric">
-                <div className="metric-label">Open dates</div>
-                <div className="metric-value">{event.occurrences.length}</div>
+                <div className="metric-label">{dictionary.registration.steps.occurrence}</div>
+                <div className="metric-value">{selectedOccurrence?.label}</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Seats still open</div>
-                <div className="metric-value">{event.totalRemainingCapacity}</div>
+                <div className="metric-label">{dictionary.registration.steps.ticket}</div>
+                <div className="metric-value">{selectedTicketCategory?.label}</div>
               </div>
               <div className="metric">
-                <div className="metric-label">Collection rule</div>
+                <div className="metric-label">Availability</div>
+                <div className="metric-value">{selectedOccurrence?.capacityLabel}</div>
+              </div>
+              <div className="metric">
+                <div className="metric-label">Payment</div>
                 <div className="metric-value">{event.collectionLabel}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Venue</div>
-                <div className="metric-value">{organizer.venue.title}</div>
               </div>
             </div>
 
-            <div className="status-list">
-              <div className="status-item">
-                <span className="status-index">1</span>
-                <div>
-                  <strong>Clear availability</strong>
-                  The seat count shown here reflects what is currently open for this date.
-                </div>
+            {!selectedOccurrence?.registrationAvailable ? (
+              <div className="registration-message-error mt-6">
+                {selectedOccurrence?.registrationGate?.reason || dictionary.registration.blocked}
               </div>
-              <div className="status-item">
-                <span className="status-index">2</span>
-                <div>
-                  <strong>Confirm from your inbox</strong>
-                  We&apos;ll email you the confirmation link so you can review the details from the
-                  address you entered.
-                </div>
-              </div>
-              <div className="status-item">
-                <span className="status-index">3</span>
-                <div>
-                  <strong>Payment stays explicit</strong>
-                  If any amount is due online, you&apos;ll see it separately from what stays due at the event.
-                </div>
-              </div>
-            </div>
+            ) : null}
           </aside>
         </section>
 
         <RegistrationFlowExperience
+          dictionary={dictionary}
+          dietaryOptions={dietaryOptions}
           event={event}
-          fieldRules={getRegistrationFieldRules()}
           initialOccurrenceId={selectedOccurrence?.id ?? null}
           initialTicketCategoryId={selectedTicketCategory?.id ?? null}
-          organizer={organizer}
+          locale={locale}
         />
-
-        <footer className="footer">
-          <span>Need more context first? Return to the event page at any time.</span>
-          <Link href={event.detailHref}>Return to the event page</Link>
-        </footer>
       </div>
     </main>
   );

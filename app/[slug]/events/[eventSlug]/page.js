@@ -1,12 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  getRegistrationExperienceBySlugs
-} from "../../../../lib/passreserve-service.js";
+import { PublicHeader } from "../../../public-header.js";
+import { getTranslations } from "../../../../lib/passreserve-i18n.js";
+import { getRegistrationExperienceBySlugs } from "../../../../lib/passreserve-service.js";
 import { PassreserveMedia } from "../../../../lib/passreserve-media.js";
-import { routeVisuals, selectCatalogVisualId } from "../../../../lib/passreserve-visuals.js";
-import { PublicPhotoGallery } from "../../public-photo-gallery.js";
 
 export const dynamic = "force-dynamic";
 
@@ -14,26 +12,12 @@ function toList(value) {
   return Array.isArray(value) ? value : [];
 }
 
-function getCoverMedia(items, fallbackVisualId, seed) {
-  const firstMedia = toList(items)[0];
-
-  if (firstMedia?.imageUrl || firstMedia?.visualId) {
-    return firstMedia;
-  }
-
-  return {
-    visualId: fallbackVisualId || selectCatalogVisualId(seed, 0)
-  };
-}
-
 export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;
   const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
 
   if (!entry) {
-    return {
-      title: "Event not found"
-    };
+    return { title: "Event not found" };
   }
 
   return {
@@ -44,6 +28,7 @@ export async function generateMetadata({ params }) {
 
 export default async function EventDetailPage({ params }) {
   const { slug, eventSlug } = await params;
+  const { locale, dictionary } = await getTranslations();
   const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
 
   if (!entry) {
@@ -51,47 +36,15 @@ export default async function EventDetailPage({ params }) {
   }
 
   const { organizer, event } = entry;
-  const nextOccurrence = event.nextOccurrence;
-  const occurrences = toList(event.occurrences);
-  const highlights = toList(event.highlights);
-  const included = toList(event.included);
-  const policies = toList(event.policies);
-  const faqItems = toList(event.faq);
-  const gallery = toList(event.gallery);
-  const galleryPhotos = gallery.length
-    ? gallery
-    : [
-        {
-          visualId: selectCatalogVisualId(`${organizer.slug}:${event.slug}`, 0)
-        },
-        {
-          visualId: selectCatalogVisualId(`${organizer.slug}:${event.slug}`, 1)
-        }
-      ];
-  const coverMedia = getCoverMedia(galleryPhotos, routeVisuals.eventHero, `${organizer.slug}:${event.slug}`);
+  const firstPhoto = toList(event.gallery).find((item) => item?.imageUrl) || null;
 
   return (
     <main className="shell">
       <div className="content">
-        <header className="topbar">
-          <div className="wordmark">
-            <Link className="wordmark-name" href="/">
-              Passreserve.com
-            </Link>
-            <span className="wordmark-tag">
-              Event details, upcoming dates, and simple registration
-            </span>
-          </div>
-          <nav className="nav" aria-label="Event page navigation">
-            <Link href="/">Discover</Link>
-            <Link href={organizer.organizerHref}>Host page</Link>
-            <a href="#occurrences">Upcoming dates</a>
-            <a href="#faq">FAQ</a>
-          </nav>
-        </header>
+        <PublicHeader dictionary={dictionary} locale={locale} />
 
         <section className="detail-hero">
-          <article className="panel detail-hero-copy">
+          <article className="detail-hero-copy">
             <div className="breadcrumb">
               <Link href={organizer.organizerHref}>{organizer.name}</Link>
               <span>/</span>
@@ -101,119 +54,84 @@ export default async function EventDetailPage({ params }) {
               {organizer.city}, {organizer.region}
             </div>
             <h1>{event.title}</h1>
-            {event.summary ? <p>{event.summary}</p> : null}
-            <div className="pill-list">
+            <p>{event.summary}</p>
+            <div className="pill-list mt-6">
               <span className="pill">{event.category}</span>
               <span className="pill">{event.duration}</span>
               <span className="pill">{event.collectionLabel}</span>
             </div>
-            {event.description ? <p>{event.description}</p> : null}
-            <div className="hero-actions">
-              {nextOccurrence?.registrationHref ? (
-                <Link className="button button-primary" href={nextOccurrence.registrationHref}>
-                  Register for the next date
+            {event.description ? <p className="mt-6">{event.description}</p> : null}
+            <div className="hero-actions mt-6">
+              {event.nextOccurrence?.registrationHref ? (
+                <Link className="button button-primary" href={event.nextOccurrence.registrationHref}>
+                  {dictionary.event.register}
                 </Link>
-              ) : (
-                <a className="button button-primary" href="#occurrences">
-                  Check upcoming dates
-                </a>
-              )}
-              <a className="button button-secondary" href={event.interestHref}>
-                Email the organizer
-              </a>
+              ) : null}
               <Link className="button button-secondary" href={organizer.organizerHref}>
-                Back to host page
+                {dictionary.event.hostPage}
               </Link>
+              <a className="button button-secondary" href={`mailto:${organizer.contact.email}`}>
+                {dictionary.organizer.emailOrganizer}
+              </a>
             </div>
           </article>
 
-          <aside className="panel detail-hero-summary">
-            <PassreserveMedia
-              alt={`${event.title} cover`}
-              className="detail-hero-image"
-              media={coverMedia}
-              priority
-              sizes="(min-width: 1024px) 44vw, 100vw"
-            />
-            <div className="detail-hero-summary-body">
-              <div className="detail-hero-summary-head">
-                <div className="section-kicker">Hosted by {organizer.name}</div>
-                <h2>{nextOccurrence?.label || "Dates coming soon"}</h2>
-                <p>{nextOccurrence?.time || "The first public date will appear here once it is published."}</p>
-              </div>
+          <aside className="detail-hero-summary">
+            {firstPhoto ? (
+              <PassreserveMedia
+                alt={`${event.title} cover`}
+                className="detail-hero-image"
+                media={firstPhoto}
+                priority
+              />
+            ) : null}
+            <div className="detail-hero-summary-head">
+              <div className="section-kicker">{dictionary.event.details}</div>
+              <h2>{event.priceLabel}</h2>
+              <p>{event.venueDetail || organizer.venue.title}</p>
+            </div>
 
-              <div className="detail-hero-stat-grid">
-                <div className="detail-hero-stat">
-                  <span className="metric-label">Price</span>
-                  <strong>{event.priceLabel}</strong>
-                </div>
-                <div className="detail-hero-stat">
-                  <span className="metric-label">Payment</span>
-                  <strong>{event.collectionLabel}</strong>
-                </div>
-                <div className="detail-hero-stat">
-                  <span className="metric-label">Capacity</span>
-                  <strong>{nextOccurrence?.capacityLabel || "No dates yet"}</strong>
-                </div>
-                <div className="detail-hero-stat">
-                  <span className="metric-label">Venue</span>
-                  <strong>{event.venueDetail || organizer.venue.title}</strong>
-                </div>
+            <div className="detail-hero-stat-grid mt-6">
+              <div className="detail-hero-stat">
+                <span className="metric-label">{dictionary.event.pricing}</span>
+                <strong>{event.collectionLabel}</strong>
               </div>
-
-              <div className="detail-hero-notes">
-                <div className="detail-hero-note">
-                  <span className="spotlight-label">Audience fit</span>
-                  <p>{event.audience || "The organizer can use this area to explain who the event is best for before registration opens."}</p>
-                </div>
-                <div className="detail-hero-note">
-                  <span className="spotlight-label">Payment plan</span>
-                  <p>
-                    {nextOccurrence
-                      ? event.prepayPercentage > 0
-                        ? `${nextOccurrence.time}, with the online amount collected after confirmation`
-                        : `${nextOccurrence.time}, with payment handled at the event`
-                      : "Publish a first date to show the live time and payment plan here."}
-                  </p>
-                </div>
+              <div className="detail-hero-stat">
+                <span className="metric-label">{dictionary.organizer.agenda}</span>
+                <strong>{event.occurrences.length}</strong>
+              </div>
+              <div className="detail-hero-stat">
+                <span className="metric-label">{dictionary.event.audience}</span>
+                <strong>{event.audience || "Open to published attendees"}</strong>
+              </div>
+              <div className="detail-hero-stat">
+                <span className="metric-label">{dictionary.organizer.venue}</span>
+                <strong>{organizer.venue.title}</strong>
               </div>
             </div>
           </aside>
         </section>
 
-        <section className="section-grid">
+        <section className="section-grid mt-6">
           <article className="panel section-card">
-            <div className="section-kicker">Why people choose it</div>
-            <h3>Highlights for this event</h3>
-            <p>
-              Use this section to understand the feel of the event before you compare dates.
-            </p>
+            <div className="section-kicker">{dictionary.event.details}</div>
+            <h2>Highlights</h2>
             <div className="policy-list">
-              {highlights.length ? (
-                highlights.map((highlight) => (
-                  <div className="policy-item" key={highlight}>
-                    {highlight}
-                  </div>
-                ))
-              ) : (
-                <div className="policy-item">Key event highlights will appear here as the organizer finishes the public page.</div>
-              )}
+              {toList(event.highlights).map((highlight) => (
+                <div className="policy-item" key={highlight}>
+                  {highlight}
+                </div>
+              ))}
             </div>
           </article>
 
           <article className="panel section-card">
-            <div className="section-kicker">Pricing</div>
-            <h3>See the total and what you pay now.</h3>
-            <p>
-              If a deposit or online amount is required, it is shown clearly before you start
-              registration.
-            </p>
+            <div className="section-kicker">{dictionary.event.pricing}</div>
+            <h2>What you pay now versus later</h2>
             <div className="payment-card">
               <div className="payment-heading">
-                <strong>
-                  {event.priceLabel} total ticket, {event.collectionLabel}
-                </strong>
-                <span>{event.venueDetail}</span>
+                <strong>{event.priceLabel}</strong>
+                <span>{event.collectionLabel}</span>
               </div>
               <div className="payment-amounts">
                 <div className="payment-amount">
@@ -233,157 +151,80 @@ export default async function EventDetailPage({ params }) {
           </article>
         </section>
 
-        <section className="section-grid" id="occurrences">
+        <section className="section-grid mt-6" id="occurrences">
           <article className="panel section-card section-span">
-            <div className="section-kicker">Choose a date</div>
+            <div className="section-kicker">{dictionary.event.dates}</div>
             <h2>Pick the date that works for you.</h2>
-            <p>
-              Each date keeps its own timing, availability, and registration link so you can
-              sign up without guessing what is still open.
-            </p>
-            <div className="occurrence-list">
-              {occurrences.length ? (
-                occurrences.map((occurrence) => (
-                  <article className="occurrence-card" key={occurrence.id}>
-                    <div className="occurrence-body">
-                      <div className="occurrence-head">
-                        <div>
-                          <div className="page-place">{occurrence.label}</div>
-                          <h3>{occurrence.time}</h3>
-                        </div>
-                        <div className="occurrence-price">
-                          <span className="metric-label">Ticket total</span>
-                          <strong>{event.priceLabel}</strong>
-                        </div>
+            <div className="agenda-list">
+              {event.occurrences.length ? (
+                event.occurrences.map((occurrence) => (
+                  <article className="agenda-item" key={occurrence.id}>
+                    <div className="agenda-head">
+                      <div>
+                        <strong>{occurrence.label}</strong>
+                        <span>{occurrence.time}</span>
                       </div>
-                      <p>{occurrence.note}</p>
-                      <div className="event-card-meta occurrence-meta">
-                        <div className="spotlight-note">
-                          <span className="spotlight-label">Capacity</span>
-                          <strong>{occurrence.capacity.statusLabel}</strong>
-                        </div>
-                        <div className="spotlight-note">
-                          <span className="spotlight-label">Payment</span>
-                          <strong>{event.collectionLabel}</strong>
-                        </div>
-                        <div className="spotlight-note">
-                          <span className="spotlight-label">Venue</span>
-                          <strong>{event.venueDetail || organizer.venue.title}</strong>
-                        </div>
-                      </div>
-                      <div className="hero-actions event-card-actions">
-                        <Link className="button button-primary" href={occurrence.registrationHref}>
-                          Register for this date
-                        </Link>
-                        <Link className="button button-secondary" href={organizer.organizerHref}>
-                          View host page
-                        </Link>
-                      </div>
+                      <span className="route-label">{occurrence.capacityLabel}</span>
                     </div>
+                    <p>{occurrence.note}</p>
+                    <div className="agenda-meta">
+                      <span>{occurrence.capacity.statusLabel}</span>
+                      <span>{event.collectionLabel}</span>
+                      <span>{event.venueDetail || organizer.venue.title}</span>
+                    </div>
+                    {occurrence.registrationAvailable ? (
+                      <Link className="button button-primary mt-4" href={occurrence.registrationHref}>
+                        {dictionary.event.register}
+                      </Link>
+                    ) : (
+                      <div className="mt-4 rounded-[1.25rem] bg-muted px-4 py-3 text-sm text-muted-foreground">
+                        {occurrence.registrationGate?.reason || dictionary.registration.blocked}
+                      </div>
+                    )}
                   </article>
                 ))
               ) : (
                 <article className="search-empty">
-                  <h3>No public dates are open yet.</h3>
-                  <p>The event page is live, and the organizer can publish the first bookable date from the host dashboard.</p>
+                  <h3>{dictionary.event.noDates}</h3>
+                  <p>The event page is live and dates can be published from the organizer admin area.</p>
                 </article>
               )}
             </div>
           </article>
         </section>
 
-        <section className="section-grid">
+        <section className="section-grid mt-6">
           <article className="panel section-card">
-            <div className="section-kicker">Included and on site</div>
-            <h3>{organizer.venue.title}</h3>
-            <p>{event.venueDetail}</p>
+            <div className="section-kicker">{dictionary.event.included}</div>
+            <h2>{organizer.venue.title}</h2>
             <div className="policy-list">
-              {included.length ? (
-                included.map((item) => (
-                  <div className="policy-item" key={item}>
-                    {item}
-                  </div>
-                ))
-              ) : (
-                <div className="policy-item">Included items and on-site details will appear here once the organizer finishes the event setup.</div>
-              )}
+              {toList(event.included).map((item) => (
+                <div className="policy-item" key={item}>
+                  {item}
+                </div>
+              ))}
             </div>
           </article>
 
-          <article className="panel section-card">
-            <div className="section-kicker">Gallery</div>
-            <h3>See the setting before you commit.</h3>
-            <PublicPhotoGallery items={galleryPhotos} title={`${event.title} gallery`} />
-          </article>
-        </section>
-
-        <section className="section-grid" id="faq">
-          <article className="panel section-card">
-            <div className="section-kicker">Policies</div>
-            <h3>Important details before you register.</h3>
-            <div className="policy-list">
-              {policies.length ? (
-                policies.map((policy) => (
-                  <div className="policy-item" key={policy}>
-                    {policy}
-                  </div>
-                ))
-              ) : (
-                <div className="policy-item">Policies will be published here before registration opens for the first date.</div>
-              )}
-            </div>
-          </article>
-
-          <article className="panel section-card">
-            <div className="section-kicker">Attendee FAQ</div>
-            <h3>Common questions before signup.</h3>
+          <article className="panel section-card" id="faq">
+            <div className="section-kicker">{dictionary.event.policies}</div>
+            <h2>Policies and FAQ</h2>
             <div className="faq-list">
-              {faqItems.length ? (
-                faqItems.map((item) => (
-                  <article className="faq-item" key={item.question}>
-                    <strong>{item.question}</strong>
-                    <p>{item.answer}</p>
-                  </article>
-                ))
-              ) : (
-                <article className="faq-item">
-                  <strong>When will more attendee details be available?</strong>
-                  <p>The organizer can add event-specific answers here as the public registration page is completed.</p>
+              {toList(event.policies).map((policy) => (
+                <article className="faq-item" key={policy}>
+                  <strong>Policy</strong>
+                  <p>{policy}</p>
                 </article>
-              )}
+              ))}
+              {toList(event.faq).map((item) => (
+                <article className="faq-item" key={item.question}>
+                  <strong>{item.question}</strong>
+                  <p>{item.answer}</p>
+                </article>
+              ))}
             </div>
           </article>
         </section>
-
-        <section className="cta-band">
-          <div>
-            <div className="section-kicker">Ready to join?</div>
-            <h2>Pick a date and start your registration.</h2>
-            <p>
-              You&apos;ll choose a date, confirm your details, and receive a registration code
-              with any next payment steps explained clearly.
-            </p>
-          </div>
-          <div className="hero-actions cta-actions">
-            {nextOccurrence?.registrationHref ? (
-              <Link className="button button-primary" href={nextOccurrence.registrationHref}>
-                Register now
-              </Link>
-            ) : (
-              <a className="button button-primary" href="#occurrences">
-                See when dates go live
-              </a>
-            )}
-            <a className="button button-secondary" href={event.interestHref}>
-              Email the organizer
-            </a>
-          </div>
-        </section>
-
-        <footer className="footer">
-          <span>Want to compare more formats from the same host? Return to the host page.</span>
-          <Link href={organizer.organizerHref}>Return to the host page</Link>
-        </footer>
       </div>
     </main>
   );

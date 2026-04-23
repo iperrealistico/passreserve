@@ -2,13 +2,10 @@
 
 import { useMemo, useState } from "react";
 
-import { PublicVisual } from "../../../lib/passreserve-visual-component.js";
-
 function createEditorItem(item = {}, index = 0) {
   return {
-    id: `${item.imageUrl || item.visualId || "gallery"}-${index}`,
+    id: `${item.imageUrl || "gallery"}-${index}`,
     imageUrl: item.imageUrl || "",
-    visualId: item.visualId || "",
     title: item.title || "",
     caption: item.caption || ""
   };
@@ -17,12 +14,11 @@ function createEditorItem(item = {}, index = 0) {
 function serializeItems(items) {
   return items
     .map((item) => ({
-      visualId: item.visualId || undefined,
       imageUrl: item.imageUrl || undefined,
       title: item.title || undefined,
       caption: item.caption || undefined
     }))
-    .filter((item) => item.imageUrl || item.visualId);
+    .filter((item) => item.imageUrl);
 }
 
 function GalleryPreview({ item, label }) {
@@ -39,10 +35,6 @@ function GalleryPreview({ item, label }) {
         />
       </div>
     );
-  }
-
-  if (item.visualId) {
-    return <PublicVisual className="gallery-editor-preview-media" visualId={item.visualId} />;
   }
 
   return (
@@ -95,24 +87,34 @@ export function EventGalleryEditor({ initialItems = [] }) {
             <div className="gallery-editor-row-main">
               <div className="gallery-editor-row-head">
                 <strong>Photo {index + 1}</strong>
-                {item.visualId ? <span className="admin-page-tip">Seeded catalog photo</span> : null}
               </div>
-              {item.visualId ? (
-                <div className="gallery-editor-inline-note">
-                  This event currently uses a built-in Passreserve image. Add your own photo URL
-                  or remove this item if you want a simpler custom gallery.
-                </div>
-              ) : (
-                <label className="field">
-                  <span>Direct image URL</span>
-                  <input
-                    onChange={(event) => updateItem(item.id, { imageUrl: event.target.value })}
-                    placeholder="https://i.imgur.com/your-photo.jpg"
-                    type="url"
-                    value={item.imageUrl}
-                  />
-                </label>
-              )}
+              <label className="field">
+                <span>Direct image URL</span>
+                <input
+                  onChange={(event) => updateItem(item.id, { imageUrl: event.target.value })}
+                  placeholder="https://i.imgur.com/your-photo.jpg"
+                  type="url"
+                  value={item.imageUrl}
+                />
+              </label>
+              <label className="field">
+                <span>Photo title</span>
+                <input
+                  onChange={(event) => updateItem(item.id, { title: event.target.value })}
+                  placeholder="Optional title"
+                  type="text"
+                  value={item.title}
+                />
+              </label>
+              <label className="field">
+                <span>Caption</span>
+                <textarea
+                  onChange={(event) => updateItem(item.id, { caption: event.target.value })}
+                  placeholder="Optional short caption"
+                  rows="2"
+                  value={item.caption}
+                />
+              </label>
             </div>
 
             <div className="gallery-editor-row-actions">
@@ -160,8 +162,8 @@ export function EventGalleryEditor({ initialItems = [] }) {
       </div>
 
       <p className="admin-page-tip">
-        Paste direct image links only. Passreserve will display them on the public page, but it
-        will not upload or host the files for you.
+        Paste direct image links only. Generated template images are no longer used as fallbacks,
+        so pages stay text-first if no real photo is provided.
       </p>
     </div>
   );

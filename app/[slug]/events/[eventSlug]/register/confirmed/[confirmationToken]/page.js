@@ -1,10 +1,8 @@
 import Link from "next/link";
 
-import {
-  getConfirmedRegistrationView
-} from "../../../../../../../lib/passreserve-service.js";
-import { PublicVisual } from "../../../../../../../lib/passreserve-visual-component.js";
-import { routeVisuals } from "../../../../../../../lib/passreserve-visuals.js";
+import { PublicHeader } from "../../../../../../public-header.js";
+import { getTranslations } from "../../../../../../../lib/passreserve-i18n.js";
+import { getConfirmedRegistrationView } from "../../../../../../../lib/passreserve-service.js";
 
 function formatRegistrationStatus(status) {
   switch (status) {
@@ -19,32 +17,17 @@ function formatRegistrationStatus(status) {
   }
 }
 
-function formatPaymentStatus(status) {
-  switch (status) {
-    case "PAID":
-      return "Paid online";
-    case "PARTIALLY_PAID":
-      return "Partially paid online";
-    case "NONE":
-      return "No online payment";
-    default:
-      return "Payment updated";
-  }
-}
-
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, confirmationToken } = await params;
   const view = await getConfirmedRegistrationView(slug, eventSlug, confirmationToken);
 
   if (view.state !== "ready") {
-    return {
-      title: "Registration confirmation"
-    };
+    return { title: "Registration confirmation" };
   }
 
   return {
     title: view.registrationCode,
-    description: `Passreserve.com registration ${view.registrationCode} for ${view.event.title}.`
+    description: `Registration ${view.registrationCode} for ${view.event.title}.`
   };
 }
 
@@ -52,21 +35,14 @@ function ConfirmationStatePanel({ view }) {
   return (
     <main className="shell">
       <div className="content">
-        <section className="empty-state">
-          <article className="panel empty-card">
-            <PublicVisual
-              className="empty-card-visual"
-              sizes="(min-width: 768px) 36vw, 90vw"
-              visualId={routeVisuals.registrationConfirmed}
-            />
-            <h1>{view.title}</h1>
-            <p>{view.message}</p>
-            <div className="hero-actions">
-              <Link className="button button-primary" href="/">
-                Return to discovery
-              </Link>
-            </div>
-          </article>
+        <section className="search-empty">
+          <h1>{view.title}</h1>
+          <p>{view.message}</p>
+          <div className="hero-actions mt-4">
+            <Link className="button button-primary" href="/">
+              Return to discovery
+            </Link>
+          </div>
         </section>
       </div>
     </main>
@@ -76,6 +52,7 @@ function ConfirmationStatePanel({ view }) {
 export default async function RegistrationConfirmedPage({ params }) {
   const { slug, eventSlug, confirmationToken } = await params;
   const view = await getConfirmedRegistrationView(slug, eventSlug, confirmationToken);
+  const { locale, dictionary } = await getTranslations();
 
   if (view.state !== "ready") {
     return <ConfirmationStatePanel view={view} />;
@@ -84,23 +61,10 @@ export default async function RegistrationConfirmedPage({ params }) {
   return (
     <main className="shell">
       <div className="content">
-        <header className="topbar">
-          <div className="wordmark">
-            <Link className="wordmark-name" href="/">
-              Passreserve.com
-            </Link>
-            <span className="wordmark-tag">
-              Registration confirmed and ready for your next step
-            </span>
-          </div>
-          <nav className="nav" aria-label="Confirmed registration navigation">
-            <Link href={view.organizer.organizerHref}>Host page</Link>
-            <Link href={view.event.detailHref}>Event page</Link>
-          </nav>
-        </header>
+        <PublicHeader dictionary={dictionary} locale={locale} />
 
-        <section className="hero detail-hero">
-          <article className="panel hero-copy public-hero-copy">
+        <section className="hero">
+          <article className="hero-copy">
             <div className="breadcrumb">
               <Link href={view.organizer.organizerHref}>{view.organizer.name}</Link>
               <span>/</span>
@@ -108,41 +72,24 @@ export default async function RegistrationConfirmedPage({ params }) {
               <span>/</span>
               <span>{view.registrationCode}</span>
             </div>
-            <div className="page-place">
-              {view.organizer.city}, {view.organizer.region}
-            </div>
             <h1>{view.headline}</h1>
             <p>{view.nextStep}</p>
-            <div className="pill-list">
+            <div className="pill-list mt-6">
               <span className="pill">{formatRegistrationStatus(view.registrationStatus)}</span>
-              <span className="pill">{formatPaymentStatus(view.paymentStatus)}</span>
               <span className="pill">{view.paymentProvider.label}</span>
               <span className="pill">{view.quantityLabel}</span>
             </div>
           </article>
 
-          <aside className="panel hero-aside public-hero-aside">
-            <PublicVisual
-              className="aside-visual"
-              sizes="(min-width: 1024px) 28vw, 100vw"
-              visualId={routeVisuals.registrationConfirmed}
-            />
-            <div className="status-block">
-              <div className="status-label">Registration code</div>
-              <h2>{view.registrationCode}</h2>
-              <p>
-                Keep this code handy for event-day check-in and any updates from the host.
-              </p>
-            </div>
-
+          <aside className="hero-aside">
             <div className="metrics">
+              <div className="metric">
+                <div className="metric-label">Registration code</div>
+                <div className="metric-value">{view.registrationCode}</div>
+              </div>
               <div className="metric">
                 <div className="metric-label">Confirmed at</div>
                 <div className="metric-value">{view.confirmedAtLabel}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Reconciled</div>
-                <div className="metric-value">{view.reconciledAtLabel || "N/A"}</div>
               </div>
               <div className="metric">
                 <div className="metric-label">Online amount</div>
@@ -158,33 +105,27 @@ export default async function RegistrationConfirmedPage({ params }) {
 
         <section className="registration-grid">
           <article className="panel section-card registration-flow-card">
-            <div className="section-kicker">Attendee summary</div>
+            <div className="section-kicker">Participants</div>
             <h2>Your registration details</h2>
-
-            <div className="registration-review-grid">
-              <div className="registration-review-card registration-review-card-code">
-                <span className="spotlight-label">Registration code</span>
-                <strong>{view.registrationCode}</strong>
-                <span>{formatRegistrationStatus(view.registrationStatus)}</span>
-              </div>
-              <div className="registration-review-card">
-                <span className="spotlight-label">Attendee</span>
-                <strong>{view.attendee.name}</strong>
-                <span>{view.attendee.email}</span>
-              </div>
-              <div className="registration-review-card">
-                <span className="spotlight-label">Occurrence</span>
-                <strong>{view.occurrence.label}</strong>
-                <span>{view.occurrence.time}</span>
-              </div>
+            <div className="registration-choice-grid">
+              {view.attendees.map((attendee, index) => (
+                <article className="registration-choice registration-choice-active" key={attendee.id || index}>
+                  <div className="registration-choice-head">
+                    <strong>
+                      {attendee.firstName || view.attendee.name} {attendee.lastName || ""}
+                    </strong>
+                    <span>{attendee.email || view.attendee.email}</span>
+                  </div>
+                  {attendee.address ? <span>{attendee.address}</span> : null}
+                  {attendee.phone ? <span>{attendee.phone}</span> : null}
+                </article>
+              ))}
             </div>
 
-            <div className="payment-card registration-payment-card">
+            <div className="payment-card mt-6">
               <div className="payment-heading">
                 <strong>Payment split</strong>
-                <span>
-                  {view.ticketCategory.label} · {view.quantityLabel}
-                </span>
+                <span>{view.ticketCategory.label}</span>
               </div>
               <div className="payment-amounts">
                 <div className="payment-amount">
@@ -201,54 +142,21 @@ export default async function RegistrationConfirmedPage({ params }) {
                 </div>
               </div>
             </div>
-
-            <div className="registration-rule-list">
-              <div className="registration-rule-item">
-                <strong>Ticket category</strong>
-                <span>{view.ticketCategory.label}</span>
-              </div>
-              <div className="registration-rule-item">
-                <strong>Hold opened</strong>
-                <span>{view.createdAtLabel}</span>
-              </div>
-              <div className="registration-rule-item">
-                <strong>Confirmed</strong>
-                <span>{view.confirmedAtLabel}</span>
-              </div>
-              <div className="registration-rule-item">
-                <strong>Payment provider</strong>
-                <span>{view.paymentProvider.label}</span>
-              </div>
-            </div>
           </article>
 
           <aside className="panel section-card registration-aside">
-            <div className="section-kicker">Next steps</div>
-            <h3>What to keep on hand</h3>
-            <div className="registration-rule-list">
+            <div className="section-kicker">Timeline</div>
+            <h3>What happens next</h3>
+            <div className="timeline mt-6">
               {view.timeline.map((item) => (
-                <div className="registration-rule-item" key={item.title}>
+                <div className="timeline-step" key={item.title}>
                   <strong>{item.title}</strong>
                   <span>{item.detail}</span>
                 </div>
               ))}
             </div>
-
-            <div className="hero-actions">
-              <Link className="button button-secondary" href={view.event.detailHref}>
-                Back to the event page
-              </Link>
-              <Link className="button button-primary" href={view.organizer.organizerHref}>
-                Open host page
-              </Link>
-            </div>
           </aside>
         </section>
-
-        <footer className="footer">
-          <span>Keep your registration code handy for event-day check-in and updates.</span>
-          <Link href={view.event.detailHref}>Return to the event page</Link>
-        </footer>
       </div>
     </main>
   );

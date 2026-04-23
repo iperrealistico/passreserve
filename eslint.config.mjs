@@ -14,7 +14,13 @@ export default [
     ]
   },
   {
-    files: ["app/**/*.js", "lib/**/*.js", "scripts/**/*.mjs", "test/**/*.js"],
+    files: [
+      "app/**/*.js",
+      "components/**/*.js",
+      "lib/**/*.js",
+      "scripts/**/*.mjs",
+      "test/**/*.js"
+    ],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",

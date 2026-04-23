@@ -26,16 +26,25 @@ beforeEach(async () => {
 
 async function createInput(slug, eventSlug, overrides = {}) {
   const experience = await getRegistrationExperienceBySlugs(slug, eventSlug);
+  const quantity = overrides.quantity ?? 2;
+  const attendees = Array.from({ length: quantity }, (_, index) => ({
+    firstName: index === 0 ? "Ada" : `Guest${index + 1}`,
+    lastName: index === 0 ? "Lovelace" : "Tester",
+    address: `Via Test ${index + 1}, Bologna`,
+    phone: index === 0 ? "+39 333 555 1010" : `+39 333 555 101${index}`,
+    email: index === 0 ? "ADA@example.com" : `guest${index + 1}@example.com`,
+    dietaryFlags: index === 0 ? ["gluten_free"] : [],
+    dietaryOther: index === 0 ? "Needs a gluten-free menu." : ""
+  }));
 
   return {
     slug,
     eventSlug,
     occurrenceId: experience.selectedOccurrence.id,
     ticketCategoryId: experience.selectedTicketCategory.id,
-    quantity: 2,
-    attendeeName: "Ada Lovelace",
-    attendeeEmail: "ADA@example.com",
-    attendeePhone: "+39 333 555 1010",
+    quantity,
+    registrationLocale: "en",
+    attendees,
     ...overrides
   };
 }
