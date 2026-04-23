@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PublicFooter } from "./public-footer.js";
 import { HomeOrganizerRequestModal } from "./home-organizer-request-modal.js";
 import { PublicHeader } from "./public-header.js";
 import {
@@ -108,6 +109,8 @@ export default async function HomePage({ searchParams }) {
             {dictionary.home.storyLink}
           </Link>
         </div>
+
+        <PublicFooter dictionary={dictionary} locale={locale} />
       </div>
     </main>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PublicFooter } from "../../../../../../public-footer.js";
 import {
   getConfirmationFieldRules,
   getRegistrationHoldView
@@ -187,6 +188,8 @@ export default async function RegistrationConfirmPage({ params }) {
             </div>
           </aside>
         </section>
+
+        <PublicFooter dictionary={dictionary} locale={locale} />
       </div>
     </main>
   );

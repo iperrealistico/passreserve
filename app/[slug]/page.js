@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PublicFooter } from "../public-footer.js";
 import { PublicHeader } from "../public-header.js";
 import { getTranslations } from "../../lib/passreserve-i18n.js";
 import { getOrganizerPage } from "../../lib/passreserve-service.js";
@@ -141,6 +142,8 @@ export default async function OrganizerPage({ params }) {
             </div>
           </section>
         </div>
+
+        <PublicFooter dictionary={dictionary} locale={locale} />
       </div>
     </main>
   );

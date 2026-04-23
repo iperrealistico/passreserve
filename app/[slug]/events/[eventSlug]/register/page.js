@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PublicFooter } from "../../../../public-footer.js";
 import { PublicHeader } from "../../../../public-header.js";
 import { dietaryFlags } from "../../../../../lib/passreserve-dietary.js";
 import { getTranslations } from "../../../../../lib/passreserve-i18n.js";
@@ -81,6 +82,8 @@ export default async function RegistrationPage({ params, searchParams }) {
           initialTicketCategoryId={selectedTicketCategory?.id ?? null}
           locale={locale}
         />
+
+        <PublicFooter dictionary={dictionary} locale={locale} />
       </div>
     </main>
   );

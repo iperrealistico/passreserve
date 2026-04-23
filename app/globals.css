@@ -161,6 +161,42 @@
     @apply h-8 rounded-full border-0 bg-transparent pr-6 text-sm font-medium text-foreground outline-none focus:ring-0;
   }
 
+  .site-footer {
+    @apply mt-8 border-t border-border pt-6;
+  }
+
+  .site-footer-main {
+    @apply flex flex-col gap-6 py-4 lg:flex-row lg:items-start lg:justify-between;
+  }
+
+  .site-footer-brand-block {
+    @apply max-w-sm space-y-2;
+  }
+
+  .site-footer-brand {
+    @apply font-heading text-xl font-semibold tracking-tight text-foreground;
+  }
+
+  .site-footer-copy {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .site-footer-nav {
+    @apply flex flex-wrap items-center gap-3 text-sm text-muted-foreground;
+  }
+
+  .site-footer-nav a {
+    @apply rounded-full px-3 py-2 hover:bg-muted hover:text-foreground;
+  }
+
+  .site-footer-tools {
+    @apply flex items-center;
+  }
+
+  .site-footer-bottom {
+    @apply flex flex-col gap-2 border-t border-border py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between;
+  }
+
   .hero {
     @apply mt-6 grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)];
   }
@@ -446,23 +482,31 @@
   }
 
   .admin-topbar-row {
-    @apply flex items-center justify-between gap-4;
+    @apply flex items-start justify-between gap-4 sm:items-center;
   }
 
   .admin-brand {
     @apply font-heading text-xl font-semibold tracking-tight text-foreground whitespace-nowrap;
   }
 
+  .admin-topbar-tools {
+    @apply hidden lg:flex lg:shrink-0 lg:flex-wrap lg:items-center lg:justify-end lg:gap-3;
+  }
+
+  .admin-topbar-desktop {
+    @apply hidden lg:block lg:pt-4;
+  }
+
   .admin-tab-nav {
-    @apply flex items-center gap-6;
+    @apply flex flex-wrap items-center gap-x-3 gap-y-3;
   }
 
   .admin-tab-link {
-    @apply inline-flex h-14 items-center gap-2 border-b-2 border-transparent px-1 text-sm font-medium text-muted-foreground transition-colors hover:border-border hover:text-foreground;
+    @apply inline-flex h-10 items-center gap-2 rounded-full border border-transparent bg-transparent px-4 text-sm font-medium text-muted-foreground transition-colors hover:border-border hover:bg-muted hover:text-foreground;
   }
 
   .admin-tab-link-active {
-    @apply border-foreground text-foreground;
+    @apply border-primary bg-primary text-primary-foreground;
   }
 
   .admin-tab-icon {

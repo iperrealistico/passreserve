@@ -70,28 +70,7 @@ export function TopNav({
           {brand}
         </Link>
 
-        <div className="hidden items-center gap-6 lg:flex">
-          <nav aria-label={navigationLabel} className="admin-tab-nav">
-            {links.map((link) => {
-              const active = isLinkActive(pathname, link);
-              const Icon = link.icon ? navIcons[link.icon] : null;
-
-              return (
-                <Link
-                  aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "admin-tab-link",
-                    active && "admin-tab-link-active"
-                  )}
-                  href={link.href}
-                  key={link.href}
-                >
-                  {Icon ? <Icon className="admin-tab-icon" size={16} /> : null}
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
+        <div className="admin-topbar-tools">
           {rightSlot}
         </div>
 
@@ -104,6 +83,30 @@ export function TopNav({
         >
           {open ? <X size={18} /> : <Menu size={18} />}
         </button>
+      </div>
+
+      <div className="admin-topbar-desktop">
+        <nav aria-label={navigationLabel} className="admin-tab-nav">
+          {links.map((link) => {
+            const active = isLinkActive(pathname, link);
+            const Icon = link.icon ? navIcons[link.icon] : null;
+
+            return (
+              <Link
+                aria-current={active ? "page" : undefined}
+                className={cn(
+                  "admin-tab-link",
+                  active && "admin-tab-link-active"
+                )}
+                href={link.href}
+                key={link.href}
+              >
+                {Icon ? <Icon className="admin-tab-icon" size={16} /> : null}
+                {link.label}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
 
       {open ? (

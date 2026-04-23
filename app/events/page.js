@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PublicFooter } from "../public-footer.js";
 import { PublicHeader } from "../public-header.js";
 import { getTranslations } from "../../lib/passreserve-i18n.js";
 import { getDiscoveryResults } from "../../lib/passreserve-service.js";
@@ -110,6 +111,8 @@ export default async function EventsPage({ searchParams }) {
             </article>
           )}
         </section>
+
+        <PublicFooter dictionary={dictionary} locale={locale} />
       </div>
     </main>
   );

@@ -1,8 +1,6 @@
 import Link from "next/link";
 
-import { LocaleSwitcher } from "../components/locale-switcher.js";
-
-export function PublicHeader({ locale = "en", dictionary, currentPath = "/" }) {
+export function PublicHeader({ dictionary, currentPath = "/" }) {
   const navItems = [
     { href: "/", label: dictionary.nav.discover },
     { href: "/events", label: dictionary.nav.events },
@@ -23,11 +21,6 @@ export function PublicHeader({ locale = "en", dictionary, currentPath = "/" }) {
             </Link>
           ))}
           <Link href="/admin/login">{dictionary.nav.organizerAccess}</Link>
-          <LocaleSwitcher
-            label={dictionary.languageLabel}
-            labels={dictionary.locales}
-            locale={locale}
-          />
         </nav>
       </div>
     </header>

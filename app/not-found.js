@@ -1,9 +1,10 @@
 import Link from "next/link";
 
+import { PublicFooter } from "./public-footer.js";
 import { getTranslations } from "../lib/passreserve-i18n.js";
 
 export default async function NotFound() {
-  const { locale } = await getTranslations();
+  const { locale, dictionary } = await getTranslations();
   const isItalian = locale === "it";
 
   return (
@@ -29,6 +30,8 @@ export default async function NotFound() {
             </div>
           </article>
         </section>
+
+        <PublicFooter dictionary={dictionary} locale={locale} />
       </div>
     </main>
   );

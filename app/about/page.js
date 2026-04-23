@@ -15,7 +15,7 @@ import {
   Users
 } from "lucide-react";
 
-import { LocaleSwitcher } from "../../components/locale-switcher.js";
+import { PublicFooter } from "../public-footer.js";
 import { getTranslations } from "../../lib/passreserve-i18n.js";
 
 export const dynamic = "force-dynamic";
@@ -720,11 +720,6 @@ export default async function AboutPage() {
             <ArrowLeft className="h-4 w-4" />
             <span>{content.backLabel}</span>
           </Link>
-          <LocaleSwitcher
-            label={dictionary.languageLabel}
-            labels={dictionary.locales}
-            locale={locale}
-          />
         </div>
       </nav>
 
@@ -1212,11 +1207,9 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-100 bg-gray-50 py-12">
-        <div className="mx-auto max-w-6xl px-6 text-center text-sm text-gray-500">
-          {content.footer}
-        </div>
-      </footer>
+      <div className="mx-auto w-full max-w-6xl px-6">
+        <PublicFooter dictionary={dictionary} locale={locale} />
+      </div>
     </main>
   );
 }
