@@ -57,7 +57,7 @@ The checked-in Prisma schema and initial migration now live under [`prisma/`](/U
 
 ### Database-backed development or production
 
-1. Set `DATABASE_URL` and the other required env vars from [`.env.example`](/Users/leonardofiori/Documents/Antigravity/gatherpass/.env.example).
+1. Set `DATABASE_URL` and the other required env vars from [`.env.example`](/Users/leonardofiori/Documents/Antigravity/gatherpass/.env.example). For the shared Supabase project, `DATABASE_URL` must target the `passreserve` schema rather than the legacy `public` schema.
 2. Run `npm run db:migrate`.
 3. Optionally run `npm run db:seed` for a preloaded local database.
 4. Run `npm run dev` or `npm run start`.

@@ -77,6 +77,7 @@ These are development-only defaults and must never be kept for production use.
 Database-backed setup:
 
 1. Set env vars.
+   Use a `DATABASE_URL` that points Prisma at the `passreserve` schema on the shared Supabase/Postgres project.
 2. Run `npm run db:migrate`.
 3. Optionally run `npm run db:seed`.
 4. Run `npm run dev` or `npm run start`.
