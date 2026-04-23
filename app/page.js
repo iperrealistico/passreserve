@@ -7,7 +7,6 @@ import {
   organizerPaymentModels
 } from "../lib/passreserve-domain.js";
 import { getTranslations } from "../lib/passreserve-i18n.js";
-import { getDiscoveryResults } from "../lib/passreserve-service.js";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +33,6 @@ function Notice({ query }) {
 export default async function HomePage({ searchParams }) {
   const query = await searchParams;
   const { locale, dictionary } = await getTranslations();
-  const featuredEvents = (await getDiscoveryResults("")).slice(0, 4);
 
   return (
     <main className="shell">
@@ -56,7 +54,7 @@ export default async function HomePage({ searchParams }) {
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
           <article className="panel overflow-hidden p-0">
-            <div className="flex h-full flex-col justify-between gap-10 bg-card px-6 py-8 sm:px-8">
+            <div className="flex h-full flex-col gap-8 bg-card px-6 py-8 sm:px-8">
               <div className="flex flex-col gap-6">
                 <div className="section-kicker">{dictionary.home.attendeeLabel}</div>
                 <div className="max-w-xl">
@@ -86,22 +84,11 @@ export default async function HomePage({ searchParams }) {
                   </div>
                 </form>
               </div>
-
-              <div className="grid gap-3">
-                <div className="section-kicker">{dictionary.home.supportTitle}</div>
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {dictionary.home.supportItems.map((item) => (
-                    <div className="rounded-[1.5rem] border border-border bg-muted/50 p-4 text-sm text-muted-foreground" key={item}>
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           </article>
 
           <article className="panel overflow-hidden p-0">
-            <div className="flex h-full flex-col justify-between gap-10 bg-primary px-6 py-8 text-primary-foreground sm:px-8">
+            <div className="flex h-full flex-col gap-8 bg-primary px-6 py-8 text-primary-foreground sm:px-8">
               <div className="flex flex-col gap-6">
                 <div className="section-kicker text-primary-foreground/70">
                   {dictionary.home.organizerLabel}
@@ -123,27 +110,6 @@ export default async function HomePage({ searchParams }) {
                     paymentModels={organizerPaymentModels}
                   />
                 </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-3">
-                {featuredEvents.map((event) => (
-                  <Link
-                    className="rounded-[1.5rem] border border-white/12 bg-white/8 p-4 text-left transition-colors hover:bg-white/12"
-                    href={event.eventHref}
-                    key={event.id}
-                  >
-                    <div className="text-xs uppercase tracking-[0.18em] text-primary-foreground/60">
-                      {event.city}
-                    </div>
-                    <div className="mt-2 font-heading text-lg text-white">{event.eventTitle}</div>
-                    <p className="mt-2 text-sm leading-6 text-primary-foreground/75">
-                      {event.eventSummary}
-                    </p>
-                    <div className="mt-4 text-sm text-primary-foreground/65">
-                      {event.organizerName} · {event.priceLabel}
-                    </div>
-                  </Link>
-                ))}
               </div>
             </div>
           </article>

@@ -145,7 +145,7 @@ async function main() {
     assert(
       homepage.text.includes("Find an event that feels easy to trust.") &&
         homepage.text.includes("Operate events with Airbnb-level clarity.") &&
-        homepage.text.includes("What Passreserve improves"),
+        homepage.text.includes("What is Passreserve?"),
       "Homepage should render the split attendee/organizer landing page."
     );
     assertNoInternalCopy(homepage.text, "Homepage");
@@ -170,8 +170,9 @@ async function main() {
     const organizerPage = await fetchHtml(baseUrl, "/alpine-trail-lab");
     assert(organizerPage.response.status === 200, "Organizer page should return 200.");
     assert(
-      organizerPage.text.includes("Choose the format that fits your plan."),
-      "Organizer page should render the live host copy."
+      organizerPage.text.includes("View calendar") &&
+        organizerPage.text.includes("Published dates"),
+      "Organizer page should render the minimal organizer calendar view."
     );
     assertNoInternalCopy(organizerPage.text, "Organizer page");
 
@@ -181,8 +182,9 @@ async function main() {
     );
     assert(eventPage.response.status === 200, "Event detail page should return 200.");
     assert(
-      eventPage.text.includes("Pick the date that works for you."),
-      "Event detail page should render the event-detail registration copy."
+      eventPage.text.includes("Choose date") &&
+        eventPage.text.includes("Available dates"),
+      "Event detail page should render the minimal date-first event flow."
     );
     assertNoInternalCopy(eventPage.text, "Event page");
 
