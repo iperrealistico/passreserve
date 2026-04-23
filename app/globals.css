@@ -426,11 +426,47 @@
   }
 
   .admin-topbar {
-    @apply sticky top-0 z-20 mb-6 rounded-[1.5rem] border border-border bg-card/90 px-5 py-4 backdrop-blur;
+    @apply sticky top-0 z-20 border-b border-border bg-background/95 py-4 backdrop-blur;
+  }
+
+  .admin-topbar-row {
+    @apply flex items-center justify-between gap-4;
+  }
+
+  .admin-brand {
+    @apply font-heading text-xl font-semibold tracking-tight text-foreground whitespace-nowrap;
+  }
+
+  .admin-tab-nav {
+    @apply flex items-center gap-6;
+  }
+
+  .admin-tab-link {
+    @apply inline-flex h-14 items-center gap-2 border-b-2 border-transparent px-1 text-sm font-medium text-muted-foreground transition-colors hover:border-border hover:text-foreground;
+  }
+
+  .admin-tab-link-active {
+    @apply border-foreground text-foreground;
+  }
+
+  .admin-tab-icon {
+    @apply shrink-0;
+  }
+
+  .admin-mobile-nav {
+    @apply mt-4 flex flex-col gap-4 border-t border-border pt-4 lg:hidden;
+  }
+
+  .admin-mobile-tab-link {
+    @apply flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground;
+  }
+
+  .admin-mobile-tab-link-active {
+    @apply bg-primary/5 text-foreground;
   }
 
   .admin-layout {
-    @apply grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)];
+    @apply flex flex-col gap-6;
   }
 
   .admin-sidebar {
@@ -449,8 +485,44 @@
     @apply border-none bg-transparent p-0;
   }
 
+  .admin-main-shell {
+    @apply flex flex-col gap-6;
+  }
+
   .admin-page {
     @apply flex flex-col gap-6;
+  }
+
+  .admin-shell-intro {
+    @apply rounded-[1.75rem] border border-border bg-card p-5;
+  }
+
+  .admin-shell-heading {
+    @apply flex flex-col gap-4 md:flex-row md:items-end md:justify-between;
+  }
+
+  .admin-shell-title {
+    @apply mt-2 text-3xl font-semibold tracking-tight;
+  }
+
+  .admin-shell-copy {
+    @apply mt-3 max-w-3xl text-sm leading-6 text-muted-foreground;
+  }
+
+  .admin-shell-summary {
+    @apply mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .admin-shell-note-grid {
+    @apply mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .admin-shell-note {
+    @apply rounded-[1.25rem] border border-border bg-muted/50 p-4 text-sm leading-6 text-muted-foreground;
+  }
+
+  .admin-shell-note strong {
+    @apply mb-1 block text-sm font-semibold text-foreground;
   }
 
   .admin-sidebar-title {

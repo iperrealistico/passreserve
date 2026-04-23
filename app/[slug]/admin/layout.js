@@ -22,6 +22,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
   const sessionUser = await getCurrentSessionUser();
   const platformUser = await getStoredPlatformSessionUser();
   const signedIn = sessionUser?.type === "organizer" && sessionUser.organizerSlug === slug;
+  const isItalian = locale === "it";
 
   if (!signedIn) {
     return children;
@@ -31,42 +32,67 @@ export default async function OrganizerAdminLayout({ children, params }) {
     {
       label: dictionary.admin.today,
       href: organizer.dashboardHref,
-      hint: "See the overall queue, next dates, and open follow-up."
+      exact: true,
+      icon: "today"
     },
     {
       label: dictionary.admin.calendar,
       href: organizer.calendarHref,
-      hint: "See scheduled dates in date order across your events."
-    },
-    {
-      label: dictionary.admin.registrations,
-      href: organizer.registrationsHref,
-      hint: "Track attendee status, online payments, and balances still due at the venue."
-    },
-    {
-      label: dictionary.admin.billing,
-      href: organizer.billingHref,
-      hint: "Connect Stripe and review how online checkout is configured."
-    },
-    {
-      label: dictionary.admin.settings,
-      href: organizer.settingsHref,
-      hint: "Edit your host details, venue information, and admin profile."
+      icon: "calendar"
     },
     {
       label: dictionary.admin.events,
       href: organizer.eventsHref,
-      hint: "Manage event pages, copy, pricing, and visibility."
+      icon: "events"
     },
     {
       label: dictionary.admin.dates,
       href: organizer.occurrencesHref,
-      hint: "Create and publish the actual dates attached to each event."
+      icon: "dates"
+    },
+    {
+      label: dictionary.admin.registrations,
+      href: organizer.registrationsHref,
+      icon: "registrations"
+    },
+    {
+      label: dictionary.admin.billing,
+      href: organizer.billingHref,
+      icon: "billing"
+    },
+    {
+      label: dictionary.admin.settings,
+      href: organizer.settingsHref,
+      icon: "settings"
     },
     {
       label: dictionary.admin.publicPage,
       href: organizer.publicHref,
-      hint: "Preview the page attendees see before they register."
+      icon: "external"
+    }
+  ];
+  const overviewNotes = [
+    {
+      title: isItalian ? "Eventi" : "Events",
+      detail: isItalian
+        ? "Definiscono il formato pubblico: titolo, copy, prezzo base, visibilita e regole di vendita."
+        : "They define the public format: title, copy, base price, visibility, and sales rules."
+    },
+    {
+      title: isItalian ? "Date" : "Dates",
+      detail: isItalian
+        ? "Sono le sessioni reali prenotabili: capienza, stato, finestra di vendita e note operative."
+        : "They are the real bookable sessions: capacity, status, sales window, and operational notes."
+    },
+    {
+      title: isItalian ? "Registrazioni" : "Registrations",
+      detail: isItalian
+        ? "Sono la coda operativa: partecipanti, allergie, stato pagamento e saldo da incassare sul posto."
+        : "They are the live queue: attendees, dietary restrictions, payment state, and balance due on site."
+    },
+    {
+      title: isItalian ? "Supporto" : "Support",
+      detail: `${organizer.supportEmail} · ${organizer.timeZone}`
     }
   ];
 
@@ -74,9 +100,13 @@ export default async function OrganizerAdminLayout({ children, params }) {
     <main className="shell admin-shell">
       <div className="content admin-content">
         <TopNav
-          brand={`${organizer.name} · ${dictionary.admin.organizerTitle}`}
+          brand={organizer.name}
           brandHref={organizer.dashboardHref}
           links={navigation}
+          navigationLabel={isItalian ? "Navigazione organizer" : "Organizer navigation"}
+          mobileNavigationLabel={isItalian ? "Navigazione organizer mobile" : "Mobile organizer navigation"}
+          openLabel={isItalian ? "Apri navigazione" : "Open navigation"}
+          closeLabel={isItalian ? "Chiudi navigazione" : "Close navigation"}
           rightSlot={
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
               <LocaleSwitcher
@@ -95,94 +125,61 @@ export default async function OrganizerAdminLayout({ children, params }) {
         />
 
         <section className="admin-layout">
-          <aside className="panel admin-sidebar">
-            <div className="admin-sidebar-block">
-              <div className="page-place">
-                {organizer.city}, {organizer.region}
-              </div>
-              <h1 className="admin-sidebar-title">{organizer.name}</h1>
-              <p className="admin-sidebar-copy">{organizer.tagline}</p>
-            </div>
-
-            <div className="admin-summary-grid">
-              <div className="admin-summary-card">
-                <span className="metric-label">Active regs</span>
-                <strong>{organizer.summary.activeCount}</strong>
-              </div>
-              <div className="admin-summary-card">
-                <span className="metric-label">Upcoming dates</span>
-                <strong>{organizer.totalUpcomingOccurrences}</strong>
-              </div>
-              <div className="admin-summary-card">
-                <span className="metric-label">Online collected</span>
-                <strong>{organizer.summary.onlineCollectedLabel}</strong>
-              </div>
-              <div className="admin-summary-card">
-                <span className="metric-label">Due at venue</span>
-                <strong>{organizer.summary.dueAtEventLabel}</strong>
-              </div>
-            </div>
-
-            <div className="admin-sidebar-block">
-              <div className="section-kicker">Quick links</div>
-              <div className="admin-nav-list">
-                {navigation.map((item) => (
-                  <Link className="admin-nav-link" href={item.href} key={item.href}>
-                    <span className="admin-nav-link-body">
-                      <span className="admin-nav-title">{item.label}</span>
-                      <span className="admin-nav-hint">{item.hint}</span>
-                    </span>
-                    <span aria-hidden="true">/</span>
+          <div className="admin-main admin-main-shell">
+            <section className="panel admin-shell-intro">
+              <div className="admin-shell-heading">
+                <div>
+                  <div className="page-place">
+                    {organizer.city}, {organizer.region}
+                  </div>
+                  <h1 className="admin-shell-title">{organizer.name}</h1>
+                  <p className="admin-shell-copy">{organizer.tagline}</p>
+                </div>
+                <div className="hero-actions">
+                  <Link className="button button-secondary" href={organizer.publicHref}>
+                    {dictionary.admin.publicPage}
                   </Link>
+                  {platformUser?.type === "platform" ? (
+                    <form action={returnToPlatformDashboardAction}>
+                      <button className="button button-secondary" type="submit">
+                        {isItalian ? "Torna al supporto" : "Return to support"}
+                      </button>
+                    </form>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="admin-shell-summary">
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Registrazioni attive" : "Active regs"}</span>
+                  <strong>{organizer.summary.activeCount}</strong>
+                </div>
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Date future" : "Upcoming dates"}</span>
+                  <strong>{organizer.totalUpcomingOccurrences}</strong>
+                </div>
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Incassato online" : "Online collected"}</span>
+                  <strong>{organizer.summary.onlineCollectedLabel}</strong>
+                </div>
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Saldo in venue" : "Due at venue"}</span>
+                  <strong>{organizer.summary.dueAtEventLabel}</strong>
+                </div>
+              </div>
+
+              <div className="admin-shell-note-grid">
+                {overviewNotes.map((item) => (
+                  <div className="admin-shell-note" key={item.title}>
+                    <strong>{item.title}</strong>
+                    <span>{item.detail}</span>
+                  </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            <div className="admin-sidebar-block">
-              <div className="section-kicker">How to use these tools</div>
-              <div className="status-list">
-                <div className="status-item">
-                  <span className="status-index">1</span>
-                  <div>
-                    <strong>Events describe what you host</strong>
-                    Use the Events area for titles, copy, pricing defaults, and whether an event
-                    should be public, draft, or paused.
-                  </div>
-                </div>
-                <div className="status-item">
-                  <span className="status-index">2</span>
-                  <div>
-                    <strong>Dates are the actual scheduled sessions</strong>
-                    The Dates area is where you add the real calendar instances that attendees can
-                    book, publish, or cancel.
-                  </div>
-                </div>
-                <div className="status-item">
-                  <span className="status-index">3</span>
-                  <div>
-                    <strong>Registrations are the live queue</strong>
-                    Use the registration cards to track confirmations, online payments, and any
-                    balance you collect at the venue.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="admin-sidebar-block admin-sidebar-footer">
-              <span className="spotlight-label">Support contact</span>
-              <strong>{organizer.supportEmail}</strong>
-              <span>{organizer.timeZone}</span>
-              {platformUser?.type === "platform" ? (
-                <form action={returnToPlatformDashboardAction}>
-                  <button className="button button-secondary" type="submit">
-                    Return to support dashboard
-                  </button>
-                </form>
-              ) : null}
-            </div>
-          </aside>
-
-          <div className="admin-main">{children}</div>
+            {children}
+          </div>
         </section>
       </div>
     </main>

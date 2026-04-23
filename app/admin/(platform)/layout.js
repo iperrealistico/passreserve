@@ -15,23 +15,52 @@ export default async function PlatformAdminLayout({ children }) {
   await requirePlatformAdminSession();
   const overview = await getPlatformOverview();
   const { locale, dictionary } = await getTranslations();
+  const isItalian = locale === "it";
   const navigation = [
-    { label: dictionary.admin.overview, href: "/admin", exact: true, hint: "Start here for the current queue, totals, and follow-up." },
-    { label: dictionary.admin.organizers, href: "/admin/organizers", hint: "Approve hosts, update accounts, and open organizer dashboards." },
-    { label: dictionary.admin.settings, href: "/admin/settings", hint: "Manage site-wide details such as contact info and defaults." },
-    { label: dictionary.admin.about, href: "/admin/about", hint: "Review the site story and shared public-facing copy." },
-    { label: dictionary.admin.emails, href: "/admin/emails", hint: "Check templates and inbox-style organizer request activity." },
-    { label: dictionary.admin.logs, href: "/admin/logs", hint: "Review recent system, registration, and payment activity." },
-    { label: dictionary.admin.health, href: "/admin/health", hint: "Check storage, email, and Stripe readiness for production." }
+    { label: dictionary.admin.overview, href: "/admin", exact: true, icon: "activity" },
+    { label: dictionary.admin.organizers, href: "/admin/organizers", icon: "building" },
+    { label: dictionary.admin.settings, href: "/admin/settings", icon: "settings" },
+    { label: dictionary.admin.about, href: "/admin/about", icon: "file" },
+    { label: dictionary.admin.emails, href: "/admin/emails", icon: "mail" },
+    { label: dictionary.admin.logs, href: "/admin/logs", icon: "logs" },
+    { label: dictionary.admin.health, href: "/admin/health", icon: "health" }
+  ];
+  const overviewNotes = [
+    {
+      title: isItalian ? "Organizer e richieste" : "Organizers and requests",
+      detail: isItalian
+        ? "Approva nuovi host, aggiorna account e apri rapidamente la loro dashboard operativa."
+        : "Approve new hosts, update accounts, and jump directly into their operations dashboard."
+    },
+    {
+      title: isItalian ? "Contenuti condivisi" : "Shared content",
+      detail: isItalian
+        ? "Usa Settings e About per mantenere coerenti brand, contatti e messaggi pubblici."
+        : "Use Settings and About to keep brand details, contact info, and public messaging aligned."
+    },
+    {
+      title: isItalian ? "Email, log e health" : "Email, logs, and health",
+      detail: isItalian
+        ? "Questa e la console per verificare delivery, audit trail e stato dei sistemi."
+        : "This is the console for delivery checks, audit trails, and system readiness."
+    },
+    {
+      title: isItalian ? "Team contact" : "Team contact",
+      detail: `${overview.supportEmail} · ${overview.summary.onlineCollectedLabel}`
+    }
   ];
 
   return (
     <main className="shell admin-shell">
       <div className="content admin-content">
         <TopNav
-          brand={`Passreserve · ${dictionary.admin.platformTitle}`}
+          brand={isItalian ? "Supporto Passreserve" : "Passreserve support"}
           brandHref="/admin"
           links={navigation}
+          navigationLabel={isItalian ? "Navigazione piattaforma" : "Platform navigation"}
+          mobileNavigationLabel={isItalian ? "Navigazione piattaforma mobile" : "Mobile platform navigation"}
+          openLabel={isItalian ? "Apri navigazione" : "Open navigation"}
+          closeLabel={isItalian ? "Chiudi navigazione" : "Close navigation"}
           rightSlot={
             <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
               <LocaleSwitcher
@@ -49,89 +78,58 @@ export default async function PlatformAdminLayout({ children }) {
         />
 
         <section className="admin-layout">
-          <aside className="panel admin-sidebar">
-            <div className="admin-sidebar-block">
-              <div className="page-place">{overview.releaseLabel}</div>
-              <h1 className="admin-sidebar-title">Support dashboard</h1>
-              <p className="admin-sidebar-copy">
-                Review hosts, keep public pages accurate, check emails, and follow the main
-                internal checks from one place.
-              </p>
-            </div>
-
-            <div className="admin-summary-grid">
-              <div className="admin-summary-card">
-                <span className="metric-label">Organizers</span>
-                <strong>{overview.summary.organizerCount}</strong>
-              </div>
-              <div className="admin-summary-card">
-                <span className="metric-label">Events</span>
-                <strong>{overview.summary.eventCount}</strong>
-              </div>
-              <div className="admin-summary-card">
-                <span className="metric-label">Inbox open</span>
-                <strong>{overview.summary.openRequestsCount}</strong>
-              </div>
-              <div className="admin-summary-card">
-                <span className="metric-label">Inbox storage</span>
-                <strong>{overview.summary.inboxStorageLabel}</strong>
-              </div>
-            </div>
-
-            <div className="admin-sidebar-block">
-              <div className="section-kicker">Quick links</div>
-              <div className="admin-nav-list">
-                {navigation.map((item) => (
-                  <Link className="admin-nav-link" href={item.href} key={item.href}>
-                    <span className="admin-nav-link-body">
-                      <span className="admin-nav-title">{item.label}</span>
-                      <span className="admin-nav-hint">{item.hint}</span>
-                    </span>
-                    <span aria-hidden="true">/</span>
+          <div className="admin-main admin-main-shell">
+            <section className="panel admin-shell-intro">
+              <div className="admin-shell-heading">
+                <div>
+                  <div className="page-place">{overview.releaseLabel}</div>
+                  <h1 className="admin-shell-title">
+                    {isItalian ? "Dashboard di supporto" : "Support dashboard"}
+                  </h1>
+                  <p className="admin-shell-copy">
+                    {isItalian
+                      ? "Controlla organizer, contenuti pubblici, email e stato operativo da una console unica e piu vicina al linguaggio di MTB Reserve."
+                      : "Review organizers, public content, email activity, and operational readiness from a simpler console closer to the MTB Reserve pattern."}
+                  </p>
+                </div>
+                <div className="hero-actions">
+                  <Link className="button button-secondary" href="/admin/organizers">
+                    {dictionary.admin.organizers}
                   </Link>
-                ))}
+                </div>
               </div>
-            </div>
 
-            <div className="admin-sidebar-block">
-              <div className="section-kicker">How to use this area</div>
-              <div className="status-list">
-                {[
-                  {
-                    title: "Organizers and requests",
-                    detail:
-                      "Use the Organizers area to approve new hosts, update their details, suspend accounts, or jump straight into their dashboard."
-                  },
-                  {
-                    title: "Settings and public copy",
-                    detail:
-                      "Use Settings and About when you want to adjust shared brand details, contact information, or public-facing wording."
-                  },
-                  {
-                    title: "Emails, logs, and checks",
-                    detail:
-                      "Use Emails, Logs, and Health when you need to confirm delivery, investigate an issue, or verify that payments and storage are ready."
-                  }
-                ].map((item, index) => (
-                  <div className="status-item" key={item.title}>
-                    <span className="status-index">{index + 1}</span>
-                    <div>
-                      <strong>{item.title}</strong>
-                      {item.detail}
-                    </div>
+              <div className="admin-shell-summary">
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Organizer" : "Organizers"}</span>
+                  <strong>{overview.summary.organizerCount}</strong>
+                </div>
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Eventi" : "Events"}</span>
+                  <strong>{overview.summary.eventCount}</strong>
+                </div>
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Inbox aperte" : "Inbox open"}</span>
+                  <strong>{overview.summary.openRequestsCount}</strong>
+                </div>
+                <div className="admin-summary-card">
+                  <span className="metric-label">{isItalian ? "Storage inbox" : "Inbox storage"}</span>
+                  <strong>{overview.summary.inboxStorageLabel}</strong>
+                </div>
+              </div>
+
+              <div className="admin-shell-note-grid">
+                {overviewNotes.map((item) => (
+                  <div className="admin-shell-note" key={item.title}>
+                    <strong>{item.title}</strong>
+                    <span>{item.detail}</span>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
-            <div className="admin-sidebar-block admin-sidebar-footer">
-              <span className="spotlight-label">Team contact</span>
-              <strong>{overview.supportEmail}</strong>
-              <span>{overview.summary.onlineCollectedLabel} collected online across active organizers</span>
-            </div>
-          </aside>
-
-          <div className="admin-main">{children}</div>
+            {children}
+          </div>
         </section>
       </div>
     </main>

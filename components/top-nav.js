@@ -1,11 +1,45 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import {
+  Activity,
+  Building2,
+  CalendarDays,
+  CalendarRange,
+  CreditCard,
+  ExternalLink,
+  FileText,
+  HeartPulse,
+  LayoutDashboard,
+  Mail,
+  Menu,
+  Settings,
+  Terminal,
+  Ticket,
+  Users,
+  X
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { cn } from "../lib/utils.js";
+
+const navIcons = {
+  activity: Activity,
+  building: Building2,
+  calendar: CalendarDays,
+  dates: CalendarRange,
+  billing: CreditCard,
+  external: ExternalLink,
+  file: FileText,
+  health: HeartPulse,
+  today: LayoutDashboard,
+  mail: Mail,
+  settings: Settings,
+  logs: Terminal,
+  events: Ticket,
+  registrations: Users
+};
 
 function isLinkActive(pathname, link) {
   if (link.exact) {
@@ -20,35 +54,39 @@ export function TopNav({
   brandHref = "/",
   links = [],
   rightSlot = null,
-  className = ""
+  className = "",
+  navigationLabel = "Primary",
+  mobileNavigationLabel = "Mobile primary",
+  openLabel = "Open navigation",
+  closeLabel = "Close navigation"
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   return (
     <header className={cn("admin-topbar", className)}>
-      <div className="flex items-center justify-between gap-4">
-        <Link className="font-heading text-xl font-semibold tracking-tight text-foreground" href={brandHref}>
+      <div className="admin-topbar-row">
+        <Link className="admin-brand" href={brandHref}>
           {brand}
         </Link>
 
-        <div className="hidden items-center gap-4 lg:flex">
-          <nav aria-label="Primary" className="flex items-center gap-1">
+        <div className="hidden items-center gap-6 lg:flex">
+          <nav aria-label={navigationLabel} className="admin-tab-nav">
             {links.map((link) => {
               const active = isLinkActive(pathname, link);
+              const Icon = link.icon ? navIcons[link.icon] : null;
 
               return (
                 <Link
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "rounded-full px-4 py-2 text-sm font-medium transition-colors",
-                    active
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    "admin-tab-link",
+                    active && "admin-tab-link-active"
                   )}
                   href={link.href}
                   key={link.href}
                 >
+                  {Icon ? <Icon className="admin-tab-icon" size={16} /> : null}
                   {link.label}
                 </Link>
               );
@@ -59,7 +97,7 @@ export function TopNav({
 
         <button
           aria-expanded={open}
-          aria-label={open ? "Close navigation" : "Open navigation"}
+          aria-label={open ? closeLabel : openLabel}
           className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-background text-foreground lg:hidden"
           onClick={() => setOpen((current) => !current)}
           type="button"
@@ -69,24 +107,24 @@ export function TopNav({
       </div>
 
       {open ? (
-        <div className="mt-4 flex flex-col gap-4 rounded-[1.5rem] border border-border bg-background p-4 lg:hidden">
-          <nav aria-label="Mobile primary" className="flex flex-col gap-2">
+        <div className="admin-mobile-nav">
+          <nav aria-label={mobileNavigationLabel} className="flex flex-col gap-2">
             {links.map((link) => {
               const active = isLinkActive(pathname, link);
+              const Icon = link.icon ? navIcons[link.icon] : null;
 
               return (
                 <Link
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "rounded-2xl px-4 py-3 text-sm font-medium transition-colors",
-                    active
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    "admin-mobile-tab-link",
+                    active && "admin-mobile-tab-link-active"
                   )}
                   href={link.href}
                   key={link.href}
                   onClick={() => setOpen(false)}
                 >
+                  {Icon ? <Icon className="admin-tab-icon" size={16} /> : null}
                   {link.label}
                 </Link>
               );
