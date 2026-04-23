@@ -1,7 +1,7 @@
 import Link from "next/link";
 
+import { LocaleSwitcher } from "../components/locale-switcher.js";
 import { HomeOrganizerRequestModal } from "./home-organizer-request-modal.js";
-import { PublicHeader } from "./public-header.js";
 import {
   organizerLaunchWindows,
   organizerPaymentModels
@@ -39,7 +39,19 @@ export default async function HomePage({ searchParams }) {
   return (
     <main className="shell">
       <div className="content">
-        <PublicHeader currentPath="/" dictionary={dictionary} locale={locale} />
+        <header className="flex flex-col gap-4 py-5 sm:flex-row sm:items-start sm:justify-between">
+          <Link className="wordmark" href="/">
+            <span className="wordmark-name">Passreserve.com</span>
+            <span className="wordmark-tag">{dictionary.home.eyebrow}</span>
+          </Link>
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <LocaleSwitcher
+              label={dictionary.languageLabel}
+              labels={dictionary.locales}
+              locale={locale}
+            />
+          </div>
+        </header>
         <Notice query={query} />
 
         <section className="mt-6 grid gap-6 lg:grid-cols-2">
@@ -95,7 +107,7 @@ export default async function HomePage({ searchParams }) {
                   {dictionary.home.organizerLabel}
                 </div>
                 <div className="max-w-xl">
-                  <h2 className="text-4xl font-semibold tracking-tight sm:text-6xl">
+                  <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-6xl">
                     {dictionary.home.organizerTitle}
                   </h2>
                   <p className="mt-4 max-w-2xl text-base leading-7 text-primary-foreground/80 sm:text-lg">
@@ -136,6 +148,12 @@ export default async function HomePage({ searchParams }) {
             </div>
           </article>
         </section>
+
+        <div className="mt-5 flex justify-center">
+          <Link className="inline-link" href="/about">
+            {dictionary.home.storyLink}
+          </Link>
+        </div>
       </div>
     </main>
   );
