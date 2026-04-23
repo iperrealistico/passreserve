@@ -12,7 +12,7 @@ export default async function EventsPage({ searchParams }) {
   const query = await searchParams;
   const search = typeof query.query === "string" ? query.query : "";
   const { locale, dictionary } = await getTranslations();
-  const results = await getDiscoveryResults(search);
+  const results = await getDiscoveryResults(search, locale);
 
   return (
     <main className="shell">

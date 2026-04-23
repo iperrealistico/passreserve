@@ -92,6 +92,7 @@ model Organizer {
   id                 String                @id @default(cuid())
   slug               String                @unique
   name               String
+  contentI18n        Json?
   status             OrganizerStatus       @default(ACTIVE)
   description        String                @default("")
   tagline            String                @default("")
@@ -197,6 +198,7 @@ model EventType {
   organizer             Organizer       @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   slug                  String
   title                 String
+  contentI18n           Json?
   category              String          @default("")
   visibility            EventVisibility @default(DRAFT)
   summary               String          @default("")
@@ -258,6 +260,7 @@ model EventOccurrence {
   priceCents        Int
   prepayPercentage  Int
   venueTitle        String           @default("")
+  contentI18n       Json?
   note              String           @default("")
   salesWindowStartsAt DateTime?
   salesWindowEndsAt DateTime?

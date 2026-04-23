@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getOrganizerOccurrencesAdmin } from "../../../../lib/passreserve-admin-service.js";
+import { getLocalizedFormText } from "../../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import { saveOrganizerOccurrenceAction } from "../actions.js";
@@ -39,6 +40,10 @@ function formatEurosInput(cents) {
 
   const euros = cents / 100;
   return Number.isInteger(euros) ? String(euros) : euros.toFixed(2);
+}
+
+function localizedValue(record, field, locale) {
+  return getLocalizedFormText(record, field, locale);
 }
 
 export default async function OrganizerOccurrencesPage({ params, searchParams }) {
@@ -340,14 +345,6 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>{isItalian ? "Venue title" : "Venue title"}</span>
-            <input
-              defaultValue={selectedOccurrence?.venueTitle || activeEvent?.venueTitle || ""}
-              name="venueTitle"
-              type="text"
-            />
-          </label>
-          <label className="field">
             <span>{isItalian ? "Pubblicazione" : "Published"}</span>
             <select
               defaultValue={selectedOccurrence ? String(Boolean(selectedOccurrence.published)) : "false"}
@@ -373,10 +370,59 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
               type="datetime-local"
             />
           </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Nota" : "Note"}</span>
-            <textarea defaultValue={selectedOccurrence?.note || ""} name="note" rows="2" />
-          </label>
+          <div className="field field-span">
+            <span className="metric-label">{isItalian ? "Testi pubblici bilingua" : "Bilingual public text"}</span>
+            <strong>
+              {isItalian
+                ? "Compila solo le lingue che vuoi davvero pubblicare."
+                : "Only fill the languages you actually want to publish."}
+            </strong>
+            <small className="field-hint">
+              {isItalian
+                ? "Se una lingua manca, la pagina userà automaticamente quella disponibile."
+                : "If one language is missing, the page automatically uses the one that exists."}
+            </small>
+          </div>
+          <div className="locale-fieldset field-span">
+            <div className="locale-field-column">
+              <div className="section-kicker">Italiano</div>
+              <label className="field">
+                <span>{isItalian ? "Titolo venue" : "Venue title"}</span>
+                <input
+                  defaultValue={localizedValue(selectedOccurrence || activeEvent, "venueTitle", "it")}
+                  name="venueTitleIt"
+                  type="text"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Nota" : "Note"}</span>
+                <textarea
+                  defaultValue={localizedValue(selectedOccurrence, "note", "it")}
+                  name="noteIt"
+                  rows="2"
+                />
+              </label>
+            </div>
+            <div className="locale-field-column">
+              <div className="section-kicker">English</div>
+              <label className="field">
+                <span>Venue title</span>
+                <input
+                  defaultValue={localizedValue(selectedOccurrence || activeEvent, "venueTitle", "en")}
+                  name="venueTitleEn"
+                  type="text"
+                />
+              </label>
+              <label className="field">
+                <span>Note</span>
+                <textarea
+                  defaultValue={localizedValue(selectedOccurrence, "note", "en")}
+                  name="noteEn"
+                  rows="2"
+                />
+              </label>
+            </div>
+          </div>
           <label className="field field-span">
             <span>{isItalian ? "Image URL" : "Image URL"}</span>
             <input defaultValue={selectedOccurrence?.imageUrl || ""} name="imageUrl" type="url" />

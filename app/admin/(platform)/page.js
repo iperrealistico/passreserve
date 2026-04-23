@@ -20,62 +20,67 @@ export default async function PlatformAdminOverviewPage() {
 
   return (
     <div className="admin-page">
-      <section className="hero admin-hero">
-        <article className="panel hero-copy admin-hero-copy">
-          <div className="section-kicker">{isItalian ? "Panoramica supporto" : "Support overview"}</div>
-          <h2>
-            {isItalian
-              ? "Organizer, contenuti, inbox e controlli operativi nello stesso posto."
-              : "Keep organizers, content, inbox activity, and operational checks in one place."}
-          </h2>
-          <p>
-            {isItalian
-              ? "Questa dashboard è il punto di partenza per capire cosa richiede attenzione subito: richieste organizer, follow-up pagamenti e stato dell'infrastruttura."
-              : "Start here to see what needs attention first: organizer requests, payment follow-up, and infrastructure readiness."}
-          </p>
-          <div className="pill-list">
-            <span className="pill">{overview.summary.organizerCount} {isItalian ? "organizer" : "organizers"}</span>
-            <span className="pill">{overview.summary.eventCount} {isItalian ? "eventi" : "events"}</span>
-            <span className="pill">{overview.summary.occurrenceCount} {isItalian ? "date" : "occurrences"}</span>
-            <span className="pill">{overview.summary.activeRegistrations} {isItalian ? "registrazioni attive" : "active registrations"}</span>
-          </div>
-        </article>
-
-        <aside className="panel hero-aside admin-hero-aside">
-          <div className="status-block">
-            <div className="status-label">{isItalian ? "Modalità pagamenti" : "Payment mode"}</div>
-            <h2>{overview.summary.stripeModeLabel}</h2>
+      <section className="panel section-card admin-section">
+        <div className="admin-overview-grid">
+          <div className="admin-overview-copy">
+            <div className="section-kicker">{isItalian ? "Panoramica supporto" : "Support overview"}</div>
+            <h2>
+              {isItalian
+                ? "Supporto platform, contenuti e controlli operativi in un colpo solo."
+                : "Platform support, content, and operational checks in one clear starting point."}
+            </h2>
             <p>
               {isItalian
-                ? "Mantieni chiaro cosa è in produzione e cosa è ancora in preview."
-                : "Keep it obvious what is production-ready and what is still running in preview."}
+                ? "Qui capisci subito cosa richiede attenzione: richieste organizer, follow-up pagamenti, qualità contenuti e stato ambiente."
+                : "Use this first screen to see what needs attention now: organizer requests, payment follow-up, content quality, and environment readiness."}
             </p>
           </div>
 
-          <div className="metrics">
-            <div className="metric">
-              <span className="metric-label">{isItalian ? "Richieste aperte" : "Open requests"}</span>
-              <div className="metric-value">{overview.summary.openRequestsCount}</div>
+          <div className="admin-summary-grid">
+            <div className="admin-summary-card">
+              <span className="metric-label">{isItalian ? "Organizer attivi" : "Active organizers"}</span>
+              <strong className="metric-value">{overview.summary.organizerCount}</strong>
             </div>
-            <div className="metric">
-              <span className="metric-label">{isItalian ? "Template" : "Templates"}</span>
-              <div className="metric-value">{overview.summary.templateCount}</div>
+            <div className="admin-summary-card">
+              <span className="metric-label">{isItalian ? "Eventi pubblici" : "Public events"}</span>
+              <strong className="metric-value">{overview.summary.eventCount}</strong>
             </div>
-            <div className="metric">
-              <span className="metric-label">{isItalian ? "Incassato online" : "Online collected"}</span>
-              <div className="metric-value">{overview.summary.onlineCollectedLabel}</div>
+            <div className="admin-summary-card">
+              <span className="metric-label">{isItalian ? "Date pubblicate" : "Published dates"}</span>
+              <strong className="metric-value">{overview.summary.occurrenceCount}</strong>
             </div>
-            <div className="metric">
-              <span className="metric-label">{isItalian ? "Storage inbox" : "Inbox storage"}</span>
-              <div className="metric-value">{overview.summary.inboxStorageLabel}</div>
+            <div className="admin-summary-card">
+              <span className="metric-label">
+                {isItalian ? "Registrazioni attive" : "Active registrations"}
+              </span>
+              <strong className="metric-value">{overview.summary.activeRegistrations}</strong>
             </div>
           </div>
-        </aside>
+        </div>
+
+        <div className="admin-shell-note-grid">
+          <div className="admin-shell-note">
+            <strong>{isItalian ? "Richieste aperte" : "Open requests"}</strong>
+            {overview.summary.openRequestsCount}
+          </div>
+          <div className="admin-shell-note">
+            <strong>{isItalian ? "Template email" : "Email templates"}</strong>
+            {overview.summary.templateCount}
+          </div>
+          <div className="admin-shell-note">
+            <strong>{isItalian ? "Incassato online" : "Collected online"}</strong>
+            {overview.summary.onlineCollectedLabel}
+          </div>
+          <div className="admin-shell-note">
+            <strong>{isItalian ? "Stato pagamenti" : "Payments status"}</strong>
+            {overview.summary.stripeModeLabel}
+          </div>
+        </div>
       </section>
 
       <section className="admin-grid">
         <article className="panel section-card admin-section admin-section-wide">
-          <div className="section-kicker">{isItalian ? "Coda priorità" : "Attention queue"}</div>
+          <div className="section-kicker">{isItalian ? "Panoramica supporto" : "Support overview"}</div>
           <h3>{isItalian ? "Cosa richiede attenzione adesso" : "What needs attention first"}</h3>
           <div className="admin-note-list">
             {overview.attentionQueue.map((item) => (
@@ -91,20 +96,37 @@ export default async function PlatformAdminOverviewPage() {
         </article>
 
         <article className="panel section-card admin-section">
-          <div className="section-kicker">{isItalian ? "Copertura organizer" : "Organizer coverage"}</div>
-          <h3>{isItalian ? "Organizer più attivi" : "Currently active organizers"}</h3>
-          <div className="timeline">
-            {organizers.slice(0, 6).map((organizer) => (
-              <div className="timeline-step" key={organizer.slug}>
-                <strong>{organizer.name}</strong>
-                <span>
-                  {organizer.city}, {organizer.region}
-                </span>
-                <span>{organizer.summary.activeCount} {isItalian ? "registrazioni attive" : "active registrations"}</span>
+          <div className="section-kicker">{isItalian ? "Stato platform" : "Platform state"}</div>
+          <h3>{isItalian ? "Indicatori rapidi" : "Quick operational signals"}</h3>
+          <div className="admin-note-list">
+            <div className="admin-note-item">
+              <span className="spotlight-label">{isItalian ? "Storage attuale" : "Current storage"}</span>
+              <strong>{overview.summary.inboxStorageLabel}</strong>
+            </div>
+            {overview.releaseTracks.map((track) => (
+              <div className="admin-note-item" key={track.title}>
+                <strong>{track.title}</strong>
+                <p>{track.detail}</p>
               </div>
             ))}
           </div>
         </article>
+      </section>
+
+      <section className="panel section-card admin-section">
+        <div className="section-kicker">{isItalian ? "Copertura organizer" : "Organizer coverage"}</div>
+        <h3>{isItalian ? "Organizer più attivi" : "Currently active organizers"}</h3>
+        <div className="timeline">
+          {organizers.slice(0, 6).map((organizer) => (
+            <div className="timeline-step" key={organizer.slug}>
+              <strong>{organizer.name}</strong>
+              <span>
+                {organizer.city}, {organizer.region}
+              </span>
+              <span>{organizer.summary.activeCount} {isItalian ? "registrazioni attive" : "active registrations"}</span>
+            </div>
+          ))}
+        </div>
       </section>
     </div>
   );

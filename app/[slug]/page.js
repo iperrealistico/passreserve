@@ -17,7 +17,8 @@ function toList(value) {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const organizer = await getOrganizerPage(slug);
+  const { locale } = await getTranslations();
+  const organizer = await getOrganizerPage(slug, { locale });
 
   if (!organizer) {
     return { title: "Page not found" };
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }) {
 export default async function OrganizerPage({ params }) {
   const { slug } = await params;
   const { locale, dictionary } = await getTranslations();
-  const organizer = await getOrganizerPage(slug);
+  const organizer = await getOrganizerPage(slug, { locale });
   const isItalian = locale === "it";
 
   if (!organizer) {

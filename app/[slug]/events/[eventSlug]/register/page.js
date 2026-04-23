@@ -11,7 +11,8 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;
-  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
+  const { locale } = await getTranslations();
+  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug, { locale });
 
   if (!entry) {
     return { title: "Registration not found" };
@@ -28,6 +29,7 @@ export default async function RegistrationPage({ params, searchParams }) {
   const query = await searchParams;
   const { locale, dictionary } = await getTranslations();
   const entry = await getRegistrationExperienceBySlugs(slug, eventSlug, {
+    locale,
     occurrenceId: typeof query.occurrence === "string" ? query.occurrence : undefined
   });
 
@@ -46,49 +48,30 @@ export default async function RegistrationPage({ params, searchParams }) {
       <div className="content">
         <PublicHeader dictionary={dictionary} locale={locale} />
 
-        <section className="hero">
-          <article className="hero-copy">
-            <div className="breadcrumb">
-              <Link href={organizer.organizerHref}>{organizer.name}</Link>
-              <span>/</span>
-              <Link href={event.detailHref}>{event.title}</Link>
-              <span>/</span>
-              <span>{dictionary.registration.eyebrow}</span>
-            </div>
-            <div className="page-place">
+        <div className="registration-page-bar">
+          <div className="breadcrumb">
+            <Link href={organizer.organizerHref}>{organizer.name}</Link>
+            <span>/</span>
+            <Link href={event.detailHref}>{event.title}</Link>
+            <span>/</span>
+            <span>{dictionary.registration.eyebrow}</span>
+          </div>
+          <div className="registration-page-meta">
+            <span>
               {organizer.city}, {organizer.region}
-            </div>
-            <h1>{dictionary.registration.title}</h1>
-            <p>{dictionary.registration.summary}</p>
-          </article>
+            </span>
+            {selectedOccurrence?.label ? <span>{selectedOccurrence.label}</span> : null}
+            {selectedTicketCategory?.label ? <span>{selectedTicketCategory.label}</span> : null}
+            {selectedOccurrence?.capacityLabel ? <span>{selectedOccurrence.capacityLabel}</span> : null}
+            <span>{event.collectionLabel}</span>
+          </div>
+        </div>
 
-          <aside className="hero-aside">
-            <div className="metrics">
-              <div className="metric">
-                <div className="metric-label">{dictionary.registration.steps.occurrence}</div>
-                <div className="metric-value">{selectedOccurrence?.label}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">{dictionary.registration.steps.ticket}</div>
-                <div className="metric-value">{selectedTicketCategory?.label}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Availability</div>
-                <div className="metric-value">{selectedOccurrence?.capacityLabel}</div>
-              </div>
-              <div className="metric">
-                <div className="metric-label">Payment</div>
-                <div className="metric-value">{event.collectionLabel}</div>
-              </div>
-            </div>
-
-            {!selectedOccurrence?.registrationAvailable ? (
-              <div className="registration-message-error mt-6">
-                {selectedOccurrence?.registrationGate?.reason || dictionary.registration.blocked}
-              </div>
-            ) : null}
-          </aside>
-        </section>
+        {!selectedOccurrence?.registrationAvailable ? (
+          <div className="registration-message-error mt-6">
+            {selectedOccurrence?.registrationGate?.reason || dictionary.registration.blocked}
+          </div>
+        ) : null}
 
         <RegistrationFlowExperience
           dictionary={dictionary}

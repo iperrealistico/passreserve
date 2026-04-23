@@ -1,6 +1,10 @@
 import Link from "next/link";
 
 import { getOrganizerEventsAdmin } from "../../../../lib/passreserve-admin-service.js";
+import {
+  getLocalizedFormList,
+  getLocalizedFormText
+} from "../../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import {
@@ -10,10 +14,6 @@ import {
 } from "../actions.js";
 import { EventGalleryEditor } from "../event-gallery-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
-
-function multilineValue(entries) {
-  return Array.isArray(entries) ? entries.join("\n") : "";
-}
 
 function formatDateTimeLocal(value, timeZone) {
   if (!value) {
@@ -39,6 +39,14 @@ function formatDateTimeLocal(value, timeZone) {
   );
 
   return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}`;
+}
+
+function localizedValue(record, field, locale) {
+  return getLocalizedFormText(record, field, locale);
+}
+
+function localizedListValue(record, field, locale) {
+  return getLocalizedFormList(record, field, locale);
 }
 
 export default async function OrganizerEventsPage({ params, searchParams }) {
@@ -249,10 +257,6 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
           <input name="slug" type="hidden" value={slug} />
           <input name="id" type="hidden" value={selectedEvent?.id || ""} />
           <label className="field">
-            <span>{isItalian ? "Titolo" : "Title"}</span>
-            <input defaultValue={selectedEvent?.title || ""} name="title" required type="text" />
-          </label>
-          <label className="field">
             <span>{isItalian ? "Slug evento" : "Event slug"}</span>
             <input defaultValue={selectedEvent?.slug || ""} name="eventSlug" type="text" />
           </label>
@@ -305,41 +309,206 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
               type="datetime-local"
             />
           </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Summary" : "Summary"}</span>
-            <textarea defaultValue={selectedEvent?.summary || ""} name="summary" rows="2" />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Descrizione" : "Description"}</span>
-            <textarea defaultValue={selectedEvent?.description || ""} name="description" rows="3" />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Pubblico ideale" : "Audience"}</span>
-            <textarea defaultValue={selectedEvent?.audience || ""} name="audience" rows="2" />
-          </label>
-          <label className="field">
-            <span>{isItalian ? "Titolo venue" : "Venue title"}</span>
-            <input defaultValue={selectedEvent?.venueTitle || ""} name="venueTitle" type="text" />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Dettaglio venue" : "Venue detail"}</span>
-            <textarea
-              defaultValue={selectedEvent?.venueDetail || ""}
-              name="venueDetail"
-              rows="2"
-            />
-          </label>
+          <div className="field field-span">
+            <span className="metric-label">{isItalian ? "Contenuti pubblici bilingua" : "Bilingual public copy"}</span>
+            <strong>
+              {isItalian
+                ? "Puoi compilare italiano, inglese, o solo una delle due."
+                : "You can fill Italian, English, or only one of the two."}
+            </strong>
+            <small className="field-hint">
+              {isItalian
+                ? "Se una lingua manca, il frontend usa automaticamente quella disponibile."
+                : "If one language is missing, the frontend automatically falls back to the available one."}
+            </small>
+          </div>
+          <div className="locale-fieldset field-span">
+            <div className="locale-field-column">
+              <div className="section-kicker">Italiano</div>
+              <label className="field">
+                <span>{isItalian ? "Titolo" : "Title"}</span>
+                <input
+                  defaultValue={localizedValue(selectedEvent, "title", "it")}
+                  name="titleIt"
+                  type="text"
+                />
+              </label>
+              <label className="field">
+                <span>Summary</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "summary", "it")}
+                  name="summaryIt"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Descrizione" : "Description"}</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "description", "it")}
+                  name="descriptionIt"
+                  rows="4"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Pubblico ideale" : "Audience"}</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "audience", "it")}
+                  name="audienceIt"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Titolo venue" : "Venue title"}</span>
+                <input
+                  defaultValue={localizedValue(selectedEvent, "venueTitle", "it")}
+                  name="venueTitleIt"
+                  type="text"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Dettaglio venue" : "Venue detail"}</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "venueDetail", "it")}
+                  name="venueDetailIt"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Istruzioni partecipanti" : "Attendee instructions"}</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "attendeeInstructions", "it")}
+                  name="attendeeInstructionsIt"
+                  rows="3"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Policy cancellazione" : "Cancellation policy"}</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "cancellationPolicy", "it")}
+                  name="cancellationPolicyIt"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Highlights (uno per riga)" : "Highlights (one per line)"}</span>
+                <textarea
+                  defaultValue={localizedListValue(selectedEvent, "highlights", "it")}
+                  name="highlightsIt"
+                  rows="3"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Incluso (uno per riga)" : "Included (one per line)"}</span>
+                <textarea
+                  defaultValue={localizedListValue(selectedEvent, "included", "it")}
+                  name="includedIt"
+                  rows="3"
+                />
+              </label>
+              <label className="field">
+                <span>{isItalian ? "Policy (una per riga)" : "Policies (one per line)"}</span>
+                <textarea
+                  defaultValue={localizedListValue(selectedEvent, "policies", "it")}
+                  name="policiesIt"
+                  rows="3"
+                />
+              </label>
+            </div>
+            <div className="locale-field-column">
+              <div className="section-kicker">English</div>
+              <label className="field">
+                <span>Title</span>
+                <input
+                  defaultValue={localizedValue(selectedEvent, "title", "en")}
+                  name="titleEn"
+                  type="text"
+                />
+              </label>
+              <label className="field">
+                <span>Summary</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "summary", "en")}
+                  name="summaryEn"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>Description</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "description", "en")}
+                  name="descriptionEn"
+                  rows="4"
+                />
+              </label>
+              <label className="field">
+                <span>Audience</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "audience", "en")}
+                  name="audienceEn"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>Venue title</span>
+                <input
+                  defaultValue={localizedValue(selectedEvent, "venueTitle", "en")}
+                  name="venueTitleEn"
+                  type="text"
+                />
+              </label>
+              <label className="field">
+                <span>Venue detail</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "venueDetail", "en")}
+                  name="venueDetailEn"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>Attendee instructions</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "attendeeInstructions", "en")}
+                  name="attendeeInstructionsEn"
+                  rows="3"
+                />
+              </label>
+              <label className="field">
+                <span>Cancellation policy</span>
+                <textarea
+                  defaultValue={localizedValue(selectedEvent, "cancellationPolicy", "en")}
+                  name="cancellationPolicyEn"
+                  rows="2"
+                />
+              </label>
+              <label className="field">
+                <span>Highlights (one per line)</span>
+                <textarea
+                  defaultValue={localizedListValue(selectedEvent, "highlights", "en")}
+                  name="highlightsEn"
+                  rows="3"
+                />
+              </label>
+              <label className="field">
+                <span>Included (one per line)</span>
+                <textarea
+                  defaultValue={localizedListValue(selectedEvent, "included", "en")}
+                  name="includedEn"
+                  rows="3"
+                />
+              </label>
+              <label className="field">
+                <span>Policies (one per line)</span>
+                <textarea
+                  defaultValue={localizedListValue(selectedEvent, "policies", "en")}
+                  name="policiesEn"
+                  rows="3"
+                />
+              </label>
+            </div>
+          </div>
           <label className="field">
             <span>{isItalian ? "URL mappa" : "Map URL"}</span>
             <input defaultValue={selectedEvent?.mapHref || ""} name="mapHref" type="url" />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Istruzioni partecipanti" : "Attendee instructions"}</span>
-            <textarea
-              defaultValue={selectedEvent?.attendeeInstructions || ""}
-              name="attendeeInstructions"
-              rows="2"
-            />
           </label>
           <label className="field field-span">
             <span>{isItalian ? "Note interne organizer" : "Organizer notes"}</span>
@@ -347,38 +516,6 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
               defaultValue={selectedEvent?.organizerNotes || ""}
               name="organizerNotes"
               rows="2"
-            />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Policy cancellazione" : "Cancellation policy"}</span>
-            <textarea
-              defaultValue={selectedEvent?.cancellationPolicy || ""}
-              name="cancellationPolicy"
-              rows="2"
-            />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Highlights (uno per riga)" : "Highlights (one per line)"}</span>
-            <textarea
-              defaultValue={multilineValue(selectedEvent?.highlights)}
-              name="highlights"
-              rows="3"
-            />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Incluso (uno per riga)" : "Included (one per line)"}</span>
-            <textarea
-              defaultValue={multilineValue(selectedEvent?.included)}
-              name="included"
-              rows="3"
-            />
-          </label>
-          <label className="field field-span">
-            <span>{isItalian ? "Policy (una per riga)" : "Policies (one per line)"}</span>
-            <textarea
-              defaultValue={multilineValue(selectedEvent?.policies)}
-              name="policies"
-              rows="3"
             />
           </label>
 

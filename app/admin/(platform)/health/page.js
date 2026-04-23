@@ -60,17 +60,17 @@ export default async function PlatformHealthPage() {
         <article className="panel section-card admin-section">
           <div className="section-kicker">{isItalian ? "Checks" : "Checks"}</div>
           <h3>{isItalian ? "Controlli correnti piattaforma" : "Current platform checks"}</h3>
-          <div className="status-list">
+          <div className="admin-card-grid">
             {health.checks.map((check, index) => (
-              <div className="status-item" key={check.title}>
-                <span className="status-index">{index + 1}</span>
-                <div>
-                  <strong>
-                    {check.title} · {check.statusLabel}
-                  </strong>
-                  {check.detail}
-                </div>
-              </div>
+              <article className="admin-note-item" key={check.title}>
+                <span className="spotlight-label">
+                  {isItalian ? `Check ${index + 1}` : `Check ${index + 1}`}
+                </span>
+                <strong>
+                  {check.title} · {check.statusLabel}
+                </strong>
+                <p>{check.detail}</p>
+              </article>
             ))}
           </div>
         </article>

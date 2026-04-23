@@ -497,6 +497,10 @@
     @apply rounded-[1.75rem] border border-border bg-card p-5;
   }
 
+  .admin-section {
+    @apply flex flex-col gap-6;
+  }
+
   .admin-main {
     @apply border-none bg-transparent p-0;
   }
@@ -582,6 +586,14 @@
     @apply flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between;
   }
 
+  .admin-overview-grid {
+    @apply grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)];
+  }
+
+  .admin-overview-copy {
+    @apply flex flex-col gap-3;
+  }
+
   .admin-inline-form,
   .admin-inline-form-row,
   .ops-action-row,
@@ -615,6 +627,18 @@
 
   .payment-card {
     @apply rounded-[1.75rem] border border-border bg-muted/50 p-5;
+  }
+
+  .locale-fieldset {
+    @apply grid gap-5 rounded-[1.75rem] border border-border bg-muted/35 p-5 lg:grid-cols-2;
+  }
+
+  .locale-field-column {
+    @apply flex flex-col gap-4;
+  }
+
+  .field-hint {
+    @apply text-xs leading-6 text-muted-foreground;
   }
 
   .payment-amounts {
@@ -697,6 +721,18 @@
 
   .search-lab {
     @apply mt-6 rounded-[1.75rem] border border-border bg-muted/40 p-4 sm:p-5;
+  }
+
+  .registration-page-bar {
+    @apply mt-6 flex flex-col gap-3 border-b border-border pb-5;
+  }
+
+  .registration-page-meta {
+    @apply flex flex-wrap gap-3 text-sm text-muted-foreground;
+  }
+
+  .registration-page-meta span {
+    @apply inline-flex items-center rounded-full border border-border bg-muted/40 px-3 py-1.5;
   }
 
   .search-field {
@@ -786,6 +822,22 @@
   .admin-note-item,
   .detail-hero-note {
     @apply rounded-[1.5rem] border border-border bg-muted/50 p-4;
+  }
+
+  .admin-note-item {
+    @apply flex flex-col gap-2;
+  }
+
+  .timeline-step {
+    @apply flex-col;
+  }
+
+  .status-item {
+    @apply items-start p-5;
+  }
+
+  .status-item > div {
+    @apply flex flex-col gap-1;
   }
 }
 

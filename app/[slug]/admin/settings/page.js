@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getOrganizerSettingsAdmin } from "../../../../lib/passreserve-admin-service.js";
+import { getLocalizedFormText } from "../../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { REGISTRATION_REMINDER_LEAD_OPTIONS } from "../../../../lib/passreserve-email-delivery.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
@@ -12,6 +13,10 @@ import {
 export const metadata = {
   title: "Organizer settings"
 };
+
+function localizedValue(record, field, locale) {
+  return getLocalizedFormText(record, field, locale);
+}
 
 function formatVenuesForTextarea(venues = []) {
   return venues
@@ -111,14 +116,107 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
           </p>
           <form action={saveOrganizerSettingsAction} className="registration-field-grid">
             <input name="slug" type="hidden" value={slug} />
-            <label className="field">
-              <span>Organizer name</span>
-              <input defaultValue={data.organizer.name} name="name" type="text" />
-            </label>
-            <label className="field">
-              <span>Tagline</span>
-              <input defaultValue={data.organizer.tagline} name="tagline" type="text" />
-            </label>
+            <div className="field field-span">
+              <span className="metric-label">{isItalian ? "Contenuti pubblici bilingua" : "Bilingual public copy"}</span>
+              <strong>
+                {isItalian
+                  ? "Italiano e inglese sono opzionali e indipendenti."
+                  : "Italian and English stay optional and independent."}
+              </strong>
+              <small className="field-hint">
+                {isItalian
+                  ? "Se compili una sola lingua, il frontend mostrerà solo quella versione come fallback."
+                  : "If you fill only one language, the frontend falls back to that version everywhere."}
+              </small>
+            </div>
+            <div className="locale-fieldset field-span">
+              <div className="locale-field-column">
+                <div className="section-kicker">Italiano</div>
+                <label className="field">
+                  <span>{isItalian ? "Nome organizer" : "Organizer name"}</span>
+                  <input
+                    defaultValue={localizedValue(data.organizer, "name", "it")}
+                    name="nameIt"
+                    type="text"
+                  />
+                </label>
+                <label className="field">
+                  <span>{isItalian ? "Tagline" : "Tagline"}</span>
+                  <input
+                    defaultValue={localizedValue(data.organizer, "tagline", "it")}
+                    name="taglineIt"
+                    type="text"
+                  />
+                </label>
+                <label className="field">
+                  <span>{isItalian ? "Titolo venue" : "Venue title"}</span>
+                  <input
+                    defaultValue={localizedValue(data.organizer, "venueTitle", "it")}
+                    name="venueTitleIt"
+                    type="text"
+                  />
+                </label>
+                <label className="field">
+                  <span>{isItalian ? "Descrizione organizer" : "Organizer description"}</span>
+                  <textarea
+                    defaultValue={localizedValue(data.organizer, "description", "it")}
+                    name="descriptionIt"
+                    rows="4"
+                  />
+                </label>
+                <label className="field">
+                  <span>{isItalian ? "Dettaglio venue" : "Venue detail"}</span>
+                  <textarea
+                    defaultValue={localizedValue(data.organizer, "venueDetail", "it")}
+                    name="venueDetailIt"
+                    rows="3"
+                  />
+                </label>
+              </div>
+              <div className="locale-field-column">
+                <div className="section-kicker">English</div>
+                <label className="field">
+                  <span>Organizer name</span>
+                  <input
+                    defaultValue={localizedValue(data.organizer, "name", "en")}
+                    name="nameEn"
+                    type="text"
+                  />
+                </label>
+                <label className="field">
+                  <span>Tagline</span>
+                  <input
+                    defaultValue={localizedValue(data.organizer, "tagline", "en")}
+                    name="taglineEn"
+                    type="text"
+                  />
+                </label>
+                <label className="field">
+                  <span>Venue title</span>
+                  <input
+                    defaultValue={localizedValue(data.organizer, "venueTitle", "en")}
+                    name="venueTitleEn"
+                    type="text"
+                  />
+                </label>
+                <label className="field">
+                  <span>Organizer description</span>
+                  <textarea
+                    defaultValue={localizedValue(data.organizer, "description", "en")}
+                    name="descriptionEn"
+                    rows="4"
+                  />
+                </label>
+                <label className="field">
+                  <span>Venue detail</span>
+                  <textarea
+                    defaultValue={localizedValue(data.organizer, "venueDetail", "en")}
+                    name="venueDetailEn"
+                    rows="3"
+                  />
+                </label>
+              </div>
+            </div>
             <label className="field">
               <span>City</span>
               <input defaultValue={data.organizer.city} name="city" type="text" />
@@ -150,14 +248,6 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
             <label className="field">
               <span>Primary admin name</span>
               <input defaultValue={data.primaryAdmin?.name || ""} name="adminName" type="text" />
-            </label>
-            <label className="field field-span">
-              <span>Description</span>
-              <textarea defaultValue={data.organizer.description} name="description" rows="3" />
-            </label>
-            <label className="field field-span">
-              <span>Primary venue detail</span>
-              <textarea defaultValue={data.organizer.venueDetail} name="venueDetail" rows="3" />
             </label>
             <label className="field field-span">
               <span>Primary venue map URL</span>

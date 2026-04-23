@@ -9,7 +9,8 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug } = await params;
-  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
+  const { locale } = await getTranslations();
+  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug, { locale });
 
   if (!entry) {
     return { title: "Event not found" };
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }) {
 export default async function EventDetailPage({ params }) {
   const { slug, eventSlug } = await params;
   const { locale, dictionary } = await getTranslations();
-  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug);
+  const entry = await getRegistrationExperienceBySlugs(slug, eventSlug, { locale });
   const isItalian = locale === "it";
 
   if (!entry) {
@@ -60,7 +61,7 @@ export default async function EventDetailPage({ params }) {
                 {event.collectionLabel}
               </span>
               <span className="rounded-full border border-border px-3 py-2">
-                {event.venueDetail || organizer.venue.title}
+                {event.venueTitle || organizer.venue.title}
               </span>
               {event.duration ? (
                 <span className="rounded-full border border-border px-3 py-2">
@@ -100,7 +101,7 @@ export default async function EventDetailPage({ params }) {
                     <div className="agenda-meta">
                       <span>{event.priceLabel}</span>
                       <span>{event.collectionLabel}</span>
-                      <span>{event.venueDetail || organizer.venue.title}</span>
+                      <span>{event.venueTitle || organizer.venue.title}</span>
                       {occurrence.note ? <span>{occurrence.note}</span> : null}
                     </div>
 
