@@ -77,5 +77,5 @@ Questa checklist raccoglie il lavoro ancora necessario per portare il backend or
 - [ ] Le superfici primarie non duplicano piu overview, metriche e CTA inutili
 - [ ] Il flusso mentale diventa lineare: `Event -> Schedule -> Registrations`
 - [x] `npm run verify` verde
-- [ ] Push su GitHub
-- [ ] Deploy Vercel verificato
+- [x] Push su GitHub
+- [x] Deploy Vercel verificato
