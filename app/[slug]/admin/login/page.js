@@ -76,12 +76,12 @@ export default async function OrganizerLoginPage({ params, searchParams }) {
             <h1>{isItalian ? "Accesso admin organizer" : "Organizer admin sign in"}</h1>
             <p>
               {isItalian
-                ? "Gestisci eventi, date, registrazioni, pagamenti e dati partecipanti da un'area admin pulita e responsive."
-                : "Manage events, dates, registrations, payments, and attendee data from a cleaner responsive admin area."}
+                ? "Gestisci eventi, programma, registrazioni, pagamenti e dati partecipanti da un'area admin pulita e responsive."
+                : "Manage events, schedule, registrations, payments, and attendee data from a cleaner responsive admin area."}
             </p>
             <div className="pill-list">
               <span className="pill">{isItalian ? "Eventi" : "Events"}</span>
-              <span className="pill">{isItalian ? "Date" : "Dates"}</span>
+              <span className="pill">{isItalian ? "Programma" : "Schedule"}</span>
               <span className="pill">{isItalian ? "Registrazioni" : "Registrations"}</span>
             </div>
             {error ? (

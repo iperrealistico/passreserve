@@ -13,6 +13,74 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
   const isItalian = locale === "it";
   const dashboard = await getOrganizerDashboard(slug);
   const dietary = dashboard.summary.dietary;
+  const attentionCards = [
+    {
+      id: "schedule",
+      eyebrow: isItalian ? "Programma" : "Schedule",
+      title:
+        dashboard.summary.upcomingOccurrences > 0
+          ? isItalian
+            ? `${dashboard.summary.upcomingOccurrences} date in arrivo`
+            : `${dashboard.summary.upcomingOccurrences} upcoming dates`
+          : isItalian
+            ? "Nessuna data imminente"
+            : "No dates coming up",
+      detail:
+        dashboard.summary.upcomingOccurrences > 0
+          ? isItalian
+            ? "Controlla capienza, pubblicazione e note operative delle prossime sessioni."
+            : "Check capacity, publication state, and operational notes for the next sessions."
+          : isItalian
+            ? "Aggiungi o pubblica una data per rimettere in moto il calendario."
+            : "Create or publish a date to restart the live calendar.",
+      href: `/${slug}/admin/calendar?view=week`,
+      cta: isItalian ? "Apri programma" : "Open schedule"
+    },
+    {
+      id: "payments",
+      eyebrow: isItalian ? "Pagamenti" : "Payments",
+      title:
+        dashboard.summary.pendingPayments > 0
+          ? isItalian
+            ? `${dashboard.summary.pendingPayments} follow-up da gestire`
+            : `${dashboard.summary.pendingPayments} payment follow-ups`
+          : isItalian
+            ? "Nessun pagamento in attesa"
+            : "No payment follow-up needed",
+      detail:
+        dashboard.summary.pendingPayments > 0
+          ? isItalian
+            ? "Apri la coda con focus pagamenti per sollecitare o registrare gli incassi."
+            : "Open the payment-focused queue to follow up or record venue collections."
+          : isItalian
+            ? "La coda pagamenti è pulita in questo momento."
+            : "The payment queue is clear right now.",
+      href: `/${slug}/admin/registrations?focus=payments&view=compact`,
+      cta: isItalian ? "Apri pagamenti" : "Open payments"
+    },
+    {
+      id: "restrictions",
+      eyebrow: isItalian ? "Partecipanti" : "Participants",
+      title:
+        dietary.participantsWithRestrictions > 0
+          ? isItalian
+            ? `${dietary.participantsWithRestrictions} con esigenze alimentari`
+            : `${dietary.participantsWithRestrictions} with dietary notes`
+          : isItalian
+            ? "Nessuna restrizione segnalata"
+            : "No dietary restrictions reported",
+      detail:
+        dietary.participantsWithRestrictions > 0
+          ? isItalian
+            ? "Controlla chi ha allergie, intolleranze o note custom prima delle prossime date."
+            : "Review allergies, intolerances, and custom notes before the next live dates."
+          : isItalian
+            ? "Qui vedrai subito le richieste alimentari appena arrivano nuove registrazioni."
+            : "This area will surface dietary notes as soon as new registrations arrive.",
+      href: `/${slug}/admin/registrations?focus=open&view=detail`,
+      cta: isItalian ? "Apri registrazioni" : "Open registrations"
+    }
+  ];
 
   return (
     <div className="admin-page">
@@ -32,20 +100,46 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
         basePath={`/${slug}/admin/dashboard`}
         description={
           isItalian
-            ? "Questa schermata riassume cosa richiede attenzione oggi: date in arrivo, nuove registrazioni, incassi e restrizioni alimentari."
-            : "This view highlights what needs attention today: upcoming dates, recent registrations, collections, and dietary restrictions."
+            ? "Apri qui ciò che richiede attenzione adesso: prossime date, nuove registrazioni e pagamenti."
+            : "Open what needs attention now: upcoming dates, new registrations, and payment follow-up."
         }
-        eyebrow={isItalian ? "Oggi" : "Today"}
+        eyebrow={isItalian ? "Panoramica" : "Overview"}
         query={query}
-        tip={
-          isItalian
-            ? "Usa Eventi per il catalogo, Date per le singole sessioni, Registrazioni per il dettaglio partecipanti e Billing per Stripe."
-            : "Use Events for the catalog, Dates for scheduled sessions, Registrations for attendee detail, and Billing for Stripe."
+        actions={
+          <>
+            <Link className="button button-secondary" href={`/${slug}/admin/calendar`}>
+              {isItalian ? "Apri programma" : "Open schedule"}
+            </Link>
+            <Link className="button button-primary" href={`/${slug}/admin/registrations`}>
+              {isItalian ? "Apri registrazioni" : "Open registrations"}
+            </Link>
+          </>
         }
-        title={`${dashboard.organizer.name} ${isItalian ? "panoramica giornaliera" : "daily overview"}`}
+        title={isItalian ? "Cosa richiede attenzione" : "What needs attention"}
       />
 
+      <section className="admin-action-grid">
+        {attentionCards.map((card) => (
+          <article className="panel section-card admin-section" key={card.id}>
+            <div className="section-kicker">{card.eyebrow}</div>
+            <h3>{card.title}</h3>
+            <p className="admin-page-lead">{card.detail}</p>
+            <div className="hero-actions">
+              <Link className="button button-primary" href={card.href}>
+                {card.cta}
+              </Link>
+            </div>
+          </article>
+        ))}
+      </section>
+
       <section className="panel section-card admin-section">
+        <div className="admin-section-header">
+          <div>
+            <div className="section-kicker">{isItalian ? "Metriche rapide" : "Quick metrics"}</div>
+            <h3>{isItalian ? "Stato operativo in sintesi" : "Operational state at a glance"}</h3>
+          </div>
+        </div>
         <div className="metrics">
           <div className="metric">
             <div className="metric-label">{isItalian ? "Registrazioni attive" : "Active registrations"}</div>
@@ -137,6 +231,14 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
                   <span>
                     {entry.capacity.remaining} {isItalian ? "posti rimasti" : "seats remaining"}
                   </span>
+                  <div className="hero-actions">
+                    <Link
+                      className="button button-secondary button-small"
+                      href={`/${slug}/admin/calendar?event=${encodeURIComponent(entry.eventSlug || "")}&edit=${encodeURIComponent(entry.id)}`}
+                    >
+                      {isItalian ? "Apri data" : "Open date"}
+                    </Link>
+                  </div>
                 </div>
               ))
             ) : (
@@ -167,6 +269,16 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
                   <span>{registration.eventTitle}</span>
                   <span>{registration.status}</span>
                   <span>{registration.quantityLabel}</span>
+                  <div className="hero-actions">
+                    <Link
+                      className="button button-secondary button-small"
+                      href={`/${slug}/admin/registrations?event=${encodeURIComponent(
+                        registration.eventSlug
+                      )}&occurrence=${encodeURIComponent(registration.occurrenceId)}&view=detail`}
+                    >
+                      {isItalian ? "Apri coda" : "Open queue"}
+                    </Link>
+                  </div>
                 </div>
               ))
             ) : (

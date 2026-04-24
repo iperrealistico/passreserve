@@ -33,13 +33,13 @@ export default async function OrganizerAdminLayout({ children, params }) {
 
   const navigation = [
     {
-      label: dictionary.admin.today,
+      label: dictionary.admin.overview,
       href: organizer.dashboardHref,
       exact: true,
       icon: "today"
     },
     {
-      label: dictionary.admin.calendar,
+      label: dictionary.admin.schedule,
       href: organizer.calendarHref,
       icon: "calendar"
     },
@@ -49,53 +49,15 @@ export default async function OrganizerAdminLayout({ children, params }) {
       icon: "events"
     },
     {
-      label: dictionary.admin.dates,
-      href: organizer.occurrencesHref,
-      icon: "dates"
-    },
-    {
       label: dictionary.admin.registrations,
       href: organizer.registrationsHref,
       icon: "registrations"
     },
     {
-      label: dictionary.admin.billing,
-      href: organizer.billingHref,
-      icon: "billing"
-    },
-    {
       label: dictionary.admin.settings,
       href: organizer.settingsHref,
-      icon: "settings"
-    },
-    {
-      label: dictionary.admin.publicPage,
-      href: organizer.publicHref,
-      icon: "external"
-    }
-  ];
-  const overviewNotes = [
-    {
-      title: isItalian ? "Eventi" : "Events",
-      detail: isItalian
-        ? "Definiscono il formato pubblico: titolo, copy, prezzo base, visibilita e regole di vendita."
-        : "They define the public format: title, copy, base price, visibility, and sales rules."
-    },
-    {
-      title: isItalian ? "Date" : "Dates",
-      detail: isItalian
-        ? "Sono le sessioni reali prenotabili: capienza, stato, finestra di vendita e note operative."
-        : "They are the real bookable sessions: capacity, status, sales window, and operational notes."
-    },
-    {
-      title: isItalian ? "Registrazioni" : "Registrations",
-      detail: isItalian
-        ? "Sono la coda operativa: partecipanti, allergie, stato pagamento e saldo da incassare sul posto."
-        : "They are the live queue: attendees, dietary restrictions, payment state, and balance due on site."
-    },
-    {
-      title: isItalian ? "Supporto" : "Support",
-      detail: `${organizer.supportEmail} · ${organizer.timeZone}`
+      icon: "settings",
+      matchPrefixes: [organizer.settingsHref, organizer.billingHref]
     }
   ];
 
@@ -136,9 +98,18 @@ export default async function OrganizerAdminLayout({ children, params }) {
                     {organizer.city}, {organizer.region}
                   </div>
                   <h1 className="admin-shell-title">{organizer.name}</h1>
-                  <p className="admin-shell-copy">{organizer.tagline}</p>
+                  {organizer.tagline ? <p className="admin-shell-copy">{organizer.tagline}</p> : null}
                 </div>
                 <div className="hero-actions">
+                  <Link className="button button-secondary" href={organizer.billingHref}>
+                    {organizer.billing.enabled
+                      ? isItalian
+                        ? "Billing"
+                        : "Billing"
+                      : isItalian
+                        ? "Completa billing"
+                        : "Finish billing"}
+                  </Link>
                   <Link className="button button-secondary" href={organizer.publicHref}>
                     {dictionary.admin.publicPage}
                   </Link>
@@ -152,32 +123,39 @@ export default async function OrganizerAdminLayout({ children, params }) {
                 </div>
               </div>
 
-              <div className="admin-shell-summary">
-                <div className="admin-summary-card">
-                  <span className="metric-label">{isItalian ? "Registrazioni attive" : "Active regs"}</span>
-                  <strong>{organizer.summary.activeCount}</strong>
+              <div className="admin-shell-meta">
+                <div className="pill-list">
+                  <span className="pill">{organizer.timeZone}</span>
+                  <span className="pill">{organizer.supportEmail}</span>
+                  <span className="pill">
+                    {organizer.billing.enabled
+                      ? isItalian
+                        ? "Checkout online pronto"
+                        : "Online checkout ready"
+                      : isItalian
+                        ? "Checkout online da completare"
+                        : "Online checkout needs setup"}
+                  </span>
                 </div>
-                <div className="admin-summary-card">
-                  <span className="metric-label">{isItalian ? "Date future" : "Upcoming dates"}</span>
-                  <strong>{organizer.totalUpcomingOccurrences}</strong>
-                </div>
-                <div className="admin-summary-card">
-                  <span className="metric-label">{isItalian ? "Incassato online" : "Online collected"}</span>
-                  <strong>{organizer.summary.onlineCollectedLabel}</strong>
-                </div>
-                <div className="admin-summary-card">
-                  <span className="metric-label">{isItalian ? "Saldo in venue" : "Due at venue"}</span>
-                  <strong>{organizer.summary.dueAtEventLabel}</strong>
-                </div>
-              </div>
 
-              <div className="admin-shell-note-grid">
-                {overviewNotes.map((item) => (
-                  <div className="admin-shell-note" key={item.title}>
-                    <strong>{item.title}</strong>
-                    <span>{item.detail}</span>
-                  </div>
-                ))}
+                <div className="admin-shell-stat-row">
+                  <span className="admin-shell-stat">
+                    <span className="metric-label">{isItalian ? "Registrazioni attive" : "Active regs"}</span>
+                    <strong>{organizer.summary.activeCount}</strong>
+                  </span>
+                  <span className="admin-shell-stat">
+                    <span className="metric-label">{isItalian ? "Date future" : "Upcoming dates"}</span>
+                    <strong>{organizer.totalUpcomingOccurrences}</strong>
+                  </span>
+                  <span className="admin-shell-stat">
+                    <span className="metric-label">{isItalian ? "Incassato online" : "Online collected"}</span>
+                    <strong>{organizer.summary.onlineCollectedLabel}</strong>
+                  </span>
+                  <span className="admin-shell-stat">
+                    <span className="metric-label">{isItalian ? "Saldo in venue" : "Due at venue"}</span>
+                    <strong>{organizer.summary.dueAtEventLabel}</strong>
+                  </span>
+                </div>
               </div>
             </section>
 

@@ -30,7 +30,9 @@ export function OrganizerAdminPageHeader({
   events = [],
   selectedEvent = "",
   query = {},
-  actions = null
+  actions = null,
+  filterLabel = "Filter by event",
+  allEventsLabel = "All events"
 }) {
   return (
     <section className="panel section-card admin-section">
@@ -45,13 +47,13 @@ export function OrganizerAdminPageHeader({
       {tip ? <p className="admin-page-tip">{tip}</p> : null}
       {events.length > 1 ? (
         <div className="admin-filter-strip">
-          <span className="admin-filter-label">Filter by event</span>
+          <span className="admin-filter-label">{filterLabel}</span>
           <div className="filter-row">
             <Link
               className={`filter-pill ${selectedEvent ? "" : "filter-pill-active"}`}
               href={`${basePath}${buildQueryString(query)}`}
             >
-              All events
+              {allEventsLabel}
             </Link>
             {events.map((event) => (
               <Link

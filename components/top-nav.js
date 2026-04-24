@@ -42,6 +42,16 @@ const navIcons = {
 };
 
 function isLinkActive(pathname, link) {
+  if (Array.isArray(link.matchPrefixes) && link.matchPrefixes.length > 0) {
+    if (
+      link.matchPrefixes.some(
+        (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+      )
+    ) {
+      return true;
+    }
+  }
+
   if (link.exact) {
     return pathname === link.href;
   }

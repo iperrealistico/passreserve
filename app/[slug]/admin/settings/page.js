@@ -9,10 +9,48 @@ import {
   organizerChangePasswordAction,
   saveOrganizerSettingsAction
 } from "../actions.js";
+import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 export const metadata = {
   title: "Organizer settings"
 };
+
+function buildSettingsHref(query = {}, updates = {}) {
+  const params = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(query || {})) {
+    if (["message", "error"].includes(key)) {
+      continue;
+    }
+
+    if (typeof value === "string" && value) {
+      params.set(key, value);
+    }
+  }
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (typeof value === "string" && value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+  }
+
+  const serialized = params.toString();
+  return serialized ? `?${serialized}` : "";
+}
+
+function LocaleSettingsSection({ id, title, status, defaultOpen, children }) {
+  return (
+    <details className="admin-disclosure" id={id} open={defaultOpen}>
+      <summary className="admin-disclosure-summary">
+        <span>{title}</span>
+        {status ? <span className="admin-disclosure-hint">{status}</span> : null}
+      </summary>
+      <div className="admin-disclosure-body">{children}</div>
+    </details>
+  );
+}
 
 function localizedValue(record, field, locale) {
   return getLocalizedFormText(record, field, locale);
@@ -24,12 +62,24 @@ function formatVenuesForTextarea(venues = []) {
     .join("\n");
 }
 
-function resolveMessage(value) {
+function hasOrganizerLocalizedContentStarted(record, locale) {
+  return Boolean(
+    localizedValue(record, "name", locale) ||
+      localizedValue(record, "tagline", locale) ||
+      localizedValue(record, "venueTitle", locale) ||
+      localizedValue(record, "description", locale) ||
+      localizedValue(record, "venueDetail", locale)
+  );
+}
+
+function resolveMessage(value, isItalian) {
   switch (value) {
     case "saved":
-      return "Organizer settings saved successfully.";
+      return isItalian
+        ? "Impostazioni organizer salvate correttamente."
+        : "Organizer settings saved successfully.";
     case "password-updated":
-      return "Password updated successfully.";
+      return isItalian ? "Password aggiornata correttamente." : "Password updated successfully.";
     default:
       return "";
   }
@@ -41,10 +91,24 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
   const query = await searchParams;
   const { locale } = await getTranslations();
   const isItalian = locale === "it";
-  const tab = typeof query.tab === "string" ? query.tab : "general";
   const data = await getOrganizerSettingsAdmin(slug);
-  const successMessage = resolveMessage(typeof query.message === "string" ? query.message : "");
+  const contentLocale =
+    typeof query.lang === "string" && ["it", "en"].includes(query.lang)
+      ? query.lang
+      : isItalian
+        ? "it"
+        : "en";
+  const italianCopyStarted = hasOrganizerLocalizedContentStarted(data.organizer, "it");
+  const englishCopyStarted = hasOrganizerLocalizedContentStarted(data.organizer, "en");
+  const successMessage = resolveMessage(typeof query.message === "string" ? query.message : "", isItalian);
   const errorMessage = typeof query.error === "string" ? query.error : "";
+  const settingsAnchors = [
+    ["organization", isItalian ? "Organization" : "Organization"],
+    ["notifications", isItalian ? "Notifications" : "Notifications"],
+    ["account", isItalian ? "Account" : "Account"],
+    ["billing", isItalian ? "Billing" : "Billing"],
+    ["security", isItalian ? "Security" : "Security"]
+  ];
 
   return (
     <div className="admin-page">
@@ -55,83 +119,113 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
         <div className="registration-message registration-message-error">{errorMessage}</div>
       ) : null}
 
+      <OrganizerAdminPageHeader
+        basePath={`/${slug}/admin/settings`}
+        description={
+          isItalian
+            ? "Tieni profilo pubblico, notifiche, account e billing nello stesso posto, ma separati in blocchi più chiari."
+            : "Keep public profile, notifications, account, and billing in one place, but split into clearer blocks."
+        }
+        eyebrow={isItalian ? "Impostazioni" : "Settings"}
+        query={query}
+        actions={
+          <>
+            <Link className="button button-secondary" href={`/${slug}/admin/billing`}>
+              {isItalian ? "Apri billing" : "Open billing"}
+            </Link>
+            <Link className="button button-primary" href={`#organization`}>
+              {isItalian ? "Vai al profilo" : "Go to profile"}
+            </Link>
+          </>
+        }
+        title={isItalian ? "Configura il backend organizer senza dispersione" : "Configure the organizer backend without the sprawl"}
+      />
+
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Organizer settings</div>
-        <h2>{data.organizer.name}</h2>
-        <p>
-          {isItalian
-            ? "Gestisci profilo pubblico, regole di prenotazione e sicurezza account."
-            : "Manage your public organizer profile, booking rules, and account security."}
-        </p>
-        <div className="hero-actions" role="tablist" aria-label={isItalian ? "Tab impostazioni" : "Settings tabs"}>
-          <Link
-            className={`button ${tab === "general" ? "button-primary" : "button-secondary"}`}
-            aria-current={tab === "general" ? "page" : undefined}
-            href={`/${slug}/admin/settings?tab=general`}
-          >
-            {isItalian ? "Generale" : "General"}
-          </Link>
-          <Link
-            className={`button ${tab === "security" ? "button-primary" : "button-secondary"}`}
-            aria-current={tab === "security" ? "page" : undefined}
-            href={`/${slug}/admin/settings?tab=security`}
-          >
-            {isItalian ? "Sicurezza" : "Security"}
-          </Link>
+        <div className="admin-section-header">
+          <div>
+            <div className="section-kicker">{isItalian ? "Navigazione impostazioni" : "Settings navigation"}</div>
+            <h3>{isItalian ? "Scegli l’area che vuoi aggiornare" : "Jump to the area you want to update"}</h3>
+          </div>
+        </div>
+        <div className="filter-row">
+          {settingsAnchors.map(([anchor, label]) => (
+            <Link className="filter-pill" href={`#${anchor}`} key={anchor}>
+              {label}
+            </Link>
+          ))}
         </div>
       </section>
 
-      {tab === "security" ? (
-        <section className="panel section-card admin-section">
-          <div className="section-kicker">Security</div>
-          <h3>Change organizer admin password</h3>
-          <p>
-            The current password is required before saving a new one. Reset emails still work from
-            the login screen and from platform admin.
-          </p>
-          <form action={organizerChangePasswordAction} className="registration-field-grid">
-            <input name="slug" type="hidden" value={slug} />
-            <label className="field">
-              <span>Current password</span>
-              <input name="currentPassword" type="password" />
-            </label>
-            <label className="field">
-              <span>New password</span>
-              <input minLength="8" name="newPassword" type="password" />
-            </label>
-            <div className="hero-actions">
-              <button className="button button-primary" type="submit">
-                Update password
-              </button>
+      <form action={saveOrganizerSettingsAction} className="admin-page">
+        <input name="slug" type="hidden" value={slug} />
+
+        <section className="panel section-card admin-section" id="organization">
+          <div className="admin-section-header">
+            <div>
+              <div className="section-kicker">{isItalian ? "Organization" : "Organization"}</div>
+              <h3>{isItalian ? "Profilo pubblico e location" : "Public profile and location"}</h3>
             </div>
-          </form>
-        </section>
-      ) : (
-        <section className="panel section-card admin-section">
-          <div className="section-kicker">General</div>
-          <h3>Public profile and registration rules</h3>
-          <p>
-            Update the public organizer profile, booking window, and the guest reminder settings
-            tied to your registrations.
-          </p>
-          <form action={saveOrganizerSettingsAction} className="registration-field-grid">
-            <input name="slug" type="hidden" value={slug} />
-            <div className="field field-span">
-              <span className="metric-label">{isItalian ? "Contenuti pubblici bilingua" : "Bilingual public copy"}</span>
-              <strong>
-                {isItalian
-                  ? "Italiano e inglese sono opzionali e indipendenti."
-                  : "Italian and English stay optional and independent."}
-              </strong>
-              <small className="field-hint">
-                {isItalian
-                  ? "Se compili una sola lingua, il frontend mostrerà solo quella versione come fallback."
-                  : "If you fill only one language, the frontend falls back to that version everywhere."}
-              </small>
+          </div>
+
+          <div className="field field-span">
+            <span className="metric-label">{isItalian ? "Contenuti pubblici bilingua" : "Bilingual public copy"}</span>
+            <strong>
+              {isItalian
+                ? "Italiano e inglese sono opzionali e indipendenti."
+                : "Italian and English stay optional and independent."}
+            </strong>
+            <small className="field-hint">
+              {isItalian
+                ? "Se compili una sola lingua, il frontend mostrerà solo quella versione come fallback."
+                : "If you fill only one language, the frontend falls back to that version everywhere."}
+            </small>
+          </div>
+
+          <div className="admin-filter-strip">
+            <span className="admin-filter-label">
+              {isItalian ? "Lingua in modifica" : "Editing language"}
+            </span>
+            <div className="filter-row">
+              <Link
+                className={`filter-pill ${contentLocale === "it" ? "filter-pill-active" : ""}`}
+                href={`${buildSettingsHref(query, { lang: "it" })}#organization-copy-it`}
+              >
+                {italianCopyStarted
+                  ? "Italiano"
+                  : isItalian
+                    ? "Aggiungi italiano"
+                    : "Add Italian"}
+              </Link>
+              <Link
+                className={`filter-pill ${contentLocale === "en" ? "filter-pill-active" : ""}`}
+                href={`${buildSettingsHref(query, { lang: "en" })}#organization-copy-en`}
+              >
+                {englishCopyStarted
+                  ? "English"
+                  : isItalian
+                    ? "Aggiungi English"
+                    : "Add English"}
+              </Link>
             </div>
-            <div className="locale-fieldset field-span">
+          </div>
+
+          <div className="admin-subsection-stack field-span">
+            <LocaleSettingsSection
+              defaultOpen={contentLocale === "it"}
+              id="organization-copy-it"
+              status={
+                italianCopyStarted
+                  ? isItalian
+                    ? "Gia compilato"
+                    : "Content started"
+                  : isItalian
+                    ? "Opzionale"
+                    : "Optional"
+              }
+              title="Italiano"
+            >
               <div className="locale-field-column">
-                <div className="section-kicker">Italiano</div>
                 <label className="field">
                   <span>{isItalian ? "Nome organizer" : "Organizer name"}</span>
                   <input
@@ -173,8 +267,23 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                   />
                 </label>
               </div>
+            </LocaleSettingsSection>
+
+            <LocaleSettingsSection
+              defaultOpen={contentLocale === "en"}
+              id="organization-copy-en"
+              status={
+                englishCopyStarted
+                  ? isItalian
+                    ? "Gia compilato"
+                    : "Content started"
+                  : isItalian
+                    ? "Opzionale"
+                    : "Optional"
+              }
+              title="English"
+            >
               <div className="locale-field-column">
-                <div className="section-kicker">English</div>
                 <label className="field">
                   <span>Organizer name</span>
                   <input
@@ -216,56 +325,65 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                   />
                 </label>
               </div>
-            </div>
+            </LocaleSettingsSection>
+          </div>
+
+          <div className="registration-field-grid">
             <label className="field">
-              <span>City</span>
+              <span>{isItalian ? "Città" : "City"}</span>
               <input defaultValue={data.organizer.city} name="city" type="text" />
             </label>
             <label className="field">
-              <span>Region</span>
+              <span>{isItalian ? "Regione" : "Region"}</span>
               <input defaultValue={data.organizer.region} name="region" type="text" />
             </label>
             <label className="field">
-              <span>Public email</span>
+              <span>{isItalian ? "Email pubblica" : "Public email"}</span>
               <input defaultValue={data.organizer.publicEmail} name="publicEmail" type="email" />
             </label>
             <label className="field">
-              <span>Public phone</span>
+              <span>{isItalian ? "Telefono pubblico" : "Public phone"}</span>
               <input defaultValue={data.organizer.publicPhone} name="publicPhone" type="text" />
             </label>
             <label className="field">
-              <span>Interest email</span>
+              <span>{isItalian ? "Email richieste" : "Interest email"}</span>
               <input defaultValue={data.organizer.interestEmail} name="interestEmail" type="email" />
             </label>
             <label className="field">
-              <span>Primary venue title</span>
+              <span>{isItalian ? "Venue primaria" : "Primary venue title"}</span>
               <input defaultValue={data.organizer.venueTitle} name="venueTitle" type="text" />
             </label>
-            <label className="field">
-              <span>Primary admin email</span>
-              <input defaultValue={data.primaryAdmin?.email || ""} name="adminEmail" type="email" />
-            </label>
-            <label className="field">
-              <span>Primary admin name</span>
-              <input defaultValue={data.primaryAdmin?.name || ""} name="adminName" type="text" />
-            </label>
             <label className="field field-span">
-              <span>Primary venue map URL</span>
+              <span>{isItalian ? "URL mappa venue primaria" : "Primary venue map URL"}</span>
               <input defaultValue={data.organizer.venueMapHref} name="venueMapHref" type="url" />
             </label>
             <label className="field field-span">
-              <span>Additional venues</span>
+              <span>{isItalian ? "Venue aggiuntive" : "Additional venues"}</span>
               <textarea
                 defaultValue={formatVenuesForTextarea(data.organizer.venues)}
                 name="venuesText"
                 rows="5"
               />
               <small className="field-hint">
-                Use one venue per line in this format: <code>Title | Detail | Map URL</code>
+                {isItalian
+                  ? "Una venue per riga in questo formato: Titolo | Dettaglio | Map URL"
+                  : "Use one venue per line in this format: Title | Detail | Map URL"}
               </small>
             </label>
+          </div>
+        </section>
+
+        <section className="panel section-card admin-section" id="notifications">
+          <div className="admin-section-header">
+            <div>
+              <div className="section-kicker">{isItalian ? "Notifications" : "Notifications"}</div>
+              <h3>{isItalian ? "Regole di prenotazione e reminder" : "Booking rules and reminders"}</h3>
+            </div>
+          </div>
+
+          <div className="registration-field-grid">
             <label className="field">
-              <span>Minimum advance hours</span>
+              <span>{isItalian ? "Ore minime di anticipo" : "Minimum advance hours"}</span>
               <input
                 defaultValue={data.organizer.minAdvanceHours}
                 min="0"
@@ -274,7 +392,7 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
               />
             </label>
             <label className="field">
-              <span>Maximum advance days</span>
+              <span>{isItalian ? "Giorni massimi di anticipo" : "Maximum advance days"}</span>
               <input
                 defaultValue={data.organizer.maxAdvanceDays || ""}
                 min="1"
@@ -282,19 +400,27 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                 type="number"
               />
             </label>
+
             <div className="field field-span">
-              <span className="metric-label">Reminder availability</span>
+              <span className="metric-label">{isItalian ? "Disponibilità reminder" : "Reminder availability"}</span>
               <strong>
                 {data.siteSettings?.registrationRemindersEnabled
-                  ? "Platform reminders are enabled."
-                  : "Platform reminders are currently turned off."}
+                  ? isItalian
+                    ? "I reminder piattaforma sono attivi."
+                    : "Platform reminders are enabled."
+                  : isItalian
+                    ? "I reminder piattaforma sono attualmente disattivati."
+                    : "Platform reminders are currently turned off."}
               </strong>
               <small className="field-hint">
-                Organizers can only send reminder emails when the platform team has enabled them.
+                {isItalian
+                  ? "Gli organizer possono inviare reminder solo quando il team platform li ha abilitati."
+                  : "Organizers can only send reminder emails when the platform team has enabled them."}
               </small>
             </div>
+
             <div className="field field-span checkbox-field">
-              <span>Guest reminder email</span>
+              <span>{isItalian ? "Reminder partecipanti" : "Guest reminder email"}</span>
               <label className="checkbox-row">
                 <input
                   defaultChecked={
@@ -306,16 +432,22 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                   type="checkbox"
                 />
                 <div className="checkbox-copy">
-                  <strong>Send a reminder email before each confirmed event date.</strong>
+                  <strong>
+                    {isItalian
+                      ? "Invia un reminder prima di ogni data confermata."
+                      : "Send a reminder email before each confirmed event date."}
+                  </strong>
                   <span>
-                    Each confirmed attendee receives the scheduled reminder before their booked
-                    event date.
+                    {isItalian
+                      ? "Ogni partecipante confermato riceve il reminder prima della data prenotata."
+                      : "Each confirmed attendee receives the scheduled reminder before their booked event date."}
                   </span>
                 </div>
               </label>
             </div>
+
             <label className="field">
-              <span>Reminder timing</span>
+              <span>{isItalian ? "Timing reminder" : "Reminder timing"}</span>
               <select
                 defaultValue={String(data.organizer.registrationReminderLeadHours || 24)}
                 disabled={!data.siteSettings?.registrationRemindersEnabled}
@@ -329,7 +461,7 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
               </select>
             </label>
             <label className="field field-span">
-              <span>Reminder note</span>
+              <span>{isItalian ? "Nota reminder" : "Reminder note"}</span>
               <textarea
                 defaultValue={data.organizer.registrationReminderNote || ""}
                 disabled={!data.siteSettings?.registrationRemindersEnabled}
@@ -337,26 +469,97 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                 rows="4"
               />
               <small className="field-hint">
-                This note is added below the platform reminder template, so you can share arrival
-                tips, parking guidance, or what guests should bring.
+                {isItalian
+                  ? "Questa nota viene aggiunta sotto il template reminder della piattaforma."
+                  : "This note is appended below the platform reminder template."}
               </small>
             </label>
+          </div>
+        </section>
+
+        <section className="panel section-card admin-section" id="account">
+          <div className="admin-section-header">
+            <div>
+              <div className="section-kicker">{isItalian ? "Account" : "Account"}</div>
+              <h3>{isItalian ? "Contatto primario organizer" : "Primary organizer admin contact"}</h3>
+            </div>
+          </div>
+
+          <div className="registration-field-grid">
             <div className="field field-span">
-              <span className="metric-label">Current primary admin</span>
+              <span className="metric-label">{isItalian ? "Admin corrente" : "Current primary admin"}</span>
               <strong>
                 {data.primaryAdmin
                   ? `${data.primaryAdmin.name} · ${data.primaryAdmin.email}`
-                  : "No organizer admin found"}
+                  : isItalian
+                    ? "Nessun organizer admin trovato"
+                    : "No organizer admin found"}
               </strong>
             </div>
-            <div className="hero-actions">
-              <button className="button button-primary" type="submit">
-                Save settings
-              </button>
-            </div>
-          </form>
+            <label className="field">
+              <span>{isItalian ? "Email admin primaria" : "Primary admin email"}</span>
+              <input defaultValue={data.primaryAdmin?.email || ""} name="adminEmail" type="email" />
+            </label>
+            <label className="field">
+              <span>{isItalian ? "Nome admin primario" : "Primary admin name"}</span>
+              <input defaultValue={data.primaryAdmin?.name || ""} name="adminName" type="text" />
+            </label>
+          </div>
         </section>
-      )}
+
+        <section className="panel section-card admin-section">
+          <div className="hero-actions">
+            <button className="button button-primary" type="submit">
+              {isItalian ? "Salva impostazioni" : "Save settings"}
+            </button>
+          </div>
+        </section>
+      </form>
+
+      <section className="panel section-card admin-section" id="billing">
+        <div className="admin-section-header">
+          <div>
+            <div className="section-kicker">{isItalian ? "Billing" : "Billing"}</div>
+            <h3>{isItalian ? "Setup pagamenti e payout" : "Payments and payout setup"}</h3>
+          </div>
+          <div className="hero-actions">
+            <Link className="button button-primary" href={`/${slug}/admin/billing`}>
+              {isItalian ? "Apri billing" : "Open billing"}
+            </Link>
+          </div>
+        </div>
+        <p className="admin-page-lead">
+          {isItalian
+            ? "Billing resta una superficie separata perché include Stripe Connect, payout e stato checkout. Da qui devi solo sapere dove trovarlo."
+            : "Billing remains a separate surface because it handles Stripe Connect, payouts, and checkout readiness. From here, you just need a clear way to reach it."}
+        </p>
+      </section>
+
+      <section className="panel section-card admin-section" id="security">
+        <div className="section-kicker">{isItalian ? "Security" : "Security"}</div>
+        <h3>{isItalian ? "Cambia password admin organizer" : "Change organizer admin password"}</h3>
+        <p className="admin-page-lead">
+          {isItalian
+            ? "La password attuale è richiesta prima di salvarne una nuova. I reset via email continuano a funzionare dalla login e dalla platform admin."
+            : "The current password is required before saving a new one. Reset emails still work from the login screen and from platform admin."}
+        </p>
+        <form action={organizerChangePasswordAction} className="registration-field-grid">
+          <input name="slug" type="hidden" value={slug} />
+          <label className="field">
+            <span>{isItalian ? "Password attuale" : "Current password"}</span>
+            <input name="currentPassword" type="password" />
+          </label>
+          <label className="field">
+            <span>{isItalian ? "Nuova password" : "New password"}</span>
+            <input minLength="8" name="newPassword" type="password" />
+          </label>
+          <div className="hero-actions">
+            <button className="button button-primary" type="submit">
+              {isItalian ? "Aggiorna password" : "Update password"}
+            </button>
+          </div>
+        </form>
+      </section>
     </div>
   );
 }

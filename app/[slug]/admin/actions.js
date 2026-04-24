@@ -284,7 +284,7 @@ export async function saveOrganizerOccurrenceAction(formData) {
 
     redirect(
       withRegistrationFilters(
-        `/${slug}/admin/occurrences?error=${encodeURIComponent(message)}`,
+        `/${slug}/admin/calendar?error=${encodeURIComponent(message)}`,
         eventFilter
       )
     );
@@ -293,7 +293,7 @@ export async function saveOrganizerOccurrenceAction(formData) {
   if (savedOccurrence?.id) {
     redirect(
       withRegistrationFilters(
-        `/${slug}/admin/occurrences?message=saved&edit=${encodeURIComponent(savedOccurrence.id)}#date-form`,
+        `/${slug}/admin/calendar?message=saved&edit=${encodeURIComponent(savedOccurrence.id)}#date-form`,
         eventFilter
       )
     );
