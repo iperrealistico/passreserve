@@ -7,7 +7,10 @@ import { getTranslations } from "../../../lib/passreserve-i18n.js";
 import {
   getOrganizerShell
 } from "../../../lib/passreserve-admin-service.js";
-import { getCurrentSessionUser, getStoredPlatformSessionUser } from "../../../lib/passreserve-auth.js";
+import {
+  getValidatedOrganizerAdminSessionUser,
+  getValidatedStoredPlatformSessionUser
+} from "../../../lib/passreserve-auth.js";
 import { organizerLogoutAction, returnToPlatformDashboardAction } from "./actions.js";
 
 export default async function OrganizerAdminLayout({ children, params }) {
@@ -19,9 +22,9 @@ export default async function OrganizerAdminLayout({ children, params }) {
     notFound();
   }
   const organizer = shell.organizer;
-  const sessionUser = await getCurrentSessionUser();
-  const platformUser = await getStoredPlatformSessionUser();
-  const signedIn = sessionUser?.type === "organizer" && sessionUser.organizerSlug === slug;
+  const sessionUser = await getValidatedOrganizerAdminSessionUser(slug);
+  const platformUser = await getValidatedStoredPlatformSessionUser();
+  const signedIn = Boolean(sessionUser);
   const isItalian = locale === "it";
 
   if (!signedIn) {

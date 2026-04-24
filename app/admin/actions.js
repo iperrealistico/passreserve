@@ -23,6 +23,10 @@ import {
   resetPlatformPassword
 } from "../../lib/passreserve-service.js";
 import {
+  clearAdminLoginRateLimit,
+  consumeAdminLoginRateLimit
+} from "../../lib/passreserve-auth-security.js";
+import {
   requirePlatformAdminSession,
   restorePlatformAdminSession,
   signInOrganizerAdmin,
@@ -41,12 +45,19 @@ function checked(formData, key) {
 export async function platformLoginAction(formData) {
   const email = value(formData, "email");
   const password = value(formData, "password");
+  const rateLimit = await consumeAdminLoginRateLimit("platform");
+
+  if (!rateLimit.success) {
+    redirect("/admin/login?error=rate-limited");
+  }
+
   const admin = await authenticatePlatformAdmin(email, password);
 
   if (!admin) {
     redirect("/admin/login?error=invalid");
   }
 
+  await clearAdminLoginRateLimit("platform");
   await markAdminLogin("platform", admin.id);
   await signInPlatformAdmin(admin);
   redirect("/admin");

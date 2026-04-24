@@ -142,6 +142,7 @@ model OrganizerAdminUser {
   email                 String
   name                  String
   passwordHash          String
+  tokenVersion          Int       @default(0)
   isPrimary             Boolean   @default(false)
   isActive              Boolean   @default(true)
   passwordResetToken    String?   @unique
@@ -159,6 +160,7 @@ model PlatformAdminUser {
   email                 String   @unique
   name                  String
   passwordHash          String
+  tokenVersion          Int      @default(0)
   isActive              Boolean  @default(true)
   passwordResetToken    String?  @unique
   passwordResetExpires  DateTime?
@@ -166,6 +168,16 @@ model PlatformAdminUser {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   approvedJoinRequests  OrganizerJoinRequest[] @relation("JoinRequestApprover")
+}
+
+model AuthRateLimit {
+  key        String   @id
+  count      Int      @default(0)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([expiresAt])
 }
 
 model OrganizerJoinRequest {

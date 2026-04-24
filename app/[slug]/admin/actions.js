@@ -19,6 +19,10 @@ import {
   resetOrganizerPassword
 } from "../../../lib/passreserve-service.js";
 import {
+  clearAdminLoginRateLimit,
+  consumeAdminLoginRateLimit
+} from "../../../lib/passreserve-auth-security.js";
+import {
   requireOrganizerAdminSession,
   restorePlatformAdminSession,
   signInOrganizerAdmin,
@@ -66,6 +70,14 @@ function parseOptionalEurosToCents(rawValue) {
 
 export async function organizerLoginAction(formData) {
   const slug = value(formData, "slug");
+  const rateLimit = await consumeAdminLoginRateLimit("organizer", {
+    slug
+  });
+
+  if (!rateLimit.success) {
+    redirect(`/${slug}/admin/login?error=rate-limited`);
+  }
+
   const login = await authenticateOrganizerAdmin(
     slug,
     value(formData, "email"),
@@ -76,6 +88,9 @@ export async function organizerLoginAction(formData) {
     redirect(`/${slug}/admin/login?error=invalid`);
   }
 
+  await clearAdminLoginRateLimit("organizer", {
+    slug
+  });
   await markAdminLogin("organizer", login.admin.id);
   await signInOrganizerAdmin(login.admin, login.organizer);
   redirect(`/${slug}/admin/dashboard`);

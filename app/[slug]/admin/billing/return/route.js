@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { refreshOrganizerStripeConnection } from "../../../../../lib/passreserve-admin-service.js";
-import { getCurrentSessionUser } from "../../../../../lib/passreserve-auth.js";
+import { getValidatedOrganizerAdminSessionUser } from "../../../../../lib/passreserve-auth.js";
 
 export const runtime = "nodejs";
 
 export async function GET(request, { params }) {
   const { slug } = await params;
-  const sessionUser = await getCurrentSessionUser();
+  const sessionUser = await getValidatedOrganizerAdminSessionUser(slug);
 
-  if (!sessionUser || sessionUser.type !== "organizer" || sessionUser.organizerSlug !== slug) {
+  if (!sessionUser) {
     return NextResponse.redirect(new URL(`/${slug}/admin/login`, request.url));
   }
 

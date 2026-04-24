@@ -26,6 +26,14 @@ function messageFor(value, locale) {
         : "Password updated. You can sign in now.";
     case "signed-out":
       return isItalian ? "Sei uscito dalla sessione." : "You have been signed out.";
+    case "rate-limited":
+      return isItalian
+        ? "Troppi tentativi di accesso. Attendi qualche minuto e riprova."
+        : "Too many sign-in attempts. Please wait a few minutes and try again.";
+    case "session-expired":
+      return isItalian
+        ? "La sessione organizer non e piu valida. Accedi di nuovo."
+        : "This organizer session is no longer valid. Please sign in again.";
     default:
       return "";
   }
