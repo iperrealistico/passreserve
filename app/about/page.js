@@ -1182,7 +1182,7 @@ export default async function AboutPage() {
           </div>
           <div className="grid gap-8 md:grid-cols-2">
             <div className="flex flex-col rounded-3xl bg-gray-900 p-8 text-white">
-              <h3 className="mb-4 text-2xl font-semibold">{content.cta.attendeeTitle}</h3>
+              <h3 className="mb-4 text-2xl font-semibold text-white">{content.cta.attendeeTitle}</h3>
               <p className="mb-6 flex-1 text-gray-300">{content.cta.attendeeDescription}</p>
               <Link
                 className="inline-flex h-14 w-full items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-white px-6 text-base font-semibold text-gray-900 transition hover:bg-gray-100 sm:text-lg"
@@ -1193,7 +1193,7 @@ export default async function AboutPage() {
               </Link>
             </div>
             <div className="flex flex-col rounded-3xl bg-[#244231] p-8 text-white">
-              <h3 className="mb-4 text-2xl font-semibold">{content.cta.organizerTitle}</h3>
+              <h3 className="mb-4 text-2xl font-semibold text-white">{content.cta.organizerTitle}</h3>
               <p className="mb-6 flex-1 text-[#d7e4dc]">{content.cta.organizerDescription}</p>
               <Link
                 className="inline-flex h-14 w-full items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-white px-6 text-base font-semibold text-[#244231] transition hover:bg-[#f3f6f4] sm:text-lg"
