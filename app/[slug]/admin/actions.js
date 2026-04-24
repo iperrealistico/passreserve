@@ -37,12 +37,24 @@ function checked(formData, key) {
   return formData.get(key) === "on";
 }
 
-function withEventFilter(path, eventFilter = "") {
-  if (!eventFilter) {
+function withRegistrationFilters(path, eventFilter = "", occurrenceFilter = "") {
+  const params = new URLSearchParams();
+
+  if (eventFilter) {
+    params.set("event", eventFilter);
+  }
+
+  if (occurrenceFilter) {
+    params.set("occurrence", occurrenceFilter);
+  }
+
+  const query = params.toString();
+
+  if (!query) {
     return path;
   }
 
-  return `${path}${path.includes("?") ? "&" : "?"}event=${encodeURIComponent(eventFilter)}`;
+  return `${path}${path.includes("?") ? "&" : "?"}${query}`;
 }
 
 function parseEurosToCents(rawValue) {
@@ -172,6 +184,7 @@ export async function saveOrganizerEventAction(formData) {
         venueDetailEn: value(formData, "venueDetailEn"),
         mapHref: value(formData, "mapHref"),
         basePriceCents: value(formData, "basePriceCents"),
+        ticketCatalogJson: value(formData, "ticketCatalogJson"),
         prepayPercentage: value(formData, "prepayPercentage"),
         salesWindowStartsAt: value(formData, "salesWindowStartsAt"),
         salesWindowEndsAt: value(formData, "salesWindowEndsAt"),
@@ -268,12 +281,17 @@ export async function saveOrganizerOccurrenceAction(formData) {
     const message =
       error instanceof Error ? error.message : "The occurrence could not be saved.";
 
-    redirect(withEventFilter(`/${slug}/admin/occurrences?error=${encodeURIComponent(message)}`, eventFilter));
+    redirect(
+      withRegistrationFilters(
+        `/${slug}/admin/occurrences?error=${encodeURIComponent(message)}`,
+        eventFilter
+      )
+    );
   }
 
   if (savedOccurrence?.id) {
     redirect(
-      withEventFilter(
+      withRegistrationFilters(
         `/${slug}/admin/occurrences?message=saved&edit=${encodeURIComponent(savedOccurrence.id)}#date-form`,
         eventFilter
       )
@@ -285,6 +303,7 @@ export async function updateOrganizerRegistrationAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
   const eventFilter = value(formData, "eventFilter");
+  const occurrenceFilter = value(formData, "occurrenceFilter");
 
   try {
     await updateOrganizerRegistration(
@@ -298,24 +317,36 @@ export async function updateOrganizerRegistrationAction(formData) {
       error instanceof Error ? error.message : "The registration could not be updated.";
 
     redirect(
-      withEventFilter(`/${slug}/admin/registrations?error=${encodeURIComponent(message)}`, eventFilter)
+      withRegistrationFilters(
+        `/${slug}/admin/registrations?error=${encodeURIComponent(message)}`,
+        eventFilter,
+        occurrenceFilter
+      )
     );
   }
 
-  redirect(withEventFilter(`/${slug}/admin/registrations?message=updated`, eventFilter));
+  redirect(
+    withRegistrationFilters(
+      `/${slug}/admin/registrations?message=updated`,
+      eventFilter,
+      occurrenceFilter
+    )
+  );
 }
 
 export async function recordVenuePaymentAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
   const eventFilter = value(formData, "eventFilter");
+  const occurrenceFilter = value(formData, "occurrenceFilter");
   const amountCents = parseEurosToCents(formData.get("amountEuros"));
 
   if (amountCents <= 0) {
     redirect(
-      withEventFilter(
+      withRegistrationFilters(
         `/${slug}/admin/registrations?error=${encodeURIComponent("Enter a valid amount collected at the venue.")}`,
-        eventFilter
+        eventFilter,
+        occurrenceFilter
       )
     );
   }
@@ -327,11 +358,21 @@ export async function recordVenuePaymentAction(formData) {
       error instanceof Error ? error.message : "The venue payment could not be recorded.";
 
     redirect(
-      withEventFilter(`/${slug}/admin/registrations?error=${encodeURIComponent(message)}`, eventFilter)
+      withRegistrationFilters(
+        `/${slug}/admin/registrations?error=${encodeURIComponent(message)}`,
+        eventFilter,
+        occurrenceFilter
+      )
     );
   }
 
-  redirect(withEventFilter(`/${slug}/admin/registrations?message=recorded`, eventFilter));
+  redirect(
+    withRegistrationFilters(
+      `/${slug}/admin/registrations?message=recorded`,
+      eventFilter,
+      occurrenceFilter
+    )
+  );
 }
 
 export async function saveOrganizerSettingsAction(formData) {

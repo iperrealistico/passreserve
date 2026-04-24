@@ -57,7 +57,9 @@ export default async function EventDetailPage({ params }) {
             </p>
 
             <div className="mt-6 flex flex-wrap gap-3 text-sm text-muted-foreground">
-              <span className="rounded-full border border-border px-3 py-2">{event.priceLabel}</span>
+              <span className="rounded-full border border-border px-3 py-2">
+                {event.priceRangeLabel || event.priceLabel}
+              </span>
               <span className="rounded-full border border-border px-3 py-2">
                 {event.collectionLabel}
               </span>
@@ -81,6 +83,40 @@ export default async function EventDetailPage({ params }) {
             </div>
           </section>
 
+          {event.ticketCategories?.length ? (
+            <section className="panel section-card mt-6">
+              <div className="section-kicker">{isItalian ? "Ticket" : "Tickets"}</div>
+              <h2>{isItalian ? "Scegli il formato giusto" : "Choose the right ticket"}</h2>
+
+              <div className="registration-choice-grid mt-6">
+                {event.ticketCategories.map((ticket) => (
+                  <article className="registration-choice registration-choice-active" key={ticket.id}>
+                    <div className="registration-choice-head">
+                      <div>
+                        <strong>{ticket.label}</strong>
+                        <span>{ticket.unitPriceLabel}</span>
+                      </div>
+                      {ticket.isDefault ? (
+                        <span className="route-label">{isItalian ? "Default" : "Default"}</span>
+                      ) : null}
+                    </div>
+                    <p>{ticket.summary}</p>
+                    {ticket.included?.length ? (
+                      <div className="timeline mt-4">
+                        {ticket.included.map((includedItem) => (
+                          <div className="timeline-step" key={`${ticket.id}-${includedItem}`}>
+                            <strong>{isItalian ? "Include" : "Includes"}</strong>
+                            <span>{includedItem}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="panel section-card mt-6" id="occurrences">
             <div className="section-kicker">{dictionary.event.dates}</div>
             <h2>{isItalian ? "Date disponibili" : "Available dates"}</h2>
@@ -100,7 +136,7 @@ export default async function EventDetailPage({ params }) {
                     </div>
 
                     <div className="agenda-meta">
-                      <span>{event.priceLabel}</span>
+                      <span>{event.priceRangeLabel || event.priceLabel}</span>
                       <span>{event.collectionLabel}</span>
                       <span>{event.venueTitle || organizer.venue.title}</span>
                       {occurrence.note ? <span>{occurrence.note}</span> : null}

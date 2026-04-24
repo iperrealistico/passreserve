@@ -74,7 +74,7 @@ export default async function RegistrationConfirmPage({ params }) {
             </p>
             <div className="pill-list mt-6">
               <span className="pill">{holdView.occurrence.capacityLabel}</span>
-              <span className="pill">{holdView.ticketCategory.label}</span>
+              <span className="pill">{holdView.ticketSummaryLabel}</span>
               <span className="pill">Expires {holdView.hold.expiresAtLabel}</span>
             </div>
           </article>
@@ -113,8 +113,9 @@ export default async function RegistrationConfirmPage({ params }) {
                     <strong>
                       {attendee.firstName} {attendee.lastName}
                     </strong>
-                    <span>{attendee.email}</span>
+                    <span>{attendee.ticketLabel}</span>
                   </div>
+                  <span>{attendee.email}</span>
                   <span>{attendee.address}</span>
                   <span>{attendee.phone}</span>
                   {attendee.dietaryOther ? <span>{attendee.dietaryOther}</span> : null}
@@ -125,9 +126,17 @@ export default async function RegistrationConfirmPage({ params }) {
             <div className="payment-card mt-6">
               <div className="payment-heading">
                 <strong>Payment split</strong>
-                <span>
-                  {holdView.ticketCategory.unitPriceLabel} each, {holdView.event.collectionLabel}
-                </span>
+                <span>{holdView.ticketSummaryLabel}</span>
+              </div>
+              <div className="timeline mt-4">
+                {holdView.ticketItems.map((item) => (
+                  <div className="timeline-step" key={item.id}>
+                    <strong>
+                      {item.label} x{item.quantity}
+                    </strong>
+                    <span>{item.subtotalLabel}</span>
+                  </div>
+                ))}
               </div>
               <div className="payment-amounts">
                 <div className="payment-amount">

@@ -212,11 +212,16 @@ async function main() {
       slug: "alpine-trail-lab",
       eventSlug: "sunrise-ridge-session",
       occurrenceId: registrationExperience.selectedOccurrence.id,
-      ticketCategoryId: registrationExperience.selectedTicketCategory.id,
-      quantity: 1,
+      items: [
+        {
+          ticketCategoryId: registrationExperience.selectedTicketCategory.id,
+          quantity: 1
+        }
+      ],
       registrationLocale: "en",
       attendees: [
         {
+          ticketCategoryId: registrationExperience.selectedTicketCategory.id,
           firstName: "Smoke",
           lastName: "Guest",
           address: "Via Test 1, Bologna",

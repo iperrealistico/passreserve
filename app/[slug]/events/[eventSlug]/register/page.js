@@ -38,7 +38,7 @@ export default async function RegistrationPage({ params, searchParams }) {
     notFound();
   }
 
-  const { organizer, event, selectedOccurrence, selectedTicketCategory } = entry;
+  const { organizer, event, selectedOccurrence } = entry;
   const dietaryOptions = dietaryFlags.map((flag) => ({
     id: flag.id,
     label: flag.label[locale]
@@ -62,7 +62,6 @@ export default async function RegistrationPage({ params, searchParams }) {
               {organizer.city}, {organizer.region}
             </span>
             {selectedOccurrence?.label ? <span>{selectedOccurrence.label}</span> : null}
-            {selectedTicketCategory?.label ? <span>{selectedTicketCategory.label}</span> : null}
             {selectedOccurrence?.capacityLabel ? <span>{selectedOccurrence.capacityLabel}</span> : null}
             <span>{event.collectionLabel}</span>
           </div>
@@ -79,7 +78,6 @@ export default async function RegistrationPage({ params, searchParams }) {
           dietaryOptions={dietaryOptions}
           event={event}
           initialOccurrenceId={selectedOccurrence?.id ?? null}
-          initialTicketCategoryId={selectedTicketCategory?.id ?? null}
           locale={locale}
         />
 

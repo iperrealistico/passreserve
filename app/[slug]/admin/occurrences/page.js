@@ -213,6 +213,14 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
                 >
                   {isItalian ? "Modifica data" : "Edit date"}
                 </Link>
+                <Link
+                  className="button button-secondary"
+                  href={`/${slug}/admin/registrations?event=${encodeURIComponent(
+                    occurrence.eventSlug
+                  )}&occurrence=${encodeURIComponent(occurrence.id)}`}
+                >
+                  {isItalian ? "Vedi partecipanti" : "View participants"}
+                </Link>
               </div>
             </article>
           ))}
@@ -323,13 +331,16 @@ export default async function OrganizerOccurrencesPage({ params, searchParams })
             />
           </label>
           <label className="field">
-            <span>{isItalian ? "Prezzo (EUR)" : "Price (EUR)"}</span>
+            <span>{isItalian ? "Prezzo ticket" : "Ticket pricing"}</span>
             <input
-              defaultValue={formatEurosInput(selectedOccurrence?.priceCents ?? activeEvent?.basePriceCents)}
-              min="0"
-              name="priceEuros"
-              step="0.01"
-              type="number"
+              defaultValue={
+                isItalian
+                  ? "Derivato dal catalogo ticket dell'evento"
+                  : "Derived from the event ticket catalog"
+              }
+              disabled
+              readOnly
+              type="text"
             />
           </label>
           <label className="field">

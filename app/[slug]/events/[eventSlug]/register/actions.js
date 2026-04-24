@@ -36,8 +36,7 @@ export async function createRegistrationHoldAction(_previousState, formData) {
     slug: toStringValue(formData, "slug"),
     eventSlug: toStringValue(formData, "eventSlug"),
     occurrenceId: toStringValue(formData, "occurrenceId"),
-    ticketCategoryId: toStringValue(formData, "ticketCategoryId"),
-    quantity: toStringValue(formData, "quantity"),
+    items: toJsonValue(formData, "itemsJson"),
     registrationLocale: toStringValue(formData, "registrationLocale"),
     attendees: toJsonValue(formData, "attendeesJson")
   });

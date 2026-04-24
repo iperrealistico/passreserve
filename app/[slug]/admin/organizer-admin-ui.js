@@ -4,7 +4,7 @@ function buildQueryString(query = {}, eventSlug = "") {
   const params = new URLSearchParams();
 
   for (const [key, value] of Object.entries(query || {})) {
-    if (["event", "message", "error"].includes(key)) {
+    if (["event", "occurrence", "message", "error"].includes(key)) {
       continue;
     }
 

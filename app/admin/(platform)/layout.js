@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { LocaleSwitcher } from "../../../components/locale-switcher.js";
 import { TopNav } from "../../../components/top-nav.js";
 import {
@@ -91,11 +89,6 @@ export default async function PlatformAdminLayout({ children }) {
                       ? "Controlla organizer, contenuti pubblici, email e stato operativo da una console unica e piu vicina al linguaggio di MTB Reserve."
                       : "Review organizers, public content, email activity, and operational readiness from a simpler console closer to the MTB Reserve pattern."}
                   </p>
-                </div>
-                <div className="hero-actions">
-                  <Link className="button button-secondary" href="/admin/organizers">
-                    {dictionary.admin.organizers}
-                  </Link>
                 </div>
               </div>
 

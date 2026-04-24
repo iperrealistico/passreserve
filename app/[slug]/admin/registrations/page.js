@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   getOrganizerEventsAdmin,
   getOrganizerRegistrationsAdmin
@@ -17,16 +19,33 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
   const { locale } = await getTranslations();
   const isItalian = locale === "it";
   const [data, eventsData] = await Promise.all([
-    getOrganizerRegistrationsAdmin(slug),
+    getOrganizerRegistrationsAdmin(slug, locale),
     getOrganizerEventsAdmin(slug)
   ]);
   const selectedEvent = typeof query.event === "string" ? query.event : "";
-  const registrations = selectedEvent
-    ? data.registrations.filter((registration) => registration.eventSlug === selectedEvent)
-    : data.registrations;
+  const selectedOccurrence = typeof query.occurrence === "string" ? query.occurrence : "";
+  const occurrenceOptions = selectedEvent
+    ? data.occurrences.filter((occurrence) => occurrence.eventSlug === selectedEvent)
+    : data.occurrences;
+  const registrations = data.registrations.filter((registration) => {
+    if (selectedEvent && registration.eventSlug !== selectedEvent) {
+      return false;
+    }
+
+    if (selectedOccurrence && registration.occurrenceId !== selectedOccurrence) {
+      return false;
+    }
+
+    return true;
+  });
   const canRecordVenuePayment = (registration) =>
     registration.dueAtEventOpenCents > 0 &&
     !["PENDING_CONFIRM", "CANCELLED", "NO_SHOW"].includes(registration.status);
+  const selectedOccurrenceRecord =
+    occurrenceOptions.find((occurrence) => occurrence.id === selectedOccurrence) ?? null;
+  const exportBaseHref = `/${slug}/admin/registrations/export?event=${encodeURIComponent(
+    selectedEvent
+  )}&occurrence=${encodeURIComponent(selectedOccurrence)}&locale=${encodeURIComponent(locale)}`;
 
   return (
     <div className="admin-page">
@@ -61,7 +80,11 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
             ? "Ogni card mostra il partecipante principale per compatibilità, ma sotto trovi il dettaglio completo di tutti i partecipanti registrati."
             : "Each card still shows the lead attendee for compatibility, but the full participant breakdown appears underneath."}
         title={
-          selectedEvent
+          selectedOccurrence
+            ? isItalian
+              ? "Partecipanti di una singola data"
+              : "Participants for one date"
+            : selectedEvent
             ? isItalian
               ? "Registrazioni di un singolo evento"
               : "Registrations for one event"
@@ -70,6 +93,48 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
               : "Registration and payment queue"
         }
       />
+
+      {selectedEvent && occurrenceOptions.length ? (
+        <section className="panel section-card admin-section">
+          <div className="admin-filter-strip">
+            <span className="admin-filter-label">
+              {isItalian ? "Filtra per data" : "Filter by date"}
+            </span>
+            <div className="filter-row">
+              <Link
+                className={`filter-pill ${selectedOccurrence ? "" : "filter-pill-active"}`}
+                href={`/${slug}/admin/registrations?event=${encodeURIComponent(selectedEvent)}`}
+              >
+                {isItalian ? "Tutte le date" : "All dates"}
+              </Link>
+              {occurrenceOptions.map((occurrence) => (
+                <Link
+                  className={`filter-pill ${
+                    selectedOccurrence === occurrence.id ? "filter-pill-active" : ""
+                  }`}
+                  href={`/${slug}/admin/registrations?event=${encodeURIComponent(
+                    selectedEvent
+                  )}&occurrence=${encodeURIComponent(occurrence.id)}`}
+                  key={occurrence.id}
+                >
+                  {occurrence.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {selectedOccurrenceRecord ? (
+            <div className="hero-actions">
+              <a className="button button-secondary" href={`${exportBaseHref}&variant=operational`}>
+                {isItalian ? "Esporta PDF operativo" : "Export operational PDF"}
+              </a>
+              <a className="button button-primary" href={`${exportBaseHref}&variant=full`}>
+                {isItalian ? "Esporta PDF completo" : "Export full PDF"}
+              </a>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       <section className="panel section-card admin-section">
         <div className="admin-card-grid">
@@ -139,11 +204,22 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
               </div>
 
               <div className="timeline">
+                {registration.ticketItems.map((item) => (
+                  <div className="timeline-step" key={`${registration.id}-${item.id}`}>
+                    <strong>
+                      {item.label} x{item.quantity}
+                    </strong>
+                    <span>
+                      {item.subtotalLabel} · {item.onlineAmountLabel} online
+                    </span>
+                  </div>
+                ))}
                 {registration.attendees.map((attendee, index) => (
                   <div className="timeline-step" key={`${registration.id}-${attendee.email}-${index}`}>
                     <strong>
                       {attendee.fullName || `${isItalian ? "Partecipante" : "Participant"} ${index + 1}`}
                     </strong>
+                    <span>{attendee.ticketLabel}</span>
                     <span>{attendee.email}</span>
                     <span>{attendee.phone}</span>
                     <span>{attendee.address}</span>
@@ -185,6 +261,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
               {canRecordVenuePayment(registration) ? (
                 <form action={recordVenuePaymentAction} className="admin-inline-form">
                   <input name="eventFilter" type="hidden" value={selectedEvent} />
+                  <input name="occurrenceFilter" type="hidden" value={selectedOccurrence} />
                   <input name="slug" type="hidden" value={slug} />
                   <input name="registrationId" type="hidden" value={registration.id} />
                   <div className="admin-inline-form-row">
@@ -226,6 +303,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                 {registration.actions.map((action) => (
                   <form action={updateOrganizerRegistrationAction} key={action}>
                     <input name="eventFilter" type="hidden" value={selectedEvent} />
+                    <input name="occurrenceFilter" type="hidden" value={selectedOccurrence} />
                     <input name="slug" type="hidden" value={slug} />
                     <input name="registrationId" type="hidden" value={registration.id} />
                     <input name="action" type="hidden" value={action} />

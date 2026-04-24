@@ -13,6 +13,7 @@ import {
   suspendOrganizerEventAction
 } from "../actions.js";
 import { EventGalleryEditor } from "../event-gallery-editor.js";
+import { TicketCatalogEditor } from "./ticket-catalog-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 function formatDateTimeLocal(value, timeZone) {
@@ -147,6 +148,10 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                   <strong>{event.basePriceLabel}</strong>
                 </div>
                 <div>
+                  <span className="metric-label">{isItalian ? "Ticket attivi" : "Active tickets"}</span>
+                  <strong>{event.ticketCount || 0}</strong>
+                </div>
+                <div>
                   <span className="metric-label">{isItalian ? "Date" : "Dates"}</span>
                   <strong>{event.occurrenceCount}</strong>
                 </div>
@@ -274,8 +279,16 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
             </select>
           </label>
           <label className="field">
-            <span>{isItalian ? "Prezzo base in centesimi" : "Base price cents"}</span>
-            <input defaultValue={selectedEvent?.basePriceCents ?? ""} name="basePriceCents" type="number" />
+            <span>{isItalian ? "Prezzo di partenza" : "Starting price"}</span>
+            <input
+              defaultValue={
+                selectedEvent?.basePriceLabel ||
+                (isItalian ? "Derivato dai ticket" : "Derived from ticket catalog")
+              }
+              disabled
+              type="text"
+              readOnly
+            />
           </label>
           <label className="field">
             <span>{isItalian ? "Percentuale prepagata" : "Prepay percentage"}</span>
@@ -309,6 +322,13 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
               type="datetime-local"
             />
           </label>
+          <div className="field field-span">
+            <TicketCatalogEditor
+              defaultPriceCents={selectedEvent?.basePriceCents ?? 0}
+              initialTickets={selectedEvent?.ticketCategories || []}
+              isItalian={isItalian}
+            />
+          </div>
           <div className="field field-span">
             <span className="metric-label">{isItalian ? "Contenuti pubblici bilingua" : "Bilingual public copy"}</span>
             <strong>

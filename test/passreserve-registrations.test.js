@@ -26,23 +26,36 @@ beforeEach(async () => {
 
 async function createInput(slug, eventSlug, overrides = {}) {
   const experience = await getRegistrationExperienceBySlugs(slug, eventSlug);
-  const quantity = overrides.quantity ?? 2;
-  const attendees = Array.from({ length: quantity }, (_, index) => ({
-    firstName: index === 0 ? "Ada" : `Guest${index + 1}`,
-    lastName: index === 0 ? "Lovelace" : "Tester",
-    address: `Via Test ${index + 1}, Bologna`,
-    phone: index === 0 ? "+39 333 555 1010" : `+39 333 555 101${index}`,
-    email: index === 0 ? "ADA@example.com" : `guest${index + 1}@example.com`,
-    dietaryFlags: index === 0 ? ["gluten_free"] : [],
-    dietaryOther: index === 0 ? "Needs a gluten-free menu." : ""
-  }));
+  const defaultTicketId = experience.selectedTicketCategory.id;
+  const items =
+    overrides.items ??
+    [
+      {
+        ticketCategoryId: defaultTicketId,
+        quantity: overrides.quantity ?? 2
+      }
+    ];
+  const expandedTicketIds = items.flatMap((item) =>
+    Array.from({ length: item.quantity }, () => item.ticketCategoryId)
+  );
+  const attendees =
+    overrides.attendees ??
+    expandedTicketIds.map((ticketCategoryId, index) => ({
+      ticketCategoryId,
+      firstName: index === 0 ? "Ada" : `Guest${index + 1}`,
+      lastName: index === 0 ? "Lovelace" : "Tester",
+      address: `Via Test ${index + 1}, Bologna`,
+      phone: index === 0 ? "+39 333 555 1010" : `+39 333 555 101${index}`,
+      email: index === 0 ? "ADA@example.com" : `guest${index + 1}@example.com`,
+      dietaryFlags: index === 0 ? ["gluten_free"] : [],
+      dietaryOther: index === 0 ? "Needs a gluten-free menu." : ""
+    }));
 
   return {
     slug,
     eventSlug,
     occurrenceId: experience.selectedOccurrence.id,
-    ticketCategoryId: experience.selectedTicketCategory.id,
-    quantity,
+    items,
     registrationLocale: "en",
     attendees,
     ...overrides
@@ -76,6 +89,7 @@ describe("passreserve-registrations", () => {
           entry.recipientEmail === "ada@example.com"
       )
     ).toBe(true);
+    expect(state.registrations[0].items).toHaveLength(1);
   });
 
   it("routes payment-required confirmations into the preview payment handoff", async () => {
@@ -158,6 +172,51 @@ describe("passreserve-registrations", () => {
 
     expect(result.ok).toBe(false);
     expect(result.message).toContain("Registrations close 500 hours before this event starts.");
+  });
+
+  it("supports mixed ticket carts in a single registration", async () => {
+    await mutatePersistentState(async (draft) => {
+      const event = draft.events.find((entry) => entry.slug === "sunrise-ridge-session");
+
+      draft.ticketCategories.push({
+        id: "ticket-sunrise-ridge-session-vip",
+        eventTypeId: event.id,
+        slug: "vip",
+        name: "VIP access",
+        description: "Priority seating and hosted arrival.",
+        contentI18n: null,
+        included: ["Priority seating", "Hosted arrival"],
+        unitPriceCents: 8900,
+        isDefault: false,
+        isActive: true,
+        sortOrder: 1,
+        createdAt: "2026-04-01T09:00:00.000Z",
+        updatedAt: "2026-04-01T09:00:00.000Z"
+      });
+    });
+
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session", {
+      items: [
+        {
+          ticketCategoryId: "ticket-event-alpine-trail-lab-sunrise-ridge-session-general",
+          quantity: 1
+        },
+        {
+          ticketCategoryId: "ticket-sunrise-ridge-session-vip",
+          quantity: 1
+        }
+      ]
+    });
+    const result = await createRegistrationHold(input);
+    const state = await loadPersistentState();
+
+    expect(result.ok).toBe(true);
+    expect(state.registrations[0].items).toHaveLength(2);
+    expect(state.registrations[0].quantity).toBe(2);
+    expect(state.registrations[0].attendees.map((attendee) => attendee.ticketCategoryId)).toEqual([
+      "ticket-event-alpine-trail-lab-sunrise-ridge-session-general",
+      "ticket-sunrise-ridge-session-vip"
+    ]);
   });
 
   it("blocks registrations that are too far ahead of the allowed booking window", async () => {

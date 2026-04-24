@@ -78,7 +78,7 @@ export default async function RegistrationConfirmedPage({ params }) {
             <div className="pill-list mt-6">
               <span className="pill">{formatRegistrationStatus(view.registrationStatus)}</span>
               <span className="pill">{view.paymentProvider.label}</span>
-              <span className="pill">{view.quantityLabel}</span>
+              <span className="pill">{view.ticketSummaryLabel}</span>
             </div>
           </article>
 
@@ -115,8 +115,9 @@ export default async function RegistrationConfirmedPage({ params }) {
                     <strong>
                       {attendee.firstName || view.attendee.name} {attendee.lastName || ""}
                     </strong>
-                    <span>{attendee.email || view.attendee.email}</span>
+                    <span>{attendee.ticketLabel}</span>
                   </div>
+                  <span>{attendee.email || view.attendee.email}</span>
                   {attendee.address ? <span>{attendee.address}</span> : null}
                   {attendee.phone ? <span>{attendee.phone}</span> : null}
                 </article>
@@ -126,7 +127,17 @@ export default async function RegistrationConfirmedPage({ params }) {
             <div className="payment-card mt-6">
               <div className="payment-heading">
                 <strong>Payment split</strong>
-                <span>{view.ticketCategory.label}</span>
+                <span>{view.ticketSummaryLabel}</span>
+              </div>
+              <div className="timeline mt-4">
+                {view.ticketItems.map((item) => (
+                  <div className="timeline-step" key={item.id}>
+                    <strong>
+                      {item.label} x{item.quantity}
+                    </strong>
+                    <span>{item.subtotalLabel}</span>
+                  </div>
+                ))}
               </div>
               <div className="payment-amounts">
                 <div className="payment-amount">

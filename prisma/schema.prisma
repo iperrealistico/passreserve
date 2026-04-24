@@ -250,12 +250,17 @@ model TicketCategory {
   slug           String
   name           String
   description    String        @default("")
+  contentI18n    Json?
+  included       Json?
   unitPriceCents Int
   isDefault      Boolean       @default(false)
+  isActive       Boolean       @default(true)
   sortOrder      Int           @default(0)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   registrations  Registration[]
+  attendees      RegistrationAttendee[]
+  items          RegistrationItem[]
 
   @@unique([eventTypeId, slug])
   @@index([eventTypeId, sortOrder])
@@ -324,6 +329,7 @@ model Registration {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
   attendees            RegistrationAttendee[]
+  items                RegistrationItem[]
   payments             RegistrationPayment[]
   auditLogs            AuditLog[]
 
@@ -336,6 +342,8 @@ model RegistrationAttendee {
   id             String       @id @default(cuid())
   registrationId String
   registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  ticketCategoryId String?
+  ticketCategory TicketCategory? @relation(fields: [ticketCategoryId], references: [id], onDelete: SetNull)
   sortOrder      Int          @default(0)
   firstName      String
   lastName       String
@@ -346,6 +354,24 @@ model RegistrationAttendee {
   dietaryOther   String       @default("")
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  @@index([registrationId, sortOrder])
+}
+
+model RegistrationItem {
+  id               String         @id @default(cuid())
+  registrationId   String
+  registration     Registration   @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  ticketCategoryId String
+  ticketCategory   TicketCategory @relation(fields: [ticketCategoryId], references: [id], onDelete: Restrict)
+  sortOrder        Int            @default(0)
+  quantity         Int
+  unitPriceCents   Int
+  subtotalCents    Int
+  onlineAmountCents Int
+  dueAtEventCents  Int
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@index([registrationId, sortOrder])
 }
