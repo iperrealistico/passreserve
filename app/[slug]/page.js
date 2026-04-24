@@ -52,7 +52,12 @@ export default async function OrganizerPage({ params }) {
   return (
     <main className="shell">
       <div className="content">
-        <PublicHeader dictionary={dictionary} locale={locale} />
+        <PublicHeader
+          contextItem={{ href: organizer.organizerHref, label: organizer.name }}
+          currentPath={organizer.organizerHref}
+          dictionary={dictionary}
+          locale={locale}
+        />
 
         <div className="mx-auto max-w-4xl">
           <section className="panel section-card mt-6">

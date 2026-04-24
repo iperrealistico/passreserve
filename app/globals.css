@@ -145,6 +145,10 @@
     @apply rounded-full px-3 py-2 hover:bg-muted hover:text-foreground;
   }
 
+  .nav-context-link {
+    @apply max-w-[18rem] truncate sm:max-w-[22rem];
+  }
+
   .nav a[aria-current="page"] {
     @apply bg-primary text-primary-foreground;
   }
@@ -478,7 +482,7 @@
   }
 
   .admin-topbar {
-    @apply sticky top-0 z-20 border-b border-border bg-background/95 py-4 backdrop-blur;
+    @apply sticky top-0 z-20 mb-5 border-b border-border bg-background/95 py-4 backdrop-blur;
   }
 
   .admin-topbar-row {
@@ -545,6 +549,10 @@
     @apply flex flex-col gap-6;
   }
 
+  .admin-section-header > div:first-child {
+    @apply flex flex-col gap-2;
+  }
+
   .admin-main {
     @apply border-none bg-transparent p-0;
   }
@@ -558,7 +566,7 @@
   }
 
   .admin-shell-intro {
-    @apply rounded-[1.75rem] border border-border bg-card p-5;
+    @apply rounded-[1.75rem] border border-border bg-card p-6 sm:p-7;
   }
 
   .admin-shell-heading {
@@ -831,6 +839,23 @@
     @apply flex flex-wrap gap-2;
   }
 
+  .admin-card-head > div {
+    @apply flex flex-col gap-3;
+  }
+
+  .admin-card-head h4 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+
+  .admin-card-head p {
+    @apply max-w-4xl text-base leading-7 text-muted-foreground;
+  }
+
+  .admin-card > .hero-actions,
+  .occurrence-card > .hero-actions {
+    @apply mt-5;
+  }
+
   .admin-badge {
     @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-medium;
   }
@@ -870,6 +895,135 @@
 
   .admin-note-item {
     @apply flex flex-col gap-2;
+  }
+
+  .gallery-editor {
+    @apply flex flex-col gap-5;
+  }
+
+  .gallery-editor-list {
+    @apply flex flex-col gap-5;
+  }
+
+  .gallery-editor-row {
+    @apply rounded-[1.5rem] border border-border bg-muted/25 p-5;
+  }
+
+  .gallery-editor-row-head {
+    @apply flex flex-col gap-4 border-b border-border/80 pb-4 lg:flex-row lg:items-start lg:justify-between;
+  }
+
+  .gallery-editor-row-title {
+    @apply flex flex-col gap-1;
+  }
+
+  .gallery-editor-row-title strong {
+    @apply text-lg font-semibold text-foreground;
+  }
+
+  .gallery-editor-row-title span {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .gallery-editor-row-actions {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .gallery-editor-row-layout {
+    @apply mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(280px,0.8fr)];
+  }
+
+  .gallery-editor-row-main {
+    @apply flex flex-col gap-4;
+  }
+
+  .gallery-editor-preview-media {
+    @apply flex min-h-[240px] items-center justify-center overflow-hidden rounded-[1.5rem] border border-border bg-background;
+  }
+
+  .gallery-editor-preview-image {
+    @apply h-full w-full object-cover;
+  }
+
+  .gallery-editor-preview-empty {
+    @apply px-6 text-center text-sm leading-6 text-muted-foreground;
+  }
+
+  .gallery-editor-footer {
+    @apply flex flex-col gap-3;
+  }
+
+  .checkbox-field {
+    @apply gap-3;
+  }
+
+  .checkbox-row {
+    @apply flex items-start gap-3 rounded-[1.25rem] border border-border bg-muted/35 px-4 py-3;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    @apply mt-1 h-5 w-5 shrink-0 rounded border-input accent-primary;
+  }
+
+  .checkbox-copy {
+    @apply flex flex-col gap-1;
+  }
+
+  .checkbox-copy strong {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .checkbox-copy span {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .registration-ticket-head {
+    @apply flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  .registration-ticket-copy {
+    @apply flex min-w-0 flex-col gap-2;
+  }
+
+  .registration-ticket-copy strong {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+
+  .registration-ticket-copy span {
+    @apply text-base leading-7 text-muted-foreground;
+  }
+
+  .registration-ticket-price {
+    @apply inline-flex min-w-[148px] flex-col items-start rounded-[1.25rem] border border-border bg-muted/50 px-4 py-3 sm:items-end;
+  }
+
+  .registration-ticket-price strong {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+
+  .registration-ticket-price span {
+    @apply mt-1 text-sm font-medium text-muted-foreground;
+  }
+
+  .registration-ticket-included {
+    @apply mt-4 rounded-[1.5rem] border border-border bg-muted/35 p-4;
+  }
+
+  .registration-ticket-included > strong {
+    @apply block text-sm font-semibold text-foreground;
+  }
+
+  .registration-ticket-included-list {
+    @apply mt-3 grid gap-2 pl-5 text-sm leading-6 text-muted-foreground;
+    list-style: disc;
+  }
+
+  .registration-ticket-quantity {
+    @apply mt-5 flex items-center gap-3;
+  }
+
+  .registration-ticket-quantity-value {
+    @apply inline-flex min-w-12 items-center justify-center rounded-full border border-border bg-muted/50 px-4 py-2 text-sm font-semibold text-foreground;
   }
 
   .timeline-step {

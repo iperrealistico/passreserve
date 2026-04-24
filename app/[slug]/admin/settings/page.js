@@ -305,9 +305,13 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                   name="registrationRemindersEnabled"
                   type="checkbox"
                 />
-                <span>
-                  Send a reminder email before each confirmed event date.
-                </span>
+                <div className="checkbox-copy">
+                  <strong>Send a reminder email before each confirmed event date.</strong>
+                  <span>
+                    Each confirmed attendee receives the scheduled reminder before their booked
+                    event date.
+                  </span>
+                </div>
               </label>
             </div>
             <label className="field">

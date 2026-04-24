@@ -34,7 +34,7 @@ function getAboutContent(isItalian) {
           "Passreserve mette in ordine ciò che conta: pagina organizer, pagina evento, calendario date, questionario partecipanti, pagamenti e operatività. Meno vetrina, più chiarezza.",
         attendeeCta: "Vai alla home",
         organizerCta: "Apri accesso organizer",
-        image: "/images/about/passreserve-hero.svg"
+        image: "/images/about/passreserve-hero.png"
       },
       whatIs: {
         title: "Cos'è Passreserve?",
@@ -54,7 +54,7 @@ function getAboutContent(isItalian) {
           "Esperienze locali che hanno bisogno di chiarezza, non di un feed social",
           "Organizzazioni che vogliono usare sia italiano sia inglese nello stesso sistema"
         ],
-        image: "/images/about/passreserve-discovery.svg"
+        image: "/images/about/passreserve-discovery.png"
       },
       attendees: {
         title: "Come si registra un partecipante con Passreserve",
@@ -82,7 +82,7 @@ function getAboutContent(isItalian) {
               "Il sistema invia la conferma email e, se l'evento la richiede, apre il passaggio di pagamento senza spezzare il flusso."
           }
         ],
-        image: "/images/about/passreserve-questionnaire.svg"
+        image: "/images/about/passreserve-questionnaire.png"
       },
       confirmation: {
         title: "Conferma registrazione con verifica email",
@@ -97,7 +97,7 @@ function getAboutContent(isItalian) {
         codeTitle: "Codice registrazione",
         codeDescription:
           "Ogni conferma può essere tracciata con un codice univoco utile al team che gestisce l'evento e alle verifiche in venue.",
-        image: "/images/about/passreserve-confirmation.svg"
+        image: "/images/about/passreserve-confirmation.png"
       },
       organizers: {
         title: "Backend operativo per organizer e team",
@@ -113,7 +113,7 @@ function getAboutContent(isItalian) {
               "persone con allergie o intolleranze visibili subito",
               "azioni rapide per team piccoli"
             ],
-            image: "/images/about/passreserve-dashboard.svg"
+            image: "/images/about/passreserve-dashboard.png"
           },
           {
             title: "Calendar e date",
@@ -124,7 +124,7 @@ function getAboutContent(isItalian) {
               "finestre vendita per evento o singola data",
               "messaggi chiari quando una data non è più acquistabile"
             ],
-            image: "/images/about/passreserve-calendar.svg"
+            image: "/images/about/passreserve-calendar.png"
           },
           {
             title: "Registrazioni e dati partecipanti",
@@ -135,7 +135,7 @@ function getAboutContent(isItalian) {
               "allergie standard e note libere separate",
               "pagamenti e promemoria accanto alla registrazione"
             ],
-            image: "/images/about/passreserve-operations.svg"
+            image: "/images/about/passreserve-operations.png"
           }
         ],
         settingsTitle: "Impostazioni che restano leggibili",
@@ -185,7 +185,7 @@ function getAboutContent(isItalian) {
             description: "Dati partecipanti, allergie e note alimentari restano fuori dal sistema o finiscono in campi troppo generici."
           }
         ],
-        image: "/images/about/passreserve-discovery.svg"
+        image: "/images/about/passreserve-discovery.png"
       },
       different: {
         title: "Perché Passreserve si sente diverso",
@@ -207,7 +207,7 @@ function getAboutContent(isItalian) {
           "partecipanti e restrizioni alimentari",
           "azioni operative in una sola colonna logica"
         ],
-        image: "/images/about/passreserve-dashboard.svg"
+        image: "/images/about/passreserve-dashboard.png"
       },
       setup: {
         title: "Lancio operativo in 4 step",
@@ -235,7 +235,7 @@ function getAboutContent(isItalian) {
             description: "La pagina organizer è pronta per sito, Google Business Profile, email o QR in venue."
           }
         ],
-        image: "/images/about/passreserve-calendar.svg"
+        image: "/images/about/passreserve-calendar.png"
       },
       availability: {
         title: "Disponibilità e finestre vendita senza ambiguità",
@@ -256,7 +256,7 @@ function getAboutContent(isItalian) {
             description: "L'utente capisce subito se una data è sold out, chiusa o non ancora aperta."
           }
         ],
-        image: "/images/about/passreserve-calendar.svg"
+        image: "/images/about/passreserve-calendar.png"
       },
       niche: {
         title: "Pensato per format locali e calendari reali",
@@ -280,7 +280,7 @@ function getAboutContent(isItalian) {
             ]
           }
         ],
-        image: "/images/about/passreserve-operations.svg"
+        image: "/images/about/passreserve-operations.png"
       },
       faq: {
         title: "FAQ",
@@ -327,7 +327,7 @@ function getAboutContent(isItalian) {
         organizerDescription:
           "Richiedi accesso e configura un backend più chiaro per date, partecipanti, pagamenti e note operative.",
         organizerCta: "Apri accesso organizer",
-        image: "/images/about/passreserve-hero.svg"
+        image: "/images/about/passreserve-hero.png"
       },
       footer: "Passreserve.com - sistema di registrazione eventi per organizer locali"
     };
@@ -345,7 +345,7 @@ function getAboutContent(isItalian) {
         "Passreserve brings the essentials into one flow: organizer page, event page, published dates, attendee questionnaire, payments, and operations. Less theatre, more clarity.",
       attendeeCta: "Go to home",
       organizerCta: "Open organizer access",
-      image: "/images/about/passreserve-hero.svg"
+      image: "/images/about/passreserve-hero.png"
     },
     whatIs: {
       title: "What is Passreserve?",
@@ -365,7 +365,7 @@ function getAboutContent(isItalian) {
         "Local experiences that need clarity instead of social-style presentation",
         "Organizations that want both Italian and English in the same system"
       ],
-      image: "/images/about/passreserve-discovery.svg"
+      image: "/images/about/passreserve-discovery.png"
     },
     attendees: {
       title: "How attendee registration works in Passreserve",
@@ -393,7 +393,7 @@ function getAboutContent(isItalian) {
             "The system sends the confirmation email and, when required, opens the payment step without breaking the flow."
         }
       ],
-      image: "/images/about/passreserve-questionnaire.svg"
+      image: "/images/about/passreserve-questionnaire.png"
     },
     confirmation: {
       title: "Registration confirmation with email verification",
@@ -408,7 +408,7 @@ function getAboutContent(isItalian) {
       codeTitle: "Registration code",
       codeDescription:
         "Each confirmed registration can be tracked with a unique code that helps both the event team and venue-side checks.",
-      image: "/images/about/passreserve-confirmation.svg"
+      image: "/images/about/passreserve-confirmation.png"
     },
     organizers: {
       title: "Operational backend for organizers and teams",
@@ -424,7 +424,7 @@ function getAboutContent(isItalian) {
             "people with allergies or intolerances visible right away",
             "quick actions for small teams"
           ],
-          image: "/images/about/passreserve-dashboard.svg"
+          image: "/images/about/passreserve-dashboard.png"
         },
         {
           title: "Calendar and dates",
@@ -435,7 +435,7 @@ function getAboutContent(isItalian) {
             "sales windows at event or single-date level",
             "clear messaging when a date is no longer purchasable"
           ],
-          image: "/images/about/passreserve-calendar.svg"
+          image: "/images/about/passreserve-calendar.png"
         },
         {
           title: "Registrations and attendee data",
@@ -446,7 +446,7 @@ function getAboutContent(isItalian) {
             "standard allergies and custom notes kept separate",
             "payments and reminders next to the registration"
           ],
-          image: "/images/about/passreserve-operations.svg"
+          image: "/images/about/passreserve-operations.png"
         }
       ],
       settingsTitle: "Settings that stay readable",
@@ -496,7 +496,7 @@ function getAboutContent(isItalian) {
           description: "Participant data, allergies, and food notes end up outside the system or inside vague free-text fields."
         }
       ],
-      image: "/images/about/passreserve-discovery.svg"
+      image: "/images/about/passreserve-discovery.png"
     },
     different: {
       title: "Why Passreserve feels different",
@@ -518,7 +518,7 @@ function getAboutContent(isItalian) {
         "participants and dietary restrictions",
         "operational actions in one logical flow"
       ],
-      image: "/images/about/passreserve-dashboard.svg"
+      image: "/images/about/passreserve-dashboard.png"
     },
     setup: {
       title: "Operational launch in 4 steps",
@@ -546,7 +546,7 @@ function getAboutContent(isItalian) {
           description: "The organizer page is ready for your site, Google Business Profile, email signature, or venue QR code."
         }
       ],
-      image: "/images/about/passreserve-calendar.svg"
+      image: "/images/about/passreserve-calendar.png"
     },
     availability: {
       title: "Availability and sales windows without ambiguity",
@@ -567,7 +567,7 @@ function getAboutContent(isItalian) {
           description: "The attendee understands immediately whether a date is sold out, closed, or not open yet."
         }
       ],
-      image: "/images/about/passreserve-calendar.svg"
+      image: "/images/about/passreserve-calendar.png"
     },
     niche: {
       title: "Built for local formats and real calendars",
@@ -591,7 +591,7 @@ function getAboutContent(isItalian) {
           ]
         }
       ],
-      image: "/images/about/passreserve-operations.svg"
+      image: "/images/about/passreserve-operations.png"
     },
     faq: {
       title: "FAQ",
@@ -638,7 +638,7 @@ function getAboutContent(isItalian) {
       organizerDescription:
         "Request access and configure a calmer backend for dates, participants, payments, and operational notes.",
       organizerCta: "Open organizer access",
-      image: "/images/about/passreserve-hero.svg"
+      image: "/images/about/passreserve-hero.png"
     },
     footer: "Passreserve.com - event registration software for local organizers"
   };
@@ -738,19 +738,19 @@ export default async function AboutPage() {
             <p className="max-w-xl text-lg leading-8 text-gray-600">{content.hero.description}</p>
             <div className="flex flex-col gap-4 sm:flex-row">
               <Link
-                className="inline-flex h-14 items-center justify-center rounded-2xl bg-gray-900 px-8 text-lg font-semibold text-white transition hover:bg-gray-800"
+                className="inline-flex h-14 items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-gray-900 px-6 text-base font-semibold text-white transition hover:bg-gray-800 sm:px-8 sm:text-lg"
                 href="/"
               >
-                <Ticket className="mr-2 h-5 w-5" />
-                {content.hero.attendeeCta}
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <Ticket className="h-5 w-5 shrink-0" />
+                <span>{content.hero.attendeeCta}</span>
+                <ArrowRight className="h-5 w-5 shrink-0" />
               </Link>
               <Link
-                className="inline-flex h-14 items-center justify-center rounded-2xl border-2 border-gray-200 px-8 text-lg font-medium text-gray-900 transition hover:border-gray-300 hover:bg-gray-50"
+                className="inline-flex h-14 items-center justify-center gap-3 whitespace-nowrap rounded-2xl border-2 border-gray-200 px-6 text-base font-medium text-gray-900 transition hover:border-gray-300 hover:bg-gray-50 sm:px-8 sm:text-lg"
                 href="/admin/login"
               >
-                <LayoutDashboard className="mr-2 h-5 w-5" />
-                {content.hero.organizerCta}
+                <LayoutDashboard className="h-5 w-5 shrink-0" />
+                <span>{content.hero.organizerCta}</span>
               </Link>
             </div>
           </div>
@@ -1185,22 +1185,22 @@ export default async function AboutPage() {
               <h3 className="mb-4 text-2xl font-semibold">{content.cta.attendeeTitle}</h3>
               <p className="mb-6 flex-1 text-gray-300">{content.cta.attendeeDescription}</p>
               <Link
-                className="inline-flex h-14 w-full items-center justify-center rounded-2xl bg-white text-lg font-semibold text-gray-900 transition hover:bg-gray-100"
+                className="inline-flex h-14 w-full items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-white px-6 text-base font-semibold text-gray-900 transition hover:bg-gray-100 sm:text-lg"
                 href="/"
               >
-                {content.cta.attendeeCta}
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <span>{content.cta.attendeeCta}</span>
+                <ArrowRight className="h-5 w-5 shrink-0" />
               </Link>
             </div>
             <div className="flex flex-col rounded-3xl bg-[#244231] p-8 text-white">
               <h3 className="mb-4 text-2xl font-semibold">{content.cta.organizerTitle}</h3>
               <p className="mb-6 flex-1 text-[#d7e4dc]">{content.cta.organizerDescription}</p>
               <Link
-                className="inline-flex h-14 w-full items-center justify-center rounded-2xl bg-white text-lg font-semibold text-[#244231] transition hover:bg-[#f3f6f4]"
+                className="inline-flex h-14 w-full items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-white px-6 text-base font-semibold text-[#244231] transition hover:bg-[#f3f6f4] sm:text-lg"
                 href="/admin/login"
               >
-                {content.cta.organizerCta}
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <span>{content.cta.organizerCta}</span>
+                <ArrowRight className="h-5 w-5 shrink-0" />
               </Link>
             </div>
           </div>

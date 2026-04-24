@@ -225,6 +225,7 @@ model EventType {
   attendeeInstructions  String          @default("")
   organizerNotes        String          @default("")
   cancellationPolicy    String          @default("")
+  collectDietaryInfo    Boolean         @default(true)
   salesWindowStartsAt   DateTime?
   salesWindowEndsAt     DateTime?
   highlights            Json?

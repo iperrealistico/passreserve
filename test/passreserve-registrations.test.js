@@ -219,6 +219,23 @@ describe("passreserve-registrations", () => {
     ]);
   });
 
+  it("ignores dietary answers when the event disables dietary collection", async () => {
+    await mutatePersistentState(async (draft) => {
+      const event = draft.events.find((entry) => entry.slug === "sunrise-ridge-session");
+      event.collectDietaryInfo = false;
+      event.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const result = await createRegistrationHold(input);
+    const state = await loadPersistentState();
+
+    expect(result.ok).toBe(true);
+    expect(state.events.find((entry) => entry.slug === "sunrise-ridge-session").collectDietaryInfo).toBe(false);
+    expect(state.registrations[0].attendees[0].dietaryFlags).toEqual([]);
+    expect(state.registrations[0].attendees[0].dietaryOther).toBe("");
+  });
+
   it("blocks registrations that are too far ahead of the allowed booking window", async () => {
     await mutatePersistentState(async (draft) => {
       const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");

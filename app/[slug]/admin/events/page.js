@@ -322,6 +322,28 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
               type="datetime-local"
             />
           </label>
+          <div className="field field-span checkbox-field">
+            <span>{isItalian ? "Questionario alimentare" : "Dietary questionnaire"}</span>
+            <label className="checkbox-row">
+              <input
+                defaultChecked={selectedEvent?.collectDietaryInfo !== false}
+                name="collectDietaryInfo"
+                type="checkbox"
+              />
+              <div className="checkbox-copy">
+                <strong>
+                  {isItalian
+                    ? "Raccogli allergie, intolleranze e note alimentari per questo evento."
+                    : "Collect allergies, intolerances, and food notes for this event."}
+                </strong>
+                <span>
+                  {isItalian
+                    ? "Se lo disattivi, nel frontend verranno richiesti solo i dati base dei partecipanti."
+                    : "If you turn it off, the frontend will only ask for the core participant details."}
+                </span>
+              </div>
+            </label>
+          </div>
           <div className="field field-span">
             <TicketCatalogEditor
               defaultPriceCents={selectedEvent?.basePriceCents ?? 0}

@@ -147,6 +147,7 @@ function isAttendeeComplete(attendee) {
 }
 
 export default function RegistrationFlowExperience({
+  collectDietaryInfo = true,
   event,
   initialOccurrenceId,
   locale,
@@ -413,26 +414,30 @@ export default function RegistrationFlowExperience({
 
                 return (
                   <article className="registration-choice registration-choice-active" key={category.id}>
-                    <div className="registration-choice-head">
-                      <div>
+                    <div className="registration-ticket-head">
+                      <div className="registration-ticket-copy">
                         <strong>{category.label}</strong>
-                        <span>{category.unitPriceLabel}</span>
+                        <span>{category.summary}</span>
                       </div>
-                      <span className="route-label">{category.payment.onlineAmountLabel} online</span>
+                      <div className="registration-ticket-price">
+                        <strong>{category.unitPriceLabel}</strong>
+                        <span>
+                          {category.payment.onlineAmountLabel} {labels.online.toLowerCase()}
+                        </span>
+                      </div>
                     </div>
-                    <p>{category.summary}</p>
                     {category.included?.length ? (
-                      <div className="timeline mt-4">
-                        {category.included.map((itemLabel) => (
-                          <div className="timeline-step" key={`${category.id}-${itemLabel}`}>
-                            <strong>{labels.included}</strong>
-                            <span>{itemLabel}</span>
-                          </div>
-                        ))}
+                      <div className="registration-ticket-included">
+                        <strong>{labels.included}</strong>
+                        <ul className="registration-ticket-included-list">
+                          {category.included.map((itemLabel) => (
+                            <li key={`${category.id}-${itemLabel}`}>{itemLabel}</li>
+                          ))}
+                        </ul>
                       </div>
                     ) : null}
 
-                    <div className="hero-actions mt-4">
+                    <div className="registration-ticket-quantity">
                       <button
                         className="button button-secondary"
                         onClick={() => updateCartQuantity(category.id, quantity - 1)}
@@ -440,7 +445,7 @@ export default function RegistrationFlowExperience({
                       >
                         -
                       </button>
-                      <span className="pill">{quantity}</span>
+                      <span className="registration-ticket-quantity-value">{quantity}</span>
                       <button
                         className="button button-secondary"
                         disabled={remainingForThisTicket <= 0}
@@ -544,36 +549,40 @@ export default function RegistrationFlowExperience({
                           value={attendee.email}
                         />
                       </label>
-                      <div className="field field-span">
-                        <span>{dictionary.registration.dietary}</span>
-                        <div className="flex flex-wrap gap-2">
-                          {dietaryOptions.map((option) => {
-                            const selected = attendee.dietaryFlags.includes(option.id);
+                      {collectDietaryInfo ? (
+                        <>
+                          <div className="field field-span">
+                            <span>{dictionary.registration.dietary}</span>
+                            <div className="flex flex-wrap gap-2">
+                              {dietaryOptions.map((option) => {
+                                const selected = attendee.dietaryFlags.includes(option.id);
 
-                            return (
-                              <button
-                                className={`filter-pill ${selected ? "filter-pill-active" : ""}`}
-                                key={option.id}
-                                onClick={() => toggleDietaryFlag(index, option.id)}
-                                type="button"
-                              >
-                                {option.label}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <label className="field field-span">
-                        <span>{dictionary.registration.dietaryOther}</span>
-                        <textarea
-                          onChange={(event) =>
-                            updateAttendee(index, { dietaryOther: event.target.value })
-                          }
-                          placeholder={dictionary.registration.dietaryPlaceholder}
-                          rows="2"
-                          value={attendee.dietaryOther}
-                        />
-                      </label>
+                                return (
+                                  <button
+                                    className={`filter-pill ${selected ? "filter-pill-active" : ""}`}
+                                    key={option.id}
+                                    onClick={() => toggleDietaryFlag(index, option.id)}
+                                    type="button"
+                                  >
+                                    {option.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <label className="field field-span">
+                            <span>{dictionary.registration.dietaryOther}</span>
+                            <textarea
+                              onChange={(event) =>
+                                updateAttendee(index, { dietaryOther: event.target.value })
+                              }
+                              placeholder={dictionary.registration.dietaryPlaceholder}
+                              rows="2"
+                              value={attendee.dietaryOther}
+                            />
+                          </label>
+                        </>
+                      ) : null}
                     </div>
                   </article>
                 );

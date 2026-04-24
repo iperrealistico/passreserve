@@ -39,10 +39,12 @@ export default async function RegistrationPage({ params, searchParams }) {
   }
 
   const { organizer, event, selectedOccurrence } = entry;
-  const dietaryOptions = dietaryFlags.map((flag) => ({
-    id: flag.id,
-    label: flag.label[locale]
-  }));
+  const dietaryOptions = event.collectDietaryInfo
+    ? dietaryFlags.map((flag) => ({
+        id: flag.id,
+        label: flag.label[locale]
+      }))
+    : [];
 
   return (
     <main className="shell">
@@ -75,11 +77,12 @@ export default async function RegistrationPage({ params, searchParams }) {
 
         <RegistrationFlowExperience
           dictionary={dictionary}
-          dietaryOptions={dietaryOptions}
-          event={event}
-          initialOccurrenceId={selectedOccurrence?.id ?? null}
-          locale={locale}
-        />
+        dietaryOptions={dietaryOptions}
+        event={event}
+        initialOccurrenceId={selectedOccurrence?.id ?? null}
+        locale={locale}
+        collectDietaryInfo={event.collectDietaryInfo}
+      />
 
         <PublicFooter dictionary={dictionary} locale={locale} />
       </div>

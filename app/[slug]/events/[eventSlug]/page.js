@@ -39,7 +39,12 @@ export default async function EventDetailPage({ params }) {
   return (
     <main className="shell">
       <div className="content">
-        <PublicHeader dictionary={dictionary} locale={locale} />
+        <PublicHeader
+          contextItem={{ href: event.detailHref, label: event.title }}
+          currentPath={event.detailHref}
+          dictionary={dictionary}
+          locale={locale}
+        />
 
         <div className="mx-auto max-w-4xl">
           <section className="panel section-card mt-6">

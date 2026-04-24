@@ -1,11 +1,19 @@
 import Link from "next/link";
 
-export function PublicHeader({ dictionary, currentPath = "/" }) {
+export function PublicHeader({ dictionary, currentPath = "/", contextItem = null }) {
   const navItems = [
     { href: "/", label: dictionary.nav.discover },
     { href: "/events", label: dictionary.nav.events },
     { href: "/about", label: dictionary.nav.about }
   ];
+
+  if (contextItem?.href && contextItem?.label) {
+    navItems.push({
+      href: contextItem.href,
+      label: contextItem.label,
+      contextual: true
+    });
+  }
 
   return (
     <header className="topbar">
@@ -16,7 +24,13 @@ export function PublicHeader({ dictionary, currentPath = "/" }) {
       <div className="topbar-actions">
         <nav className="nav" aria-label="Primary">
           {navItems.map((item) => (
-            <Link aria-current={currentPath === item.href ? "page" : undefined} href={item.href} key={item.href}>
+            <Link
+              aria-current={currentPath === item.href ? "page" : undefined}
+              className={item.contextual ? "nav-context-link" : undefined}
+              href={item.href}
+              key={item.href}
+              title={item.label}
+            >
               {item.label}
             </Link>
           ))}

@@ -186,6 +186,7 @@ export async function saveOrganizerEventAction(formData) {
         basePriceCents: value(formData, "basePriceCents"),
         ticketCatalogJson: value(formData, "ticketCatalogJson"),
         prepayPercentage: value(formData, "prepayPercentage"),
+        collectDietaryInfo: checked(formData, "collectDietaryInfo"),
         salesWindowStartsAt: value(formData, "salesWindowStartsAt"),
         salesWindowEndsAt: value(formData, "salesWindowEndsAt"),
         attendeeInstructions:

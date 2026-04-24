@@ -84,40 +84,11 @@ export function EventGalleryEditor({ initialItems = [] }) {
       <div className="gallery-editor-list">
         {items.map((item, index) => (
           <div className="gallery-editor-row" key={item.id}>
-            <div className="gallery-editor-row-main">
-              <div className="gallery-editor-row-head">
+            <div className="gallery-editor-row-head">
+              <div className="gallery-editor-row-title">
                 <strong>Photo {index + 1}</strong>
+                <span>Paste a direct image URL to preview it here.</span>
               </div>
-              <label className="field">
-                <span>Direct image URL</span>
-                <input
-                  onChange={(event) => updateItem(item.id, { imageUrl: event.target.value })}
-                  placeholder="https://i.imgur.com/your-photo.jpg"
-                  type="url"
-                  value={item.imageUrl}
-                />
-              </label>
-              <label className="field">
-                <span>Photo title</span>
-                <input
-                  onChange={(event) => updateItem(item.id, { title: event.target.value })}
-                  placeholder="Optional title"
-                  type="text"
-                  value={item.title}
-                />
-              </label>
-              <label className="field">
-                <span>Caption</span>
-                <textarea
-                  onChange={(event) => updateItem(item.id, { caption: event.target.value })}
-                  placeholder="Optional short caption"
-                  rows="2"
-                  value={item.caption}
-                />
-              </label>
-            </div>
-
-            <div className="gallery-editor-row-actions">
               <button
                 className="button button-secondary button-small"
                 onClick={() => moveItem(index, -1)}
@@ -140,13 +111,43 @@ export function EventGalleryEditor({ initialItems = [] }) {
                 Remove
               </button>
             </div>
-
-            <GalleryPreview item={item} label={`Gallery preview ${index + 1}`} />
+            <div className="gallery-editor-row-layout">
+              <div className="gallery-editor-row-main">
+                <label className="field">
+                  <span>Direct image URL</span>
+                  <input
+                    onChange={(event) => updateItem(item.id, { imageUrl: event.target.value })}
+                    placeholder="https://i.imgur.com/your-photo.jpg"
+                    type="url"
+                    value={item.imageUrl}
+                  />
+                </label>
+                <label className="field">
+                  <span>Photo title</span>
+                  <input
+                    onChange={(event) => updateItem(item.id, { title: event.target.value })}
+                    placeholder="Optional title"
+                    type="text"
+                    value={item.title}
+                  />
+                </label>
+                <label className="field">
+                  <span>Caption</span>
+                  <textarea
+                    onChange={(event) => updateItem(item.id, { caption: event.target.value })}
+                    placeholder="Optional short caption"
+                    rows="2"
+                    value={item.caption}
+                  />
+                </label>
+              </div>
+              <GalleryPreview item={item} label={`Gallery preview ${index + 1}`} />
+            </div>
           </div>
         ))}
       </div>
 
-      <div className="hero-actions">
+      <div className="gallery-editor-footer">
         <button
           className="button button-secondary"
           onClick={() =>
@@ -159,12 +160,11 @@ export function EventGalleryEditor({ initialItems = [] }) {
         >
           Add photo URL
         </button>
+        <p className="admin-page-tip">
+          Paste direct image links only. Generated template images are no longer used as fallbacks,
+          so pages stay text-first if no real photo is provided.
+        </p>
       </div>
-
-      <p className="admin-page-tip">
-        Paste direct image links only. Generated template images are no longer used as fallbacks,
-        so pages stay text-first if no real photo is provided.
-      </p>
     </div>
   );
 }

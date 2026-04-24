@@ -1,0 +1,2 @@
+ALTER TABLE "EventType"
+ADD COLUMN "collectDietaryInfo" BOOLEAN NOT NULL DEFAULT true;
