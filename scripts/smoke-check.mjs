@@ -358,6 +358,19 @@ async function main() {
     );
     assertNoInternalCopy(platformOrganizerDetail.text, "Host detail page");
 
+    const altchaChallengeResponse = await fetch(`${baseUrl}/api/altcha/organizer-request`);
+    const altchaChallenge = await altchaChallengeResponse.json();
+    assert(
+      altchaChallengeResponse.status === 200,
+      "Organizer-request ALTCHA challenge route should return 200."
+    );
+    assert(
+      altchaChallenge?.parameters?.data?.form === "organizer-request" &&
+        typeof altchaChallenge?.parameters?.data?.challengeId === "string" &&
+        altchaChallenge.parameters.data.challengeId.length > 0,
+      "Organizer-request ALTCHA challenge route should return organizer-request challenge metadata."
+    );
+
     const { listOrganizerRequests, submitOrganizerRequest } = await import(
       "../lib/passreserve-service.js"
     );

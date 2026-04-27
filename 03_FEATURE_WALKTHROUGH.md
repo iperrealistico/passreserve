@@ -37,7 +37,7 @@ The shop side of the landing page supports two actions:
 - jump to a tenant login by entering a shop id,
 - open a partner application modal and submit a join request.
 
-The join-request modal writes to `SignupRequest` and sends two emails:
+The join-request modal is protected by ALTCHA verification plus server-side rate limiting, writes to `SignupRequest`, and sends two emails:
 
 - an acknowledgment to the applicant,
 - a notification to the platform admin.

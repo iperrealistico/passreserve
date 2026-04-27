@@ -6,12 +6,19 @@ import { submitOrganizerRequestRedirectAction } from "./actions.js";
 
 const MODAL_CLOSE_MS = 220;
 
-export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
+export function HomeOrganizerRequestModal({
+  launchWindows,
+  paymentModels,
+  triggerClassName = "",
+  triggerLabel = "Request access"
+}) {
   const dialogRef = useRef(null);
   const closeTimerRef = useRef(null);
   const animationFrameRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [modalState, setModalState] = useState("closed");
+  const [formInstanceKey, setFormInstanceKey] = useState(0);
+  const [formStartedAt, setFormStartedAt] = useState(() => String(Date.now()));
 
   const finishClose = () => {
     const dialog = dialogRef.current;
@@ -51,6 +58,10 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
       finishClose();
     }, MODAL_CLOSE_MS);
   };
+
+  useEffect(() => {
+    import("altcha");
+  }, []);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -127,19 +138,21 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
   return (
     <>
       <button
-        className="button button-primary button-compact button-small"
+        className={`button button-primary ${triggerClassName}`.trim()}
         onClick={() => {
           if (closeTimerRef.current) {
             clearTimeout(closeTimerRef.current);
             closeTimerRef.current = null;
           }
 
+          setFormStartedAt(String(Date.now()));
+          setFormInstanceKey((current) => current + 1);
           setModalState("opening");
           setOpen(true);
         }}
         type="button"
       >
-        Request access
+        {triggerLabel}
       </button>
 
       <dialog className="home-modal" data-state={modalState} ref={dialogRef}>
@@ -163,6 +176,24 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
           </div>
 
           <form action={submitOrganizerRequestRedirectAction} className="registration-field-grid home-modal-form">
+            <input name="formStartedAt" readOnly type="hidden" value={formStartedAt} />
+            <div
+              aria-hidden="true"
+              style={{
+                height: 0,
+                left: "-9999px",
+                opacity: 0,
+                overflow: "hidden",
+                pointerEvents: "none",
+                position: "absolute",
+                width: 0
+              }}
+            >
+              <label>
+                <span>Leave this field empty</span>
+                <input autoComplete="off" name="companyWebsite" tabIndex={-1} type="text" />
+              </label>
+            </div>
             <label className="field">
               <span>Contact name</span>
               <input name="contactName" required type="text" />
@@ -220,6 +251,16 @@ export function HomeOrganizerRequestModal({ launchWindows, paymentModels }) {
                 rows="2"
               />
             </label>
+            <div className="field field-span" style={{ gridColumn: "1 / -1" }}>
+              <span>Human verification</span>
+              <altcha-widget
+                auto="onload"
+                challenge="/api/altcha/organizer-request"
+                key={`organizer-request-${formInstanceKey}`}
+                name="altcha"
+                type="checkbox"
+              ></altcha-widget>
+            </div>
 
             <div className="home-modal-actions" style={{ gridColumn: "1 / -1" }}>
               <button className="button button-primary button-compact button-small home-modal-submit" type="submit">

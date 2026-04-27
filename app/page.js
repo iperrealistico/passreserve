@@ -90,14 +90,19 @@ export default async function HomePage({ searchParams }) {
                     {dictionary.home.organizerSummary}
                   </p>
                 </div>
-                <div className="hero-actions">
-                  <Link className="button bg-white text-primary hover:bg-white/90" href="/admin/login">
-                    {dictionary.home.organizerCta}
-                  </Link>
+                <div className="hero-actions flex-col items-start gap-3 sm:flex-row sm:items-center">
                   <HomeOrganizerRequestModal
                     launchWindows={organizerLaunchWindows}
                     paymentModels={organizerPaymentModels}
+                    triggerClassName="h-14 w-full bg-white px-7 text-base font-semibold text-primary shadow-[0_18px_40px_rgba(8,34,44,0.28)] hover:bg-white/92 sm:w-auto"
+                    triggerLabel={dictionary.home.requestCta}
                   />
+                  <Link
+                    className="inline-flex h-9 items-center justify-center rounded-full border border-white/24 bg-white/8 px-4 text-sm font-medium text-white/78 transition-colors hover:bg-white/14 hover:text-white"
+                    href="/admin/login"
+                  >
+                    {dictionary.home.organizerCta}
+                  </Link>
                 </div>
               </div>
             </div>

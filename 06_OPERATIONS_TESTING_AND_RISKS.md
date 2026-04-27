@@ -13,6 +13,7 @@ The current runtime expects these environment variables:
 - `RESEND_API_KEY`
 - `FROM_EMAIL`
 - `IP_SALT`
+- `ALTCHA_HMAC_KEY`
 - `PLATFORM_ADMIN_EMAIL`
 - `PLATFORM_ADMIN_PASSWORD`
 - optional `PLATFORM_ADMIN_NAME`
