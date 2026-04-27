@@ -14,6 +14,19 @@ describe("organizer admin tour definition", () => {
 
     expect(ORGANIZER_ADMIN_TOUR_VERSION).toBeTruthy();
     expect(definition.labels.replay).toBe("Replay tour");
+    expect(definition.labels.language).toBe("Tour language");
+    expect(definition.localeOptions).toEqual([
+      {
+        value: "it",
+        label: "Italiano",
+        shortLabel: "IT"
+      },
+      {
+        value: "en",
+        label: "English",
+        shortLabel: "EN"
+      }
+    ]);
     expect(definition.steps.map((step) => step.id)).toEqual([
       "dashboard-overview",
       "dashboard-priorities",
@@ -46,6 +59,7 @@ describe("organizer admin tour definition", () => {
     expect(definition.labels.previous).toBe("Indietro");
     expect(definition.labels.skip).toBe("Salta tour");
     expect(definition.labels.replay).toBe("Rivedi tour");
+    expect(definition.labels.language).toBe("Lingua tour");
     expect(definition.steps[5].route).toBe("/sillico/admin/billing");
   });
 });

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { driver } from "driver.js";
 
 import {
@@ -10,6 +10,10 @@ import {
   ORGANIZER_ADMIN_TOUR_VERSION,
   getOrganizerAdminTourDefinition
 } from "../../../lib/organizer-admin-tour.js";
+import {
+  PASSRESERVE_LOCALE_COOKIE,
+  SUPPORTED_LOCALES
+} from "../../../lib/passreserve-locales.js";
 
 function isVisibleElement(element) {
   return Boolean(element) && element.getClientRects().length > 0;
@@ -79,15 +83,17 @@ function writeStoredState(status) {
 export function OrganizerAdminTour({ locale, slug }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const driverRef = useRef(null);
   const activeRef = useRef(false);
   const activeStepIndexRef = useRef(0);
   const pendingStepIndexRef = useRef(null);
   const autoStartCheckedRef = useRef(false);
   const renderTokenRef = useRef(0);
+  const [tourLocale, setTourLocale] = useState(locale);
   const definition = useMemo(
-    () => getOrganizerAdminTourDefinition({ slug, locale }),
-    [locale, slug]
+    () => getOrganizerAdminTourDefinition({ slug, locale: tourLocale }),
+    [slug, tourLocale]
   );
 
   const dashboardRoute = definition.steps[0]?.route || `/${slug}/admin/dashboard`;
@@ -103,6 +109,23 @@ export function OrganizerAdminTour({ locale, slug }) {
     pendingStepIndexRef.current = null;
     renderTokenRef.current += 1;
     writeStoredState(status);
+  }
+
+  function switchTourLocale(nextLocale) {
+    if (!SUPPORTED_LOCALES.includes(nextLocale) || nextLocale === tourLocale) {
+      return;
+    }
+
+    pendingStepIndexRef.current = activeStepIndexRef.current;
+    renderTokenRef.current += 1;
+    destroyDriver();
+
+    document.cookie = `${PASSRESERVE_LOCALE_COOKIE}=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    setTourLocale(nextLocale);
+
+    const query = searchParams?.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+    router.refresh();
   }
 
   async function showStep(stepIndex) {
@@ -184,6 +207,40 @@ export function OrganizerAdminTour({ locale, slug }) {
         void goToStep(stepIndex - 1);
       },
       onPopoverRender: (popover) => {
+        const localeToolbar = document.createElement("div");
+        localeToolbar.className = "organizer-tour-locale-toolbar";
+
+        const localeLabel = document.createElement("span");
+        localeLabel.className = "organizer-tour-locale-label";
+        localeLabel.textContent = definition.labels.language;
+        localeToolbar.append(localeLabel);
+
+        const localeGroup = document.createElement("div");
+        localeGroup.className = "organizer-tour-locale-group";
+        localeGroup.setAttribute("aria-label", definition.labels.language);
+        localeGroup.setAttribute("role", "group");
+
+        definition.localeOptions.forEach((option) => {
+          const optionButton = document.createElement("button");
+          optionButton.className = "organizer-tour-locale-option";
+          optionButton.dataset.active = option.value === tourLocale ? "true" : "false";
+          optionButton.textContent = option.shortLabel;
+          optionButton.title = option.label;
+          optionButton.type = "button";
+          optionButton.setAttribute("aria-label", option.label);
+          optionButton.setAttribute(
+            "aria-pressed",
+            option.value === tourLocale ? "true" : "false"
+          );
+          optionButton.addEventListener("click", () => {
+            switchTourLocale(option.value);
+          });
+          localeGroup.append(optionButton);
+        });
+
+        localeToolbar.append(localeGroup);
+        popover.description.before(localeToolbar);
+
         const skipButton = document.createElement("button");
         skipButton.className = "driver-popover-btn organizer-tour-skip-btn";
         skipButton.textContent = definition.labels.skip;
@@ -242,6 +299,10 @@ export function OrganizerAdminTour({ locale, slug }) {
   });
 
   useEffect(() => {
+    setTourLocale(locale);
+  }, [locale]);
+
+  useEffect(() => {
     if (!activeRef.current) {
       return;
     }
@@ -259,9 +320,15 @@ export function OrganizerAdminTour({ locale, slug }) {
       return;
     }
 
-    const activeStep = definition.steps[activeStepIndexRef.current];
+    const activeStepIndex = activeStepIndexRef.current;
+    const activeStep = definition.steps[activeStepIndex];
 
-    if (activeStep && activeStep.route !== pathname) {
+    if (activeStep?.route === pathname) {
+      void showStep(activeStepIndex);
+      return;
+    }
+
+    if (activeStep) {
       finishTour("skipped");
     }
   }, [definition.steps, pathname]);
