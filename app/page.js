@@ -90,16 +90,16 @@ export default async function HomePage({ searchParams }) {
                     {dictionary.home.organizerSummary}
                   </p>
                 </div>
-                <div className="search-lab border-white/12 bg-white/[0.06] p-4 sm:p-5">
-                  <div className="hero-actions mt-0">
+                <div className="search-lab border-white/12 bg-white/[0.06] p-3 sm:p-4">
+                  <div className="grid grid-cols-2 overflow-hidden rounded-[1.6rem] border border-white/12 bg-white/[0.04] shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                     <HomeOrganizerRequestModal
                       launchWindows={organizerLaunchWindows}
                       paymentModels={organizerPaymentModels}
-                      triggerClassName="bg-white px-6 text-primary shadow-[0_14px_34px_rgba(8,34,44,0.24)] hover:bg-white/92"
+                      triggerClassName="h-[4.5rem] w-full rounded-none rounded-l-[1.55rem] bg-white px-4 text-center text-sm font-semibold text-primary shadow-none hover:bg-white/92 sm:px-6 sm:text-base"
                       triggerLabel={dictionary.home.requestCta}
                     />
                     <Link
-                      className="button border border-white/14 bg-white/[0.02] text-white/78 hover:bg-white/[0.08] hover:text-white"
+                      className="button h-[4.5rem] w-full rounded-none rounded-r-[1.55rem] border-0 border-l border-white/10 bg-white/[0.03] px-4 text-center text-sm font-medium leading-tight text-white/82 hover:bg-white/[0.08] hover:text-white sm:px-6 sm:text-base"
                       href="/admin/login"
                     >
                       {dictionary.home.organizerCta}
