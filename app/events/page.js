@@ -20,12 +20,12 @@ export default async function EventsPage({ searchParams }) {
       <div className="content">
         <PublicHeader currentPath="/events" dictionary={dictionary} locale={locale} />
 
-        <section className="panel results-shell">
+        <section className="panel results-shell mt-8 sm:mt-10">
           <div className="results-page-hero">
             <div className="results-intro">
               <span className="section-kicker">{dictionary.events.eyebrow}</span>
               <h1>{dictionary.events.title}</h1>
-              <p>{dictionary.events.summary}</p>
+              {dictionary.events.summary ? <p>{dictionary.events.summary}</p> : null}
             </div>
           </div>
 
@@ -66,7 +66,7 @@ export default async function EventsPage({ searchParams }) {
                 ? `${results.length} ${dictionary.events.resultsLabel} for "${search}"`
                 : dictionary.events.title}
             </strong>
-            <span>{dictionary.events.summary}</span>
+            {dictionary.events.summary ? <span>{dictionary.events.summary}</span> : null}
           </div>
 
           {results.length ? (
