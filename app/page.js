@@ -86,7 +86,7 @@ export default async function HomePage({ searchParams }) {
                   <h2 className="text-4xl font-semibold tracking-tight text-white sm:text-6xl">
                     {dictionary.home.organizerTitle}
                   </h2>
-                  <p className="mt-4 max-w-2xl text-base leading-7 text-primary-foreground/80 sm:text-lg">
+                  <p className="mt-3 max-w-2xl text-base leading-7 text-primary-foreground/80 sm:text-base">
                     {dictionary.home.organizerSummary}
                   </p>
                 </div>
@@ -95,20 +95,15 @@ export default async function HomePage({ searchParams }) {
                     <span className="search-label text-white/72">
                       {dictionary.home.organizerAccessLabel}
                     </span>
-                    <div className="flex h-12 items-center rounded-2xl border border-white/12 bg-white/[0.03] px-4 text-base text-white/42 sm:text-lg">
-                      {dictionary.home.organizerAccessPlaceholder}
-                    </div>
-                  </div>
-                  <div className="mt-4 w-full max-w-[32rem] overflow-hidden rounded-full border border-white/12 bg-white/[0.03] shadow-[0_18px_40px_rgba(0,0,0,0.18)]">
-                    <div className="grid grid-cols-2">
+                    <div className="grid h-[6.75rem] grid-cols-2 overflow-hidden rounded-[1.75rem] border border-white/12 bg-white/[0.04] shadow-[0_18px_40px_rgba(0,0,0,0.22)]">
                       <HomeOrganizerRequestModal
                         launchWindows={organizerLaunchWindows}
                         paymentModels={organizerPaymentModels}
-                        triggerClassName="h-11 w-full rounded-none rounded-l-full bg-white px-4 text-center text-sm font-semibold text-primary shadow-none hover:bg-white/92 sm:px-6 sm:text-base"
+                        triggerClassName="h-full w-full rounded-none rounded-l-[1.7rem] bg-white px-4 text-center text-sm font-semibold text-primary shadow-none hover:bg-white/92 sm:px-6 sm:text-base"
                         triggerLabel={dictionary.home.requestCta}
                       />
                       <Link
-                        className="button h-11 w-full rounded-none rounded-r-full border-0 border-l border-white/10 bg-transparent px-4 text-center text-sm font-medium leading-tight text-white/82 hover:bg-white/[0.08] hover:text-white sm:px-6 sm:text-base"
+                        className="button h-full w-full rounded-none rounded-r-[1.7rem] border-0 border-l border-white/10 bg-white/[0.03] px-4 text-center text-sm font-medium leading-tight text-white/82 hover:bg-white/[0.08] hover:text-white sm:px-6 sm:text-base"
                         href="/admin/login"
                       >
                         {dictionary.home.organizerCta}
