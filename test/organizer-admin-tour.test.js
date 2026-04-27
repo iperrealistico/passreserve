@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   ORGANIZER_ADMIN_TOUR_MODES,
   ORGANIZER_ADMIN_TOUR_VERSION,
+  buildOrganizerAdminTourStorageKey,
+  getOrganizerAdminTourStorageKeyCandidates,
   getOrganizerAdminTourDefinition
 } from "../lib/organizer-admin-tour.js";
 
@@ -109,5 +111,31 @@ describe("organizer admin tour definition", () => {
     expect(definition.steps.at(-1)?.target).toBe(
       '[data-organizer-tour="event-created-state"]'
     );
+  });
+
+  it("scopes tour storage by organizer and only falls back to legacy keys for the base seed", () => {
+    expect(
+      buildOrganizerAdminTourStorageKey({
+        slug: "sillico",
+        seed: "2026-04-27T16:40:00.000Z"
+      })
+    ).toBe("passreserve.organizer-admin-tour:sillico:2026-04-27T16:40:00.000Z");
+
+    expect(
+      getOrganizerAdminTourStorageKeyCandidates({
+        slug: "sillico"
+      })
+    ).toEqual([
+      "passreserve.organizer-admin-tour:sillico:base",
+      "passreserve.organizer-admin-tour:sillico",
+      "passreserve.organizer-admin-tour"
+    ]);
+
+    expect(
+      getOrganizerAdminTourStorageKeyCandidates({
+        slug: "sillico",
+        seed: "workspace-reset"
+      })
+    ).toEqual(["passreserve.organizer-admin-tour:sillico:workspace-reset"]);
   });
 });

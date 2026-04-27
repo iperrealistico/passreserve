@@ -9,6 +9,7 @@ import {
   ORGANIZER_ADMIN_TOUR_MODES,
   ORGANIZER_ADMIN_TOUR_STORAGE_KEY,
   ORGANIZER_ADMIN_TOUR_VERSION,
+  getOrganizerAdminTourStorageKeyCandidates,
   getOrganizerAdminTourDefinition
 } from "../../../lib/organizer-admin-tour.js";
 import {
@@ -177,19 +178,36 @@ function normalizeStoredState(raw) {
   };
 }
 
-function readStoredState() {
-  try {
-    const raw = window.localStorage.getItem(ORGANIZER_ADMIN_TOUR_STORAGE_KEY);
-    return normalizeStoredState(raw ? JSON.parse(raw) : null);
-  } catch {
-    return createDefaultStoredState();
+function readStoredState(storageKey, fallbackKeys = []) {
+  const candidateKeys = [storageKey, ...fallbackKeys].filter(Boolean);
+
+  for (const key of candidateKeys) {
+    try {
+      const raw = window.localStorage.getItem(key);
+
+      if (!raw) {
+        continue;
+      }
+
+      const normalized = normalizeStoredState(JSON.parse(raw));
+
+      if (key !== storageKey) {
+        writeStoredState(storageKey, normalized);
+      }
+
+      return normalized;
+    } catch {
+      // Ignore malformed local storage values and keep searching.
+    }
   }
+
+  return createDefaultStoredState();
 }
 
-function writeStoredState(nextState) {
+function writeStoredState(storageKey, nextState) {
   try {
     window.localStorage.setItem(
-      ORGANIZER_ADMIN_TOUR_STORAGE_KEY,
+      storageKey,
       JSON.stringify(normalizeStoredState(nextState))
     );
   } catch {
@@ -197,10 +215,10 @@ function writeStoredState(nextState) {
   }
 }
 
-function updateStoredState(mutator) {
-  const current = readStoredState();
+function updateStoredState(storageKey, fallbackKeys, mutator) {
+  const current = readStoredState(storageKey, fallbackKeys);
   const next = mutator(current);
-  writeStoredState(next);
+  writeStoredState(storageKey, next);
   return normalizeStoredState(next);
 }
 
@@ -216,7 +234,7 @@ function matchesQueryCondition(condition, searchParams) {
   return searchParams?.get(condition.key) === condition.value;
 }
 
-export function OrganizerAdminTour({ locale, slug }) {
+export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -252,6 +270,16 @@ export function OrganizerAdminTour({ locale, slug }) {
     definitions[ORGANIZER_ADMIN_TOUR_MODES.SETUP].steps[0]?.route ||
     `/${slug}/admin/dashboard`;
   const routeStateKey = `${pathname}?${searchParams?.toString() || ""}`;
+  const storageKeys = useMemo(
+    () =>
+      getOrganizerAdminTourStorageKeyCandidates({
+        slug,
+        seed: storageSeed
+      }),
+    [slug, storageSeed]
+  );
+  const activeStorageKey = storageKeys[0] || ORGANIZER_ADMIN_TOUR_STORAGE_KEY;
+  const fallbackStorageKeys = useMemo(() => storageKeys.slice(1), [storageKeys]);
 
   function getDefinition(mode = activeModeRef.current) {
     return definitions[mode] || definitions[ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE];
@@ -283,7 +311,7 @@ export function OrganizerAdminTour({ locale, slug }) {
     pendingAdvance = null,
     localeValue = tourLocale
   }) {
-    updateStoredState((state) => ({
+    updateStoredState(activeStorageKey, fallbackStorageKeys, (state) => ({
       ...state,
       active: {
         mode,
@@ -296,7 +324,7 @@ export function OrganizerAdminTour({ locale, slug }) {
   }
 
   function persistFinishedState(status, mode = activeModeRef.current) {
-    updateStoredState((state) => ({
+    updateStoredState(activeStorageKey, fallbackStorageKeys, (state) => ({
       ...state,
       active: null,
       modes: {
@@ -607,7 +635,7 @@ export function OrganizerAdminTour({ locale, slug }) {
     }
 
     bootstrappedRef.current = true;
-    const savedState = readStoredState();
+    const savedState = readStoredState(activeStorageKey, fallbackStorageKeys);
 
     if (!savedState.active?.mode) {
       return;
@@ -668,7 +696,7 @@ export function OrganizerAdminTour({ locale, slug }) {
       return;
     }
 
-    const savedState = readStoredState();
+    const savedState = readStoredState(activeStorageKey, fallbackStorageKeys);
 
     if (savedState.active?.mode) {
       activeRef.current = true;
@@ -692,7 +720,16 @@ export function OrganizerAdminTour({ locale, slug }) {
     }
 
     void startTour(ORGANIZER_ADMIN_TOUR_MODES.SETUP);
-  }, [dashboardRoute, locale, pathname, routeStateKey, tourLocale, tourMode]);
+  }, [
+    activeStorageKey,
+    dashboardRoute,
+    fallbackStorageKeys,
+    locale,
+    pathname,
+    routeStateKey,
+    tourLocale,
+    tourMode
+  ]);
 
   useEffect(() => {
     return () => {

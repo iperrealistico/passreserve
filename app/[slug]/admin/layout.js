@@ -69,7 +69,11 @@ export default async function OrganizerAdminLayout({ children, params }) {
 
   return (
     <main className="shell admin-shell">
-      <OrganizerAdminTour locale={locale} slug={slug} />
+      <OrganizerAdminTour
+        locale={locale}
+        slug={slug}
+        storageSeed={shell.organizer.tourStorageSeed}
+      />
       <div className="content admin-content">
         <TopNav
           brand={organizer.name}
