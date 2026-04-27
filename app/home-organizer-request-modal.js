@@ -9,7 +9,7 @@ const MODAL_CLOSE_MS = 220;
 export function HomeOrganizerRequestModal({
   launchWindows,
   paymentModels,
-  triggerClassName = "",
+  triggerClassName = "button-primary button-compact button-small",
   triggerLabel = "Request access"
 }) {
   const dialogRef = useRef(null);
@@ -138,7 +138,7 @@ export function HomeOrganizerRequestModal({
   return (
     <>
       <button
-        className={`button button-primary ${triggerClassName}`.trim()}
+        className={`button ${triggerClassName}`.trim()}
         onClick={() => {
           if (closeTimerRef.current) {
             clearTimeout(closeTimerRef.current);
