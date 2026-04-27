@@ -56,6 +56,8 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
           <span className="pill">{detail.organizer.summary.upcomingOccurrences} upcoming occurrences</span>
           <span className="pill">{detail.organizer.summary.onlineCollectedLabel} online</span>
           <span className="pill">{detail.organizer.summary.dueAtEventLabel} due at venue</span>
+          <span className="pill">{detail.organizer.publicationState === "PUBLISHED" ? "Published" : "Private"}</span>
+          <span className="pill">/{detail.organizer.publicSlug || detail.organizer.slug}</span>
         </div>
         <div className="hero-actions">
           <form action={openOrganizerDashboardAction}>

@@ -1,11 +1,7 @@
 import Link from "next/link";
 
+import { getPlatformOrganizers } from "../../../../lib/passreserve-admin-service.js";
 import {
-  getPlatformOrganizers,
-  listOrganizerRequests
-} from "../../../../lib/passreserve-admin-service.js";
-import {
-  approveOrganizerRequestAction,
   createOrganizerAction,
   openOrganizerDashboardAction
 } from "../../actions.js";
@@ -17,7 +13,6 @@ export const metadata = {
 export default async function PlatformOrganizersPage({ searchParams }) {
   const query = await searchParams;
   const organizers = await getPlatformOrganizers();
-  const requests = await listOrganizerRequests();
 
   return (
     <div className="admin-page">
@@ -35,57 +30,11 @@ export default async function PlatformOrganizersPage({ searchParams }) {
       ) : null}
 
       <section className="panel section-card admin-section">
-        <div className="section-kicker">Join requests</div>
-        <h3>Approve organizer requests</h3>
-        <div className="admin-card-grid">
-          {requests.length ? (
-            requests.map((request) => (
-              <article className="admin-card" key={request.id}>
-                <div className="admin-card-head">
-                  <div>
-                    <div className={`admin-badge admin-badge-${request.statusTone}`}>
-                      {request.statusLabel}
-                    </div>
-                    <h4>{request.organizerName}</h4>
-                    <p>
-                      {request.contactName} · {request.contactEmail}
-                    </p>
-                  </div>
-                </div>
-                <p>{request.eventFocus}</p>
-                <div className="admin-card-metrics">
-                  <div>
-                    <span className="metric-label">City</span>
-                    <strong>{request.city}</strong>
-                  </div>
-                  <div>
-                    <span className="metric-label">Launch window</span>
-                    <strong>{request.launchWindow}</strong>
-                  </div>
-                  <div>
-                    <span className="metric-label">Payment model</span>
-                    <strong>{request.paymentModel}</strong>
-                  </div>
-                </div>
-                {request.status === "PENDING" ? (
-                  <form action={approveOrganizerRequestAction}>
-                    <input name="requestId" type="hidden" value={request.id} />
-                    <button className="button button-primary" type="submit">
-                      Approve organizer
-                    </button>
-                  </form>
-                ) : null}
-              </article>
-            ))
-          ) : (
-            <p>No organizer requests are waiting right now.</p>
-          )}
-        </div>
-      </section>
-
-      <section className="panel section-card admin-section">
         <div className="section-kicker">Manual organizer creation</div>
         <h3>Create an organizer directly</h3>
+        <p className="admin-page-lead">
+          Applications now live in <Link className="inline-link" href="/admin/applications">Applications</Link>. Use this form only when the platform team needs to bootstrap an organizer account directly.
+        </p>
         <form action={createOrganizerAction} className="registration-field-grid">
           <label className="field">
             <span>Name</span>
@@ -94,6 +43,10 @@ export default async function PlatformOrganizersPage({ searchParams }) {
           <label className="field">
             <span>Slug</span>
             <input name="slug" placeholder="optional-clean-slug" type="text" />
+          </label>
+          <label className="field">
+            <span>Public slug</span>
+            <input name="publicSlug" placeholder="optional-public-slug" type="text" />
           </label>
           <label className="field">
             <span>Tagline</span>
@@ -166,6 +119,9 @@ export default async function PlatformOrganizersPage({ searchParams }) {
                     <span className={`admin-badge admin-badge-${organizer.launchStatusTone}`}>
                       {organizer.launchStatusLabel}
                     </span>
+                    <span className={`admin-badge admin-badge-${organizer.publicationStatusTone}`}>
+                      {organizer.publicationStatusLabel}
+                    </span>
                     <span className={`admin-badge admin-badge-${organizer.healthTone}`}>
                       {organizer.healthLabel}
                     </span>
@@ -174,6 +130,7 @@ export default async function PlatformOrganizersPage({ searchParams }) {
                   <p>
                     {organizer.city}, {organizer.region}
                   </p>
+                  <p>/{organizer.publicSlug}</p>
                 </div>
               </div>
               <div className="admin-card-metrics">

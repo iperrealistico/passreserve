@@ -9,6 +9,7 @@ import {
 } from "../lib/passreserve-antispam.js";
 import {
   consumeOrganizerRequestCaptchaToken,
+  consumeOrganizerRequestEmailRateLimit,
   consumeOrganizerRequestRateLimit
 } from "../lib/passreserve-auth-security.js";
 import { submitOrganizerRequest } from "../lib/passreserve-service.js";
@@ -119,6 +120,17 @@ async function submitProtectedOrganizerRequest(formData) {
     };
   }
 
+  const emailRateLimit = await consumeOrganizerRequestEmailRateLimit(payload.contactEmail);
+
+  if (!emailRateLimit.success) {
+    return {
+      ok: false,
+      kind: "security",
+      fieldErrors: {},
+      message: "We received too many signup attempts for this email just now. Please wait a little and try again."
+    };
+  }
+
   const verification = await verifyOrganizerRequestAltchaPayload(
     toValue(formData, "altcha")
   );
@@ -164,8 +176,8 @@ export async function submitOrganizerRequestAction(_previousState, formData) {
     return {
       ...initialOrganizerRequestState,
       status: "success",
-      message: `Thanks, ${result.request.contactName}. ${result.request.organizerName} is now in the Passreserve launch inbox.`,
-      detail: "We received the request.",
+      message: `Thanks, ${result.request.contactName}. We received the request for ${result.request.organizerName}.`,
+      detail: "If the submission was valid, the next onboarding email will arrive shortly.",
       fieldErrors: {},
       request: {
         id: null,
@@ -180,8 +192,8 @@ export async function submitOrganizerRequestAction(_previousState, formData) {
   return {
     ...initialOrganizerRequestState,
     status: "success",
-    message: `Thanks, ${result.request.contactName}. ${result.request.organizerName} is now in the Passreserve launch inbox.`,
-    detail: `${result.storage.label}. ${result.notifications.label}.`,
+    message: `Thanks, ${result.request.contactName}. We received the request for ${result.request.organizerName}.`,
+    detail: "If the submission was valid, the next onboarding email will arrive shortly.",
     fieldErrors: {},
     request: {
       id: result.request.id,

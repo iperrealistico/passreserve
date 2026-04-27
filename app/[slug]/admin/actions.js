@@ -6,6 +6,7 @@ import {
   changeOrganizerAdminPassword,
   deleteOrganizerEvent,
   markAdminLogin,
+  publishOrganizerProfile,
   recordVenuePayment,
   saveOrganizerEvent,
   saveOrganizerOccurrence,
@@ -392,6 +393,7 @@ export async function saveOrganizerSettingsAction(formData) {
       description: value(formData, "descriptionEn") || value(formData, "descriptionIt"),
       descriptionIt: value(formData, "descriptionIt"),
       descriptionEn: value(formData, "descriptionEn"),
+      publicSlug: value(formData, "publicSlug"),
       city: value(formData, "city"),
       region: value(formData, "region"),
       publicEmail: value(formData, "publicEmail"),
@@ -416,6 +418,18 @@ export async function saveOrganizerSettingsAction(formData) {
     user.userId
   );
   redirect(`/${slug}/admin/settings?message=saved&tab=general`);
+}
+
+export async function publishOrganizerProfileAction(formData) {
+  const slug = value(formData, "slug");
+  const user = await requireOrganizerAdminSession(slug);
+  const result = await publishOrganizerProfile(slug, user.userId);
+
+  if (!result.ok) {
+    redirect(`/${slug}/admin/settings?error=${encodeURIComponent(result.message)}&tab=general`);
+  }
+
+  redirect(`/${slug}/admin/settings?message=published&tab=general`);
 }
 
 export async function organizerChangePasswordAction(formData) {

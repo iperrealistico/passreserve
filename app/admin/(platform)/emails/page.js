@@ -1,10 +1,11 @@
 import Link from "next/link";
 
-import {
-  getPlatformEmailConsole
-} from "../../../../lib/passreserve-admin-service.js";
+import { getPlatformEmailConsole } from "../../../../lib/passreserve-admin-service.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
-import { updateEmailTemplateAction } from "../../actions.js";
+import {
+  sendMailboxReplyAction,
+  updateEmailTemplateAction
+} from "../../actions.js";
 
 export const metadata = {
   title: "Emails"
@@ -29,17 +30,28 @@ function formatDateTime(value, locale) {
 
 export default async function PlatformEmailsPage({ searchParams }) {
   const query = await searchParams;
-  const tab = typeof query.tab === "string" ? query.tab : "delivery";
+  const tab = typeof query.tab === "string" ? query.tab : "mailbox";
+  const threadId = typeof query.thread === "string" ? query.thread : "";
   const { locale, dictionary } = await getTranslations();
   const isItalian = locale === "it";
-  const consoleData = await getPlatformEmailConsole();
+  const consoleData = await getPlatformEmailConsole({
+    threadId
+  });
 
   return (
     <div className="admin-page">
-      {query.message ? (
+      {query.message === "saved" ? (
         <div className="registration-message registration-message-success">
           {isItalian ? "Template email salvato." : "Email template saved successfully."}
         </div>
+      ) : null}
+      {query.message === "reply-sent" ? (
+        <div className="registration-message registration-message-success">
+          {isItalian ? "Reply inviata correttamente." : "Reply sent successfully."}
+        </div>
+      ) : null}
+      {query.error ? (
+        <div className="registration-message registration-message-error">{query.error}</div>
       ) : null}
 
       <section className="panel section-card admin-section">
@@ -48,8 +60,8 @@ export default async function PlatformEmailsPage({ searchParams }) {
             <div className="section-kicker">{isItalian ? "Console email" : "Email console"}</div>
             <h2>
               {isItalian
-                ? "Consegne, inbox operativa e template nello stesso punto."
-                : "Delivery logs, operational inbox, and templates in one place."}
+                ? "Mailbox condivisa, delivery log e template nello stesso punto."
+                : "Shared mailbox, delivery logs, and templates in one place."}
             </h2>
             <p className="admin-page-lead">{dictionary.email.outboundOnly}</p>
           </div>
@@ -57,32 +69,41 @@ export default async function PlatformEmailsPage({ searchParams }) {
             <span className="pill">
               {consoleData.outboundConfigured
                 ? isItalian
-                  ? "Resend configurato"
-                  : "Resend configured"
+                  ? "Resend outbound ok"
+                  : "Resend outbound ok"
                 : isItalian
-                  ? "Solo log"
-                  : "Log only"}
+                  ? "Solo log outbound"
+                  : "Outbound log only"}
             </span>
             <span className="pill">
-              {consoleData.inboxOpenCount} {isItalian ? "richieste aperte" : "open requests"}
+              {consoleData.inboundConfigured
+                ? isItalian
+                  ? "Inbound attivo"
+                  : "Inbound active"
+                : isItalian
+                  ? "Webhook inbox da configurare"
+                  : "Inbox webhook pending"}
+            </span>
+            <span className="pill">
+              {consoleData.totalUnreadCount} {isItalian ? "non lette" : "unread"}
             </span>
           </div>
         </div>
 
         <div className="hero-actions" role="tablist" aria-label={isItalian ? "Tab email" : "Email tabs"}>
           <Link
+            aria-current={tab === "mailbox" ? "page" : undefined}
+            className={`button ${tab === "mailbox" ? "button-primary" : "button-secondary"}`}
+            href={`/admin/emails?tab=mailbox${consoleData.selectedThread ? `&thread=${encodeURIComponent(consoleData.selectedThread.id)}` : ""}`}
+          >
+            {dictionary.email.inbox}
+          </Link>
+          <Link
             aria-current={tab === "delivery" ? "page" : undefined}
             className={`button ${tab === "delivery" ? "button-primary" : "button-secondary"}`}
             href="/admin/emails?tab=delivery"
           >
             {dictionary.email.deliveryLogs}
-          </Link>
-          <Link
-            aria-current={tab === "inbox" ? "page" : undefined}
-            className={`button ${tab === "inbox" ? "button-primary" : "button-secondary"}`}
-            href="/admin/emails?tab=inbox"
-          >
-            {dictionary.email.inbox}
           </Link>
           <Link
             aria-current={tab === "templates" ? "page" : undefined}
@@ -94,63 +115,139 @@ export default async function PlatformEmailsPage({ searchParams }) {
         </div>
       </section>
 
-      {tab === "inbox" ? (
-        <section className="panel section-card admin-section">
-          <div className="section-kicker">{dictionary.email.inbox}</div>
-          <h3>
-            {isItalian
-              ? "Richieste organizer e code operative"
-              : "Organizer requests and operational queues"}
-          </h3>
-          <div className="admin-card-grid">
-            {consoleData.inbox.length ? (
-              consoleData.inbox.map((request) => (
-                <article className="admin-card" key={request.id}>
-                  <div className="admin-card-head">
-                    <div>
-                      <div className={`admin-badge admin-badge-${request.statusTone}`}>
-                        {request.statusLabel}
+      {tab === "mailbox" ? (
+        <section className="admin-grid">
+          <article className="panel section-card admin-section">
+            <div className="section-kicker">{isItalian ? "Threads" : "Threads"}</div>
+            <h3>{consoleData.mailboxAddress || "contact@"}</h3>
+            <div className="admin-note-list">
+              {consoleData.threads.length ? (
+                consoleData.threads.map((thread) => (
+                  <div className="admin-note-item" key={thread.id}>
+                    <div className="admin-badge-row">
+                      <span className={`admin-badge admin-badge-${thread.unreadCount ? "capacity-watch" : "public"}`}>
+                        {thread.unreadCount ? `${thread.unreadCount} unread` : "Read"}
+                      </span>
+                      <span className="admin-badge admin-badge-unlisted">{thread.status}</span>
+                    </div>
+                    <strong>{thread.participantName || thread.participantEmail}</strong>
+                    <p>{thread.subject}</p>
+                    <span>{thread.latestSnippet || (isItalian ? "Nessun testo disponibile." : "No preview available.")}</span>
+                    <div className="hero-actions">
+                      <Link
+                        className="button button-secondary"
+                        href={`/admin/emails?tab=mailbox&thread=${encodeURIComponent(thread.id)}`}
+                      >
+                        {isItalian ? "Apri thread" : "Open thread"}
+                      </Link>
+                      <span className="spotlight-label">
+                        {formatDateTime(thread.latestMessageAtLabel, locale)}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="admin-note-item">
+                  <strong>{isItalian ? "Mailbox vuota" : "Mailbox is empty"}</strong>
+                  <p>
+                    {isItalian
+                      ? "Le email ricevute su contact@ compariranno qui dopo il webhook inbound di Resend."
+                      : "Emails received at contact@ will appear here after the Resend inbound webhook runs."}
+                  </p>
+                </div>
+              )}
+            </div>
+          </article>
+
+          <article className="panel section-card admin-section admin-section-wide">
+            <div className="section-kicker">{isItalian ? "Thread aperto" : "Open thread"}</div>
+            <h3>
+              {consoleData.selectedThread
+                ? consoleData.selectedThread.subject
+                : isItalian
+                  ? "Seleziona un thread"
+                  : "Select a thread"}
+            </h3>
+
+            {consoleData.selectedThread ? (
+              <>
+                <div className="pill-list">
+                  <span className="pill">
+                    {consoleData.selectedThread.participantName || consoleData.selectedThread.participantEmail}
+                  </span>
+                  <span className="pill">{consoleData.selectedThread.participantEmail}</span>
+                </div>
+
+                <div className="admin-note-list">
+                  {consoleData.selectedMessages.map((message) => (
+                    <div className="admin-note-item" key={message.id}>
+                      <div className="admin-badge-row">
+                        <span className={`admin-badge admin-badge-${message.direction === "INBOUND" ? "capacity-watch" : "public"}`}>
+                          {message.direction}
+                        </span>
+                        <span className="admin-badge admin-badge-unlisted">
+                          {formatDateTime(message.receivedAt || message.sentAt, locale)}
+                        </span>
                       </div>
-                      <h4>{request.organizerName}</h4>
-                      <p>
-                        {request.contactName} · {request.contactEmail}
-                      </p>
+                      <strong>
+                        {message.direction === "INBOUND"
+                          ? `${message.fromName || message.fromEmail} <${message.fromEmail || ""}>`
+                          : `${message.fromName || "Passreserve"} <${message.fromEmail || ""}>`}
+                      </strong>
+                      <div className="admin-card-metrics">
+                        <div>
+                          <span className="metric-label">To</span>
+                          <strong>{message.toEmails.map((entry) => entry.email).join(", ") || "-"}</strong>
+                        </div>
+                        <div>
+                          <span className="metric-label">CC</span>
+                          <strong>{message.ccEmails.map((entry) => entry.email).join(", ") || "-"}</strong>
+                        </div>
+                      </div>
+                      <pre className="whitespace-pre-wrap rounded-[1.25rem] bg-muted/50 p-4 text-sm text-foreground">
+                        {message.plainTextBody || (isItalian ? "Nessun testo disponibile." : "No plain-text body available.")}
+                      </pre>
+                      {message.attachments.length ? (
+                        <div className="hero-actions">
+                          {message.attachments.map((attachment) => (
+                            <Link
+                              className="button button-secondary"
+                              href={attachment.href}
+                              key={attachment.id}
+                            >
+                              {attachment.filename || "Attachment"}
+                            </Link>
+                          ))}
+                        </div>
+                      ) : null}
                     </div>
+                  ))}
+                </div>
+
+                <form action={sendMailboxReplyAction} className="registration-panel-stack">
+                  <input name="threadId" type="hidden" value={consoleData.selectedThread.id} />
+                  <label className="field">
+                    <span>{isItalian ? "Reply testo semplice" : "Plain-text reply"}</span>
+                    <textarea name="body" rows="8" />
+                  </label>
+                  <div className="hero-actions">
+                    <button className="button button-primary" type="submit">
+                      {isItalian ? "Invia reply" : "Send reply"}
+                    </button>
                   </div>
-                  <div className="admin-card-metrics">
-                    <div>
-                      <span className="metric-label">{isItalian ? "Città" : "City"}</span>
-                      <strong>{request.city}</strong>
-                    </div>
-                    <div>
-                      <span className="metric-label">{isItalian ? "Finestra lancio" : "Launch window"}</span>
-                      <strong>{request.launchWindow}</strong>
-                    </div>
-                    <div>
-                      <span className="metric-label">{isItalian ? "Modello pagamenti" : "Payment model"}</span>
-                      <strong>{request.paymentModel}</strong>
-                    </div>
-                  </div>
-                  <p>{request.eventFocus}</p>
-                  {request.note ? (
-                    <div className="admin-note-item">
-                      <span className="spotlight-label">{isItalian ? "Nota" : "Note"}</span>
-                      <strong>{request.note}</strong>
-                    </div>
-                  ) : null}
-                </article>
-              ))
+                </form>
+              </>
             ) : (
               <article className="admin-card">
-                <h4>{isItalian ? "Inbox vuota" : "Inbox is clear"}</h4>
+                <h4>{isItalian ? "Nessun thread selezionato" : "No thread selected"}</h4>
                 <p>
                   {isItalian
-                    ? "Non ci sono richieste organizer aperte in questo momento."
-                    : "There are no open organizer requests right now."}
+                    ? "Apri un thread dalla colonna sinistra per leggere il plain text e inviare una reply da contact@."
+                    : "Open a thread from the left column to read plain text and send a reply from contact@."}
                 </p>
               </article>
             )}
-          </div>
+          </article>
         </section>
       ) : null}
 

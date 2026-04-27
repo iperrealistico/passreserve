@@ -17,6 +17,7 @@ export default async function PlatformAdminLayout({ children }) {
   const navigation = [
     { label: dictionary.admin.overview, href: "/admin", exact: true, icon: "activity" },
     { label: dictionary.admin.organizers, href: "/admin/organizers", icon: "building" },
+    { label: dictionary.admin.applications, href: "/admin/applications", icon: "file" },
     { label: dictionary.admin.settings, href: "/admin/settings", icon: "settings" },
     { label: dictionary.admin.about, href: "/admin/about", icon: "file" },
     { label: dictionary.admin.emails, href: "/admin/emails", icon: "mail" },
@@ -25,10 +26,10 @@ export default async function PlatformAdminLayout({ children }) {
   ];
   const overviewNotes = [
     {
-      title: isItalian ? "Organizer e richieste" : "Organizers and requests",
+      title: isItalian ? "Organizer e applications" : "Organizers and applications",
       detail: isItalian
-        ? "Approva nuovi host, aggiorna account e apri rapidamente la loro dashboard operativa."
-        : "Approve new hosts, update accounts, and jump directly into their operations dashboard."
+        ? "Rivedi provisioning, duplicati e access email senza perdere il legame con l'account organizer."
+        : "Review provisioning, duplicates, and access email retries without losing the link back to the organizer account."
     },
     {
       title: isItalian ? "Contenuti condivisi" : "Shared content",
@@ -102,12 +103,12 @@ export default async function PlatformAdminLayout({ children }) {
                   <strong>{overview.summary.eventCount}</strong>
                 </div>
                 <div className="admin-summary-card">
-                  <span className="metric-label">{isItalian ? "Inbox aperte" : "Inbox open"}</span>
-                  <strong>{overview.summary.openRequestsCount}</strong>
+                  <span className="metric-label">{isItalian ? "Applications aperte" : "Open applications"}</span>
+                  <strong>{overview.summary.pendingApplicationsCount}</strong>
                 </div>
                 <div className="admin-summary-card">
-                  <span className="metric-label">{isItalian ? "Storage inbox" : "Inbox storage"}</span>
-                  <strong>{overview.summary.inboxStorageLabel}</strong>
+                  <span className="metric-label">{isItalian ? "Mailbox non lette" : "Unread mailbox"}</span>
+                  <strong>{overview.summary.unreadMailboxCount}</strong>
                 </div>
               </div>
 

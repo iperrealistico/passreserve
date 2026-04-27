@@ -42,6 +42,7 @@ export default async function OrganizerPage({ params }) {
   }
 
   const agenda = toList(organizer.agenda);
+  const organizerRouteSlug = organizer.publicSlug || organizer.slug;
   const summary =
     organizer.tagline ||
     organizer.description ||
@@ -101,7 +102,7 @@ export default async function OrganizerPage({ params }) {
                       <div className="flex flex-col gap-1">
                         <Link
                           className="text-2xl font-semibold text-foreground hover:text-primary"
-                          href={`/${organizer.slug}/events/${occurrence.eventSlug}`}
+                          href={`/${organizerRouteSlug}/events/${occurrence.eventSlug}`}
                         >
                           {occurrence.eventTitle}
                         </Link>
@@ -121,13 +122,13 @@ export default async function OrganizerPage({ params }) {
                     <div className="hero-actions mt-4">
                       <Link
                         className="button button-primary"
-                        href={buildRegistrationHref(organizer.slug, occurrence.eventSlug, occurrence.id)}
+                        href={buildRegistrationHref(organizerRouteSlug, occurrence.eventSlug, occurrence.id)}
                       >
                         {dictionary.organizer.cta}
                       </Link>
                       <Link
                         className="button button-secondary"
-                        href={`/${organizer.slug}/events/${occurrence.eventSlug}`}
+                        href={`/${organizerRouteSlug}/events/${occurrence.eventSlug}`}
                       >
                         {dictionary.events.openEvent}
                       </Link>

@@ -13,6 +13,11 @@ enum OrganizerStatus {
   ARCHIVED
 }
 
+enum OrganizerPublicationState {
+  PRIVATE
+  PUBLISHED
+}
+
 enum EventVisibility {
   PUBLIC
   UNLISTED
@@ -43,6 +48,13 @@ enum JoinRequestStatus {
   APPROVED
   REJECTED
   ARCHIVED
+}
+
+enum OrganizerApplicationProvisioningStatus {
+  PENDING
+  PROVISIONED
+  DUPLICATE
+  EMAIL_FAILED
 }
 
 enum OrganizerStripeConnectionStatus {
@@ -88,12 +100,25 @@ enum AuditActorType {
   STRIPE
 }
 
+enum MailboxThreadStatus {
+  OPEN
+  CLOSED
+}
+
+enum MailboxMessageDirection {
+  INBOUND
+  OUTBOUND
+}
+
 model Organizer {
   id                 String                @id @default(cuid())
   slug               String                @unique
+  publicSlug         String                @unique
   name               String
   contentI18n        Json?
   status             OrganizerStatus       @default(ACTIVE)
+  publicationState   OrganizerPublicationState @default(PRIVATE)
+  publishedAt        DateTime?
   description        String                @default("")
   tagline            String                @default("")
   city               String                @default("")
@@ -133,6 +158,8 @@ model Organizer {
   registrations      Registration[]
   joinRequests       OrganizerJoinRequest[]
   auditLogs          AuditLog[]
+
+  @@index([publicationState, publicSlug])
 }
 
 model OrganizerAdminUser {
@@ -183,24 +210,31 @@ model AuthRateLimit {
 model OrganizerJoinRequest {
   id             String            @id @default(cuid())
   status         JoinRequestStatus @default(PENDING)
+  provisioningStatus OrganizerApplicationProvisioningStatus @default(PENDING)
   contactName    String
   contactEmail   String
   contactPhone   String            @default("")
   organizerName  String
+  requestedPublicSlug String       @default("")
   city           String
   launchWindow   String
   paymentModel   String
   eventFocus     String
   note           String            @default("")
   approvedAt     DateTime?
+  provisionedAt  DateTime?
   approvedById   String?
   approvedBy     PlatformAdminUser? @relation("JoinRequestApprover", fields: [approvedById], references: [id], onDelete: SetNull)
   organizerId    String?
   organizer      Organizer?        @relation(fields: [organizerId], references: [id], onDelete: SetNull)
+  accessEmailSentAt DateTime?
+  accessEmailSendCount Int         @default(0)
+  accessEmailLastError String      @default("")
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
   @@index([status])
+  @@index([provisioningStatus])
   @@index([contactEmail])
 }
 
@@ -479,4 +513,69 @@ model AuditLog {
 
   @@index([eventType, createdAt])
   @@index([organizerId, createdAt])
+}
+
+model MailboxThread {
+  id                String              @id @default(cuid())
+  mailboxAddress    String
+  participantName   String              @default("")
+  participantEmail  String
+  subject           String              @default("")
+  normalizedSubject String              @default("")
+  status            MailboxThreadStatus @default(OPEN)
+  unreadCount       Int                 @default(0)
+  latestMessageAt   DateTime
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  messages          MailboxMessage[]
+
+  @@index([latestMessageAt])
+  @@index([participantEmail, normalizedSubject])
+  @@index([mailboxAddress, status, latestMessageAt])
+}
+
+model MailboxMessage {
+  id            String                  @id @default(cuid())
+  threadId      String
+  thread        MailboxThread           @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  direction     MailboxMessageDirection
+  resendEmailId String?                 @unique
+  messageId     String?
+  inReplyTo     String?
+  references    Json?
+  fromName      String                  @default("")
+  fromEmail     String                  @default("")
+  toEmails      Json?
+  ccEmails      Json?
+  replyToEmails Json?
+  subject       String                  @default("")
+  textBody      String                  @default("")
+  htmlBody      String                  @default("")
+  receivedAt    DateTime?
+  sentAt        DateTime?
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+  attachments   MailboxAttachment[]
+
+  @@index([threadId, receivedAt])
+  @@index([threadId, sentAt])
+  @@index([messageId])
+}
+
+model MailboxAttachment {
+  id                 String         @id @default(cuid())
+  messageId          String
+  message            MailboxMessage @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  resendAttachmentId String
+  resendEmailId      String
+  filename           String
+  contentType        String         @default("")
+  contentDisposition String?
+  contentId          String?
+  sizeBytes          Int?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@index([messageId])
+  @@index([resendEmailId, resendAttachmentId])
 }

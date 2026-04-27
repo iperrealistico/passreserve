@@ -7,6 +7,7 @@ import { REGISTRATION_REMINDER_LEAD_OPTIONS } from "../../../../lib/passreserve-
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import {
   organizerChangePasswordAction,
+  publishOrganizerProfileAction,
   saveOrganizerSettingsAction
 } from "../actions.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
@@ -80,6 +81,10 @@ function resolveMessage(value, isItalian) {
         : "Organizer settings saved successfully.";
     case "password-updated":
       return isItalian ? "Password aggiornata correttamente." : "Password updated successfully.";
+    case "published":
+      return isItalian
+        ? "La pagina organizer e ora pubblicata."
+        : "The organizer page is now published.";
     default:
       return "";
   }
@@ -337,6 +342,19 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
           </div>
 
           <div className="registration-field-grid">
+            <div className="field field-span">
+              <span className="metric-label">{isItalian ? "Pagina pubblica" : "Public page"}</span>
+              <strong>{data.organizer.publicHref}</strong>
+              <small className="field-hint">
+                {data.organizer.publicationStatus.label === "Published"
+                  ? isItalian
+                    ? "La pagina e live. In v1 lo slug pubblico resta bloccato dopo la pubblicazione."
+                    : "The page is live. In v1 the public slug stays locked after publication."
+                  : isItalian
+                    ? "Questa pagina resta privata finché non la pubblichi esplicitamente."
+                    : "This page stays private until you publish it explicitly."}
+              </small>
+            </div>
             <label className="field">
               <span>{isItalian ? "Città" : "City"}</span>
               <input defaultValue={data.organizer.city} name="city" type="text" />
@@ -345,6 +363,28 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
               <span>{isItalian ? "Regione" : "Region"}</span>
               <input defaultValue={data.organizer.region} name="region" type="text" />
             </label>
+            <label className="field">
+              <span>{isItalian ? "Slug pubblico" : "Public slug"}</span>
+              <input
+                defaultValue={data.organizer.publicSlug || data.organizer.slug}
+                disabled={!data.organizer.canEditPublicSlug}
+                name="publicSlug"
+                type="text"
+              />
+            </label>
+            <div className="field">
+              <span>{isItalian ? "Stato pubblicazione" : "Publication state"}</span>
+              <strong>{data.organizer.publicationStatus.label}</strong>
+              <small className="field-hint">
+                {data.organizer.publishedAt
+                  ? isItalian
+                    ? `Pubblicata il ${new Date(data.organizer.publishedAt).toLocaleString("it-IT")}.`
+                    : `Published on ${new Date(data.organizer.publishedAt).toLocaleString("en-US")}.`
+                  : isItalian
+                    ? "Ancora privata."
+                    : "Still private."}
+              </small>
+            </div>
             <label className="field">
               <span>{isItalian ? "Email pubblica" : "Public email"}</span>
               <input defaultValue={data.organizer.publicEmail} name="publicEmail" type="email" />
@@ -527,6 +567,38 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
           </div>
         </section>
       </form>
+
+      <section className="panel section-card admin-section">
+        <div className="admin-section-header">
+          <div>
+            <div className="section-kicker">{isItalian ? "Publication" : "Publication"}</div>
+            <h3>{isItalian ? "Pubblica la pagina organizer" : "Publish the organizer page"}</h3>
+            <p className="admin-page-lead">
+              {isItalian
+                ? "La pubblicazione apre la pagina pubblica sullo slug configurato e blocca ulteriori cambi slug in v1."
+                : "Publishing opens the public organizer page on the configured slug and locks later slug edits in v1."}
+            </p>
+          </div>
+          <div className="pill-list">
+            <span className={`pill ${data.organizer.publicationStatus.tone === "public" ? "" : ""}`}>
+              {data.organizer.publicationStatus.label}
+            </span>
+          </div>
+        </div>
+        <div className="hero-actions">
+          <Link className="button button-secondary" href={data.organizer.publicHref}>
+            {isItalian ? "Apri pagina pubblica" : "Open public page"}
+          </Link>
+          {data.organizer.publicationStatus.label !== "Published" ? (
+            <form action={publishOrganizerProfileAction}>
+              <input name="slug" type="hidden" value={slug} />
+              <button className="button button-primary" type="submit">
+                {isItalian ? "Pubblica ora" : "Publish now"}
+              </button>
+            </form>
+          ) : null}
+        </div>
+      </section>
 
       <section className="panel section-card admin-section" id="billing">
         <div className="admin-section-header">

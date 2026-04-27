@@ -8,6 +8,7 @@ import {
   deleteOrganizerFromPlatform,
   getOrganizerImpersonationTarget,
   markAdminLogin,
+  resendOrganizerApplicationAccessFromPlatform,
   setOrganizerAdminPasswordFromPlatform,
   suspendOrganizerFromPlatform,
   updateOrganizerBillingSettings,
@@ -16,6 +17,7 @@ import {
   updateSiteSettings
 } from "../../lib/passreserve-admin-service.js";
 import { getBaseUrl } from "../../lib/passreserve-config.js";
+import { sendSharedMailboxReply } from "../../lib/passreserve-mailbox.js";
 import {
   authenticatePlatformAdmin,
   requestOrganizerPasswordReset,
@@ -144,6 +146,7 @@ export async function createOrganizerAction(formData) {
       {
         name: value(formData, "name"),
         slug: value(formData, "slug"),
+        publicSlug: value(formData, "publicSlug"),
         tagline: value(formData, "tagline"),
         description: value(formData, "description"),
         city: value(formData, "city"),
@@ -173,7 +176,35 @@ export async function approveOrganizerRequestAction(formData) {
   const user = await requirePlatformAdminSession();
 
   await approveOrganizerRequest(value(formData, "requestId"), user.userId);
-  redirect("/admin/organizers?message=approved");
+  redirect("/admin/applications?message=resent");
+}
+
+export async function resendOrganizerAccessAction(formData) {
+  const user = await requirePlatformAdminSession();
+  const result = await resendOrganizerApplicationAccessFromPlatform(
+    value(formData, "requestId"),
+    user.userId
+  );
+
+  if (!result.ok) {
+    redirect(`/admin/applications?error=${encodeURIComponent(result.message)}`);
+  }
+
+  redirect("/admin/applications?message=resent");
+}
+
+export async function sendMailboxReplyAction(formData) {
+  const user = await requirePlatformAdminSession();
+  const threadId = value(formData, "threadId");
+  const result = await sendSharedMailboxReply(threadId, value(formData, "body"), user.userId);
+
+  if (!result.ok) {
+    redirect(
+      `/admin/emails?tab=mailbox&thread=${encodeURIComponent(threadId)}&error=${encodeURIComponent(result.message)}`
+    );
+  }
+
+  redirect(`/admin/emails?tab=mailbox&thread=${encodeURIComponent(threadId)}&message=reply-sent`);
 }
 
 export async function updateOrganizerBillingAction(formData) {

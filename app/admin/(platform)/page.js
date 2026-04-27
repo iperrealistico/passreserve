@@ -60,8 +60,12 @@ export default async function PlatformAdminOverviewPage() {
 
         <div className="admin-shell-note-grid">
           <div className="admin-shell-note">
-            <strong>{isItalian ? "Richieste aperte" : "Open requests"}</strong>
-            {overview.summary.openRequestsCount}
+            <strong>{isItalian ? "Applications aperte" : "Open applications"}</strong>
+            {overview.summary.pendingApplicationsCount}
+          </div>
+          <div className="admin-shell-note">
+            <strong>{isItalian ? "Mailbox non lette" : "Unread mailbox"}</strong>
+            {overview.summary.unreadMailboxCount}
           </div>
           <div className="admin-shell-note">
             <strong>{isItalian ? "Template email" : "Email templates"}</strong>
@@ -101,7 +105,7 @@ export default async function PlatformAdminOverviewPage() {
           <div className="admin-note-list">
             <div className="admin-note-item">
               <span className="spotlight-label">{isItalian ? "Storage attuale" : "Current storage"}</span>
-              <strong>{overview.summary.inboxStorageLabel}</strong>
+              <strong>{overview.summary.storageLabel}</strong>
             </div>
             {overview.releaseTracks.map((track) => (
               <div className="admin-note-item" key={track.title}>

@@ -37,6 +37,7 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 10. Phase 10: Organizer operations dashboard, calendar, registrations, and payments UI
 11. Phase 11: Super-admin adaptation, CMS, emails, and platform operations
 12. Phase 12: Legacy removal, data migration, QA, deployment, and launch readiness
+13. Phase 13: Shared inbox, automatic organizer provisioning, and publication controls
 
 ---
 
@@ -442,3 +443,31 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-24 17:25 CEST` Re-ran the full completion gate with `npm run verify` after the responsive organizer CSS and schedule-viewport changes; lint, tests, copy audit, Prisma generation, production build, and smoke checks all passed successfully again.
 - `2026-04-24 17:26 CEST` Created organizer UX closeout commit `a216f83` with message `feat: streamline organizer backoffice ux` and pushed `main` successfully to `origin`.
 - `2026-04-24 17:26 CEST` Verified through the Vercel CLI that production deployment `dpl_2gCTd7qi5nBdh5TfFreuTkqgjmmg` for Passreserve reached `READY` and is aliased to `passreserve.com`, `passreserve.vercel.app`, `passreserve-iperrealisticos-projects.vercel.app`, and `passreserve-git-main-iperrealisticos-projects.vercel.app`; live HTTP checks for `/`, `/sillico`, and `/sillico/admin/login` all returned `200`.
+
+---
+
+## Phase 13: Shared inbox, automatic organizer provisioning, and publication controls
+
+**Status:** `DONE`
+
+**Patch note:** [`2026-04-27_19-52-53_phase-13_shared-mailbox-and-publication-controls.md`](/Users/leonardofiori/Documents/Antigravity/gatherpass/patch-notes/2026-04-27_19-52-53_phase-13_shared-mailbox-and-publication-controls.md)
+
+**Checklist**
+
+- [x] Add organizer publication controls with immutable internal slug plus editable pre-publication public slug
+- [x] Split organizer applications/provisioning audit from the email mailbox UI
+- [x] Replace manual organizer approval with automatic provisioning and duplicate-aware application handling
+- [x] Add resend-access tooling for failed onboarding emails
+- [x] Add shared mailbox persistence for threads, messages, and attachment metadata
+- [x] Ingest inbound mailbox traffic from Resend webhooks and support authenticated attachment redirects
+- [x] Support platform-admin replies from inside the app with threading headers preserved
+- [x] Keep ALTCHA verification and extend signup abuse controls with email-based rate limiting
+- [x] Document new env vars and Vercel/Resend setup for shared inbox receiving
+- [x] Add regression coverage for signup, publication, mailbox, attachments, and existing email flows
+
+**Activity log**
+
+- `2026-04-27 19:03 CEST` Started Phase 13 to add a real shared mailbox, automatic organizer provisioning, organizer publication controls, and a separate applications audit surface without rewriting the existing Next.js/Prisma/file-store architecture.
+- `2026-04-27 19:52 CEST` Completed the organizer/application model update with private-by-default publication state, immutable internal slugs plus editable pre-publication public slugs, automatic organizer provisioning, duplicate-aware application auditing, resend-access recovery, and the separate `/admin/applications` surface.
+- `2026-04-27 19:52 CEST` Added the shared mailbox data model, Resend inbound webhook route, authenticated attachment redirect route, and platform-admin reply workflow while preserving the existing Next.js, iron-session, Prisma, and file-store conventions.
+- `2026-04-27 19:52 CEST` Added the Phase 13 Prisma migration, updated the launch/env documentation for Resend receiving on Vercel, expanded regression coverage for signup/publication/mailbox flows, and re-ran `npm run verify` successfully with lint, 45 tests, copy audit, Prisma generation, production build, and smoke checks all passing.
