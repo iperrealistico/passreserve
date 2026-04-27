@@ -4,7 +4,7 @@ import { getOrganizerDashboard } from "../../../../lib/passreserve-admin-service
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
-import { OrganizerTourReplayButton } from "../organizer-tour-replay-button.js";
+import { OrganizerTourControls } from "../organizer-tour-replay-button.js";
 
 export default async function OrganizerDashboardPage({ params, searchParams }) {
   const { slug } = await params;
@@ -109,7 +109,10 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
           query={query}
           actions={
             <>
-              <OrganizerTourReplayButton label={isItalian ? "Rivedi tour" : "Replay tour"} />
+              <OrganizerTourControls
+                setupLabel={isItalian ? "Avvia setup guidato" : "Start guided setup"}
+                showcaseLabel={isItalian ? "Rivedi tour" : "Replay tour"}
+              />
               <Link className="button button-secondary" href={`/${slug}/admin/calendar`}>
                 {isItalian ? "Apri programma" : "Open schedule"}
               </Link>

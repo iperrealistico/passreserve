@@ -201,7 +201,11 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
             <Link className="button button-secondary" href={`/${slug}/admin/calendar`}>
               {isItalian ? "Apri programma" : "Open schedule"}
             </Link>
-            <Link className="button button-primary" href={`/${slug}/admin/events#event-form`}>
+            <Link
+              className="button button-primary"
+              data-organizer-tour="events-create-link"
+              href={`/${slug}/admin/events#event-form`}
+            >
               {isItalian ? "Nuovo evento" : "Create event"}
             </Link>
           </>
@@ -252,7 +256,10 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
 
             {focusedEvent ? (
               <div className="admin-detail-stack">
-                <section className="admin-section admin-detail-panel">
+                <section
+                  className="admin-section admin-detail-panel"
+                  data-organizer-tour="event-created-state"
+                >
                   <div className="admin-section-header">
                     <div>
                       <div className="section-kicker">{isItalian ? "Evento selezionato" : "Selected event"}</div>
@@ -585,7 +592,11 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
             : "Set the base price, public details, and the default sales window here. Then move to Schedule for the real bookable dates under this event."}
         </p>
 
-        <form action={saveOrganizerEventAction} className="admin-page">
+        <form
+          action={saveOrganizerEventAction}
+          className="admin-page"
+          data-organizer-tour="event-edit-form"
+        >
           <input name="slug" type="hidden" value={slug} />
           <input name="id" type="hidden" value={selectedEvent?.id || ""} />
           <div className="filter-row">
@@ -1008,7 +1019,11 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
           </EventFormSection>
 
           <div className="hero-actions">
-            <button className="button button-primary" type="submit">
+            <button
+              className="button button-primary"
+              data-organizer-tour="event-save"
+              type="submit"
+            >
               {isEditing
                 ? isItalian
                   ? "Salva modifiche"

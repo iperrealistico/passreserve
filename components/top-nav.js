@@ -108,6 +108,7 @@ export function TopNav({
                   "admin-tab-link",
                   active && "admin-tab-link-active"
                 )}
+                data-organizer-tour={link.tourId}
                 href={link.href}
                 key={link.href}
               >
@@ -133,6 +134,7 @@ export function TopNav({
                     "admin-mobile-tab-link",
                     active && "admin-mobile-tab-link-active"
                   )}
+                  data-organizer-tour={link.tourId}
                   href={link.href}
                   key={link.href}
                   onClick={() => setOpen(false)}

@@ -6,6 +6,7 @@ import { driver } from "driver.js";
 
 import {
   ORGANIZER_ADMIN_TOUR_EVENT,
+  ORGANIZER_ADMIN_TOUR_MODES,
   ORGANIZER_ADMIN_TOUR_STORAGE_KEY,
   ORGANIZER_ADMIN_TOUR_VERSION,
   getOrganizerAdminTourDefinition
@@ -14,6 +15,11 @@ import {
   PASSRESERVE_LOCALE_COOKIE,
   SUPPORTED_LOCALES
 } from "../../../lib/passreserve-locales.js";
+
+const LEGACY_TOUR_VERSION = "2026-04-27-organizer-admin-tour-v1";
+const TOUR_PENDING_STATUS = "pending";
+const TOUR_COMPLETED_STATUS = "completed";
+const TOUR_SKIPPED_STATUS = "skipped";
 
 function isVisibleElement(element) {
   return Boolean(element) && element.getClientRects().length > 0;
@@ -56,28 +62,158 @@ function waitForTarget(selector, timeoutMs = 1600) {
   });
 }
 
+function createDefaultStoredState() {
+  return {
+    version: ORGANIZER_ADMIN_TOUR_VERSION,
+    modes: {
+      [ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE]: TOUR_PENDING_STATUS,
+      [ORGANIZER_ADMIN_TOUR_MODES.SETUP]: TOUR_PENDING_STATUS
+    },
+    active: null,
+    updatedAt: null
+  };
+}
+
+function normalizeMode(value) {
+  return Object.values(ORGANIZER_ADMIN_TOUR_MODES).includes(value) ? value : null;
+}
+
+function normalizeModeStatus(value) {
+  return [TOUR_PENDING_STATUS, TOUR_COMPLETED_STATUS, TOUR_SKIPPED_STATUS].includes(value)
+    ? value
+    : TOUR_PENDING_STATUS;
+}
+
+function normalizeQueryCondition(raw) {
+  if (
+    raw &&
+    typeof raw === "object" &&
+    raw.type === "query-value" &&
+    typeof raw.key === "string" &&
+    typeof raw.value === "string"
+  ) {
+    return {
+      type: "query-value",
+      key: raw.key,
+      value: raw.value
+    };
+  }
+
+  return null;
+}
+
+function normalizePendingAdvance(raw) {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+
+  const stepIndex = Number(raw.stepIndex);
+
+  if (!Number.isInteger(stepIndex) || stepIndex < 0) {
+    return null;
+  }
+
+  return {
+    stepIndex,
+    waitFor: normalizeQueryCondition(raw.waitFor)
+  };
+}
+
+function normalizeActiveState(raw) {
+  if (!raw || typeof raw !== "object") {
+    return null;
+  }
+
+  const mode = normalizeMode(raw.mode);
+  const stepIndex = Number(raw.stepIndex);
+
+  if (!mode || !Number.isInteger(stepIndex) || stepIndex < 0) {
+    return null;
+  }
+
+  return {
+    mode,
+    stepIndex,
+    pendingAdvance: normalizePendingAdvance(raw.pendingAdvance),
+    locale: SUPPORTED_LOCALES.includes(raw.locale) ? raw.locale : null
+  };
+}
+
+function migrateLegacyStoredState(raw) {
+  const next = createDefaultStoredState();
+
+  next.modes[ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE] = normalizeModeStatus(raw?.status);
+  next.updatedAt = typeof raw?.updatedAt === "string" ? raw.updatedAt : new Date().toISOString();
+  return next;
+}
+
+function normalizeStoredState(raw) {
+  if (!raw || typeof raw !== "object") {
+    return createDefaultStoredState();
+  }
+
+  if (raw.version === LEGACY_TOUR_VERSION) {
+    return migrateLegacyStoredState(raw);
+  }
+
+  if (raw.version !== ORGANIZER_ADMIN_TOUR_VERSION) {
+    return createDefaultStoredState();
+  }
+
+  const defaults = createDefaultStoredState();
+
+  return {
+    version: ORGANIZER_ADMIN_TOUR_VERSION,
+    modes: {
+      [ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE]: normalizeModeStatus(
+        raw.modes?.[ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE]
+      ),
+      [ORGANIZER_ADMIN_TOUR_MODES.SETUP]: normalizeModeStatus(
+        raw.modes?.[ORGANIZER_ADMIN_TOUR_MODES.SETUP]
+      )
+    },
+    active: normalizeActiveState(raw.active),
+    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : defaults.updatedAt
+  };
+}
+
 function readStoredState() {
   try {
     const raw = window.localStorage.getItem(ORGANIZER_ADMIN_TOUR_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    return normalizeStoredState(raw ? JSON.parse(raw) : null);
   } catch {
-    return null;
+    return createDefaultStoredState();
   }
 }
 
-function writeStoredState(status) {
+function writeStoredState(nextState) {
   try {
     window.localStorage.setItem(
       ORGANIZER_ADMIN_TOUR_STORAGE_KEY,
-      JSON.stringify({
-        version: ORGANIZER_ADMIN_TOUR_VERSION,
-        status,
-        updatedAt: new Date().toISOString()
-      })
+      JSON.stringify(normalizeStoredState(nextState))
     );
   } catch {
     // Ignore storage failures and keep the tour usable.
   }
+}
+
+function updateStoredState(mutator) {
+  const current = readStoredState();
+  const next = mutator(current);
+  writeStoredState(next);
+  return normalizeStoredState(next);
+}
+
+function matchesQueryCondition(condition, searchParams) {
+  if (!condition) {
+    return true;
+  }
+
+  if (condition.type !== "query-value") {
+    return false;
+  }
+
+  return searchParams?.get(condition.key) === condition.value;
 }
 
 export function OrganizerAdminTour({ locale, slug }) {
@@ -85,30 +221,98 @@ export function OrganizerAdminTour({ locale, slug }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const driverRef = useRef(null);
+  const interactionAbortRef = useRef(null);
   const activeRef = useRef(false);
   const activeStepIndexRef = useRef(0);
-  const pendingStepIndexRef = useRef(null);
+  const pendingAdvanceRef = useRef(null);
+  const activeModeRef = useRef(ORGANIZER_ADMIN_TOUR_MODES.SETUP);
+  const bootstrappedRef = useRef(false);
   const autoStartCheckedRef = useRef(false);
   const renderTokenRef = useRef(0);
   const [tourLocale, setTourLocale] = useState(locale);
-  const definition = useMemo(
-    () => getOrganizerAdminTourDefinition({ slug, locale: tourLocale }),
+  const [tourMode, setTourMode] = useState(ORGANIZER_ADMIN_TOUR_MODES.SETUP);
+
+  const definitions = useMemo(
+    () => ({
+      [ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE]: getOrganizerAdminTourDefinition({
+        slug,
+        locale: tourLocale,
+        mode: ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE
+      }),
+      [ORGANIZER_ADMIN_TOUR_MODES.SETUP]: getOrganizerAdminTourDefinition({
+        slug,
+        locale: tourLocale,
+        mode: ORGANIZER_ADMIN_TOUR_MODES.SETUP
+      })
+    }),
     [slug, tourLocale]
   );
 
-  const dashboardRoute = definition.steps[0]?.route || `/${slug}/admin/dashboard`;
+  const dashboardRoute =
+    definitions[ORGANIZER_ADMIN_TOUR_MODES.SETUP].steps[0]?.route ||
+    `/${slug}/admin/dashboard`;
+  const routeStateKey = `${pathname}?${searchParams?.toString() || ""}`;
+
+  function getDefinition(mode = activeModeRef.current) {
+    return definitions[mode] || definitions[ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE];
+  }
+
+  function setActiveMode(mode) {
+    const safeMode =
+      normalizeMode(mode) || ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE;
+
+    activeModeRef.current = safeMode;
+    setTourMode(safeMode);
+    return safeMode;
+  }
 
   function destroyDriver() {
+    interactionAbortRef.current?.abort();
+    interactionAbortRef.current = null;
     driverRef.current?.destroy();
     driverRef.current = null;
   }
 
+  function invalidateCurrentRender() {
+    renderTokenRef.current += 1;
+  }
+
+  function persistActiveState({
+    mode = activeModeRef.current,
+    stepIndex,
+    pendingAdvance = null,
+    localeValue = tourLocale
+  }) {
+    updateStoredState((state) => ({
+      ...state,
+      active: {
+        mode,
+        stepIndex,
+        pendingAdvance,
+        locale: localeValue
+      },
+      updatedAt: new Date().toISOString()
+    }));
+  }
+
+  function persistFinishedState(status, mode = activeModeRef.current) {
+    updateStoredState((state) => ({
+      ...state,
+      active: null,
+      modes: {
+        ...state.modes,
+        [mode]: status
+      },
+      updatedAt: new Date().toISOString()
+    }));
+  }
+
   function finishTour(status) {
+    invalidateCurrentRender();
     destroyDriver();
     activeRef.current = false;
-    pendingStepIndexRef.current = null;
-    renderTokenRef.current += 1;
-    writeStoredState(status);
+    pendingAdvanceRef.current = null;
+    persistFinishedState(status);
   }
 
   function switchTourLocale(nextLocale) {
@@ -116,8 +320,13 @@ export function OrganizerAdminTour({ locale, slug }) {
       return;
     }
 
-    pendingStepIndexRef.current = activeStepIndexRef.current;
-    renderTokenRef.current += 1;
+    persistActiveState({
+      mode: activeModeRef.current,
+      stepIndex: activeStepIndexRef.current,
+      pendingAdvance: pendingAdvanceRef.current,
+      localeValue: nextLocale
+    });
+    invalidateCurrentRender();
     destroyDriver();
 
     document.cookie = `${PASSRESERVE_LOCALE_COOKIE}=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
@@ -128,17 +337,24 @@ export function OrganizerAdminTour({ locale, slug }) {
     router.refresh();
   }
 
-  async function showStep(stepIndex) {
-    const step = definition.steps[stepIndex];
+  async function showStep(stepIndex, mode = activeModeRef.current) {
+    const modeDefinition = getDefinition(mode);
+    const step = modeDefinition.steps[stepIndex];
 
     if (!step) {
-      finishTour("completed");
+      finishTour(TOUR_COMPLETED_STATUS);
       return;
     }
 
     activeRef.current = true;
+    setActiveMode(mode);
     activeStepIndexRef.current = stepIndex;
-    pendingStepIndexRef.current = null;
+    pendingAdvanceRef.current = null;
+    persistActiveState({
+      mode,
+      stepIndex,
+      pendingAdvance: null
+    });
 
     const token = renderTokenRef.current + 1;
     renderTokenRef.current = token;
@@ -151,11 +367,14 @@ export function OrganizerAdminTour({ locale, slug }) {
 
     destroyDriver();
 
-    const steps = definition.steps.map((entry, index) => {
+    const activeButtons =
+      step.advanceOn && target ? ["previous"] : ["previous", "next"];
+
+    const steps = modeDefinition.steps.map((entry, index) => {
       const popover = {
         align: entry.align,
         description: entry.description,
-        showButtons: ["previous", "next"],
+        showButtons: index === stepIndex ? activeButtons : ["previous", "next"],
         side: entry.side,
         title: entry.title
       };
@@ -177,34 +396,37 @@ export function OrganizerAdminTour({ locale, slug }) {
       };
     });
 
+    const nextStep = modeDefinition.steps[stepIndex + 1];
+    const advanceTargetSelector = step.advanceSelector || step.target;
+
     const instance = driver({
       allowClose: false,
       allowKeyboardControl: true,
-      doneBtnText: definition.labels.done,
-      nextBtnText: definition.labels.next,
+      doneBtnText: modeDefinition.labels.done,
+      nextBtnText: modeDefinition.labels.next,
       overlayColor: "rgba(12, 18, 15, 0.78)",
       overlayOpacity: 0.74,
-      popoverClass: "organizer-tour-popover",
-      prevBtnText: definition.labels.previous,
+      popoverClass: `organizer-tour-popover organizer-tour-popover-${mode}`,
+      prevBtnText: modeDefinition.labels.previous,
       showProgress: true,
       smoothScroll: true,
       stagePadding: 14,
       stageRadius: 22,
       steps,
       onNextClick: () => {
-        if (stepIndex >= definition.steps.length - 1) {
-          finishTour("completed");
+        if (stepIndex >= modeDefinition.steps.length - 1) {
+          finishTour(TOUR_COMPLETED_STATUS);
           return;
         }
 
-        void goToStep(stepIndex + 1);
+        void goToStep(stepIndex + 1, mode);
       },
       onPrevClick: () => {
         if (stepIndex <= 0) {
           return;
         }
 
-        void goToStep(stepIndex - 1);
+        void goToStep(stepIndex - 1, mode);
       },
       onPopoverRender: (popover) => {
         const localeToolbar = document.createElement("div");
@@ -212,15 +434,15 @@ export function OrganizerAdminTour({ locale, slug }) {
 
         const localeLabel = document.createElement("span");
         localeLabel.className = "organizer-tour-locale-label";
-        localeLabel.textContent = definition.labels.language;
+        localeLabel.textContent = modeDefinition.labels.language;
         localeToolbar.append(localeLabel);
 
         const localeGroup = document.createElement("div");
         localeGroup.className = "organizer-tour-locale-group";
-        localeGroup.setAttribute("aria-label", definition.labels.language);
+        localeGroup.setAttribute("aria-label", modeDefinition.labels.language);
         localeGroup.setAttribute("role", "group");
 
-        definition.localeOptions.forEach((option) => {
+        modeDefinition.localeOptions.forEach((option) => {
           const optionButton = document.createElement("button");
           optionButton.className = "organizer-tour-locale-option";
           optionButton.dataset.active = option.value === tourLocale ? "true" : "false";
@@ -243,10 +465,10 @@ export function OrganizerAdminTour({ locale, slug }) {
 
         const skipButton = document.createElement("button");
         skipButton.className = "driver-popover-btn organizer-tour-skip-btn";
-        skipButton.textContent = definition.labels.skip;
+        skipButton.textContent = modeDefinition.labels.skip;
         skipButton.type = "button";
         skipButton.addEventListener("click", () => {
-          finishTour("skipped");
+          finishTour(TOUR_SKIPPED_STATUS);
         });
         popover.footerButtons.prepend(skipButton);
       }
@@ -254,42 +476,119 @@ export function OrganizerAdminTour({ locale, slug }) {
 
     driverRef.current = instance;
     instance.drive(stepIndex);
+
+    if (step.advanceOn && nextStep) {
+      const advanceElement = await waitForTarget(advanceTargetSelector, 400);
+
+      if (!advanceElement || !activeRef.current || renderTokenRef.current !== token) {
+        return;
+      }
+
+      const controller = new AbortController();
+      interactionAbortRef.current = controller;
+
+      const armPendingAdvance = () => {
+        const pendingAdvance = {
+          stepIndex: stepIndex + 1,
+          waitFor: step.resumeWhen || null
+        };
+
+        pendingAdvanceRef.current = pendingAdvance;
+        persistActiveState({
+          mode,
+          stepIndex,
+          pendingAdvance
+        });
+        invalidateCurrentRender();
+        destroyDriver();
+
+        if (!pendingAdvance.waitFor && nextStep.route === pathname) {
+          window.setTimeout(() => {
+            void showStep(stepIndex + 1, mode);
+          }, 160);
+        }
+      };
+
+      if (step.advanceOn === "form-submit") {
+        advanceElement.addEventListener("submit", armPendingAdvance, {
+          once: true,
+          signal: controller.signal
+        });
+      } else {
+        advanceElement.addEventListener("click", armPendingAdvance, {
+          once: true,
+          signal: controller.signal
+        });
+      }
+    }
   }
 
-  async function goToStep(stepIndex) {
-    const step = definition.steps[stepIndex];
+  async function goToStep(stepIndex, mode = activeModeRef.current) {
+    const modeDefinition = getDefinition(mode);
+    const step = modeDefinition.steps[stepIndex];
 
     if (!step) {
-      finishTour("completed");
+      finishTour(TOUR_COMPLETED_STATUS);
       return;
     }
 
     if (pathname !== step.route) {
-      pendingStepIndexRef.current = stepIndex;
+      const pendingAdvance = {
+        stepIndex,
+        waitFor: null
+      };
+
+      pendingAdvanceRef.current = pendingAdvance;
+      persistActiveState({
+        mode,
+        stepIndex: activeStepIndexRef.current,
+        pendingAdvance
+      });
+      invalidateCurrentRender();
       destroyDriver();
       router.push(step.route);
       return;
     }
 
-    await showStep(stepIndex);
+    await showStep(stepIndex, mode);
   }
 
-  async function startTour() {
-    destroyDriver();
-    activeRef.current = true;
-    pendingStepIndexRef.current = 0;
+  async function startTour(mode = ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE) {
+    const safeMode = setActiveMode(mode);
+    const modeDefinition = getDefinition(safeMode);
+    const startRoute = modeDefinition.steps[0]?.route || dashboardRoute;
 
-    if (pathname !== dashboardRoute) {
-      router.push(dashboardRoute);
+    autoStartCheckedRef.current = true;
+    activeRef.current = true;
+    activeStepIndexRef.current = 0;
+    pendingAdvanceRef.current = null;
+
+    invalidateCurrentRender();
+    destroyDriver();
+
+    if (pathname !== startRoute) {
+      const pendingAdvance = {
+        stepIndex: 0,
+        waitFor: null
+      };
+
+      pendingAdvanceRef.current = pendingAdvance;
+      persistActiveState({
+        mode: safeMode,
+        stepIndex: 0,
+        pendingAdvance
+      });
+      router.push(startRoute);
       return;
     }
 
-    await showStep(0);
+    await showStep(0, safeMode);
   }
 
   useEffect(() => {
-    const handleStart = () => {
-      void startTour();
+    const handleStart = (event) => {
+      const requestedMode = normalizeMode(event?.detail?.mode);
+      void startTour(requestedMode || ORGANIZER_ADMIN_TOUR_MODES.SHOWCASE);
     };
 
     window.addEventListener(ORGANIZER_ADMIN_TOUR_EVENT, handleStart);
@@ -303,56 +602,101 @@ export function OrganizerAdminTour({ locale, slug }) {
   }, [locale]);
 
   useEffect(() => {
-    if (!activeRef.current) {
+    if (bootstrappedRef.current) {
       return;
     }
 
-    const pendingStepIndex = pendingStepIndexRef.current;
+    bootstrappedRef.current = true;
+    const savedState = readStoredState();
 
-    if (pendingStepIndex !== null) {
-      const pendingStep = definition.steps[pendingStepIndex];
+    if (!savedState.active?.mode) {
+      return;
+    }
 
-      if (pendingStep?.route === pathname) {
-        pendingStepIndexRef.current = null;
-        void showStep(pendingStepIndex);
+    activeRef.current = true;
+    activeStepIndexRef.current = savedState.active.stepIndex;
+    pendingAdvanceRef.current = savedState.active.pendingAdvance;
+    setActiveMode(savedState.active.mode);
+
+    if (savedState.active.locale && savedState.active.locale !== locale) {
+      setTourLocale(savedState.active.locale);
+    }
+  }, [locale]);
+
+  useEffect(() => {
+    if (activeRef.current) {
+      const activeDefinition = getDefinition();
+      const currentStep = activeDefinition.steps[activeStepIndexRef.current];
+      const pendingAdvance = pendingAdvanceRef.current;
+
+      if (pendingAdvance) {
+        const pendingStep = activeDefinition.steps[pendingAdvance.stepIndex];
+
+        if (
+          pendingStep?.route === pathname &&
+          matchesQueryCondition(pendingAdvance.waitFor, searchParams)
+        ) {
+          pendingAdvanceRef.current = null;
+          void showStep(pendingAdvance.stepIndex);
+          return;
+        }
+
+        if (
+          currentStep?.route === pathname &&
+          searchParams?.has("error")
+        ) {
+          pendingAdvanceRef.current = null;
+          persistActiveState({
+            mode: activeModeRef.current,
+            stepIndex: activeStepIndexRef.current,
+            pendingAdvance: null
+          });
+          void showStep(activeStepIndexRef.current);
+        }
+
+        return;
+      }
+
+      if (currentStep?.route === pathname) {
+        void showStep(activeStepIndexRef.current);
       }
 
       return;
     }
 
-    const activeStepIndex = activeStepIndexRef.current;
-    const activeStep = definition.steps[activeStepIndex];
-
-    if (activeStep?.route === pathname) {
-      void showStep(activeStepIndex);
-      return;
-    }
-
-    if (activeStep) {
-      finishTour("skipped");
-    }
-  }, [definition.steps, pathname]);
-
-  useEffect(() => {
     if (autoStartCheckedRef.current || pathname !== dashboardRoute) {
       return;
     }
 
-    autoStartCheckedRef.current = true;
     const savedState = readStoredState();
 
-    if (
-      savedState?.version === ORGANIZER_ADMIN_TOUR_VERSION &&
-      (savedState.status === "completed" || savedState.status === "skipped")
-    ) {
+    if (savedState.active?.mode) {
+      activeRef.current = true;
+      activeStepIndexRef.current = savedState.active.stepIndex;
+      pendingAdvanceRef.current = savedState.active.pendingAdvance;
+      setActiveMode(savedState.active.mode);
+
+      if (savedState.active.locale && savedState.active.locale !== locale) {
+        setTourLocale(savedState.active.locale);
+      }
+
       return;
     }
 
-    void startTour();
-  }, [dashboardRoute, pathname]);
+    if (
+      savedState.modes[ORGANIZER_ADMIN_TOUR_MODES.SETUP] === TOUR_COMPLETED_STATUS ||
+      savedState.modes[ORGANIZER_ADMIN_TOUR_MODES.SETUP] === TOUR_SKIPPED_STATUS
+    ) {
+      autoStartCheckedRef.current = true;
+      return;
+    }
+
+    void startTour(ORGANIZER_ADMIN_TOUR_MODES.SETUP);
+  }, [dashboardRoute, locale, pathname, routeStateKey, tourLocale, tourMode]);
 
   useEffect(() => {
     return () => {
+      invalidateCurrentRender();
       destroyDriver();
     };
   }, []);

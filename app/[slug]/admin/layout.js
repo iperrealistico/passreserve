@@ -37,27 +37,32 @@ export default async function OrganizerAdminLayout({ children, params }) {
       label: dictionary.admin.overview,
       href: organizer.dashboardHref,
       exact: true,
-      icon: "today"
+      icon: "today",
+      tourId: "nav-dashboard"
     },
     {
       label: dictionary.admin.schedule,
       href: organizer.calendarHref,
-      icon: "calendar"
+      icon: "calendar",
+      tourId: "nav-schedule"
     },
     {
       label: dictionary.admin.events,
       href: organizer.eventsHref,
-      icon: "events"
+      icon: "events",
+      tourId: "nav-events"
     },
     {
       label: dictionary.admin.registrations,
       href: organizer.registrationsHref,
-      icon: "registrations"
+      icon: "registrations",
+      tourId: "nav-registrations"
     },
     {
       label: dictionary.admin.settings,
       href: organizer.settingsHref,
       icon: "settings",
+      tourId: "nav-settings",
       matchPrefixes: [organizer.settingsHref, organizer.billingHref]
     }
   ];

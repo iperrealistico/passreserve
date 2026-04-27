@@ -130,7 +130,11 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
         query={query}
         actions={
           <>
-            <Link className="button button-secondary" href={`/${slug}/admin/billing`}>
+            <Link
+              className="button button-secondary"
+              data-organizer-tour="settings-open-billing"
+              href={`/${slug}/admin/billing`}
+            >
               {isItalian ? "Apri billing" : "Open billing"}
             </Link>
             <Link className="button button-primary" href={`#organization`}>
@@ -157,7 +161,11 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
         </div>
       </section>
 
-      <form action={saveOrganizerSettingsAction} className="admin-page">
+      <form
+        action={saveOrganizerSettingsAction}
+        className="admin-page"
+        data-organizer-tour="settings-form"
+      >
         <input name="slug" type="hidden" value={slug} />
 
         <section className="panel section-card admin-section" id="organization">
@@ -509,7 +517,11 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
 
         <section className="panel section-card admin-section">
           <div className="hero-actions">
-            <button className="button button-primary" type="submit">
+            <button
+              className="button button-primary"
+              data-organizer-tour="settings-save"
+              type="submit"
+            >
               {isItalian ? "Salva impostazioni" : "Save settings"}
             </button>
           </div>
@@ -523,7 +535,11 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
             <h3>{isItalian ? "Setup pagamenti e payout" : "Payments and payout setup"}</h3>
           </div>
           <div className="hero-actions">
-            <Link className="button button-primary" href={`/${slug}/admin/billing`}>
+            <Link
+              className="button button-primary"
+              data-organizer-tour="settings-open-billing"
+              href={`/${slug}/admin/billing`}
+            >
               {isItalian ? "Apri billing" : "Open billing"}
             </Link>
           </div>
