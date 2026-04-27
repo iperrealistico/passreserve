@@ -185,7 +185,7 @@ export function OrganizerAdminTour({ locale, slug }) {
       },
       onPopoverRender: (popover) => {
         const skipButton = document.createElement("button");
-        skipButton.className = "organizer-tour-skip-btn";
+        skipButton.className = "driver-popover-btn organizer-tour-skip-btn";
         skipButton.textContent = definition.labels.skip;
         skipButton.type = "button";
         skipButton.addEventListener("click", () => {
