@@ -843,7 +843,7 @@ export default async function OrganizerSchedulePageContent({ params, searchParam
         </article>
       </section>
 
-      <section className="panel section-card admin-section">
+      <section className="panel section-card admin-section" data-organizer-tour="schedule-views">
         <div className="admin-section-header">
           <div>
             <div className="section-kicker">{isItalian ? "Viste programma" : "Schedule views"}</div>

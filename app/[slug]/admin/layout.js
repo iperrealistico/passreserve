@@ -11,6 +11,7 @@ import {
   getValidatedOrganizerAdminSessionUser,
   getValidatedStoredPlatformSessionUser
 } from "../../../lib/passreserve-auth.js";
+import { OrganizerAdminTour } from "./organizer-admin-tour.js";
 import { organizerLogoutAction, returnToPlatformDashboardAction } from "./actions.js";
 
 export default async function OrganizerAdminLayout({ children, params }) {
@@ -63,6 +64,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
 
   return (
     <main className="shell admin-shell">
+      <OrganizerAdminTour locale={locale} slug={slug} />
       <div className="content admin-content">
         <TopNav
           brand={organizer.name}

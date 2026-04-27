@@ -479,7 +479,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
         }
       />
 
-      <section className="panel section-card admin-section">
+      <section className="panel section-card admin-section" data-organizer-tour="registrations-queue">
         <div className="admin-filter-strip">
           <span className="admin-filter-label">{isItalian ? "Focus coda" : "Queue focus"}</span>
           <div className="filter-row">

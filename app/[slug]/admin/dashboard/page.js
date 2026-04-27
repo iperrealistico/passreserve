@@ -4,6 +4,7 @@ import { getOrganizerDashboard } from "../../../../lib/passreserve-admin-service
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
+import { OrganizerTourReplayButton } from "../organizer-tour-replay-button.js";
 
 export default async function OrganizerDashboardPage({ params, searchParams }) {
   const { slug } = await params;
@@ -96,29 +97,32 @@ export default async function OrganizerDashboardPage({ params, searchParams }) {
         </div>
       ) : null}
 
-      <OrganizerAdminPageHeader
-        basePath={`/${slug}/admin/dashboard`}
-        description={
-          isItalian
-            ? "Apri qui ciò che richiede attenzione adesso: prossime date, nuove registrazioni e pagamenti."
-            : "Open what needs attention now: upcoming dates, new registrations, and payment follow-up."
-        }
-        eyebrow={isItalian ? "Panoramica" : "Overview"}
-        query={query}
-        actions={
-          <>
-            <Link className="button button-secondary" href={`/${slug}/admin/calendar`}>
-              {isItalian ? "Apri programma" : "Open schedule"}
-            </Link>
-            <Link className="button button-primary" href={`/${slug}/admin/registrations`}>
-              {isItalian ? "Apri registrazioni" : "Open registrations"}
-            </Link>
-          </>
-        }
-        title={isItalian ? "Cosa richiede attenzione" : "What needs attention"}
-      />
+      <div data-organizer-tour="dashboard-overview">
+        <OrganizerAdminPageHeader
+          basePath={`/${slug}/admin/dashboard`}
+          description={
+            isItalian
+              ? "Apri qui ciò che richiede attenzione adesso: prossime date, nuove registrazioni e pagamenti."
+              : "Open what needs attention now: upcoming dates, new registrations, and payment follow-up."
+          }
+          eyebrow={isItalian ? "Panoramica" : "Overview"}
+          query={query}
+          actions={
+            <>
+              <OrganizerTourReplayButton label={isItalian ? "Rivedi tour" : "Replay tour"} />
+              <Link className="button button-secondary" href={`/${slug}/admin/calendar`}>
+                {isItalian ? "Apri programma" : "Open schedule"}
+              </Link>
+              <Link className="button button-primary" href={`/${slug}/admin/registrations`}>
+                {isItalian ? "Apri registrazioni" : "Open registrations"}
+              </Link>
+            </>
+          }
+          title={isItalian ? "Cosa richiede attenzione" : "What needs attention"}
+        />
+      </div>
 
-      <section className="admin-action-grid">
+      <section className="admin-action-grid" data-organizer-tour="dashboard-priorities">
         {attentionCards.map((card) => (
           <article className="panel section-card admin-section" key={card.id}>
             <div className="section-kicker">{card.eyebrow}</div>

@@ -141,7 +141,7 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
         title={isItalian ? "Configura il backend organizer senza dispersione" : "Configure the organizer backend without the sprawl"}
       />
 
-      <section className="panel section-card admin-section">
+      <section className="panel section-card admin-section" data-organizer-tour="settings-navigation">
         <div className="admin-section-header">
           <div>
             <div className="section-kicker">{isItalian ? "Navigazione impostazioni" : "Settings navigation"}</div>

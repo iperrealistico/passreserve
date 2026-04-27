@@ -52,7 +52,7 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
         title={selectedEventRecord ? `Billing focus for ${selectedEventRecord.title}` : `Stripe and payout setup for ${data.organizer.name}`}
       />
 
-      <section className="panel section-card admin-section">
+      <section className="panel section-card admin-section" data-organizer-tour="billing-setup">
         <div className="pill-list">
           <span className="pill">Connection: {data.billing.stripeConnectionStatusLabel}</span>
           <span className="pill">Charges: {data.billing.stripeChargesEnabled ? "Enabled" : "Blocked"}</span>
