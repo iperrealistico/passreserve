@@ -17,6 +17,7 @@ import { TicketCatalogEditor } from "./ticket-catalog-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
 const allowedEventTabs = new Set(["overview", "basics", "tickets", "publish"]);
+const allowedEventVisibility = new Set(["DRAFT", "PUBLIC", "UNLISTED", "ARCHIVED"]);
 
 function formatDateTimeLocal(value, timeZone) {
   if (!value) {
@@ -75,6 +76,48 @@ function buildEventsHref(slug, query = {}, updates = {}) {
 
   const serialized = params.toString();
   return `/${slug}/admin/events${serialized ? `?${serialized}` : ""}`;
+}
+
+function normalizeEventVisibility(value) {
+  const normalized = typeof value === "string" ? value.trim().toUpperCase() : "";
+  return allowedEventVisibility.has(normalized) ? normalized : "DRAFT";
+}
+
+function getEventVisibilityTone(value) {
+  return normalizeEventVisibility(value).toLowerCase();
+}
+
+function normalizeGalleryItems(gallery, imageUrl = "") {
+  if (Array.isArray(gallery)) {
+    return gallery
+      .filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry))
+      .map((entry) => ({
+        imageUrl: typeof entry.imageUrl === "string" ? entry.imageUrl.trim() : "",
+        title: typeof entry.title === "string" ? entry.title.trim() : "",
+        caption: typeof entry.caption === "string" ? entry.caption.trim() : ""
+      }))
+      .filter((entry) => entry.imageUrl);
+  }
+
+  if (gallery && typeof gallery === "object") {
+    const item = {
+      imageUrl: typeof gallery.imageUrl === "string" ? gallery.imageUrl.trim() : "",
+      title: typeof gallery.title === "string" ? gallery.title.trim() : "",
+      caption: typeof gallery.caption === "string" ? gallery.caption.trim() : ""
+    };
+
+    return item.imageUrl ? [item] : [];
+  }
+
+  if (typeof gallery === "string" && gallery.trim()) {
+    return [{ imageUrl: gallery.trim(), title: "", caption: "" }];
+  }
+
+  if (typeof imageUrl === "string" && imageUrl.trim()) {
+    return [{ imageUrl: imageUrl.trim(), title: "", caption: "" }];
+  }
+
+  return [];
 }
 
 function EventFormSection({ id, title, description, defaultOpen, children }) {
@@ -146,6 +189,11 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
     null;
   const detailEditId = selectedEvent?.id === focusedEvent?.id ? selectedEvent.id : "";
   const isEditing = Boolean(selectedEvent);
+  const focusedEventVisibility = normalizeEventVisibility(focusedEvent?.visibility);
+  const selectedEventVisibility = normalizeEventVisibility(selectedEvent?.visibility);
+  const focusedEventTicketCategories = Array.isArray(focusedEvent?.ticketCategories)
+    ? focusedEvent.ticketCategories
+    : [];
   const selectedEventScheduleHref = focusedEvent
     ? `/${slug}/admin/calendar?event=${encodeURIComponent(focusedEvent.slug)}`
     : null;
@@ -155,16 +203,7 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
   const focusedEventPublicHref = focusedEvent ? `/${slug}/events/${focusedEvent.slug}` : "";
   const italianCopyStarted = hasLocalizedContentStarted(selectedEvent, "it");
   const englishCopyStarted = hasLocalizedContentStarted(selectedEvent, "en");
-  const initialGalleryItems =
-    selectedEvent?.gallery?.length
-      ? selectedEvent.gallery
-      : selectedEvent?.imageUrl
-        ? [
-            {
-              imageUrl: selectedEvent.imageUrl
-            }
-          ]
-        : [];
+  const initialGalleryItems = normalizeGalleryItems(selectedEvent?.gallery, selectedEvent?.imageUrl);
 
   return (
     <div className="admin-page">
@@ -239,8 +278,8 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                   key={event.id}
                 >
                   <div className="admin-badge-row">
-                    <span className={`admin-badge admin-badge-${event.visibility.toLowerCase()}`}>
-                      {event.visibility}
+                    <span className={`admin-badge admin-badge-${getEventVisibilityTone(event.visibility)}`}>
+                      {normalizeEventVisibility(event.visibility)}
                     </span>
                   </div>
                   <strong className="admin-list-item-title">{event.title}</strong>
@@ -419,8 +458,8 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                   {activeTab === "tickets" ? (
                     <>
                       <div className="admin-card-grid">
-                        {focusedEvent.ticketCategories.length > 0 ? (
-                          focusedEvent.ticketCategories.map((ticket) => (
+                        {focusedEventTicketCategories.length > 0 ? (
+                          focusedEventTicketCategories.map((ticket) => (
                             <article className="admin-card" key={ticket.id}>
                               <div className="admin-card-head">
                                 <div>
@@ -481,7 +520,7 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                       <div className="admin-summary-grid">
                         <div className="admin-summary-card">
                           <span className="metric-label">{isItalian ? "Visibilità" : "Visibility"}</span>
-                          <strong>{focusedEvent.visibility}</strong>
+                          <strong>{focusedEventVisibility}</strong>
                         </div>
                         <div className="admin-summary-card">
                           <span className="metric-label">{isItalian ? "Pagina pubblica" : "Public page"}</span>
@@ -523,7 +562,7 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                       <input name="slug" type="hidden" value={slug} />
                       <input name="eventId" type="hidden" value={focusedEvent.id} />
                       <button className="button button-secondary" type="submit">
-                        {focusedEvent.visibility === "ARCHIVED"
+                        {focusedEventVisibility === "ARCHIVED"
                           ? isItalian
                             ? "Ripristina come draft"
                             : "Restore as draft"
@@ -635,7 +674,7 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
               </label>
               <label className="field">
                 <span>{isItalian ? "Visibilità" : "Visibility"}</span>
-                <select defaultValue={selectedEvent?.visibility || "DRAFT"} name="visibility">
+                <select defaultValue={selectedEventVisibility} name="visibility">
                   <option value="DRAFT">{isItalian ? "Draft" : "Draft"}</option>
                   <option value="PUBLIC">{isItalian ? "Pubblico" : "Public"}</option>
                   <option value="UNLISTED">{isItalian ? "Non in elenco" : "Unlisted"}</option>

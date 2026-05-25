@@ -45,9 +45,13 @@ function GalleryPreview({ item, label }) {
 }
 
 export function EventGalleryEditor({ initialItems = [] }) {
-  const [items, setItems] = useState(() =>
-    (initialItems.length ? initialItems : [{ imageUrl: "" }]).map(createEditorItem)
-  );
+  const [items, setItems] = useState(() => {
+    const safeInitialItems = Array.isArray(initialItems) ? initialItems : [];
+
+    return (safeInitialItems.length ? safeInitialItems : [{ imageUrl: "" }]).map(
+      createEditorItem
+    );
+  });
   const serializedValue = useMemo(() => JSON.stringify(serializeItems(items)), [items]);
 
   function updateItem(targetId, patch) {

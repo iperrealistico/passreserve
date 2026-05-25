@@ -443,6 +443,7 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-24 17:25 CEST` Re-ran the full completion gate with `npm run verify` after the responsive organizer CSS and schedule-viewport changes; lint, tests, copy audit, Prisma generation, production build, and smoke checks all passed successfully again.
 - `2026-04-24 17:26 CEST` Created organizer UX closeout commit `a216f83` with message `feat: streamline organizer backoffice ux` and pushed `main` successfully to `origin`.
 - `2026-04-24 17:26 CEST` Verified through the Vercel CLI that production deployment `dpl_2gCTd7qi5nBdh5TfFreuTkqgjmmg` for Passreserve reached `READY` and is aliased to `passreserve.com`, `passreserve.vercel.app`, `passreserve-iperrealisticos-projects.vercel.app`, and `passreserve-git-main-iperrealisticos-projects.vercel.app`; live HTTP checks for `/`, `/sillico`, and `/sillico/admin/login` all returned `200`.
+- `2026-05-25 11:18 CEST` Investigated the live organizer admin events crash reported on `passreserve.com/sillico/admin/events`, reproduced the same `TypeError: Cannot read properties of null (reading 'toLowerCase')` locally with a legacy-style event record that had `visibility = null`, then hardened the organizer-events admin payload and UI fallbacks so malformed visibility/gallery data degrades safely instead of returning `500`; verified the fix with a targeted Vitest regression plus a browser reload against the corrupted local state.
 
 ---
 

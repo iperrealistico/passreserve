@@ -58,11 +58,13 @@ export function TicketCatalogEditor({
   initialTickets = [],
   isItalian = false
 }) {
-  const [tickets, setTickets] = useState(
-    initialTickets.length
-      ? initialTickets.map((ticket, index) => buildEditableTicket(ticket, index))
-      : [createBlankTicket(defaultPriceCents, 0)]
-  );
+  const [tickets, setTickets] = useState(() => {
+    const safeInitialTickets = Array.isArray(initialTickets) ? initialTickets : [];
+
+    return safeInitialTickets.length
+      ? safeInitialTickets.map((ticket, index) => buildEditableTicket(ticket, index))
+      : [createBlankTicket(defaultPriceCents, 0)];
+  });
 
   useEffect(() => {
     if (!tickets.length) {
