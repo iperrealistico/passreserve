@@ -13,6 +13,7 @@ import {
   suspendOrganizerEventAction
 } from "../actions.js";
 import { EventGalleryEditor } from "../event-gallery-editor.js";
+import { getDetailEditId } from "./page-state.js";
 import { TicketCatalogEditor } from "./ticket-catalog-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 
@@ -187,7 +188,7 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
     data.events.find((event) => event.slug === selectedEventSlug) ||
     data.events[0] ||
     null;
-  const detailEditId = selectedEvent?.id === focusedEvent?.id ? selectedEvent.id : "";
+  const detailEditId = getDetailEditId(selectedEvent, focusedEvent);
   const isEditing = Boolean(selectedEvent);
   const focusedEventVisibility = normalizeEventVisibility(focusedEvent?.visibility);
   const selectedEventVisibility = normalizeEventVisibility(selectedEvent?.visibility);

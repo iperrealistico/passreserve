@@ -5,10 +5,13 @@ import path from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import {
+  getOrganizerSettingsAdmin,
   saveOrganizerOccurrence,
   updateOrganizerRegistration,
   updateOrganizerSettings
 } from "../lib/passreserve-admin-service.js";
+import { DEFAULT_LOCAL_PASSWORD } from "../lib/passreserve-config.js";
+import { authenticateOrganizerAdmin } from "../lib/passreserve-service.js";
 import { loadPersistentState, mutatePersistentState } from "../lib/passreserve-state.js";
 
 beforeEach(async () => {
@@ -117,5 +120,83 @@ describe("passreserve admin email lifecycle", () => {
     organizer = state.organizers.find((entry) => entry.slug === "alpine-trail-lab");
     expect(organizer.registrationRemindersEnabled).toBe(true);
     expect(organizer.registrationReminderLeadHours).toBe(48);
+  });
+
+  it("keeps organizer settings bound to an active admin account", async () => {
+    const stateBefore = await loadPersistentState();
+    const organizer = stateBefore.organizers.find((entry) => entry.slug === "alpine-trail-lab");
+    const originalPrimaryAdmin = stateBefore.organizerAdmins.find(
+      (entry) => entry.organizerId === organizer.id && entry.isPrimary
+    );
+    const activeAdminId = "admin-active-secondary";
+    const activeAdminEmail = "current@alpine-trail-lab.passreserve.local";
+    const renamedAdminEmail = "renamed@alpine-trail-lab.passreserve.local";
+
+    await mutatePersistentState(async (draft) => {
+      const inactivePrimary = draft.organizerAdmins.find(
+        (entry) => entry.id === originalPrimaryAdmin.id
+      );
+      const now = new Date().toISOString();
+      const nextCreatedAt = new Date(Date.now() + 1000).toISOString();
+
+      inactivePrimary.isActive = false;
+      inactivePrimary.updatedAt = now;
+      draft.organizerAdmins.push({
+        ...inactivePrimary,
+        id: activeAdminId,
+        email: activeAdminEmail,
+        name: "Current Admin",
+        isPrimary: false,
+        isActive: true,
+        lastLoginAt: null,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        createdAt: nextCreatedAt,
+        updatedAt: nextCreatedAt
+      });
+    });
+
+    const settingsBefore = await getOrganizerSettingsAdmin("alpine-trail-lab");
+
+    expect(settingsBefore.primaryAdmin.email).toBe(activeAdminEmail);
+
+    await updateOrganizerSettings(
+      "alpine-trail-lab",
+      {
+        name: organizer.name,
+        city: organizer.city,
+        region: organizer.region,
+        publicEmail: organizer.publicEmail,
+        interestEmail: organizer.interestEmail,
+        adminEmail: renamedAdminEmail,
+        adminName: "Renamed Admin"
+      },
+      activeAdminId
+    );
+
+    const state = await loadPersistentState();
+    const inactivePrimary = state.organizerAdmins.find(
+      (entry) => entry.id === originalPrimaryAdmin.id
+    );
+    const activeAdmin = state.organizerAdmins.find((entry) => entry.id === activeAdminId);
+    const settingsAfter = await getOrganizerSettingsAdmin("alpine-trail-lab");
+    const login = await authenticateOrganizerAdmin(
+      "alpine-trail-lab",
+      renamedAdminEmail,
+      DEFAULT_LOCAL_PASSWORD
+    );
+
+    expect(inactivePrimary.email).toBe(originalPrimaryAdmin.email);
+    expect(activeAdmin.email).toBe(renamedAdminEmail);
+    expect(activeAdmin.name).toBe("Renamed Admin");
+    expect(settingsAfter.primaryAdmin.email).toBe(renamedAdminEmail);
+    expect(login?.admin.id).toBe(activeAdminId);
+    expect(
+      await authenticateOrganizerAdmin(
+        "alpine-trail-lab",
+        activeAdminEmail,
+        DEFAULT_LOCAL_PASSWORD
+      )
+    ).toBeNull();
   });
 });
