@@ -64,8 +64,8 @@ export default async function PlatformAdminOverviewPage() {
             {overview.summary.pendingApplicationsCount}
           </div>
           <div className="admin-shell-note">
-            <strong>{isItalian ? "Mailbox non lette" : "Unread mailbox"}</strong>
-            {overview.summary.unreadMailboxCount}
+            <strong>{isItalian ? "Reminder organizer attivi" : "Organizer reminder opt-ins"}</strong>
+            {overview.summary.organizerReminderOptInCount}
           </div>
           <div className="admin-shell-note">
             <strong>{isItalian ? "Template email" : "Email templates"}</strong>

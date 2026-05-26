@@ -104,7 +104,7 @@ export default async function HomePage({ searchParams }) {
                       />
                       <Link
                         className="button h-full w-full rounded-none rounded-r-[1.7rem] border-0 border-l border-white/10 bg-white/[0.03] px-4 text-center text-sm font-medium leading-tight text-white/82 hover:bg-white/[0.08] hover:text-white sm:px-6 sm:text-base"
-                        href="/admin/login"
+                        href="/organizer-access"
                       >
                         {dictionary.home.organizerCta}
                       </Link>

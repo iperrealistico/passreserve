@@ -1,10 +1,33 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 
 import { submitOrganizerRequestRedirectAction } from "./actions.js";
 
 const MODAL_CLOSE_MS = 220;
+
+function createSubmissionId() {
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `organizer-request-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function OrganizerRequestSubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      className="button button-primary button-compact button-small home-modal-submit"
+      disabled={pending}
+      type="submit"
+    >
+      {pending ? "Sending..." : "Send request"}
+    </button>
+  );
+}
 
 export function HomeOrganizerRequestModal({
   launchWindows,
@@ -18,7 +41,8 @@ export function HomeOrganizerRequestModal({
   const [open, setOpen] = useState(false);
   const [modalState, setModalState] = useState("closed");
   const [formInstanceKey, setFormInstanceKey] = useState(0);
-  const [formStartedAt, setFormStartedAt] = useState(() => String(Date.now()));
+  const [formStartedAt, setFormStartedAt] = useState("");
+  const [submissionId, setSubmissionId] = useState("");
 
   const finishClose = () => {
     const dialog = dialogRef.current;
@@ -146,6 +170,7 @@ export function HomeOrganizerRequestModal({
           }
 
           setFormStartedAt(String(Date.now()));
+          setSubmissionId(createSubmissionId());
           setFormInstanceKey((current) => current + 1);
           setModalState("opening");
           setOpen(true);
@@ -177,6 +202,7 @@ export function HomeOrganizerRequestModal({
 
           <form action={submitOrganizerRequestRedirectAction} className="registration-field-grid home-modal-form">
             <input name="formStartedAt" readOnly type="hidden" value={formStartedAt} />
+            <input name="submissionId" readOnly type="hidden" value={submissionId} />
             <div
               aria-hidden="true"
               style={{
@@ -263,9 +289,7 @@ export function HomeOrganizerRequestModal({
             </div>
 
             <div className="home-modal-actions" style={{ gridColumn: "1 / -1" }}>
-              <button className="button button-primary button-compact button-small home-modal-submit" type="submit">
-                Send request
-              </button>
+              <OrganizerRequestSubmitButton />
               <button
                 className="button button-secondary button-compact button-small home-modal-cancel"
                 onClick={requestClose}

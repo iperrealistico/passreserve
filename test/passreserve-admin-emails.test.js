@@ -2,11 +2,12 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   getOrganizerSettingsAdmin,
   saveOrganizerOccurrence,
+  sendOrganizerDirectEmailFromPlatform,
   updateOrganizerRegistration,
   updateOrganizerSettings
 } from "../lib/passreserve-admin-service.js";
@@ -22,6 +23,12 @@ beforeEach(async () => {
   await fs.rm(process.env.PASSRESERVE_STATE_FILE, {
     force: true
   });
+});
+
+afterEach(() => {
+  delete process.env.RESEND_API_KEY;
+  delete process.env.FROM_EMAIL;
+  vi.unstubAllGlobals();
 });
 
 describe("passreserve admin email lifecycle", () => {
@@ -198,5 +205,66 @@ describe("passreserve admin email lifecycle", () => {
         DEFAULT_LOCAL_PASSWORD
       )
     ).toBeNull();
+  });
+
+  it("sends a direct organizer email from the default platform sender and logs it", async () => {
+    process.env.RESEND_API_KEY = "re_test";
+    process.env.FROM_EMAIL = "notifications@passreserve.com";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          id: "email-direct-1"
+        })
+      })
+    );
+
+    const stateBefore = await loadPersistentState();
+    const expectedRecipient = stateBefore.organizerAdmins.find(
+      (entry) => entry.organizerId === "org-alpine-trail-lab" && entry.isPrimary
+    )?.email;
+    const result = await sendOrganizerDirectEmailFromPlatform(
+      "alpine-trail-lab",
+      {
+        subject: "Quick platform follow-up",
+        body: "Hello organizer,\n\nWe need one detail from you."
+      },
+      "platform-admin-1"
+    );
+
+    expect(result).toMatchObject({
+      ok: true
+    });
+    expect(fetch).toHaveBeenCalledOnce();
+
+    const [, request] = fetch.mock.calls[0];
+    const payload = JSON.parse(request.body);
+
+    expect(payload).toMatchObject({
+      from: "direct@passreserve.com",
+      to: expectedRecipient,
+      subject: "Quick platform follow-up",
+      text: "Hello organizer,\n\nWe need one detail from you."
+    });
+
+    const state = await loadPersistentState();
+
+    expect(
+      state.emailDeliveries.some(
+        (entry) =>
+          entry.templateSlug === "platform_direct_message" &&
+          entry.organizerId === "org-alpine-trail-lab" &&
+          entry.recipientEmail === expectedRecipient &&
+          entry.metadata?.fromEmail === "direct@passreserve.com"
+      )
+    ).toBe(true);
+    expect(
+      state.auditLogs.some(
+        (entry) =>
+          entry.eventType === "platform_direct_email_sent" &&
+          entry.organizerId === "org-alpine-trail-lab"
+      )
+    ).toBe(true);
   });
 });

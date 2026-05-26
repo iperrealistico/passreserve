@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   confirmRegistrationHold,
@@ -15,6 +15,8 @@ import {
 import { loadPersistentState, mutatePersistentState } from "../lib/passreserve-state.js";
 
 beforeEach(async () => {
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date("2026-04-01T09:00:00.000Z"));
   process.env.PASSRESERVE_STATE_FILE = path.join(
     os.tmpdir(),
     `passreserve-registrations-${Date.now()}-${Math.random()}.json`
@@ -22,6 +24,10 @@ beforeEach(async () => {
   await fs.rm(process.env.PASSRESERVE_STATE_FILE, {
     force: true
   });
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 async function createInput(slug, eventSlug, overrides = {}) {

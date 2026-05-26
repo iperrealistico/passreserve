@@ -1,7 +1,10 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  buildStripeRefundIdempotencyKey,
+  buildStripeRefundRequest,
   buildStripeCheckoutSessionRequest,
+  createStripeRefund,
   formatCurrencyFromMinorUnits,
   getStripeEnvironmentState
 } from "../lib/passreserve-payments";
@@ -90,5 +93,144 @@ describe("passreserve-payments", () => {
     });
     expect(request.params.payment_intent_data.application_fee_amount).toBeUndefined();
     expect(request.params.metadata.connected_account_id).toBe("acct_123");
+  });
+
+  it("builds a stable Stripe refund idempotency key within Stripe limits", () => {
+    const key = buildStripeRefundIdempotencyKey({
+      action: "organizer_cancel",
+      registrationId: "reg_123",
+      paymentIntentId:
+        "pi_1234567890abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
+      amountCents: 3900,
+      reason: "organizer_cancelled"
+    });
+
+    expect(key).toBe(
+      buildStripeRefundIdempotencyKey({
+        action: "organizer_cancel",
+        registrationId: "reg_123",
+        paymentIntentId:
+          "pi_1234567890abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz",
+        amountCents: 3900,
+        reason: "organizer_cancelled"
+      })
+    );
+    expect(key).toContain("passreserve:refund:organizer_cancel:reg_123:3900:organizer_cancelled");
+    expect(key.length).toBeLessThanOrEqual(255);
+  });
+
+  it("builds direct-charge refund requests with account context and idempotency", () => {
+    const request = buildStripeRefundRequest({
+      amountCents: 3900,
+      paymentIntentId: "pi_123",
+      stripeAccountId: "acct_123",
+      idempotencyKey: "passreserve:refund:reg_123:3900",
+      metadata: {
+        registration_id: "reg_123",
+        actor_id: "admin_123",
+        empty_value: ""
+      },
+      reason: "requested_by_customer"
+    });
+
+    expect(request).toEqual({
+      params: {
+        amount: 3900,
+        payment_intent: "pi_123",
+        metadata: {
+          registration_id: "reg_123",
+          actor_id: "admin_123"
+        },
+        reason: "requested_by_customer"
+      },
+      requestOptions: {
+        stripeAccount: "acct_123",
+        idempotencyKey: "passreserve:refund:reg_123:3900"
+      }
+    });
+  });
+
+  it("returns an explicit preview refund shape when Stripe is unavailable", async () => {
+    delete process.env.STRIPE_SECRET_KEY;
+
+    const refund = await createStripeRefund({
+      amountCents: 3900,
+      paymentIntentId: "pi_preview_123",
+      stripeAccountId: "acct_preview_123",
+      idempotencyKey: "refund-preview-key",
+      metadata: {
+        registration_id: "reg_preview_123"
+      }
+    });
+
+    expect(refund).toMatchObject({
+      mode: "preview",
+      refundId: null,
+      status: "preview",
+      amountCents: 3900,
+      paymentIntentId: "pi_preview_123",
+      stripeAccountId: "acct_preview_123",
+      idempotencyKey: "refund-preview-key"
+    });
+  });
+
+  it("creates Stripe refunds against the connected account with idempotency", async () => {
+    const fakeClient = {
+      refunds: {
+        create: vi.fn().mockResolvedValue({
+          id: "re_123",
+          status: "pending",
+          amount: 3900,
+          currency: "eur",
+          charge: "ch_123",
+          payment_intent: "pi_123",
+          reason: null,
+          failure_reason: null,
+          metadata: {
+            registration_id: "reg_123"
+          },
+          created: 1770000000
+        })
+      }
+    };
+
+    const refund = await createStripeRefund(
+      {
+        amountCents: 3900,
+        paymentIntentId: "pi_123",
+        stripeAccountId: "acct_123",
+        idempotencyKey: "refund-live-key",
+        metadata: {
+          registration_id: "reg_123"
+        }
+      },
+      {
+        stripeClient: fakeClient
+      }
+    );
+
+    expect(fakeClient.refunds.create).toHaveBeenCalledWith(
+      {
+        amount: 3900,
+        payment_intent: "pi_123",
+        metadata: {
+          registration_id: "reg_123"
+        }
+      },
+      {
+        stripeAccount: "acct_123",
+        idempotencyKey: "refund-live-key"
+      }
+    );
+    expect(refund).toMatchObject({
+      mode: "live",
+      refundId: "re_123",
+      status: "pending",
+      amountCents: 3900,
+      chargeId: "ch_123",
+      paymentIntentId: "pi_123",
+      stripeAccountId: "acct_123",
+      idempotencyKey: "refund-live-key"
+    });
   });
 });

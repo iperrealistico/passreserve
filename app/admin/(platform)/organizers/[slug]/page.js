@@ -5,6 +5,7 @@ import { getPlatformOrganizerDetail } from "../../../../../lib/passreserve-admin
 import {
   deleteOrganizerAction,
   openOrganizerDashboardAction,
+  sendOrganizerDirectEmailAction,
   sendOrganizerResetFromPlatformAction,
   setOrganizerPasswordFromPlatformAction,
   suspendOrganizerAction,
@@ -35,6 +36,11 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
       {query.message === "password-updated" ? (
         <div className="registration-message registration-message-success">
           Organizer password updated successfully.
+        </div>
+      ) : null}
+      {query.message === "direct-email-sent" ? (
+        <div className="registration-message registration-message-success">
+          Direct organizer email sent successfully.
         </div>
       ) : null}
       {query.message === "status-updated" ? (
@@ -204,6 +210,70 @@ export default async function PlatformOrganizerDetailPage({ params, searchParams
               </div>
             ))}
           </div>
+        </article>
+
+        <article className="panel section-card admin-section">
+          <div className="section-kicker">Direct outreach</div>
+          <h3>Email organizer directly</h3>
+          <p>
+            Send a custom plain-text message from the platform. The sender must stay on
+            @{detail.directEmail.senderDomain || "your configured Resend domain"}.
+          </p>
+          <div className="pill-list">
+            <span className="pill">
+              {detail.directEmail.configured ? "Resend direct sender ready" : "Resend direct sender missing"}
+            </span>
+            <span className="pill">
+              {detail.directEmail.defaultToEmail || "No organizer contact email detected"}
+            </span>
+          </div>
+          {!detail.directEmail.configured ? (
+            <div className="registration-message registration-message-error">
+              Configure `RESEND_API_KEY` and `FROM_EMAIL` before sending direct organizer emails.
+            </div>
+          ) : null}
+          <form action={sendOrganizerDirectEmailAction} className="registration-panel-stack">
+            <input name="slug" type="hidden" value={slug} />
+            <label className="field">
+              <span>To</span>
+              <input
+                defaultValue={detail.directEmail.defaultToEmail}
+                name="toEmail"
+                placeholder="organizer@example.com"
+                type="email"
+              />
+            </label>
+            <label className="field">
+              <span>From</span>
+              <input
+                defaultValue={detail.directEmail.defaultFromEmail}
+                name="fromEmail"
+                placeholder={detail.directEmail.defaultFromEmail || "direct@yourdomain.com"}
+                type="email"
+              />
+            </label>
+            <label className="field">
+              <span>Subject</span>
+              <input name="subject" placeholder="Quick follow-up from Passreserve" type="text" />
+            </label>
+            <label className="field">
+              <span>Body</span>
+              <textarea
+                name="body"
+                placeholder="Write the message you want the organizer to receive."
+                rows="8"
+              />
+            </label>
+            <div className="hero-actions">
+              <button
+                className="button button-primary"
+                disabled={!detail.directEmail.configured}
+                type="submit"
+              >
+                Send direct email
+              </button>
+            </div>
+          </form>
         </article>
 
         <article className="panel section-card admin-section">

@@ -43,6 +43,12 @@ enum RegistrationStatus {
   CANCELLED
 }
 
+enum RegistrationSource {
+  PUBLIC
+  ORGANIZER_MANUAL
+  IMPORT
+}
+
 enum JoinRequestStatus {
   PENDING
   APPROVED
@@ -341,6 +347,8 @@ model Registration {
   attendeeEmail        String
   attendeePhone        String
   registrationLocale   String             @default("en")
+  source               RegistrationSource @default(PUBLIC)
+  origin               String             @default("")
   quantity             Int
   currency             String             @default("EUR")
   subtotalCents        Int

@@ -28,7 +28,7 @@ export default async function PlatformSettingsPage({ searchParams }) {
           <input defaultValue={siteSettings.platformEmail} name="platformEmail" type="email" />
         </label>
         <label className="field">
-          <span>Launch inbox</span>
+          <span>Support inbox</span>
           <input defaultValue={siteSettings.launchInbox} name="launchInbox" type="email" />
         </label>
         <label className="field">

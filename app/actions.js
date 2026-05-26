@@ -10,7 +10,8 @@ import {
 import {
   consumeOrganizerRequestCaptchaToken,
   consumeOrganizerRequestEmailRateLimit,
-  consumeOrganizerRequestRateLimit
+  consumeOrganizerRequestRateLimit,
+  consumeOrganizerRequestSubmissionToken
 } from "../lib/passreserve-auth-security.js";
 import { submitOrganizerRequest } from "../lib/passreserve-service.js";
 
@@ -67,6 +68,10 @@ function buildOrganizerRequestPayload(formData) {
   };
 }
 
+function getSubmissionId(formData) {
+  return toValue(formData, "submissionId");
+}
+
 function isLikelyBotSubmission(formData) {
   return Boolean(toValue(formData, "companyWebsite"));
 }
@@ -94,6 +99,7 @@ function buildIgnoredRequestResult(payload) {
 
 async function submitProtectedOrganizerRequest(formData) {
   const payload = buildOrganizerRequestPayload(formData);
+  const submissionId = getSubmissionId(formData);
   const fieldErrors = validateOrganizerRequest(payload);
 
   if (Object.keys(fieldErrors).length) {
@@ -155,6 +161,16 @@ async function submitProtectedOrganizerRequest(formData) {
       fieldErrors: {},
       message: "This verification token was already used. Please reopen the form and try again."
     };
+  }
+
+  if (submissionId) {
+    const submissionCheck = await consumeOrganizerRequestSubmissionToken(submissionId, {
+      windowSeconds: ORGANIZER_REQUEST_ALTCHA_WINDOW_SECONDS
+    });
+
+    if (!submissionCheck.success) {
+      return buildIgnoredRequestResult(payload);
+    }
   }
 
   return submitOrganizerRequest(payload);

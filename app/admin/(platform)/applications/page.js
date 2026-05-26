@@ -28,7 +28,7 @@ export default async function PlatformApplicationsPage({ searchParams }) {
             <div className="section-kicker">Applications</div>
             <h2>Provisioning audit and signup outcomes</h2>
             <p className="admin-page-lead">
-              This view tracks organizer signup outcomes separately from the shared mailbox. Use it to inspect duplicates, failed onboarding email deliveries, and linked organizer records.
+              This view tracks organizer signup outcomes directly in Passreserve. Use it to inspect duplicates, failed onboarding email deliveries, and linked organizer records.
             </p>
           </div>
           <div className="pill-list">

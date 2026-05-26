@@ -107,8 +107,8 @@ export default async function PlatformAdminLayout({ children }) {
                   <strong>{overview.summary.pendingApplicationsCount}</strong>
                 </div>
                 <div className="admin-summary-card">
-                  <span className="metric-label">{isItalian ? "Mailbox non lette" : "Unread mailbox"}</span>
-                  <strong>{overview.summary.unreadMailboxCount}</strong>
+                  <span className="metric-label">{isItalian ? "Organizer con reminder" : "Reminder opt-ins"}</span>
+                  <strong>{overview.summary.organizerReminderOptInCount}</strong>
                 </div>
               </div>
 

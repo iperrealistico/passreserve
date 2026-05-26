@@ -8,7 +8,7 @@ export function PublicFooter({ locale = "en", dictionary }) {
     { href: "/", label: dictionary.nav.discover },
     { href: "/events", label: dictionary.nav.events },
     { href: "/about", label: dictionary.nav.about },
-    { href: "/admin/login", label: dictionary.nav.organizerAccess }
+    { href: "/organizer-access", label: dictionary.nav.organizerAccess }
   ];
 
   return (

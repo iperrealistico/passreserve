@@ -6,32 +6,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { loadPersistentState, mutatePersistentState } from "../lib/passreserve-state.js";
 
-function buildReceivedEmail(overrides = {}) {
-  return {
-    from: "Taylor Guest <taylor@example.com>",
-    to: ["Passreserve <contact@leonardofiori.it>"],
-    cc: [],
-    reply_to: ["Taylor Guest <taylor@example.com>"],
-    subject: "Question about workshops",
-    text: "Hello from the guest.",
-    html: "<p>Hello from the guest.</p>",
-    message_id: "message-in-1",
-    headers: {},
-    created_at: "2026-04-27T09:00:00.000Z",
-    attachments: [
-      {
-        id: "resend-attachment-1",
-        filename: "brief.pdf",
-        content_type: "application/pdf",
-        content_disposition: "attachment",
-        content_id: "cid-1",
-        size: 1024
-      }
-    ],
-    ...overrides
-  };
-}
-
 beforeEach(async () => {
   vi.restoreAllMocks();
   vi.resetModules();
@@ -56,26 +30,8 @@ afterEach(() => {
 });
 
 describe("shared mailbox", () => {
-  it("stores inbound Resend webhook emails as mailbox threads, messages, and attachment metadata", async () => {
-    const verifiedEvent = {
-      type: "email.received",
-      data: {
-        email_id: "email-received-1"
-      }
-    };
-
-    vi.doMock("../lib/passreserve-resend.js", async () => {
-      const actual = await vi.importActual("../lib/passreserve-resend.js");
-
-      return {
-        ...actual,
-        verifyResendWebhookPayload: vi.fn().mockResolvedValue(verifiedEvent),
-        getReceivedEmailById: vi.fn().mockResolvedValue(buildReceivedEmail())
-      };
-    });
-
+  it("returns 410 for the retired inbound mailbox webhook route", async () => {
     const { POST } = await import("../app/api/resend/inbound/route.js");
-
     const response = await POST(
       new Request("http://localhost/api/resend/inbound", {
         method: "POST",
@@ -84,40 +40,22 @@ describe("shared mailbox", () => {
           "svix-timestamp": "1714208400",
           "svix-signature": "v1,test"
         },
-        body: JSON.stringify(verifiedEvent)
+        body: JSON.stringify({
+          type: "email.received"
+        })
       })
     );
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(410);
     expect(await response.json()).toMatchObject({
-      ok: true,
-      received: true
+      ok: false,
+      retired: true
     });
 
     const state = await loadPersistentState();
-    const thread = state.mailboxThreads[0];
-    const message = state.mailboxMessages[0];
-    const attachment = state.mailboxAttachments[0];
-
-    expect(thread).toMatchObject({
-      participantEmail: "taylor@example.com",
-      subject: "Question about workshops",
-      unreadCount: 1
-    });
-    expect(message).toMatchObject({
-      threadId: thread.id,
-      direction: "INBOUND",
-      resendEmailId: "email-received-1",
-      messageId: "message-in-1",
-      textBody: "Hello from the guest."
-    });
-    expect(attachment).toMatchObject({
-      messageId: message.id,
-      resendAttachmentId: "resend-attachment-1",
-      resendEmailId: "email-received-1",
-      filename: "brief.pdf",
-      contentType: "application/pdf"
-    });
+    expect(state.mailboxThreads).toHaveLength(0);
+    expect(state.mailboxMessages).toHaveLength(0);
+    expect(state.mailboxAttachments).toHaveLength(0);
   });
 
   it("sends shared mailbox replies through Resend and stores the outbound reply history", async () => {

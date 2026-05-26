@@ -9,6 +9,7 @@ import {
   getOrganizerImpersonationTarget,
   markAdminLogin,
   resendOrganizerApplicationAccessFromPlatform,
+  sendOrganizerDirectEmailFromPlatform,
   setOrganizerAdminPasswordFromPlatform,
   suspendOrganizerFromPlatform,
   updateOrganizerBillingSettings,
@@ -17,7 +18,6 @@ import {
   updateSiteSettings
 } from "../../lib/passreserve-admin-service.js";
 import { getBaseUrl } from "../../lib/passreserve-config.js";
-import { sendSharedMailboxReply } from "../../lib/passreserve-mailbox.js";
 import {
   authenticatePlatformAdmin,
   requestOrganizerPasswordReset,
@@ -193,18 +193,25 @@ export async function resendOrganizerAccessAction(formData) {
   redirect("/admin/applications?message=resent");
 }
 
-export async function sendMailboxReplyAction(formData) {
+export async function sendOrganizerDirectEmailAction(formData) {
   const user = await requirePlatformAdminSession();
-  const threadId = value(formData, "threadId");
-  const result = await sendSharedMailboxReply(threadId, value(formData, "body"), user.userId);
+  const slug = value(formData, "slug");
+  const result = await sendOrganizerDirectEmailFromPlatform(
+    slug,
+    {
+      toEmail: value(formData, "toEmail"),
+      fromEmail: value(formData, "fromEmail"),
+      subject: value(formData, "subject"),
+      body: value(formData, "body")
+    },
+    user.userId
+  );
 
   if (!result.ok) {
-    redirect(
-      `/admin/emails?tab=mailbox&thread=${encodeURIComponent(threadId)}&error=${encodeURIComponent(result.message)}`
-    );
+    redirect(`/admin/organizers/${slug}?error=${encodeURIComponent(result.message)}`);
   }
 
-  redirect(`/admin/emails?tab=mailbox&thread=${encodeURIComponent(threadId)}&message=reply-sent`);
+  redirect(`/admin/organizers/${slug}?message=direct-email-sent`);
 }
 
 export async function updateOrganizerBillingAction(formData) {

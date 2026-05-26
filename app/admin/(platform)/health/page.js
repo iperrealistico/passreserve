@@ -42,7 +42,16 @@ export default async function PlatformHealthPage() {
           <div className="pill-list">
             <span className="pill">{health.email.outboundModeLabel}</span>
             <span className="pill">
-              {dictionary.health.inbound}: {dictionary.health.outboundOnly}
+              {isItalian
+                ? health.email.reminderSchedulerConfigured
+                  ? "Cron reminders ok"
+                  : "Cron reminders da configurare"
+                : health.email.reminderSchedulerConfigured
+                  ? "Reminder cron ready"
+                  : "Reminder cron pending"}
+            </span>
+            <span className="pill">
+              {dictionary.health.inbound}: {health.email.inboundModeLabel}
             </span>
           </div>
         </div>
@@ -79,8 +88,8 @@ export default async function PlatformHealthPage() {
           <div className="section-kicker">{isItalian ? "Stato email" : "Email readiness"}</div>
           <h3>
             {isItalian
-              ? "Invio operativo, ricezione non implementata"
-              : "Outbound ready, inbound not implemented"}
+              ? "Invio operativo, inbound gestito fuori da Passreserve"
+              : "Outbound ready, inbound handled outside Passreserve"}
           </h3>
           <div className="admin-note-list">
             <div className="admin-note-item">
@@ -89,7 +98,23 @@ export default async function PlatformHealthPage() {
             </div>
             <div className="admin-note-item">
               <span className="spotlight-label">{dictionary.health.inbound}</span>
-              <strong>{dictionary.health.outboundOnly}</strong>
+              <strong>{health.email.inboundModeLabel}</strong>
+            </div>
+            <div className="admin-note-item">
+              <span className="spotlight-label">{isItalian ? "Scheduler reminder" : "Reminder scheduler"}</span>
+              <strong>
+                {health.email.reminderSchedulerConfigured
+                  ? isItalian
+                    ? "Configurato"
+                    : "Configured"
+                  : isItalian
+                    ? "CRON_SECRET mancante"
+                    : "CRON_SECRET missing"}
+              </strong>
+            </div>
+            <div className="admin-note-item">
+              <span className="spotlight-label">{isItalian ? "Organizer opt-in" : "Organizer opt-ins"}</span>
+              <strong>{health.email.organizerReminderOptInCount}</strong>
             </div>
             <div className="admin-note-item">
               <span className="spotlight-label">{isItalian ? "Fallimenti recenti" : "Recent failures"}</span>

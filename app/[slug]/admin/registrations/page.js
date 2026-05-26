@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { OrganizerRegistrationCancelModal } from "./organizer-registration-cancel-modal.js";
 import {
   getOrganizerEventsAdmin,
   getOrganizerRegistrationsAdmin
@@ -21,6 +22,8 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 
 const focusOptions = ["all", "open", "payments", "history"];
 const registrationViews = new Set(["compact", "table", "detail", "event-day"]);
+const registrationSourceOptions = new Set(["all", "PUBLIC", "ORGANIZER_MANUAL", "IMPORT"]);
+const registrationOriginOptions = new Set(["all", "walk-in", "phone", "email", "staff"]);
 
 function formatCurrencyFromCents(cents) {
   return currencyFormatter.format((cents || 0) / 100);
@@ -47,6 +50,30 @@ function buildRegistrationsHref(slug, query = {}, updates = {}) {
   return `/${slug}/admin/registrations${serialized ? `?${serialized}` : ""}`;
 }
 
+function buildManualRegistrationHref(slug, query = {}, updates = {}) {
+  const params = new URLSearchParams();
+  const defaults = {
+    event: typeof query.event === "string" ? query.event : "",
+    occurrence: typeof query.occurrence === "string" ? query.occurrence : "",
+    registrationLocale:
+      typeof query.registrationLocale === "string" ? query.registrationLocale : "",
+    origin: typeof query.origin === "string" ? query.origin : "",
+    mode: typeof query.mode === "string" ? query.mode : ""
+  };
+
+  for (const [key, value] of Object.entries({
+    ...defaults,
+    ...updates
+  })) {
+    if (typeof value === "string" && value) {
+      params.set(key, value);
+    }
+  }
+
+  const serialized = params.toString();
+  return `/${slug}/admin/registrations/new${serialized ? `?${serialized}` : ""}`;
+}
+
 function getVisibleRegistrations(registrations, focus) {
   switch (focus) {
     case "open":
@@ -57,7 +84,14 @@ function getVisibleRegistrations(registrations, focus) {
     case "payments":
       return registrations.filter(
         (registration) =>
-          registration.dueAtEventOpenCents > 0 || registration.status === "PENDING_PAYMENT"
+          registration.dueAtEventOpenCents > 0 ||
+          registration.status === "PENDING_PAYMENT" ||
+          Boolean(
+            registration.refundSummary &&
+              (registration.refundSummary.highlighted ||
+                registration.refundSummary.pendingRefundCents > 0 ||
+                registration.refundSummary.alreadyRefundedCents > 0)
+          )
       );
     case "history":
       return registrations.filter((registration) =>
@@ -68,11 +102,62 @@ function getVisibleRegistrations(registrations, focus) {
   }
 }
 
+function getSourceFilterLabel(source, isItalian) {
+  if (source === "ORGANIZER_MANUAL") {
+    return isItalian ? "Inserite dallo staff" : "Staff entry";
+  }
+
+  if (source === "IMPORT") {
+    return isItalian ? "Importate" : "Imported";
+  }
+
+  if (source === "PUBLIC") {
+    return isItalian ? "Pubbliche" : "Public";
+  }
+
+  return isItalian ? "Tutte" : "All";
+}
+
+function getOriginFilterLabel(origin, isItalian) {
+  if (origin === "walk-in") {
+    return "Walk-in";
+  }
+
+  if (origin === "phone") {
+    return isItalian ? "Telefono" : "Phone";
+  }
+
+  if (origin === "email") {
+    return "Email";
+  }
+
+  if (origin === "staff") {
+    return "Staff";
+  }
+
+  return isItalian ? "Tutte" : "All";
+}
+
+function getFilteredRegistrationsByEntry(registrations, sourceFilter, originFilter) {
+  return registrations.filter((registration) => {
+    if (sourceFilter !== "all" && registration.source !== sourceFilter) {
+      return false;
+    }
+
+    if (originFilter !== "all" && registration.origin !== originFilter) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
 function formatRegistrationActionLabel(action, isItalian) {
   const labels = {
     mark_paid: isItalian ? "Segna come pagata" : "Mark paid",
     mark_attended: isItalian ? "Segna presente" : "Mark attended",
     mark_no_show: isItalian ? "Segna no-show" : "Mark no-show",
+    retry_refund: isItalian ? "Riprova rimborso" : "Retry refund",
     cancel: isItalian ? "Cancella" : "Cancel"
   };
 
@@ -110,9 +195,77 @@ function isClosedRegistration(registration) {
   return ["ATTENDED", "NO_SHOW", "CANCELLED"].includes(registration.status);
 }
 
+function shouldShowRefundBadge(registration) {
+  return Boolean(registration?.refundSummary?.highlighted);
+}
+
+function RefundSummaryCallout({ registration, force = false, heading }) {
+  const refund = registration?.refundSummary;
+
+  if (!refund || (!force && !refund.highlighted)) {
+    return null;
+  }
+
+  return (
+    <div className={`admin-refund-callout admin-refund-callout-${refund.tone}`}>
+      <div className="admin-refund-callout-head">
+        <div className="admin-refund-callout-copy">
+          <span className="spotlight-label">{heading}</span>
+          <strong>{refund.statusLabel}</strong>
+        </div>
+        {refund.amountLabel ? <strong className="admin-refund-callout-amount">{refund.amountLabel}</strong> : null}
+      </div>
+      <p>{refund.detailLabel}</p>
+    </div>
+  );
+}
+
+function RegistrationActionButton({
+  action,
+  isItalian,
+  registration,
+  returnTo,
+  selectedEvent,
+  selectedOccurrence,
+  slug
+}) {
+  if (action === "cancel") {
+    return (
+      <OrganizerRegistrationCancelModal
+        isItalian={isItalian}
+        registration={registration}
+        returnTo={returnTo}
+        selectedEvent={selectedEvent}
+        selectedOccurrence={selectedOccurrence}
+        slug={slug}
+        triggerClassName="button-secondary button-danger"
+        triggerLabel={formatRegistrationActionLabel(action, isItalian)}
+      />
+    );
+  }
+
+  return (
+    <form action={updateOrganizerRegistrationAction}>
+      <input name="eventFilter" type="hidden" value={selectedEvent} />
+      <input name="occurrenceFilter" type="hidden" value={selectedOccurrence} />
+      <input name="slug" type="hidden" value={slug} />
+      <input name="registrationId" type="hidden" value={registration.id} />
+      <input name="action" type="hidden" value={action} />
+      <input name="returnTo" type="hidden" value={returnTo} />
+      <button
+        className={`button ${action === "retry_refund" ? "button-primary" : "button-secondary"}`}
+        type="submit"
+      >
+        {formatRegistrationActionLabel(action, isItalian)}
+      </button>
+    </form>
+  );
+}
+
 function RegistrationDetailPanel({
   registration,
   isItalian,
+  returnTo,
   slug,
   selectedEvent,
   selectedOccurrence
@@ -137,6 +290,17 @@ function RegistrationDetailPanel({
           <span className="admin-badge admin-badge-public">
             {registration.registrationLocale.toUpperCase()}
           </span>
+          <span className={`admin-badge admin-badge-${registration.sourceTone}`}>
+            {registration.sourceLabel}
+          </span>
+          <span className={`admin-badge admin-badge-${registration.originTone}`}>
+            {registration.originLabel}
+          </span>
+          {shouldShowRefundBadge(registration) ? (
+            <span className={`admin-badge admin-badge-${registration.refundSummary.tone}`}>
+              {registration.refundSummary.statusLabel}
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -165,13 +329,28 @@ function RegistrationDetailPanel({
           <span className="metric-label">{isItalian ? "Ancora da incassare" : "Still due"}</span>
           <strong>{registration.dueAtEventOpenLabel}</strong>
         </div>
+        <div>
+          <span className="metric-label">{isItalian ? "Stato rimborso" : "Refund state"}</span>
+          <strong>{registration.refundSummary.statusLabel}</strong>
+        </div>
       </div>
+
+      <RefundSummaryCallout
+        force
+        heading={isItalian ? "Rimborso online" : "Online refund"}
+        registration={registration}
+      />
 
       <div className="admin-note-list">
         <div className="admin-note-item">
           <span className="spotlight-label">{isItalian ? "Lead contact" : "Lead contact"}</span>
           <strong>{registration.attendeeEmail}</strong>
           <p>{registration.attendeePhone}</p>
+        </div>
+        <div className="admin-note-item">
+          <span className="spotlight-label">{isItalian ? "Provenienza" : "Source"}</span>
+          <strong>{registration.sourceLabel}</strong>
+          <p>{registration.originLabel}</p>
         </div>
         <div className="admin-note-item">
           <span className="spotlight-label">
@@ -186,6 +365,12 @@ function RegistrationDetailPanel({
                 : "No restrictions"}
           </p>
         </div>
+        {registration.note ? (
+          <div className="admin-note-item">
+            <span className="spotlight-label">{isItalian ? "Nota operativa" : "Operating note"}</span>
+            <strong>{registration.note}</strong>
+          </div>
+        ) : null}
       </div>
 
       <details className="admin-disclosure" open>
@@ -232,9 +417,13 @@ function RegistrationDetailPanel({
             {registration.ledger.map((entry) => (
               <div className="timeline-step" key={entry.id}>
                 <strong>
-                  {entry.amountLabel} · {entry.provider}
+                  {entry.amountLabel} · {entry.kindLabel}
                 </strong>
-                <span>{entry.note}</span>
+                <span className={`admin-badge admin-badge-${entry.statusTone}`}>
+                  {entry.statusLabel}
+                </span>
+                <span>{entry.detailLabel || entry.note}</span>
+                {entry.referenceLabel ? <span>{entry.referenceLabel}</span> : null}
                 <span>{entry.occurredAtLabel}</span>
               </div>
             ))}
@@ -266,6 +455,7 @@ function RegistrationDetailPanel({
           <input name="occurrenceFilter" type="hidden" value={selectedOccurrence} />
           <input name="slug" type="hidden" value={slug} />
           <input name="registrationId" type="hidden" value={registration.id} />
+          <input name="returnTo" type="hidden" value={returnTo} />
           <div className="admin-inline-form-row">
             <label className="field admin-inline-field">
               <span>{isItalian ? "Importo incassato sul posto" : "Amount collected at venue"}</span>
@@ -303,16 +493,16 @@ function RegistrationDetailPanel({
 
       <div className="hero-actions">
         {registration.actions.map((action) => (
-          <form action={updateOrganizerRegistrationAction} key={action}>
-            <input name="eventFilter" type="hidden" value={selectedEvent} />
-            <input name="occurrenceFilter" type="hidden" value={selectedOccurrence} />
-            <input name="slug" type="hidden" value={slug} />
-            <input name="registrationId" type="hidden" value={registration.id} />
-            <input name="action" type="hidden" value={action} />
-            <button className="button button-secondary" type="submit">
-              {formatRegistrationActionLabel(action, isItalian)}
-            </button>
-          </form>
+          <RegistrationActionButton
+            action={action}
+            isItalian={isItalian}
+            key={action}
+            registration={registration}
+            returnTo={returnTo}
+            selectedEvent={selectedEvent}
+            selectedOccurrence={selectedOccurrence}
+            slug={slug}
+          />
         ))}
       </div>
     </article>
@@ -331,6 +521,14 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
   ]);
   const selectedEvent = typeof query.event === "string" ? query.event : "";
   const selectedOccurrence = typeof query.occurrence === "string" ? query.occurrence : "";
+  const selectedSource =
+    typeof query.source === "string" && registrationSourceOptions.has(query.source)
+      ? query.source
+      : "all";
+  const selectedOrigin =
+    typeof query.origin === "string" && registrationOriginOptions.has(query.origin)
+      ? query.origin
+      : "all";
   const requestedView =
     typeof query.view === "string" && registrationViews.has(query.view) ? query.view : "compact";
   const currentFocus =
@@ -349,7 +547,20 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
 
     return true;
   });
-  const registrations = getVisibleRegistrations(scopedRegistrations, currentFocus);
+  const sourceFilteredRegistrations = getFilteredRegistrationsByEntry(
+    scopedRegistrations,
+    selectedSource,
+    selectedOrigin
+  );
+  const registrations = getVisibleRegistrations(sourceFilteredRegistrations, currentFocus);
+  const manualOriginOptions = Array.from(
+    new Set(
+      scopedRegistrations
+        .filter((registration) => registration.source === "ORGANIZER_MANUAL")
+        .map((registration) => registration.origin)
+        .filter(Boolean)
+    )
+  ).sort();
   const currentView =
     requestedView === "event-day" && !selectedOccurrence ? "compact" : requestedView;
   const eventDayMode = currentView === "event-day" && Boolean(selectedOccurrence);
@@ -360,7 +571,9 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
     occurrenceOptions.find((occurrence) => occurrence.id === selectedOccurrence) ?? null;
   const exportBaseHref = `/${slug}/admin/registrations/export?event=${encodeURIComponent(
     selectedEvent
-  )}&occurrence=${encodeURIComponent(selectedOccurrence)}&locale=${encodeURIComponent(locale)}`;
+  )}&occurrence=${encodeURIComponent(selectedOccurrence)}&locale=${encodeURIComponent(
+    locale
+  )}&source=${encodeURIComponent(selectedSource)}&origin=${encodeURIComponent(selectedOrigin)}`;
   const summary = registrations.reduce(
     (accumulator, registration) => {
       const participantCount = getParticipantCount(registration);
@@ -369,6 +582,22 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
       accumulator.participantCount += participantCount;
       accumulator.restrictionsCount += registration.dietary.participantsWithRestrictions || 0;
       accumulator.dueAtVenueCents += registration.dueAtEventOpenCents || 0;
+      if (registration.source === "ORGANIZER_MANUAL") {
+        accumulator.manualCount += 1;
+      }
+      if (registration.refundSummary?.status === "READY") {
+        accumulator.refundReadyCount += 1;
+        accumulator.refundReadyCents += registration.refundSummary.refundableOnlineAmountCents || 0;
+      }
+      if (registration.refundSummary?.status === "PENDING") {
+        accumulator.refundPendingCount += 1;
+        accumulator.refundPendingCents += registration.refundSummary.pendingRefundCents || 0;
+      }
+      if (registration.refundSummary?.status === "FAILED") {
+        accumulator.refundFailedCount += 1;
+        accumulator.refundFailedCents +=
+          registration.refundSummary.refundableOnlineAmountCents || 0;
+      }
 
       return accumulator;
     },
@@ -376,7 +605,14 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
       registrationCount: 0,
       participantCount: 0,
       restrictionsCount: 0,
-      dueAtVenueCents: 0
+      dueAtVenueCents: 0,
+      manualCount: 0,
+      refundReadyCount: 0,
+      refundReadyCents: 0,
+      refundPendingCount: 0,
+      refundPendingCents: 0,
+      refundFailedCount: 0,
+      refundFailedCents: 0
     }
   );
   const orderedRegistrations = [...registrations].sort((left, right) => {
@@ -421,6 +657,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
         registrations[0] ||
         null
       : null;
+  const currentRegistrationsHref = buildRegistrationsHref(slug, query);
 
   return (
     <div className="admin-page">
@@ -430,6 +667,22 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
             ? isItalian
               ? "Pagamento registrato correttamente."
               : "Venue payment recorded successfully."
+            : query.message === "cancelled"
+              ? isItalian
+                ? "Registrazione cancellata."
+                : "Registration cancelled."
+              : query.message === "refund_retry_failed"
+                ? isItalian
+                  ? "Registrazione cancellata, ma il rimborso Stripe non e partito. Controlla il ledger e riprova."
+                  : "The registration stays cancelled, but the Stripe refund did not start. Check the ledger and retry."
+              : query.message === "refund_retried"
+                ? isItalian
+                  ? "Richiesta di rimborso Stripe inviata di nuovo."
+                  : "Stripe refund retry requested successfully."
+              : query.message === "refund_requested"
+                ? isItalian
+                  ? "Registrazione cancellata e rimborso Stripe richiesto."
+                  : "Registration cancelled and Stripe refund requested."
             : isItalian
               ? "Registrazione aggiornata."
               : "Registration updated successfully."}
@@ -453,16 +706,28 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
         filterLabel={isItalian ? "Filtra per evento" : "Filter by event"}
         allEventsLabel={isItalian ? "Tutti gli eventi" : "All events"}
         actions={
-          <Link
-            className="button button-secondary"
-            href={
-              selectedEvent
-                ? `/${slug}/admin/calendar?event=${encodeURIComponent(selectedEvent)}`
-                : `/${slug}/admin/calendar`
-            }
-          >
-            {isItalian ? "Apri programma" : "Open schedule"}
-          </Link>
+          <>
+            <Link
+              className="button button-primary"
+              href={buildManualRegistrationHref(slug, query, {
+                event: selectedEvent || "",
+                occurrence: selectedOccurrence || "",
+                origin: currentView === "event-day" && selectedOccurrence ? "walk-in" : "staff"
+              })}
+            >
+              {isItalian ? "Nuova registrazione" : "New registration"}
+            </Link>
+            <Link
+              className="button button-secondary"
+              href={
+                selectedEvent
+                  ? `/${slug}/admin/calendar?event=${encodeURIComponent(selectedEvent)}`
+                  : `/${slug}/admin/calendar`
+              }
+            >
+              {isItalian ? "Apri programma" : "Open schedule"}
+            </Link>
+          </>
         }
         title={
           selectedOccurrence
@@ -541,6 +806,58 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
             ) : null}
           </div>
         </div>
+
+        <div className="admin-filter-strip">
+          <span className="admin-filter-label">{isItalian ? "Sorgente" : "Source"}</span>
+          <div className="filter-row">
+            {["all", "PUBLIC", "ORGANIZER_MANUAL", "IMPORT"].map((source) => (
+              <Link
+                className={`filter-pill ${selectedSource === source ? "filter-pill-active" : ""}`}
+                href={buildRegistrationsHref(slug, query, {
+                  source: source === "all" ? null : source,
+                  origin: source === "ORGANIZER_MANUAL" ? (selectedOrigin === "all" ? null : selectedOrigin) : null
+                })}
+                key={source}
+              >
+                {getSourceFilterLabel(source, isItalian)}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {manualOriginOptions.length > 0 || selectedOrigin !== "all" ? (
+          <div className="admin-filter-strip">
+            <span className="admin-filter-label">{isItalian ? "Origine" : "Origin"}</span>
+            <div className="filter-row">
+              <Link
+                className={`filter-pill ${selectedOrigin === "all" ? "filter-pill-active" : ""}`}
+                href={buildRegistrationsHref(slug, query, {
+                  origin: null,
+                  source:
+                    selectedSource === "all" || selectedSource === "ORGANIZER_MANUAL"
+                      ? selectedSource === "all"
+                        ? null
+                        : selectedSource
+                      : "ORGANIZER_MANUAL"
+                })}
+              >
+                {getOriginFilterLabel("all", isItalian)}
+              </Link>
+              {manualOriginOptions.map((origin) => (
+                <Link
+                  className={`filter-pill ${selectedOrigin === origin ? "filter-pill-active" : ""}`}
+                  href={buildRegistrationsHref(slug, query, {
+                    source: selectedSource === "all" ? "ORGANIZER_MANUAL" : selectedSource,
+                    origin
+                  })}
+                  key={origin}
+                >
+                  {getOriginFilterLabel(origin, isItalian)}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="admin-summary-grid">
@@ -562,6 +879,37 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
           <span className="metric-label">{isItalian ? "Da incassare" : "Still due"}</span>
           <strong>{formatCurrencyFromCents(summary.dueAtVenueCents)}</strong>
         </article>
+        <article className="admin-summary-card">
+          <span className="metric-label">{isItalian ? "Inserite dallo staff" : "Staff entries"}</span>
+          <strong>{summary.manualCount}</strong>
+        </article>
+        {summary.refundReadyCount > 0 ? (
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Rimborsi disponibili" : "Refund available"}</span>
+            <strong>{formatCurrencyFromCents(summary.refundReadyCents)}</strong>
+            <p className="admin-summary-card-note">
+              {summary.refundReadyCount} {isItalian ? "registrazioni" : "registrations"}
+            </p>
+          </article>
+        ) : null}
+        {summary.refundPendingCount > 0 ? (
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Rimborsi in attesa" : "Refund pending"}</span>
+            <strong>{formatCurrencyFromCents(summary.refundPendingCents)}</strong>
+            <p className="admin-summary-card-note">
+              {summary.refundPendingCount} {isItalian ? "registrazioni" : "registrations"}
+            </p>
+          </article>
+        ) : null}
+        {summary.refundFailedCount > 0 ? (
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Rimborsi falliti" : "Refund failed"}</span>
+            <strong>{formatCurrencyFromCents(summary.refundFailedCents)}</strong>
+            <p className="admin-summary-card-note">
+              {summary.refundFailedCount} {isItalian ? "registrazioni" : "registrations"}
+            </p>
+          </article>
+        ) : null}
       </section>
 
       {selectedEvent && occurrenceOptions.length ? (
@@ -655,6 +1003,19 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
               : "Use this mode during the live event: arrivals, venue balance, quick check-in, and fast attendee closure."}
           </p>
 
+          <div className="hero-actions">
+            <Link
+              className="button button-primary"
+              href={buildManualRegistrationHref(slug, query, {
+                event: selectedEvent || "",
+                occurrence: selectedOccurrence || "",
+                origin: "walk-in"
+              })}
+            >
+              {isItalian ? "Aggiungi walk-in" : "Add walk-in"}
+            </Link>
+          </div>
+
           <div className="admin-summary-grid">
             <article className="admin-summary-card">
               <span className="metric-label">{isItalian ? "Arrivi aperti" : "Open arrivals"}</span>
@@ -696,10 +1057,21 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                         <span className={`admin-badge admin-badge-${registration.status.toLowerCase()}`}>
                           {registration.status}
                         </span>
+                        <span className={`admin-badge admin-badge-${registration.sourceTone}`}>
+                          {registration.sourceLabel}
+                        </span>
+                        <span className={`admin-badge admin-badge-${registration.originTone}`}>
+                          {registration.originLabel}
+                        </span>
                         {registration.dietary.participantsWithRestrictions > 0 ? (
                           <span className="admin-badge admin-badge-capacity-watch">
                             {registration.dietary.participantsWithRestrictions}{" "}
                             {isItalian ? "restrizioni" : "restrictions"}
+                          </span>
+                        ) : null}
+                        {shouldShowRefundBadge(registration) ? (
+                          <span className={`admin-badge admin-badge-${registration.refundSummary.tone}`}>
+                            {registration.refundSummary.statusLabel}
                           </span>
                         ) : null}
                       </div>
@@ -726,6 +1098,12 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
 
                   <div className="admin-note-list">
                     <div className="admin-note-item">
+                      <span className="spotlight-label">{isItalian ? "Provenienza" : "Source"}</span>
+                      <strong>
+                        {registration.sourceLabel} · {registration.originLabel}
+                      </strong>
+                    </div>
+                    <div className="admin-note-item">
                       <span className="spotlight-label">{isItalian ? "Partecipanti" : "Attendees"}</span>
                       <strong>
                         {registration.attendees
@@ -750,6 +1128,11 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                     </div>
                   </div>
 
+                  <RefundSummaryCallout
+                    heading={isItalian ? "Rimborso online" : "Online refund"}
+                    registration={registration}
+                  />
+
                   {registration.dietary.customNotes.length ? (
                     <div className="admin-note-list">
                       {registration.dietary.customNotes.map((note, index) => (
@@ -769,6 +1152,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                       <input name="occurrenceFilter" type="hidden" value={selectedOccurrence} />
                       <input name="slug" type="hidden" value={slug} />
                       <input name="registrationId" type="hidden" value={registration.id} />
+                      <input name="returnTo" type="hidden" value={currentRegistrationsHref} />
                       <div className="admin-inline-form-row">
                         <label className="field admin-inline-field">
                           <span>{isItalian ? "Incasso sul posto" : "Venue payment"}</span>
@@ -789,16 +1173,16 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
 
                   <div className="hero-actions">
                     {registration.actions.map((action) => (
-                      <form action={updateOrganizerRegistrationAction} key={action}>
-                        <input name="eventFilter" type="hidden" value={selectedEvent} />
-                        <input name="occurrenceFilter" type="hidden" value={selectedOccurrence} />
-                        <input name="slug" type="hidden" value={slug} />
-                        <input name="registrationId" type="hidden" value={registration.id} />
-                        <input name="action" type="hidden" value={action} />
-                        <button className="button button-secondary" type="submit">
-                          {formatRegistrationActionLabel(action, isItalian)}
-                        </button>
-                      </form>
+                      <RegistrationActionButton
+                        action={action}
+                        isItalian={isItalian}
+                        key={action}
+                        registration={registration}
+                        returnTo={currentRegistrationsHref}
+                        selectedEvent={selectedEvent}
+                        selectedOccurrence={selectedOccurrence}
+                        slug={slug}
+                      />
                     ))}
                   </div>
                 </article>
@@ -833,6 +1217,9 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                       <div className="admin-badge-row">
                         <span className={`admin-badge admin-badge-${registration.status.toLowerCase()}`}>
                           {registration.status}
+                        </span>
+                        <span className={`admin-badge admin-badge-${registration.sourceTone}`}>
+                          {registration.sourceLabel}
                         </span>
                       </div>
                       <h4>
@@ -876,10 +1263,21 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                     <span className={`admin-badge admin-badge-${registration.status.toLowerCase()}`}>
                       {registration.status}
                     </span>
+                    <span className={`admin-badge admin-badge-${registration.sourceTone}`}>
+                      {registration.sourceLabel}
+                    </span>
+                    <span className={`admin-badge admin-badge-${registration.originTone}`}>
+                      {registration.originLabel}
+                    </span>
                     {registration.dietary.participantsWithRestrictions > 0 ? (
                       <span className="admin-badge admin-badge-capacity-watch">
                         {registration.dietary.participantsWithRestrictions}{" "}
                         {isItalian ? "restrizioni" : "restrictions"}
+                      </span>
+                    ) : null}
+                    {shouldShowRefundBadge(registration) ? (
+                      <span className={`admin-badge admin-badge-${registration.refundSummary.tone}`}>
+                        {registration.refundSummary.statusLabel}
                       </span>
                     ) : null}
                   </div>
@@ -920,6 +1318,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                 <RegistrationDetailPanel
                   isItalian={isItalian}
                   registration={selectedDetailRegistration}
+                  returnTo={currentRegistrationsHref}
                   selectedEvent={selectedEvent}
                   selectedOccurrence={selectedOccurrence}
                   slug={slug}
@@ -958,6 +1357,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                     <th>{isItalian ? "Partecipanti" : "Participants"}</th>
                     <th>{isItalian ? "Online" : "Online"}</th>
                     <th>{isItalian ? "Da incassare" : "Still due"}</th>
+                    <th>{isItalian ? "Rimborso" : "Refund"}</th>
                     <th>{isItalian ? "Restrizioni" : "Restrictions"}</th>
                     <th>{isItalian ? "Azione" : "Action"}</th>
                   </tr>
@@ -972,11 +1372,14 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                       }${registration.dueAtEventOpenCents > 0 ? " registration-table-row-payment" : ""}`}
                       key={registration.id}
                     >
-                      <td>
-                        <div className="registration-table-primary">
+                    <td>
+                      <div className="registration-table-primary">
                           <strong>{registration.registrationCode}</strong>
                           <span>{registration.attendeeName}</span>
                           <small>{registration.attendeeEmail}</small>
+                          <small>
+                            {registration.sourceLabel} · {registration.originLabel}
+                          </small>
                         </div>
                       </td>
                       <td>
@@ -994,6 +1397,16 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                       <td>{getParticipantCount(registration)}</td>
                       <td>{registration.onlineCollectedLabel}</td>
                       <td>{registration.dueAtEventOpenLabel}</td>
+                      <td>
+                        <div className="registration-table-primary">
+                          <strong>{registration.refundSummary.statusLabel}</strong>
+                          {registration.refundSummary.amountLabel ? (
+                            <span>{registration.refundSummary.amountLabel}</span>
+                          ) : (
+                            <span>{registration.refundSummary.detailLabel}</span>
+                          )}
+                        </div>
+                      </td>
                       <td>
                         {registration.dietary.participantsWithRestrictions > 0
                           ? `${registration.dietary.participantsWithRestrictions} ${
@@ -1048,6 +1461,17 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                     <span className="admin-badge admin-badge-public">
                       {registration.registrationLocale.toUpperCase()}
                     </span>
+                    <span className={`admin-badge admin-badge-${registration.sourceTone}`}>
+                      {registration.sourceLabel}
+                    </span>
+                    <span className={`admin-badge admin-badge-${registration.originTone}`}>
+                      {registration.originLabel}
+                    </span>
+                    {shouldShowRefundBadge(registration) ? (
+                      <span className={`admin-badge admin-badge-${registration.refundSummary.tone}`}>
+                        {registration.refundSummary.statusLabel}
+                      </span>
+                    ) : null}
                   </div>
                   <h4>
                     {registration.registrationCode} · {registration.attendeeName}
@@ -1094,7 +1518,13 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
                       : "No restrictions"}
                 </span>
                 <span>{registration.createdAtLabel}</span>
+                <span>{registration.sourceLabel}</span>
               </div>
+
+              <RefundSummaryCallout
+                heading={isItalian ? "Rimborso online" : "Online refund"}
+                registration={registration}
+              />
 
               <div className="hero-actions">
                 <Link

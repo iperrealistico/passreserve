@@ -8,12 +8,18 @@ import {
   markAdminLogin,
   publishOrganizerProfile,
   recordVenuePayment,
+  retryOrganizerOccurrenceFailedRefunds,
   saveOrganizerEvent,
   saveOrganizerOccurrence,
   toggleOrganizerEventSuspended,
   updateOrganizerSettings,
   updateOrganizerRegistration
 } from "../../../lib/passreserve-admin-service.js";
+import {
+  createOrganizerRegistration,
+  ORGANIZER_MANUAL_REGISTRATION_MODE,
+  organizerManualRegistrationSchema
+} from "../../../lib/passreserve-registrations.js";
 import {
   authenticateOrganizerAdmin,
   requestOrganizerPasswordReset,
@@ -58,6 +64,33 @@ function withRegistrationFilters(path, eventFilter = "", occurrenceFilter = "") 
   return `${path}${path.includes("?") ? "&" : "?"}${query}`;
 }
 
+function withQueryUpdates(path, updates = {}) {
+  const [pathname, search = ""] = String(path || "").split("?");
+  const params = new URLSearchParams(search);
+
+  for (const [key, value] of Object.entries(updates)) {
+    if (typeof value === "string" && value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+  }
+
+  const query = params.toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+function getRegistrationsReturnPath(formData, slug, eventFilter = "", occurrenceFilter = "") {
+  const fallback = withRegistrationFilters(`/${slug}/admin/registrations`, eventFilter, occurrenceFilter);
+  const returnTo = value(formData, "returnTo");
+
+  if (!returnTo.startsWith(`/${slug}/admin/registrations`)) {
+    return fallback;
+  }
+
+  return returnTo;
+}
+
 function parseEurosToCents(rawValue) {
   const normalized = String(rawValue || "")
     .trim()
@@ -79,6 +112,26 @@ function parseOptionalEurosToCents(rawValue) {
   }
 
   return String(parseEurosToCents(normalized));
+}
+
+function parseJsonArrayField(formData, key, emptyMessage) {
+  const rawValue = value(formData, key);
+
+  if (!rawValue) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue);
+
+    if (!Array.isArray(parsed)) {
+      throw new Error(emptyMessage);
+    }
+
+    return parsed;
+  } catch {
+    throw new Error(emptyMessage);
+  }
 }
 
 export async function organizerLoginAction(formData) {
@@ -275,7 +328,8 @@ export async function saveOrganizerOccurrenceAction(formData) {
         noteIt: value(formData, "noteIt"),
         noteEn: value(formData, "noteEn"),
         imageUrl: value(formData, "imageUrl"),
-        published: value(formData, "published")
+        published: value(formData, "published"),
+        cancelMode: value(formData, "cancelMode")
       },
       user.userId
     );
@@ -292,6 +346,21 @@ export async function saveOrganizerOccurrenceAction(formData) {
   }
 
   if (savedOccurrence?.id) {
+    const cancellationSummary = savedOccurrence.cancellationSummary;
+
+    if (cancellationSummary) {
+      const occurrenceMessage =
+        Number(cancellationSummary.refundFailedCount || 0) > 0
+          ? "occurrence-cancelled-refund-failed"
+          : "occurrence-cancelled";
+      redirect(
+        withRegistrationFilters(
+          `/${slug}/admin/calendar?message=${encodeURIComponent(occurrenceMessage)}&edit=${encodeURIComponent(savedOccurrence.id)}&cancelled=${encodeURIComponent(String(cancellationSummary.cancelledCount || 0))}&refundRequested=${encodeURIComponent(String(cancellationSummary.refundRequestedCount || 0))}&refundRequestedCents=${encodeURIComponent(String(cancellationSummary.refundRequestedCents || 0))}&refundSkipped=${encodeURIComponent(String(cancellationSummary.refundSkippedCount || 0))}&refundFailed=${encodeURIComponent(String(cancellationSummary.refundFailedCount || 0))}#date-form`,
+          eventFilter
+        )
+      );
+    }
+
     redirect(
       withRegistrationFilters(
         `/${slug}/admin/calendar?message=saved&edit=${encodeURIComponent(savedOccurrence.id)}#date-form`,
@@ -301,39 +370,76 @@ export async function saveOrganizerOccurrenceAction(formData) {
   }
 }
 
+export async function retryOrganizerOccurrenceRefundsAction(formData) {
+  const slug = value(formData, "slug");
+  const user = await requireOrganizerAdminSession(slug);
+  const eventFilter = value(formData, "eventFilter");
+  const occurrenceId = value(formData, "occurrenceId");
+  let retrySummary;
+
+  try {
+    retrySummary = await retryOrganizerOccurrenceFailedRefunds(slug, occurrenceId, user.userId);
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "The failed Stripe refunds could not be retried.";
+
+    redirect(
+      withRegistrationFilters(
+        `/${slug}/admin/calendar?error=${encodeURIComponent(message)}&edit=${encodeURIComponent(occurrenceId)}#date-form`,
+        eventFilter
+      )
+    );
+  }
+
+  const message =
+    Number(retrySummary?.refundFailedCount || 0) > 0
+      ? "occurrence-refunds-retry-failed"
+      : "occurrence-refunds-retried";
+
+  redirect(
+    withRegistrationFilters(
+      `/${slug}/admin/calendar?message=${encodeURIComponent(message)}&edit=${encodeURIComponent(occurrenceId)}&retried=${encodeURIComponent(String(retrySummary?.retryableCount || 0))}&refundRequested=${encodeURIComponent(String(retrySummary?.refundRequestedCount || 0))}&refundRequestedCents=${encodeURIComponent(String(retrySummary?.refundRequestedCents || 0))}&refundSkipped=${encodeURIComponent(String(retrySummary?.refundSkippedCount || 0))}&refundFailed=${encodeURIComponent(String(retrySummary?.refundFailedCount || 0))}#date-form`,
+      eventFilter
+    )
+  );
+}
+
 export async function updateOrganizerRegistrationAction(formData) {
   const slug = value(formData, "slug");
   const user = await requireOrganizerAdminSession(slug);
   const eventFilter = value(formData, "eventFilter");
   const occurrenceFilter = value(formData, "occurrenceFilter");
+  const action = value(formData, "action");
+  const cancelMode = value(formData, "cancelMode");
+  const returnPath = getRegistrationsReturnPath(formData, slug, eventFilter, occurrenceFilter);
 
   try {
     await updateOrganizerRegistration(
       slug,
       value(formData, "registrationId"),
-      value(formData, "action"),
-      user.userId
+      action,
+      user.userId,
+      {
+        cancelMode
+      }
     );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "The registration could not be updated.";
 
-    redirect(
-      withRegistrationFilters(
-        `/${slug}/admin/registrations?error=${encodeURIComponent(message)}`,
-        eventFilter,
-        occurrenceFilter
-      )
-    );
+    redirect(withQueryUpdates(returnPath, { error: message, message: null }));
   }
 
-  redirect(
-    withRegistrationFilters(
-      `/${slug}/admin/registrations?message=updated`,
-      eventFilter,
-      occurrenceFilter
-    )
-  );
+  const message =
+    action === "retry_refund"
+      ? "refund_retried"
+      : action === "cancel"
+      ? cancelMode === "CANCEL_AND_REFUND_ONLINE"
+        ? "refund_requested"
+        : "cancelled"
+      : "updated";
+
+  redirect(withQueryUpdates(returnPath, { message, error: null }));
 }
 
 export async function recordVenuePaymentAction(formData) {
@@ -342,14 +448,14 @@ export async function recordVenuePaymentAction(formData) {
   const eventFilter = value(formData, "eventFilter");
   const occurrenceFilter = value(formData, "occurrenceFilter");
   const amountCents = parseEurosToCents(formData.get("amountEuros"));
+  const returnPath = getRegistrationsReturnPath(formData, slug, eventFilter, occurrenceFilter);
 
   if (amountCents <= 0) {
     redirect(
-      withRegistrationFilters(
-        `/${slug}/admin/registrations?error=${encodeURIComponent("Enter a valid amount collected at the venue.")}`,
-        eventFilter,
-        occurrenceFilter
-      )
+      withQueryUpdates(returnPath, {
+        error: "Enter a valid amount collected at the venue.",
+        message: null
+      })
     );
   }
 
@@ -359,22 +465,76 @@ export async function recordVenuePaymentAction(formData) {
     const message =
       error instanceof Error ? error.message : "The venue payment could not be recorded.";
 
-    redirect(
-      withRegistrationFilters(
-        `/${slug}/admin/registrations?error=${encodeURIComponent(message)}`,
-        eventFilter,
-        occurrenceFilter
-      )
-    );
+    redirect(withQueryUpdates(returnPath, { error: message, message: null }));
   }
 
-  redirect(
-    withRegistrationFilters(
-      `/${slug}/admin/registrations?message=recorded`,
-      eventFilter,
-      occurrenceFilter
-    )
-  );
+  redirect(withQueryUpdates(returnPath, { message: "recorded", error: null }));
+}
+
+export async function createOrganizerRegistrationAction(_previousState, formData) {
+  const slug = value(formData, "slug");
+  const user = await requireOrganizerAdminSession(slug);
+
+  let items;
+  let attendees;
+
+  try {
+    items = parseJsonArrayField(
+      formData,
+      "itemsJson",
+      "The ticket selection payload could not be parsed."
+    );
+    attendees = parseJsonArrayField(
+      formData,
+      "attendeesJson",
+      "The participant payload could not be parsed."
+    );
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "The registration payload could not be parsed.";
+
+    return {
+      ok: false,
+      message,
+      fieldErrors: {
+        attendees: message
+      }
+    };
+  }
+
+  const mode = value(formData, "mode");
+  const parsedMode = Object.values(ORGANIZER_MANUAL_REGISTRATION_MODE).includes(mode)
+    ? mode
+    : ORGANIZER_MANUAL_REGISTRATION_MODE.REQUEST_CONFIRMATION;
+  const parsed = organizerManualRegistrationSchema.safeParse({
+    eventTypeId: value(formData, "eventTypeId"),
+    occurrenceId: value(formData, "occurrenceId"),
+    items,
+    registrationLocale: value(formData, "registrationLocale") || "en",
+    origin: value(formData, "origin") || "staff",
+    attendees,
+    mode: parsedMode,
+    note: value(formData, "note"),
+    baseUrl: value(formData, "baseUrl")
+  });
+
+  if (!parsed.success) {
+    const fieldErrors = {};
+
+    for (const issue of parsed.error.issues) {
+      fieldErrors[issue.path[0]] = issue.message;
+    }
+
+    return {
+      ok: false,
+      message: "We still need a few registration details before this registration can be created.",
+      fieldErrors
+    };
+  }
+
+  return createOrganizerRegistration(slug, parsed.data, {
+    actorId: user.userId
+  });
 }
 
 export async function saveOrganizerSettingsAction(formData) {

@@ -38,6 +38,7 @@ function buildOrganizerRequestFormData(overrides = {}) {
     eventFocus: "Outdoor workshops and tastings",
     note: "Please onboard us quickly.",
     altcha: "signed-altcha-payload",
+    submissionId: `submission-${now}`,
     companyWebsite: "",
     formStartedAt: String(now - 10_000),
     ...overrides
@@ -65,6 +66,9 @@ describe("organizer signup provisioning", () => {
         success: true
       }),
       consumeOrganizerRequestEmailRateLimit: vi.fn().mockResolvedValue({
+        success: true
+      }),
+      consumeOrganizerRequestSubmissionToken: vi.fn().mockResolvedValue({
         success: true
       }),
       consumeOrganizerRequestRateLimit: vi.fn().mockResolvedValue({
@@ -107,6 +111,67 @@ describe("organizer signup provisioning", () => {
     ).toBe(true);
   });
 
+  it("treats a repeated submit from the same open form as a single organizer request", async () => {
+    const consumeOrganizerRequestSubmissionToken = vi
+      .fn()
+      .mockResolvedValueOnce({
+        success: true
+      })
+      .mockResolvedValueOnce({
+        success: false,
+        retryAfterSeconds: 120
+      });
+
+    vi.doMock("../lib/passreserve-antispam.js", () => ({
+      ORGANIZER_REQUEST_ALTCHA_WINDOW_SECONDS: 30 * 60,
+      ORGANIZER_REQUEST_MIN_SUBMIT_SECONDS: 2,
+      verifyOrganizerRequestAltchaPayload: vi.fn().mockResolvedValue({
+        ok: true,
+        challengeId: "challenge-1"
+      })
+    }));
+    vi.doMock("../lib/passreserve-auth-security.js", () => ({
+      consumeOrganizerRequestCaptchaToken: vi.fn().mockResolvedValue({
+        success: true
+      }),
+      consumeOrganizerRequestEmailRateLimit: vi.fn().mockResolvedValue({
+        success: true
+      }),
+      consumeOrganizerRequestSubmissionToken,
+      consumeOrganizerRequestRateLimit: vi.fn().mockResolvedValue({
+        success: true
+      })
+    }));
+
+    const { submitOrganizerRequestAction } = await import("../app/actions.js");
+    const { loadPersistentState } = await import("../lib/passreserve-state.js");
+
+    const first = await submitOrganizerRequestAction(
+      {},
+      buildOrganizerRequestFormData({
+        submissionId: "same-open-form"
+      })
+    );
+    const second = await submitOrganizerRequestAction(
+      {},
+      buildOrganizerRequestFormData({
+        submissionId: "same-open-form"
+      })
+    );
+    const state = await loadPersistentState();
+
+    expect(first.status).toBe("success");
+    expect(second.status).toBe("success");
+    expect(state.joinRequests).toHaveLength(1);
+    expect(
+      state.emailDeliveries.filter(
+        (entry) =>
+          entry.templateSlug === "organizer_access_invitation" &&
+          entry.recipientEmail === "alex@example.com"
+      )
+    ).toHaveLength(1);
+  });
+
   it("blocks signup when CAPTCHA verification is missing or invalid", async () => {
     vi.doMock("../lib/passreserve-antispam.js", () => ({
       ORGANIZER_REQUEST_ALTCHA_WINDOW_SECONDS: 30 * 60,
@@ -121,6 +186,9 @@ describe("organizer signup provisioning", () => {
         success: true
       }),
       consumeOrganizerRequestEmailRateLimit: vi.fn().mockResolvedValue({
+        success: true
+      }),
+      consumeOrganizerRequestSubmissionToken: vi.fn().mockResolvedValue({
         success: true
       }),
       consumeOrganizerRequestRateLimit: vi.fn().mockResolvedValue({

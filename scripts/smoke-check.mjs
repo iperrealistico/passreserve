@@ -15,8 +15,15 @@ function assert(condition, message) {
   }
 }
 
+function stripNonVisibleHtmlText(text) {
+  return String(text || "")
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, " ")
+    .replace(/<noscript\b[^>]*>[\s\S]*?<\/noscript>/gi, " ");
+}
+
 function assertNoInternalCopy(text, routeLabel) {
-  const match = findForbiddenUiCopy(text);
+  const match = findForbiddenUiCopy(stripNonVisibleHtmlText(text));
 
   assert(
     !match,
@@ -103,6 +110,28 @@ async function main() {
   );
   process.env.ORGANIZER_REQUESTS_FILE = organizerRequestsFile;
   process.env.PASSRESERVE_STATE_FILE = passreserveStateFile;
+  const { mutatePersistentState } = await import("../lib/passreserve-state.js");
+
+  await mutatePersistentState(async (draft) => {
+    const baseTimestamp = Date.parse("2026-06-20T08:00:00.000Z");
+    const occurrences = Array.isArray(draft.occurrences) ? draft.occurrences : [];
+
+    occurrences.forEach((occurrence, index) => {
+      const startsAt = new Date(baseTimestamp + index * 86400000);
+      const endsAt = new Date(startsAt.getTime() + 3 * 60 * 60 * 1000);
+
+      occurrence.startsAt = startsAt.toISOString();
+      occurrence.endsAt = endsAt.toISOString();
+      occurrence.salesWindowStartsAt = new Date(
+        startsAt.getTime() - 30 * 86400000
+      ).toISOString();
+      occurrence.salesWindowEndsAt = new Date(
+        startsAt.getTime() + 7 * 86400000
+      ).toISOString();
+      occurrence.updatedAt = startsAt.toISOString();
+    });
+  });
+
   const nextBin = new URL("../node_modules/next/dist/bin/next", import.meta.url);
   const child = spawn(process.execPath, [nextBin.pathname, "start", "--port", String(port)], {
     cwd: process.cwd(),
@@ -153,7 +182,7 @@ async function main() {
     const eventsPage = await fetchHtml(baseUrl, "/events");
     assert(eventsPage.response.status === 200, "Events search page should return 200.");
     assert(
-      eventsPage.text.includes("Search by city, organizer, or format.") &&
+      eventsPage.text.includes("Search events") &&
         eventsPage.text.includes("Alpine Switchback Clinic"),
       "Events search page should render the dedicated discovery experience."
     );

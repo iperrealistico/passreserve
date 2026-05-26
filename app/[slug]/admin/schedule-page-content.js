@@ -4,7 +4,10 @@ import { getOrganizerOccurrencesAdmin } from "../../../lib/passreserve-admin-ser
 import { getLocalizedFormText } from "../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../lib/passreserve-i18n.js";
-import { saveOrganizerOccurrenceAction } from "./actions.js";
+import {
+  retryOrganizerOccurrenceRefundsAction,
+  saveOrganizerOccurrenceAction
+} from "./actions.js";
 import { OrganizerAdminPageHeader } from "./organizer-admin-ui.js";
 
 const allowedViews = new Set(["month", "week", "list"]);
@@ -46,6 +49,11 @@ function formatEurosInput(cents) {
 
 function localizedValue(record, field, locale) {
   return getLocalizedFormText(record, field, locale);
+}
+
+function parseCount(value) {
+  const resolved = Number(value);
+  return Number.isFinite(resolved) ? Math.max(0, Math.round(resolved)) : 0;
 }
 
 function getDateParts(value, timeZone) {
@@ -471,6 +479,11 @@ function ScheduleFormSection({
   activeEvent,
   selectedEvent
 }) {
+  const defaultOccurrenceCancelMode =
+    selectedOccurrence?.cancellationSnapshot?.refundEligibleCount > 0
+      ? "CANCEL_AND_REFUND_ELIGIBLE"
+      : "CANCEL_ONLY";
+
   return (
     <section className="panel section-card admin-section admin-side-editor" id="date-form">
       <div className="admin-section-header">
@@ -586,6 +599,77 @@ function ScheduleFormSection({
             <option value="true">{isItalian ? "Pubblicata" : "Published"}</option>
           </select>
         </label>
+        {isEditing &&
+        selectedOccurrence?.published &&
+        selectedOccurrence?.status !== "CANCELLED" &&
+        selectedOccurrence?.cancellationSnapshot?.cancellableRegistrationCount > 0 ? (
+          <div className="field field-span">
+            <span className="metric-label">
+              {isItalian ? "Se salvi questa data come cancellata" : "If you save this date as cancelled"}
+            </span>
+            <strong>
+              {isItalian
+                ? `${selectedOccurrence.cancellationSnapshot.cancellableRegistrationCount} registrazioni verranno chiuse.`
+                : `${selectedOccurrence.cancellationSnapshot.cancellableRegistrationCount} registrations will be closed.`}
+            </strong>
+            <small className="field-hint">
+              {selectedOccurrence.cancellationSnapshot.refundEligibleCount > 0
+                ? isItalian
+                  ? `${selectedOccurrence.cancellationSnapshot.refundEligibleCount} registrazioni possono ricevere un rimborso online per ${selectedOccurrence.cancellationSnapshot.refundEligibleAmountLabel}.`
+                  : `${selectedOccurrence.cancellationSnapshot.refundEligibleCount} registrations are eligible for an online refund worth ${selectedOccurrence.cancellationSnapshot.refundEligibleAmountLabel}.`
+                : isItalian
+                  ? "Nessuna registrazione di questa data ha un rimborso online automatico disponibile."
+                  : "No registration on this date is currently eligible for an automatic online refund."}
+            </small>
+            <div className="admin-choice-list">
+              <label className="admin-choice-card">
+                <input
+                  className="admin-choice-radio"
+                  defaultChecked={defaultOccurrenceCancelMode === "CANCEL_AND_REFUND_ELIGIBLE"}
+                  disabled={selectedOccurrence.cancellationSnapshot.refundEligibleCount === 0}
+                  name="cancelMode"
+                  type="radio"
+                  value="CANCEL_AND_REFUND_ELIGIBLE"
+                />
+                <div className="admin-choice-copy">
+                  <strong>
+                    {isItalian
+                      ? "Cancella e richiedi i rimborsi online eleggibili"
+                      : "Cancel and request eligible online refunds"}
+                  </strong>
+                  <p>
+                    {selectedOccurrence.cancellationSnapshot.refundEligibleCount > 0
+                      ? isItalian
+                        ? "Scelta consigliata: i rimborsi partono dopo la cancellazione della data e restano in attesa finché Stripe non conferma via webhook."
+                        : "Recommended: refunds start after the date is cancelled and stay pending until Stripe confirms them by webhook."
+                      : isItalian
+                        ? "Non ci sono quote online idonee da rimborsare automaticamente."
+                        : "There are no eligible online amounts to refund automatically."}
+                  </p>
+                </div>
+              </label>
+              <label className="admin-choice-card">
+                <input
+                  className="admin-choice-radio"
+                  defaultChecked={defaultOccurrenceCancelMode === "CANCEL_ONLY"}
+                  name="cancelMode"
+                  type="radio"
+                  value="CANCEL_ONLY"
+                />
+                <div className="admin-choice-copy">
+                  <strong>{isItalian ? "Cancella soltanto la data" : "Cancel the date only"}</strong>
+                  <p>
+                    {isItalian
+                      ? "Le registrazioni verranno chiuse senza avviare nessun rimborso automatico."
+                      : "Registrations will be closed without starting any automatic refund."}
+                  </p>
+                </div>
+              </label>
+            </div>
+          </div>
+        ) : (
+          <input name="cancelMode" type="hidden" value="CANCEL_ONLY" />
+        )}
         <label className="field">
           <span>{isItalian ? "Vendita da" : "Sales open from"}</span>
           <input
@@ -679,6 +763,38 @@ function ScheduleFormSection({
           </button>
         </div>
       </form>
+      {isEditing &&
+      selectedOccurrence?.status === "CANCELLED" &&
+      selectedOccurrence?.cancellationSnapshot?.refundFailedCount > 0 ? (
+        <form action={retryOrganizerOccurrenceRefundsAction} className="admin-inline-form">
+          <input name="slug" type="hidden" value={slug} />
+          <input name="eventFilter" type="hidden" value={selectedEvent} />
+          <input name="occurrenceId" type="hidden" value={selectedOccurrence.id} />
+          <div className="admin-refund-callout admin-refund-callout-danger">
+            <div className="admin-refund-callout-head">
+              <div className="admin-refund-callout-copy">
+                <span className="spotlight-label">
+                  {isItalian ? "Follow-up rimborsi" : "Refund follow-up"}
+                </span>
+                <strong>{isItalian ? "Alcuni rimborsi sono falliti" : "Some refunds failed"}</strong>
+              </div>
+              <strong className="admin-refund-callout-amount">
+                {selectedOccurrence.cancellationSnapshot.refundFailedAmountLabel}
+              </strong>
+            </div>
+            <p>
+              {isItalian
+                ? `${selectedOccurrence.cancellationSnapshot.refundFailedCount} registrazioni cancellate hanno ancora un rimborso Stripe fallito e ritentabile.`
+                : `${selectedOccurrence.cancellationSnapshot.refundFailedCount} cancelled registrations still have a failed Stripe refund that can be retried.`}
+            </p>
+            <div className="hero-actions">
+              <button className="button button-primary" type="submit">
+                {isItalian ? "Riprova i rimborsi falliti" : "Retry failed refunds"}
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : null}
     </section>
   );
 }
@@ -771,16 +887,103 @@ export default async function OrganizerSchedulePageContent({ params, searchParam
     day: addDaysToDayKey(currentWeekStart, 7),
     edit: null
   });
+  const cancellationSummary = {
+    cancelled: parseCount(query.cancelled),
+    refundRequested: parseCount(query.refundRequested),
+    refundRequestedCents: parseCount(query.refundRequestedCents),
+    refundSkipped: parseCount(query.refundSkipped),
+    refundFailed: parseCount(query.refundFailed)
+  };
+  const retrySummary = {
+    retried: parseCount(query.retried),
+    refundRequested: parseCount(query.refundRequested),
+    refundRequestedCents: parseCount(query.refundRequestedCents),
+    refundSkipped: parseCount(query.refundSkipped),
+    refundFailed: parseCount(query.refundFailed)
+  };
+  const showsOccurrenceCancellationSummary = [
+    "occurrence-cancelled",
+    "occurrence-cancelled-refund-failed"
+  ].includes(query.message);
+  const showsRetrySummary = [
+    "occurrence-refunds-retried",
+    "occurrence-refunds-retry-failed"
+  ].includes(query.message);
 
   return (
     <div className="admin-page">
       {query.message ? (
         <div className="registration-message registration-message-success">
-          {isItalian ? "Data salvata." : "Date saved successfully."}
+          {query.message === "occurrence-cancelled-refund-failed"
+            ? isItalian
+              ? "Data cancellata, ma alcuni rimborsi Stripe sono falliti. Controlla il follow-up e riprova."
+              : "Date cancelled, but some Stripe refunds failed. Review the follow-up and retry."
+            : query.message === "occurrence-cancelled"
+            ? isItalian
+              ? "Data cancellata e registrazioni chiuse."
+              : "Date cancelled and registrations closed."
+            : query.message === "occurrence-refunds-retry-failed"
+              ? isItalian
+                ? "Alcuni rimborsi Stripe sono stati ritentati, ma restano failure da seguire."
+                : "Some Stripe refunds were retried, but there are still failures to follow up."
+              : query.message === "occurrence-refunds-retried"
+                ? isItalian
+                  ? "Ritento rimborsi completato."
+                  : "Refund retry run completed."
+            : isItalian
+              ? "Data salvata."
+              : "Date saved successfully."}
         </div>
       ) : null}
       {query.error ? (
         <div className="registration-message registration-message-error">{query.error}</div>
+      ) : null}
+      {showsOccurrenceCancellationSummary ? (
+        <section className="admin-summary-grid">
+          <article className="admin-summary-card">
+            <span className="metric-label">
+              {isItalian ? "Registrazioni cancellate" : "Cancelled registrations"}
+            </span>
+            <strong>{cancellationSummary.cancelled}</strong>
+          </article>
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Rimborsi richiesti" : "Refunds requested"}</span>
+            <strong>{cancellationSummary.refundRequested}</strong>
+            <p className="admin-summary-card-note">
+              {formatEurosInput(cancellationSummary.refundRequestedCents)} EUR
+            </p>
+          </article>
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Saltate" : "Skipped"}</span>
+            <strong>{cancellationSummary.refundSkipped}</strong>
+          </article>
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Da seguire" : "Need follow-up"}</span>
+            <strong>{cancellationSummary.refundFailed}</strong>
+          </article>
+        </section>
+      ) : showsRetrySummary ? (
+        <section className="admin-summary-grid">
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Retry avviati" : "Retry targets"}</span>
+            <strong>{retrySummary.retried}</strong>
+          </article>
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Rimborsi richiesti" : "Refunds requested"}</span>
+            <strong>{retrySummary.refundRequested}</strong>
+            <p className="admin-summary-card-note">
+              {formatEurosInput(retrySummary.refundRequestedCents)} EUR
+            </p>
+          </article>
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Saltate" : "Skipped"}</span>
+            <strong>{retrySummary.refundSkipped}</strong>
+          </article>
+          <article className="admin-summary-card">
+            <span className="metric-label">{isItalian ? "Ancora fallite" : "Still failed"}</span>
+            <strong>{retrySummary.refundFailed}</strong>
+          </article>
+        </section>
       ) : null}
 
       <OrganizerAdminPageHeader

@@ -338,6 +338,14 @@
     @apply p-6 sm:p-8;
   }
 
+  .registration-summary-card {
+    @apply hidden lg:block lg:sticky lg:top-6 lg:self-start;
+  }
+
+  .registration-mobile-summary {
+    @apply mt-4 lg:hidden;
+  }
+
   .registration-stepper {
     @apply mt-6 grid gap-3 sm:grid-cols-4;
   }
@@ -361,6 +369,34 @@
   .registration-panel-stack,
   .registration-summary {
     @apply mt-6 flex flex-col gap-4;
+  }
+
+  .registration-feedback-grid {
+    @apply mt-4 grid gap-3;
+  }
+
+  .registration-health-card {
+    @apply rounded-[1.5rem] border px-4 py-4 text-sm;
+  }
+
+  .registration-health-card strong {
+    @apply mt-1 block text-sm font-semibold text-foreground;
+  }
+
+  .registration-health-card p {
+    @apply mt-2 leading-6 text-muted-foreground;
+  }
+
+  .registration-health-card-warning {
+    @apply border-amber-200 bg-amber-50/80;
+  }
+
+  .registration-health-card-neutral {
+    @apply border-slate-200 bg-slate-50/80;
+  }
+
+  .registration-attendee-toolbar {
+    @apply flex flex-col gap-3 rounded-[1.5rem] border border-border bg-muted/20 p-4 lg:flex-row lg:items-center lg:justify-between;
   }
 
   .registration-choice-grid,
@@ -690,6 +726,10 @@
     @apply rounded-[1.5rem] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700;
   }
 
+  .registration-message-warning {
+    @apply mt-4 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800;
+  }
+
   .payment-card {
     @apply rounded-[1.75rem] border border-border bg-muted/50 p-5;
   }
@@ -844,6 +884,98 @@
     @apply mb-6 flex flex-col gap-3;
   }
 
+  .admin-modal {
+    @apply m-auto w-[min(760px,calc(100vw-1.5rem))] rounded-[2rem] border border-border bg-card p-0 shadow-2xl;
+  }
+
+  .admin-modal-panel {
+    @apply relative p-6 sm:p-8;
+  }
+
+  .admin-modal-close {
+    @apply absolute right-5 top-5 rounded-full border border-border bg-background px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground;
+  }
+
+  .admin-modal-head {
+    @apply mb-6 flex flex-col gap-3 pr-14;
+  }
+
+  .admin-modal-head p {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .admin-modal-summary-grid {
+    @apply mb-5 grid gap-3 sm:grid-cols-2;
+  }
+
+  .admin-modal-summary-card {
+    @apply rounded-[1.5rem] border border-border bg-muted/20 p-4;
+  }
+
+  .admin-modal-summary-card strong {
+    @apply block text-lg font-semibold tracking-tight text-foreground;
+  }
+
+  .admin-modal-form {
+    @apply flex flex-col gap-4;
+  }
+
+  .admin-choice-list {
+    @apply grid gap-3;
+  }
+
+  .admin-choice-card {
+    @apply flex items-start gap-3 rounded-[1.5rem] border border-border bg-background p-4 transition-colors;
+  }
+
+  .admin-choice-card:has(input:checked) {
+    @apply border-primary bg-primary/5;
+  }
+
+  .admin-choice-card:has(input:disabled) {
+    @apply bg-muted/20;
+  }
+
+  .admin-choice-radio {
+    @apply mt-1 h-4 w-4 shrink-0 accent-primary;
+  }
+
+  .admin-choice-copy {
+    @apply flex min-w-0 flex-col gap-1;
+  }
+
+  .admin-choice-copy strong {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .admin-choice-copy p {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .admin-modal-note {
+    @apply rounded-[1.5rem] border border-border bg-muted/20 p-4;
+  }
+
+  .admin-modal-note-muted {
+    @apply bg-primary/5;
+  }
+
+  .admin-modal-note-head {
+    @apply mb-2 flex flex-wrap items-center justify-between gap-2;
+  }
+
+  .admin-modal-note-head strong {
+    @apply text-sm font-semibold text-foreground;
+  }
+
+  .admin-modal-note-head span {
+    @apply text-sm font-semibold text-muted-foreground;
+  }
+
+  .admin-modal-note p {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
   .admin-grid {
     @apply grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px];
   }
@@ -958,6 +1090,74 @@
   .admin-badge-no_show,
   .admin-badge-danger {
     @apply bg-red-100 text-red-700;
+  }
+
+  .admin-badge-refund-ready {
+    @apply bg-sky-100 text-sky-700;
+  }
+
+  .admin-badge-refund-pending {
+    @apply bg-amber-100 text-amber-700;
+  }
+
+  .admin-badge-refund-completed {
+    @apply bg-emerald-100 text-emerald-700;
+  }
+
+  .admin-badge-refund-review {
+    @apply bg-orange-100 text-orange-700;
+  }
+
+  .admin-badge-refund-none {
+    @apply bg-slate-100 text-slate-600;
+  }
+
+  .admin-refund-callout {
+    @apply mt-4 flex flex-col gap-2 rounded-[1.5rem] border p-4;
+  }
+
+  .admin-refund-callout-head {
+    @apply flex flex-wrap items-start justify-between gap-3;
+  }
+
+  .admin-refund-callout-copy {
+    @apply flex flex-col gap-1;
+  }
+
+  .admin-refund-callout-amount {
+    @apply text-base font-semibold tracking-tight text-foreground;
+  }
+
+  .admin-refund-callout p {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .admin-refund-callout-refund-ready {
+    @apply border-sky-200 bg-sky-50/70;
+  }
+
+  .admin-refund-callout-refund-pending {
+    @apply border-amber-200 bg-amber-50/80;
+  }
+
+  .admin-refund-callout-refund-completed {
+    @apply border-emerald-200 bg-emerald-50/70;
+  }
+
+  .admin-refund-callout-refund-review {
+    @apply border-orange-200 bg-orange-50/70;
+  }
+
+  .admin-refund-callout-refund-none {
+    @apply border-slate-200 bg-slate-50/70;
+  }
+
+  .admin-refund-callout-danger {
+    @apply border-red-200 bg-red-50/80;
+  }
+
+  .admin-summary-card-note {
+    @apply text-sm text-muted-foreground;
   }
 
   .admin-note-list,

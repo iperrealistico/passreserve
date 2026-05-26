@@ -18,6 +18,8 @@ export async function GET(request, { params }) {
   const locale = url.searchParams.get("locale") === "it" ? "it" : "en";
   const eventSlug = url.searchParams.get("event") || "";
   const occurrenceId = url.searchParams.get("occurrence") || "";
+  const sourceFilter = url.searchParams.get("source") || "all";
+  const originFilter = url.searchParams.get("origin") || "all";
   const variant = url.searchParams.get("variant") === "full" ? "full" : "operational";
 
   if (!occurrenceId) {
@@ -46,6 +48,14 @@ export async function GET(request, { params }) {
 
   const registrations = data.registrations.filter((registration) => {
     if (eventSlug && registration.eventSlug !== eventSlug) {
+      return false;
+    }
+
+    if (sourceFilter !== "all" && registration.source !== sourceFilter) {
+      return false;
+    }
+
+    if (originFilter !== "all" && registration.origin !== originFilter) {
       return false;
     }
 
