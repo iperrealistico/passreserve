@@ -168,4 +168,4 @@ Questa checklist descrive come integrare il rimborso automatico Stripe quando un
 - [x] `npm run test` passa
 - [x] `npm run verify` passa
 - [x] Smoke test organizer completato
-- [ ] Deploy Vercel verificato
+- [x] Deploy Vercel verificato

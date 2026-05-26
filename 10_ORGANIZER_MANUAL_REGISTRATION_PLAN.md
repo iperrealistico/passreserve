@@ -148,5 +148,5 @@ Questa checklist descrive come integrare l'inserimento manuale di una registrazi
 - [x] Export, dashboard, reminders e reporting non si rompono
 - [x] `npm run verify` passa
 - [x] Verifica manuale organizer completata
-- [ ] Push GitHub completato
-- [ ] Deploy Vercel verificato
+- [x] Push GitHub completato
+- [x] Deploy Vercel verificato

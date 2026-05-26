@@ -18,8 +18,8 @@ Questa checklist raccoglie il lavoro necessario per sbloccare l'onboarding Strip
 - [x] Esiste gia il fallback preview per Checkout quando Stripe live non e configurato
 - [x] Esiste gia il tracciamento dello stato Stripe organizer nel modello dati
 - [x] Esiste gia una health page platform che mostra il mode Stripe
-- [ ] L'onboarding fallisce se `STRIPE_SECRET_KEY` non e presente nell'environment runtime
-- [ ] La produzione o l'environment target che l'organizer sta usando non ha oggi Stripe live pronto
+- [x] L'onboarding fallisce se `STRIPE_SECRET_KEY` non e presente nell'environment runtime
+- [x] La produzione o l'environment target che l'organizer sta usando non ha oggi Stripe live pronto
 - [ ] La documentazione runtime e incoerente: parte del repo parla ancora di `no Stripe Connect`
 - [ ] Non esiste ancora un runbook end-to-end chiuso per Connect + Checkout + webhook + refund
 - [ ] Non esiste ancora il refund automatico da cancellazione organizer
@@ -27,11 +27,13 @@ Questa checklist raccoglie il lavoro necessario per sbloccare l'onboarding Strip
 ## Blocco corrente da risolvere subito
 
 - [x] Il messaggio di errore e coerente col codice: `createStripeConnectedAccount()` blocca senza `STRIPE_SECRET_KEY`
-- [ ] Verificare in Vercel project corretto che `STRIPE_SECRET_KEY` sia presente in Production
+- [x] Verificare in Vercel project corretto che `STRIPE_SECRET_KEY` sia presente in Production
 - [ ] Verificare in Vercel project corretto che `STRIPE_SECRET_KEY` sia presente in Preview se serve testare anche preview
-- [ ] Verificare che `STRIPE_WEBHOOK_SECRET` sia presente
+- [x] Verificare che `STRIPE_WEBHOOK_SECRET` sia presente
 - [ ] Verificare che `NEXT_PUBLIC_BASE_URL` punti al dominio canonico corretto
 - [ ] Verificare che il deploy che espone billing stia leggendo l'env giusto e non un altro project/team/environment
+
+`2026-05-26 19:43 CEST` Production audit on the canonical Vercel project `passreserve` confirmed `DATABASE_URL` is currently configured as an empty string, `STRIPE_SECRET_KEY` is absent, `STRIPE_WEBHOOK_SECRET` is absent, and `NEXT_PUBLIC_BASE_URL` is present. Result: the live app can deploy and serve public/organizer routes, but Stripe Connect onboarding and automatic Stripe refunds remain blocked until the missing server-side secrets are configured.
 
 ## Fase 1 - Immediate unblock
 
