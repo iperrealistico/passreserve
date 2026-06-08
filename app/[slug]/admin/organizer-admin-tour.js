@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { driver } from "driver.js";
 
+import { useInteractionFeedback } from "../../../components/interaction-feedback-provider.js";
 import {
   ORGANIZER_ADMIN_TOUR_EVENT,
   ORGANIZER_ADMIN_TOUR_MODES,
@@ -238,6 +239,7 @@ export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { startRouteFeedback } = useInteractionFeedback();
   const driverRef = useRef(null);
   const interactionAbortRef = useRef(null);
   const activeRef = useRef(false);
@@ -361,6 +363,11 @@ export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
     setTourLocale(nextLocale);
 
     const query = searchParams?.toString();
+    startRouteFeedback({
+      currentPathname: pathname,
+      targetPathname: pathname,
+      label: "Updating tour language"
+    });
     router.replace(query ? `${pathname}?${query}` : pathname);
     router.refresh();
   }
@@ -575,6 +582,11 @@ export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
       });
       invalidateCurrentRender();
       destroyDriver();
+      startRouteFeedback({
+        currentPathname: pathname,
+        targetPathname: step.route,
+        label: "Opening next setup step"
+      });
       router.push(step.route);
       return;
     }
@@ -606,6 +618,11 @@ export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
         mode: safeMode,
         stepIndex: 0,
         pendingAdvance
+      });
+      startRouteFeedback({
+        currentPathname: pathname,
+        targetPathname: startRoute,
+        label: "Opening guided setup"
       });
       router.push(startRoute);
       return;

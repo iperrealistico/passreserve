@@ -29,7 +29,7 @@ export default async function RootLayout({ children }) {
   const locale = await getRequestLocale();
 
   return (
-    <html lang={locale}>
+    <html data-scroll-behavior="smooth" lang={locale}>
       <body className={`${inter.variable} ${outfit.variable}`}>
         <AppProviders>{children}</AppProviders>
       </body>

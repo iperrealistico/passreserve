@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { useInteractionFeedback } from "./interaction-feedback-provider.js";
 import {
   PASSRESERVE_LOCALE_COOKIE,
   SUPPORTED_LOCALES
@@ -11,6 +12,7 @@ export function LocaleSwitcher({ locale = "en", label = "Language", labels = {} 
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { startRouteFeedback } = useInteractionFeedback();
 
   function handleLocaleChange(nextLocale) {
     if (!SUPPORTED_LOCALES.includes(nextLocale) || nextLocale === locale) {
@@ -19,6 +21,11 @@ export function LocaleSwitcher({ locale = "en", label = "Language", labels = {} 
 
     document.cookie = `${PASSRESERVE_LOCALE_COOKIE}=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
     const query = searchParams?.toString();
+    startRouteFeedback({
+      currentPathname: pathname,
+      targetPathname: pathname,
+      label: "Updating interface language"
+    });
     router.replace(query ? `${pathname}?${query}` : pathname);
     router.refresh();
   }

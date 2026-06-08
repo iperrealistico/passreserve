@@ -335,20 +335,36 @@ async function main() {
     const adminRedirect = await fetch(`${baseUrl}/alpine-trail-lab/admin`, {
       redirect: "manual"
     });
-    assert(
-      adminRedirect.status === 307 || adminRedirect.status === 308,
-      "Organizer admin entry route should redirect to the dashboard."
-    );
-    assert(
-      adminRedirect.headers.get("location") === "/alpine-trail-lab/admin/dashboard",
-      "Organizer admin redirect should point to the dashboard route."
-    );
+    const adminRedirectText = await adminRedirect.text();
+    const adminRedirectTarget = "/alpine-trail-lab/admin/dashboard";
+
+    if (adminRedirect.status === 307 || adminRedirect.status === 308) {
+      assert(
+        adminRedirect.headers.get("location") === adminRedirectTarget,
+        "Organizer admin redirect should point to the dashboard route."
+      );
+    } else {
+      assert(
+        adminRedirect.status === 200,
+        "Organizer admin entry route should redirect to the dashboard."
+      );
+      assert(
+        adminRedirectText.includes(`url=${adminRedirectTarget}`) ||
+          adminRedirectText.includes(`NEXT_REDIRECT;replace;${adminRedirectTarget};307;`),
+        "Organizer admin entry route should embed the dashboard redirect target."
+      );
+    }
 
     const dashboardPage = await fetchHtml(baseUrl, "/alpine-trail-lab/admin/dashboard");
     assert(dashboardPage.response.status === 200, "Organizer dashboard should return 200.");
     assert(
-      dashboardPage.text.includes("Organizer admin sign in"),
+      dashboardPage.text.includes("Organizer admin sign in") ||
+        dashboardPage.text.includes("Preparing the organizer dashboard"),
       "Organizer dashboard should redirect unauthenticated users into organizer sign-in."
+    );
+    assert(
+      dashboardPage.text.includes("/alpine-trail-lab/admin/login"),
+      "Organizer dashboard should still point unauthenticated visitors toward organizer sign-in."
     );
     assertNoInternalCopy(dashboardPage.text, "Organizer dashboard");
 
