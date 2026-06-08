@@ -12,3 +12,7 @@
 - Local in-app browser smoke:
   - organizer auth flow: `/sillico/admin/login` -> `Public page`, with route overlay observed
   - organizer admin flow: `/sillico/admin/dashboard` -> `Events`, with route overlay observed
+- Production deploy:
+  - commit `f862818`
+  - Vercel deployment `dpl_8iaQkTjhVoKSssEnwPUnDU8wTjNp`
+  - live checks: `/organizer-access`, `/sillico/admin/login`, and protected `/sillico/admin/dashboard`
