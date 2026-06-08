@@ -8,7 +8,7 @@ const InteractionFeedbackContext = createContext({
   stopRouteFeedback: () => {}
 });
 
-const ROUTE_OVERLAY_DELAY_MS = 140;
+const ROUTE_OVERLAY_DELAY_MS = 80;
 const BUTTON_FEEDBACK_DURATION_MS = 220;
 const SOUND_THROTTLE_MS = 70;
 const ROUTE_FEEDBACK_FAILSAFE_MS = 10000;
@@ -394,10 +394,19 @@ export function InteractionFeedbackProvider({ children }) {
           data-active={routeFeedback.overlayVisible ? "true" : "false"}
         >
           <div className="app-route-overlay-card">
-            <span className="app-route-spinner" />
+            <div aria-hidden="true" className="app-route-spinner-stack">
+              <span className="app-route-spinner app-route-spinner-outer" />
+              <span className="app-route-spinner app-route-spinner-inner" />
+              <span className="app-route-spinner-dot" />
+            </div>
             <div className="app-route-overlay-copy">
               <strong>Passreserve</strong>
               <span>{routeFeedback.label || "Loading next page"}</span>
+            </div>
+            <div aria-hidden="true" className="app-route-overlay-bars">
+              <span className="app-route-overlay-bar app-route-overlay-bar-strong" />
+              <span className="app-route-overlay-bar" />
+              <span className="app-route-overlay-bar app-route-overlay-bar-soft" />
             </div>
           </div>
         </div>
