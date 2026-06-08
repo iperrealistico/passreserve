@@ -40,6 +40,7 @@ Production is expected to use:
 - real Stripe secrets
 - real Resend credentials
 - a real `NEXT_PUBLIC_BASE_URL`
+- no pending checked-in Prisma migrations after a production publish
 
 ## Build and migration safety
 
@@ -48,6 +49,7 @@ The current build path is intentionally non-destructive:
 - `npm run build` runs `next build`
 - Prisma generation runs separately via `npm run db:generate`
 - schema migrations run separately via `npm run db:migrate`
+- every production deploy that introduces new migration files must be followed by `npm run db:migrate` on the live database and a clean `prisma migrate status` check before sign-off
 
 There is no checked-in `prisma db push --accept-data-loss` path in the active build pipeline anymore.
 
@@ -101,6 +103,10 @@ These are not code gaps. They are external provisioning tasks:
 ### 1. Preview storage is not production storage
 
 Vercel previews can function without Postgres, but `/tmp/passreserve-state.json` is ephemeral. Preview success does not mean persistence is production-ready.
+
+### 1b. Schema drift can look like an auth bug
+
+If production code expects newer Prisma columns and the live database was not migrated, Passreserve can hit schema errors and fall back to the runtime file store. When that happens, organizer auth, login throttling, and other stateful flows may start reading stale runtime state instead of PostgreSQL even though the organizer account and password are still correct.
 
 ### 2. Local bootstrap credentials are intentionally weak
 

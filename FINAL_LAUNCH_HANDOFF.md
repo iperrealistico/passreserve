@@ -90,7 +90,7 @@ Database-backed setup:
 
 1. Provision the production Postgres database.
 2. Add all required env vars in Vercel.
-3. Run Prisma migrations against production with `npm run db:migrate`.
+3. Run Prisma migrations against production with `npm run db:migrate`, and repeat that step after every future production publish that introduces new checked-in migrations before treating the deploy as complete.
 4. Set the bootstrap platform admin email and password env vars.
 5. Connect Resend sending and receiving, point the shared `contact@` alias at Resend, set `FROM_EMAIL` to that alias, set `RESEND_WEBHOOK_SECRET`, and register `/api/resend/inbound` as the inbound webhook endpoint.
 6. Deploy the app on Vercel.

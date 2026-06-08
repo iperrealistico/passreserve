@@ -84,6 +84,8 @@ Only after all of the above has been read may you inspect code and start impleme
 - The canonical deployment target for this project is `Vercel.app`.
 - This repository is expected to be connected to Vercel so that every push to GitHub triggers a Vercel deployment build.
 - Treat every push as incomplete until the corresponding Vercel build has been checked.
+- If the shipped diff includes checked-in Prisma migrations or schema-dependent runtime changes, production sign-off is also blocked on `prisma migrate deploy` against the canonical production database plus a clean pending-migrations check.
+- Do not treat a `READY` Vercel deploy as sufficient if the live database has not been migrated yet. Passreserve can hit Prisma schema errors, fall back to the runtime file store, and silently break organizer auth or rate limiting even when the credentials are correct.
 - Prefer the Vercel MCP integration available in this environment to inspect deployments, build logs, and runtime status.
 - If the Vercel MCP integration is unavailable or insufficient, use the Vercel CLI available on the OS as fallback.
 - If a Vercel deployment fails, investigate it before closing the work unless the user explicitly pauses or redirects.
