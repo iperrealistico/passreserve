@@ -456,6 +456,9 @@ export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
 
         void goToStep(stepIndex - 1, mode);
       },
+      onCloseClick: () => {
+        finishTour(TOUR_SKIPPED_STATUS);
+      },
       onPopoverRender: (popover) => {
         const localeToolbar = document.createElement("div");
         localeToolbar.className = "organizer-tour-locale-toolbar";
@@ -492,12 +495,10 @@ export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
         popover.description.before(localeToolbar);
 
         const skipButton = document.createElement("button");
-        skipButton.className = "driver-popover-btn organizer-tour-skip-btn";
+        skipButton.className =
+          "driver-popover-btn driver-popover-close-btn organizer-tour-skip-btn";
         skipButton.textContent = modeDefinition.labels.skip;
         skipButton.type = "button";
-        skipButton.addEventListener("click", () => {
-          finishTour(TOUR_SKIPPED_STATUS);
-        });
         popover.footerButtons.prepend(skipButton);
       }
     });
