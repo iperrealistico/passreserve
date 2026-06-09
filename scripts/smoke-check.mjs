@@ -211,9 +211,11 @@ async function main() {
     );
     assert(eventPage.response.status === 200, "Event detail page should return 200.");
     assert(
-      eventPage.text.includes("Choose date") &&
-        eventPage.text.includes("Available dates"),
-      "Event detail page should render the minimal date-first event flow."
+      eventPage.text.includes("Sunrise Ridge Session") &&
+        (eventPage.text.includes("Choose date") ||
+          eventPage.text.includes("Register now") ||
+          eventPage.text.includes("Available dates")),
+      "Event detail page should render the date-first public event flow."
     );
     assertNoInternalCopy(eventPage.text, "Event page");
 

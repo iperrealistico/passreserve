@@ -958,6 +958,100 @@
     @apply text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground;
   }
 
+  .questionnaire-editor {
+    @apply flex flex-col gap-5;
+  }
+
+  .questionnaire-scope-toggle {
+    @apply flex flex-col gap-3 sm:flex-row;
+  }
+
+  .questionnaire-toggle {
+    @apply inline-flex items-center justify-center rounded-full border border-border bg-background px-5 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground;
+  }
+
+  .questionnaire-toggle-active {
+    @apply border-primary bg-primary text-primary-foreground;
+  }
+
+  .questionnaire-toolbar {
+    @apply flex flex-wrap gap-3;
+  }
+
+  .questionnaire-preset-note {
+    @apply rounded-[1.5rem] border border-border bg-muted/25 p-4;
+  }
+
+  .questionnaire-preset-note p {
+    @apply mt-2 text-sm leading-6 text-muted-foreground;
+  }
+
+  .questionnaire-grid,
+  .questionnaire-preview-grid {
+    @apply grid gap-4 xl:grid-cols-2;
+  }
+
+  .questionnaire-role-card,
+  .questionnaire-preview-card {
+    @apply rounded-[1.75rem] border border-border bg-muted/20 p-5;
+  }
+
+  .questionnaire-role-head {
+    @apply flex flex-col gap-3 border-b border-border pb-4 lg:flex-row lg:items-start lg:justify-between;
+  }
+
+  .questionnaire-role-head h4 {
+    @apply text-xl font-semibold tracking-tight text-foreground;
+  }
+
+  .questionnaire-role-head p {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .questionnaire-field-list {
+    @apply mt-4 flex flex-col gap-4;
+  }
+
+  .questionnaire-field-row {
+    @apply flex flex-col gap-4 rounded-[1.5rem] border border-border bg-background p-4;
+  }
+
+  .questionnaire-field-copy {
+    @apply flex flex-col gap-2;
+  }
+
+  .questionnaire-field-copy strong {
+    @apply text-base font-semibold text-foreground;
+  }
+
+  .questionnaire-field-copy span {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .questionnaire-mode-group {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .questionnaire-mode-chip {
+    @apply inline-flex items-center justify-center rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground;
+  }
+
+  .questionnaire-mode-chip-active {
+    @apply border-primary bg-primary/5 text-primary;
+  }
+
+  .questionnaire-preview-list {
+    @apply mt-4 flex flex-col gap-3;
+  }
+
+  .questionnaire-preview-item {
+    @apply flex flex-wrap items-center justify-between gap-3 rounded-[1.25rem] border border-border bg-background px-4 py-3;
+  }
+
+  .questionnaire-preview-item strong {
+    @apply text-sm font-semibold text-foreground;
+  }
+
   .field-hint {
     @apply text-xs leading-6 text-muted-foreground;
   }

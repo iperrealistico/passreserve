@@ -242,6 +242,61 @@ describe("passreserve-registrations", () => {
     expect(state.registrations[0].attendees[0].dietaryOther).toBe("");
   });
 
+  it("supports organizer defaults that ask fewer fields from non-lead participants", async () => {
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");
+
+      organizer.registrationQuestionnaireConfig = {
+        participant: {
+          address: "hidden",
+          phone: "hidden",
+          email: "hidden",
+          dietaryFlags: "hidden",
+          dietaryOther: "hidden"
+        }
+      };
+      organizer.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session", {
+      attendees: [
+        {
+          ticketCategoryId: "ticket-event-alpine-trail-lab-sunrise-ridge-session-general",
+          firstName: "Ada",
+          lastName: "Lovelace",
+          address: "Via Test 1, Bologna",
+          phone: "+39 333 555 1010",
+          email: "ADA@example.com",
+          dietaryFlags: [],
+          dietaryOther: ""
+        },
+        {
+          ticketCategoryId: "ticket-event-alpine-trail-lab-sunrise-ridge-session-general",
+          firstName: "Grace",
+          lastName: "Hopper",
+          address: "",
+          phone: "",
+          email: "",
+          dietaryFlags: [],
+          dietaryOther: ""
+        }
+      ]
+    });
+    const result = await createRegistrationHold(input);
+    const state = await loadPersistentState();
+
+    expect(result.ok).toBe(true);
+    expect(state.registrations[0].attendees[1]).toMatchObject({
+      firstName: "Grace",
+      lastName: "Hopper",
+      address: "",
+      phone: "",
+      email: "",
+      dietaryFlags: [],
+      dietaryOther: ""
+    });
+  });
+
   it("blocks registrations that are too far ahead of the allowed booking window", async () => {
     await mutatePersistentState(async (draft) => {
       const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");

@@ -7,12 +7,14 @@ import {
 } from "../../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
+import { normalizeRegistrationQuestionnaireConfig } from "../../../../lib/passreserve-registration-questionnaire.js";
 import {
   deleteOrganizerEventAction,
   saveOrganizerEventAction,
   suspendOrganizerEventAction
 } from "../actions.js";
 import { EventGalleryEditor } from "../event-gallery-editor.js";
+import { RegistrationQuestionnaireEditor } from "../registration-questionnaire-editor.js";
 import { getDetailEditId } from "./page-state.js";
 import { TicketCatalogEditor } from "./ticket-catalog-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
@@ -202,6 +204,16 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
     ? `/${slug}/admin/registrations?event=${encodeURIComponent(focusedEvent.slug)}`
     : null;
   const focusedEventPublicHref = focusedEvent ? `/${slug}/events/${focusedEvent.slug}` : "";
+  const organizerQuestionnaireConfig = normalizeRegistrationQuestionnaireConfig(
+    data.organizer.registrationQuestionnaireConfig
+  );
+  const selectedEventQuestionnaireConfig = normalizeRegistrationQuestionnaireConfig(
+    selectedEvent?.registrationQuestionnaireConfig || organizerQuestionnaireConfig,
+    {
+      baseConfig: organizerQuestionnaireConfig
+    }
+  );
+  const selectedEventHasQuestionnaireOverride = Boolean(selectedEvent?.registrationQuestionnaireConfig);
   const italianCopyStarted = hasLocalizedContentStarted(selectedEvent, "it");
   const englishCopyStarted = hasLocalizedContentStarted(selectedEvent, "en");
   const initialGalleryItems = normalizeGalleryItems(selectedEvent?.gallery, selectedEvent?.imageUrl);
@@ -649,6 +661,9 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
             <a className="filter-pill" href="#event-copy">
               {isItalian ? "Contenuti" : "Copy"}
             </a>
+            <a className="filter-pill" href="#event-questionnaire">
+              {isItalian ? "Questionario" : "Questionnaire"}
+            </a>
             <a className="filter-pill" href="#event-publish">
               {isItalian ? "Pubblicazione" : "Publish"}
             </a>
@@ -726,29 +741,33 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                   type="datetime-local"
                 />
               </label>
-              <div className="field field-span checkbox-field">
-                <span>{isItalian ? "Questionario alimentare" : "Dietary questionnaire"}</span>
-                <label className="checkbox-row">
-                  <input
-                    defaultChecked={selectedEvent?.collectDietaryInfo !== false}
-                    name="collectDietaryInfo"
-                    type="checkbox"
-                  />
-                  <div className="checkbox-copy">
-                    <strong>
-                      {isItalian
-                        ? "Raccogli allergie, intolleranze e note alimentari per questo evento."
-                        : "Collect allergies, intolerances, and food notes for this event."}
-                    </strong>
-                    <span>
-                      {isItalian
-                        ? "Se lo disattivi, nel frontend verranno richiesti solo i dati base dei partecipanti."
-                        : "If you turn it off, the frontend will only ask for the core participant details."}
-                    </span>
-                  </div>
-                </label>
-              </div>
             </div>
+          </EventFormSection>
+
+          <EventFormSection
+            defaultOpen={!isEditing || activeTab === "basics"}
+            description={
+              isItalian
+                ? "Qui puoi personalizzare solo questo evento senza toccare il default organizer."
+                : "Customize just this event here without changing the organizer-wide default."
+            }
+            id="event-questionnaire"
+            title={isItalian ? "Participant questionnaire" : "Participant questionnaire"}
+          >
+            <p className="admin-page-tip">
+              {isItalian
+                ? "Se lasci attivo il default organizer, questo evento eredita esattamente la stessa matrice lead/altri partecipanti. Attiva la personalizzazione solo quando qui ti serve una versione diversa."
+                : "If you keep organizer defaults active, this event inherits the exact same lead-versus-participant matrix. Enable customization only when this event needs a different form."}
+            </p>
+
+            <RegistrationQuestionnaireEditor
+              allowInherit
+              inheritedConfig={organizerQuestionnaireConfig}
+              initialConfig={selectedEventQuestionnaireConfig}
+              initialOverrideEnabled={selectedEventHasQuestionnaireOverride}
+              inputName="registrationQuestionnaireConfigJson"
+              isItalian={isItalian}
+            />
           </EventFormSection>
 
           <EventFormSection

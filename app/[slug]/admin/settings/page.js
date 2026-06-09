@@ -5,12 +5,14 @@ import { getLocalizedFormText } from "../../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { REGISTRATION_REMINDER_LEAD_OPTIONS } from "../../../../lib/passreserve-email-delivery.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
+import { normalizeRegistrationQuestionnaireConfig } from "../../../../lib/passreserve-registration-questionnaire.js";
 import {
   organizerChangePasswordAction,
   publishOrganizerProfileAction,
   saveOrganizerSettingsAction
 } from "../actions.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
+import { RegistrationQuestionnaireEditor } from "../registration-questionnaire-editor.js";
 
 export const metadata = {
   title: "Organizer settings"
@@ -107,8 +109,12 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
   const englishCopyStarted = hasOrganizerLocalizedContentStarted(data.organizer, "en");
   const successMessage = resolveMessage(typeof query.message === "string" ? query.message : "", isItalian);
   const errorMessage = typeof query.error === "string" ? query.error : "";
+  const organizerQuestionnaireConfig = normalizeRegistrationQuestionnaireConfig(
+    data.organizer.registrationQuestionnaireConfig
+  );
   const settingsAnchors = [
     ["organization", isItalian ? "Organization" : "Organization"],
+    ["questionnaire", isItalian ? "Questionario" : "Questionnaire"],
     ["notifications", isItalian ? "Notifications" : "Notifications"],
     ["account", isItalian ? "Account" : "Account"],
     ["billing", isItalian ? "Billing" : "Billing"],
@@ -419,6 +425,33 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
               </small>
             </label>
           </div>
+        </section>
+
+        <section className="panel section-card admin-section" id="questionnaire">
+          <div className="admin-section-header">
+            <div>
+              <div className="section-kicker">
+                {isItalian ? "Questionario registrazione" : "Registration questionnaire"}
+              </div>
+              <h3>
+                {isItalian
+                  ? "Definisci cosa chiedere al prenotante e al resto del gruppo"
+                  : "Define what the lead booker shares versus the rest of the group"}
+              </h3>
+            </div>
+          </div>
+
+          <p className="admin-page-tip">
+            {isItalian
+              ? "Questa è la configurazione organizer di default: il frontend pubblico e la manual registration useranno la stessa matrice, a meno che un singolo evento non la sovrascriva."
+              : "This is the organizer default. The public runtime and manual registration builder will both use this same matrix unless a specific event overrides it."}
+          </p>
+
+          <RegistrationQuestionnaireEditor
+            initialConfig={organizerQuestionnaireConfig}
+            isItalian={isItalian}
+            inputName="registrationQuestionnaireConfigJson"
+          />
         </section>
 
         <section className="panel section-card admin-section" id="notifications">

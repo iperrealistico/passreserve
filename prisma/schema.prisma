@@ -144,6 +144,7 @@ model Organizer {
   imageUrl           String?
   minAdvanceHours    Int                           @default(0)
   maxAdvanceDays     Int?
+  registrationQuestionnaireConfig Json?
   registrationRemindersEnabled Boolean            @default(false)
   registrationReminderLeadHours Int               @default(24)
   registrationReminderNote     String             @default("")
@@ -266,6 +267,7 @@ model EventType {
   organizerNotes        String          @default("")
   cancellationPolicy    String          @default("")
   collectDietaryInfo    Boolean         @default(true)
+  registrationQuestionnaireConfig Json?
   salesWindowStartsAt   DateTime?
   salesWindowEndsAt     DateTime?
   highlights            Json?

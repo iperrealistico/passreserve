@@ -8,7 +8,8 @@ import {
   buildRegistrationRecord,
   buildRegistrationPaymentTotals,
   normalizeRegistrationAttendees,
-  normalizeRequestedItems
+  normalizeRequestedItems,
+  prepareRegistrationBuild
 } from "../lib/passreserve-registration-core.js";
 
 describe("passreserve-registration-core", () => {
@@ -265,5 +266,60 @@ describe("passreserve-registration-core", () => {
     });
     expect(registration.holdToken).toBeNull();
     expect(registration.items[0].registrationId).toBe(registration.id);
+  });
+
+  it("lets the shared builder honor lean participant questionnaires", () => {
+    const result = prepareRegistrationBuild({
+      items: [
+        {
+          ticketCategoryId: "general",
+          quantity: 2
+        }
+      ],
+      attendees: [
+        {
+          ticketCategoryId: "general",
+          firstName: "Ada",
+          lastName: "Lovelace",
+          address: "Via Test 1",
+          phone: "+39 333 555 1010",
+          email: "ada@example.com"
+        },
+        {
+          ticketCategoryId: "general",
+          firstName: "Grace",
+          lastName: "Hopper",
+          address: "",
+          phone: "",
+          email: ""
+        }
+      ],
+      ticketCategories: [
+        {
+          id: "general",
+          unitPriceCents: 2500
+        }
+      ],
+      registrationQuestionnaireConfig: {
+        participant: {
+          address: "hidden",
+          phone: "hidden",
+          email: "hidden",
+          dietaryFlags: "hidden",
+          dietaryOther: "hidden"
+        }
+      }
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.attendees[1]).toMatchObject({
+      firstName: "Grace",
+      lastName: "Hopper",
+      address: "",
+      phone: "",
+      email: "",
+      dietaryFlags: [],
+      dietaryOther: ""
+    });
   });
 });

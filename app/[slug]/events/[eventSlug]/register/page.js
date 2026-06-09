@@ -82,6 +82,7 @@ export default async function RegistrationPage({ params, searchParams }) {
         initialOccurrenceId={selectedOccurrence?.id ?? null}
         locale={locale}
         collectDietaryInfo={event.collectDietaryInfo}
+        registrationQuestionnaireConfig={event.registrationQuestionnaireConfig}
       />
 
         <PublicFooter dictionary={dictionary} locale={locale} />

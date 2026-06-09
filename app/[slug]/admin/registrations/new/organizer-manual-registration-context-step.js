@@ -7,6 +7,12 @@ import { useActionState, useEffect, useMemo, useState, useTransition } from "rea
 import { createOrganizerRegistrationAction } from "../../actions.js";
 import { dietaryFlags } from "../../../../../lib/passreserve-dietary.js";
 import { calculatePaymentBreakdown } from "../../../../../lib/passreserve-domain.js";
+import {
+  getRegistrationQuestionnaireRole,
+  getRegistrationQuestionnaireMissingFields,
+  isRegistrationQuestionnaireAttendeeComplete,
+  isRegistrationQuestionnaireFieldVisible
+} from "../../../../../lib/passreserve-registration-questionnaire.js";
 
 const STEP_INDEX = {
   context: 0,
@@ -494,16 +500,14 @@ function buildCartQuote(ticketCategories, occurrence, cartItems) {
   );
 }
 
-function isAttendeeComplete(attendee) {
-  const email = String(attendee.email || "").trim();
-
+function isAttendeeComplete(attendee, registrationQuestionnaireConfig, index) {
   return Boolean(
     attendee.ticketCategoryId &&
-      attendee.firstName.trim() &&
-      attendee.lastName.trim() &&
-      attendee.address.trim() &&
-      attendee.phone.trim().length >= 6 &&
-      /^\S+@\S+\.\S+$/.test(email)
+      isRegistrationQuestionnaireAttendeeComplete(
+        attendee,
+        registrationQuestionnaireConfig,
+        index
+      )
   );
 }
 
@@ -618,30 +622,13 @@ function getOccurrenceAvailabilityMessage({
   return "";
 }
 
-function getAttendeeMissingFields(attendee, isItalian) {
-  const missing = [];
-
-  if (!String(attendee.firstName || "").trim()) {
-    missing.push(isItalian ? "nome" : "first name");
-  }
-
-  if (!String(attendee.lastName || "").trim()) {
-    missing.push(isItalian ? "cognome" : "last name");
-  }
-
-  if (!String(attendee.address || "").trim()) {
-    missing.push(isItalian ? "indirizzo" : "address");
-  }
-
-  if (String(attendee.phone || "").trim().length < 6) {
-    missing.push(isItalian ? "telefono" : "phone");
-  }
-
-  if (!/^\S+@\S+\.\S+$/.test(String(attendee.email || "").trim())) {
-    missing.push(isItalian ? "email" : "email");
-  }
-
-  return missing;
+function getAttendeeMissingFields(attendee, registrationQuestionnaireConfig, index, isItalian) {
+  return getRegistrationQuestionnaireMissingFields(
+    attendee,
+    registrationQuestionnaireConfig,
+    index,
+    isItalian ? "it" : "en"
+  ).map((field) => field.toLowerCase());
 }
 
 function buildContextSnapshot({
@@ -776,6 +763,10 @@ export function OrganizerManualRegistrationContextStep({
     8
   );
   const totalQuantity = sumCartQuantity(cartItems);
+  const selectedQuestionnaireConfig =
+    selectedEvent?.resolvedRegistrationQuestionnaireConfig ||
+    selectedEvent?.registrationQuestionnaireConfig ||
+    null;
   const dietaryOptions = useMemo(() => buildDietaryOptions(isItalian), [isItalian]);
   const currencyFormatter = useMemo(
     () =>
@@ -793,7 +784,9 @@ export function OrganizerManualRegistrationContextStep({
     () => buildCartQuote(selectedTicketCategories, selectedOccurrence, cartItems),
     [cartItems, selectedOccurrence, selectedTicketCategories]
   );
-  const completedAttendees = attendees.filter(isAttendeeComplete).length;
+  const completedAttendees = attendees.filter((attendee, index) =>
+    isAttendeeComplete(attendee, selectedQuestionnaireConfig, index)
+  ).length;
   const attendeesComplete = attendees.length > 0 && completedAttendees === attendees.length;
   const dietaryRequestCount = attendees.filter(
     (attendee) =>
@@ -830,16 +823,24 @@ export function OrganizerManualRegistrationContextStep({
   const actionFieldErrorEntries = Object.entries(activeFieldErrors);
   const leadAttendee = attendees[0] ?? null;
   const leadAttendeeMissingFields = useMemo(
-    () => (leadAttendee ? getAttendeeMissingFields(leadAttendee, isItalian) : []),
-    [isItalian, leadAttendee]
+    () =>
+      leadAttendee
+        ? getAttendeeMissingFields(leadAttendee, selectedQuestionnaireConfig, 0, isItalian)
+        : [],
+    [isItalian, leadAttendee, selectedQuestionnaireConfig]
   );
   const attendeeCompletionSummary = useMemo(
     () =>
       attendees.map((attendee, index) => ({
         index,
-        missingFields: getAttendeeMissingFields(attendee, isItalian)
+        missingFields: getAttendeeMissingFields(
+          attendee,
+          selectedQuestionnaireConfig,
+          index,
+          isItalian
+        )
       })),
-    [attendees, isItalian]
+    [attendees, isItalian, selectedQuestionnaireConfig]
   );
   const duplicateRegistrations = useMemo(() => {
     const leadEmail = normalizeComparisonEmail(leadAttendee?.email);
@@ -1653,6 +1654,7 @@ export function OrganizerManualRegistrationContextStep({
                     )?.label || "Ticket";
                   const missingFields = attendeeCompletionSummary[index]?.missingFields || [];
                   const isComplete = missingFields.length === 0;
+                  const attendeeRole = getRegistrationQuestionnaireRole(index);
 
                   return (
                     <article className="registration-choice registration-choice-active" key={`attendee-${index}`}>
@@ -1700,48 +1702,83 @@ export function OrganizerManualRegistrationContextStep({
                           <span>{isItalian ? "Ticket assegnato" : "Assigned ticket"}</span>
                           <input readOnly type="text" value={ticketLabel} />
                         </label>
-                        <label className="field">
-                          <span>{isItalian ? "Nome" : "First name"}</span>
-                          <input
-                            onChange={(event) => updateAttendee(index, { firstName: event.target.value })}
-                            type="text"
-                            value={attendee.firstName}
-                          />
-                        </label>
-                        <label className="field">
-                          <span>{isItalian ? "Cognome" : "Last name"}</span>
-                          <input
-                            onChange={(event) => updateAttendee(index, { lastName: event.target.value })}
-                            type="text"
-                            value={attendee.lastName}
-                          />
-                        </label>
-                        <label className="field field-span">
-                          <span>{isItalian ? "Indirizzo" : "Address"}</span>
-                          <input
-                            onChange={(event) => updateAttendee(index, { address: event.target.value })}
-                            type="text"
-                            value={attendee.address}
-                          />
-                        </label>
-                        <label className="field">
-                          <span>{isItalian ? "Telefono" : "Phone"}</span>
-                          <input
-                            onChange={(event) => updateAttendee(index, { phone: event.target.value })}
-                            type="text"
-                            value={attendee.phone}
-                          />
-                        </label>
-                        <label className="field">
-                          <span>{isItalian ? "Email" : "Email"}</span>
-                          <input
-                            onChange={(event) => updateAttendee(index, { email: event.target.value })}
-                            type="email"
-                            value={attendee.email}
-                          />
-                        </label>
+                        {isRegistrationQuestionnaireFieldVisible(
+                          selectedQuestionnaireConfig,
+                          attendeeRole,
+                          "firstName"
+                        ) ? (
+                          <label className="field">
+                            <span>{isItalian ? "Nome" : "First name"}</span>
+                            <input
+                              onChange={(event) => updateAttendee(index, { firstName: event.target.value })}
+                              type="text"
+                              value={attendee.firstName}
+                            />
+                          </label>
+                        ) : null}
+                        {isRegistrationQuestionnaireFieldVisible(
+                          selectedQuestionnaireConfig,
+                          attendeeRole,
+                          "lastName"
+                        ) ? (
+                          <label className="field">
+                            <span>{isItalian ? "Cognome" : "Last name"}</span>
+                            <input
+                              onChange={(event) => updateAttendee(index, { lastName: event.target.value })}
+                              type="text"
+                              value={attendee.lastName}
+                            />
+                          </label>
+                        ) : null}
+                        {isRegistrationQuestionnaireFieldVisible(
+                          selectedQuestionnaireConfig,
+                          attendeeRole,
+                          "address"
+                        ) ? (
+                          <label className="field field-span">
+                            <span>{isItalian ? "Indirizzo" : "Address"}</span>
+                            <input
+                              onChange={(event) => updateAttendee(index, { address: event.target.value })}
+                              type="text"
+                              value={attendee.address}
+                            />
+                          </label>
+                        ) : null}
+                        {isRegistrationQuestionnaireFieldVisible(
+                          selectedQuestionnaireConfig,
+                          attendeeRole,
+                          "phone"
+                        ) ? (
+                          <label className="field">
+                            <span>{isItalian ? "Telefono" : "Phone"}</span>
+                            <input
+                              onChange={(event) => updateAttendee(index, { phone: event.target.value })}
+                              type="text"
+                              value={attendee.phone}
+                            />
+                          </label>
+                        ) : null}
+                        {isRegistrationQuestionnaireFieldVisible(
+                          selectedQuestionnaireConfig,
+                          attendeeRole,
+                          "email"
+                        ) ? (
+                          <label className="field">
+                            <span>{isItalian ? "Email" : "Email"}</span>
+                            <input
+                              onChange={(event) => updateAttendee(index, { email: event.target.value })}
+                              type="email"
+                              value={attendee.email}
+                            />
+                          </label>
+                        ) : null}
 
-                        {selectedEvent?.collectDietaryInfo !== false ? (
+                        {selectedEvent?.collectDietaryInfo !== false &&
+                        isRegistrationQuestionnaireFieldVisible(
+                          selectedQuestionnaireConfig,
+                          attendeeRole,
+                          "dietaryFlags"
+                        ) ? (
                           <>
                             <div className="field field-span">
                               <span>
@@ -1764,6 +1801,15 @@ export function OrganizerManualRegistrationContextStep({
                                 })}
                               </div>
                             </div>
+                          </>
+                        ) : null}
+                        {selectedEvent?.collectDietaryInfo !== false &&
+                        isRegistrationQuestionnaireFieldVisible(
+                          selectedQuestionnaireConfig,
+                          attendeeRole,
+                          "dietaryOther"
+                        ) ? (
+                          <>
                             <label className="field field-span">
                               <span>{isItalian ? "Nota libera" : "Free note"}</span>
                               <textarea

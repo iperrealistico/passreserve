@@ -44,6 +44,21 @@ function checked(formData, key) {
   return formData.get(key) === "on";
 }
 
+function parseOptionalJsonObjectField(formData, key) {
+  const rawValue = value(formData, key);
+
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 function withRegistrationFilters(path, eventFilter = "", occurrenceFilter = "") {
   const params = new URLSearchParams();
 
@@ -240,7 +255,10 @@ export async function saveOrganizerEventAction(formData) {
         basePriceCents: value(formData, "basePriceCents"),
         ticketCatalogJson: value(formData, "ticketCatalogJson"),
         prepayPercentage: value(formData, "prepayPercentage"),
-        collectDietaryInfo: checked(formData, "collectDietaryInfo"),
+        registrationQuestionnaireConfig: parseOptionalJsonObjectField(
+          formData,
+          "registrationQuestionnaireConfigJson"
+        ),
         salesWindowStartsAt: value(formData, "salesWindowStartsAt"),
         salesWindowEndsAt: value(formData, "salesWindowEndsAt"),
         attendeeInstructions:
@@ -569,6 +587,10 @@ export async function saveOrganizerSettingsAction(formData) {
       venuesText: value(formData, "venuesText"),
       adminEmail: value(formData, "adminEmail"),
       adminName: value(formData, "adminName"),
+      registrationQuestionnaireConfig: parseOptionalJsonObjectField(
+        formData,
+        "registrationQuestionnaireConfigJson"
+      ),
       minAdvanceHours: value(formData, "minAdvanceHours"),
       maxAdvanceDays: value(formData, "maxAdvanceDays"),
       registrationRemindersEnabled: checked(formData, "registrationRemindersEnabled"),

@@ -4,6 +4,11 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { calculatePaymentBreakdown } from "../../../../../lib/passreserve-domain.js";
+import {
+  getRegistrationQuestionnaireRole,
+  isRegistrationQuestionnaireAttendeeComplete,
+  isRegistrationQuestionnaireFieldVisible
+} from "../../../../../lib/passreserve-registration-questionnaire.js";
 import { createRegistrationHoldAction } from "./actions.js";
 
 const initialActionState = {
@@ -149,14 +154,14 @@ function buildCartQuote(occurrence, cartItems) {
   );
 }
 
-function isAttendeeComplete(attendee) {
+function isAttendeeComplete(attendee, registrationQuestionnaireConfig, index) {
   return Boolean(
     attendee.ticketCategoryId &&
-      attendee.firstName.trim() &&
-      attendee.lastName.trim() &&
-      attendee.address.trim() &&
-      attendee.phone.trim() &&
-      attendee.email.trim()
+      isRegistrationQuestionnaireAttendeeComplete(
+        attendee,
+        registrationQuestionnaireConfig,
+        index
+      )
   );
 }
 
@@ -166,7 +171,8 @@ export default function RegistrationFlowExperience({
   initialOccurrenceId,
   locale,
   dictionary,
-  dietaryOptions
+  dietaryOptions,
+  registrationQuestionnaireConfig
 }) {
   const [actionState, formAction, isPending] = useActionState(
     createRegistrationHoldAction,
@@ -190,7 +196,9 @@ export default function RegistrationFlowExperience({
   const totalQuantity = sumCartQuantity(cartItems);
   const canAccessTickets = Boolean(selectedOccurrence?.registrationAvailable);
   const canAccessAttendees = canAccessTickets && totalQuantity > 0;
-  const attendeesComplete = attendees.every(isAttendeeComplete);
+  const attendeesComplete = attendees.every((attendee, index) =>
+    isAttendeeComplete(attendee, registrationQuestionnaireConfig, index)
+  );
   const canAccessReview = canAccessAttendees && attendeesComplete;
   const cartDetails = useMemo(
     () => getCartItemsWithViewData(selectedOccurrence, cartItems),
@@ -539,6 +547,7 @@ export default function RegistrationFlowExperience({
                   selectedOccurrence?.ticketCategories.find(
                     (category) => category.id === attendee.ticketCategoryId
                   )?.label || "Ticket";
+                const attendeeRole = getRegistrationQuestionnaireRole(index);
 
                 return (
                   <article className="registration-choice registration-choice-active" key={`attendee-${index}`}>
@@ -559,47 +568,82 @@ export default function RegistrationFlowExperience({
                         <span>{labels.ticketAssigned}</span>
                         <input readOnly type="text" value={ticketLabel} />
                       </label>
-                      <label className="field">
-                        <span>{dictionary.registration.firstName}</span>
-                        <input
-                          onChange={(event) => updateAttendee(index, { firstName: event.target.value })}
-                          type="text"
-                          value={attendee.firstName}
-                        />
-                      </label>
-                      <label className="field">
-                        <span>{dictionary.registration.lastName}</span>
-                        <input
-                          onChange={(event) => updateAttendee(index, { lastName: event.target.value })}
-                          type="text"
-                          value={attendee.lastName}
-                        />
-                      </label>
-                      <label className="field field-span">
-                        <span>{dictionary.registration.address}</span>
-                        <input
-                          onChange={(event) => updateAttendee(index, { address: event.target.value })}
-                          type="text"
-                          value={attendee.address}
-                        />
-                      </label>
-                      <label className="field">
-                        <span>{dictionary.registration.phone}</span>
-                        <input
-                          onChange={(event) => updateAttendee(index, { phone: event.target.value })}
-                          type="text"
-                          value={attendee.phone}
-                        />
-                      </label>
-                      <label className="field">
-                        <span>{dictionary.registration.email}</span>
-                        <input
-                          onChange={(event) => updateAttendee(index, { email: event.target.value })}
-                          type="email"
-                          value={attendee.email}
-                        />
-                      </label>
-                      {collectDietaryInfo ? (
+                      {isRegistrationQuestionnaireFieldVisible(
+                        registrationQuestionnaireConfig,
+                        attendeeRole,
+                        "firstName"
+                      ) ? (
+                        <label className="field">
+                          <span>{dictionary.registration.firstName}</span>
+                          <input
+                            onChange={(event) => updateAttendee(index, { firstName: event.target.value })}
+                            type="text"
+                            value={attendee.firstName}
+                          />
+                        </label>
+                      ) : null}
+                      {isRegistrationQuestionnaireFieldVisible(
+                        registrationQuestionnaireConfig,
+                        attendeeRole,
+                        "lastName"
+                      ) ? (
+                        <label className="field">
+                          <span>{dictionary.registration.lastName}</span>
+                          <input
+                            onChange={(event) => updateAttendee(index, { lastName: event.target.value })}
+                            type="text"
+                            value={attendee.lastName}
+                          />
+                        </label>
+                      ) : null}
+                      {isRegistrationQuestionnaireFieldVisible(
+                        registrationQuestionnaireConfig,
+                        attendeeRole,
+                        "address"
+                      ) ? (
+                        <label className="field field-span">
+                          <span>{dictionary.registration.address}</span>
+                          <input
+                            onChange={(event) => updateAttendee(index, { address: event.target.value })}
+                            type="text"
+                            value={attendee.address}
+                          />
+                        </label>
+                      ) : null}
+                      {isRegistrationQuestionnaireFieldVisible(
+                        registrationQuestionnaireConfig,
+                        attendeeRole,
+                        "phone"
+                      ) ? (
+                        <label className="field">
+                          <span>{dictionary.registration.phone}</span>
+                          <input
+                            onChange={(event) => updateAttendee(index, { phone: event.target.value })}
+                            type="text"
+                            value={attendee.phone}
+                          />
+                        </label>
+                      ) : null}
+                      {isRegistrationQuestionnaireFieldVisible(
+                        registrationQuestionnaireConfig,
+                        attendeeRole,
+                        "email"
+                      ) ? (
+                        <label className="field">
+                          <span>{dictionary.registration.email}</span>
+                          <input
+                            onChange={(event) => updateAttendee(index, { email: event.target.value })}
+                            type="email"
+                            value={attendee.email}
+                          />
+                        </label>
+                      ) : null}
+                      {collectDietaryInfo &&
+                      isRegistrationQuestionnaireFieldVisible(
+                        registrationQuestionnaireConfig,
+                        attendeeRole,
+                        "dietaryFlags"
+                      ) ? (
                         <>
                           <div className="field field-span">
                             <span>{dictionary.registration.dietary}</span>
@@ -620,6 +664,15 @@ export default function RegistrationFlowExperience({
                               })}
                             </div>
                           </div>
+                        </>
+                      ) : null}
+                      {collectDietaryInfo &&
+                      isRegistrationQuestionnaireFieldVisible(
+                        registrationQuestionnaireConfig,
+                        attendeeRole,
+                        "dietaryOther"
+                      ) ? (
+                        <>
                           <label className="field field-span">
                             <span>{dictionary.registration.dietaryOther}</span>
                             <textarea
