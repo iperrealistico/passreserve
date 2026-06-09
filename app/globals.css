@@ -1690,6 +1690,63 @@
     @apply mt-1 text-sm font-medium text-muted-foreground;
   }
 
+  .event-meta-row {
+    @apply flex flex-wrap items-center gap-3 text-sm text-muted-foreground;
+  }
+
+  .event-meta-divider {
+    @apply h-1.5 w-1.5 rounded-full bg-border;
+  }
+
+  .event-format-card {
+    @apply rounded-[1.75rem] border border-border bg-card p-5 shadow-sm;
+  }
+
+  .event-format-head {
+    @apply flex flex-col gap-4 border-b border-border/80 pb-5 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  .event-format-copy {
+    @apply flex min-w-0 flex-col gap-2;
+  }
+
+  .event-format-copy strong {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+
+  .event-format-copy span {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .event-format-price {
+    @apply inline-flex min-w-[148px] flex-col items-start rounded-[1.25rem] border border-border bg-muted/50 px-4 py-3 sm:items-end;
+  }
+
+  .event-format-price strong {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+
+  .event-format-price span {
+    @apply mt-1 text-sm font-medium text-muted-foreground;
+  }
+
+  .event-format-summary {
+    @apply mt-5 text-base leading-7 text-muted-foreground;
+  }
+
+  .event-format-included {
+    @apply mt-5 rounded-[1.5rem] border border-border bg-muted/35 p-4;
+  }
+
+  .event-format-included strong {
+    @apply block text-sm font-semibold text-foreground;
+  }
+
+  .event-format-included-list {
+    @apply mt-3 grid gap-2 pl-5 text-sm leading-6 text-muted-foreground;
+    list-style: disc;
+  }
+
   .registration-ticket-included {
     @apply mt-4 rounded-[1.5rem] border border-border bg-muted/35 p-4;
   }

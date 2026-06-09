@@ -12,6 +12,18 @@ function buildRegistrationHref(slug, eventSlug, occurrenceId) {
   return `/${slug}/events/${eventSlug}/register?occurrence=${occurrenceId}`;
 }
 
+function buildEventDetailHref(slug, eventSlug, occurrenceId) {
+  const params = new URLSearchParams();
+
+  if (occurrenceId) {
+    params.set("occurrence", occurrenceId);
+  }
+
+  const query = params.toString();
+
+  return `/${slug}/events/${eventSlug}${query ? `?${query}` : ""}#occurrences`;
+}
+
 function toList(value) {
   return Array.isArray(value) ? value : [];
 }
@@ -128,7 +140,11 @@ export default async function OrganizerPage({ params }) {
                       </Link>
                       <Link
                         className="button button-secondary"
-                        href={`/${organizerRouteSlug}/events/${occurrence.eventSlug}`}
+                        href={buildEventDetailHref(
+                          organizerRouteSlug,
+                          occurrence.eventSlug,
+                          occurrence.id
+                        )}
                       >
                         {dictionary.events.openEvent}
                       </Link>
