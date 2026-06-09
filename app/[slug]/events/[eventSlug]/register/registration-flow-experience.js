@@ -172,7 +172,8 @@ export default function RegistrationFlowExperience({
   locale,
   dictionary,
   dietaryOptions,
-  registrationQuestionnaireConfig
+  registrationQuestionnaireConfig,
+  registrationConfirmationMode = "EMAIL_LINK_REQUIRED"
 }) {
   const [actionState, formAction, isPending] = useActionState(
     createRegistrationHoldAction,
@@ -208,6 +209,8 @@ export default function RegistrationFlowExperience({
     () => (selectedOccurrence ? buildCartQuote(selectedOccurrence, cartItems) : null),
     [cartItems, selectedOccurrence]
   );
+  const requiresEmailLinkConfirmation = registrationConfirmationMode !== "DIRECT_CONFIRM";
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const priceFormatter = useMemo(
     () =>
       new Intl.NumberFormat(locale === "it" ? "it-IT" : "en-US", {
@@ -235,7 +238,29 @@ export default function RegistrationFlowExperience({
       missingTickets:
         locale === "it"
           ? "Scegli almeno un ticket prima di continuare."
-          : "Choose at least one ticket before continuing."
+          : "Choose at least one ticket before continuing.",
+      directConfirmHeadline:
+        locale === "it"
+          ? "Conferma diretta attiva per questo evento"
+          : "Direct confirmation is active for this event",
+      directConfirmDetail:
+        locale === "it"
+          ? "Il click finale salta il link email obbligatorio, ma le email di conferma e recap restano attive."
+          : "The final submit skips the required email-link step, but confirmation and recap emails still stay active.",
+      terms:
+        locale === "it"
+          ? "Accetto le indicazioni dell'organizer, le note venue e le policy pubblicate per questa data."
+          : "I accept the organizer guidance, venue notes, and published policies for this date.",
+      responsibility:
+        locale === "it"
+          ? "Confermo il numero dei partecipanti e che la data selezionata è corretta per il gruppo registrato."
+          : "I confirm the participant count and that the selected date still matches the registered group.",
+      createHoldCta:
+        locale === "it" ? "Crea hold registrazione" : "Create registration hold",
+      directConfirmCta:
+        locale === "it" ? "Conferma registrazione" : "Confirm registration",
+      directPaymentCta:
+        locale === "it" ? "Vai al pagamento" : "Continue to payment"
     }),
     [locale]
   );
@@ -720,6 +745,7 @@ export default function RegistrationFlowExperience({
             <input name="itemsJson" type="hidden" value={serializedItems} />
             <input name="registrationLocale" type="hidden" value={locale} />
             <input name="attendeesJson" type="hidden" value={serializedAttendees} />
+            <input name="baseUrl" type="hidden" value={baseUrl} />
 
             <h3>{dictionary.registration.summaryCard}</h3>
             <div className="registration-choice-grid">
@@ -756,6 +782,27 @@ export default function RegistrationFlowExperience({
               </div>
             </div>
 
+            {!requiresEmailLinkConfirmation ? (
+              <>
+                <div className="questionnaire-preset-note confirmation-mode-note">
+                  <span className="admin-filter-label">{labels.directConfirmHeadline}</span>
+                  <p>{labels.directConfirmDetail}</p>
+                </div>
+
+                <div className="registration-checklist flex flex-col gap-3">
+                  <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
+                    <input name="termsAccepted" type="checkbox" value="yes" />
+                    <span>{labels.terms}</span>
+                  </label>
+
+                  <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
+                    <input name="responsibilityAccepted" type="checkbox" value="yes" />
+                    <span>{labels.responsibility}</span>
+                  </label>
+                </div>
+              </>
+            ) : null}
+
             {actionState.message ? (
               <div className="registration-message-error">{actionState.message}</div>
             ) : null}
@@ -765,7 +812,11 @@ export default function RegistrationFlowExperience({
                 {dictionary.registration.back}
               </button>
               <button className="button button-primary" disabled={isPending} type="submit">
-                {dictionary.registration.createHold}
+                {requiresEmailLinkConfirmation
+                  ? labels.createHoldCta
+                  : quote?.onlineAmount > 0
+                    ? labels.directPaymentCta
+                    : labels.directConfirmCta}
               </button>
             </div>
           </form>

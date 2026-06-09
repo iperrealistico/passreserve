@@ -7,6 +7,7 @@ import {
 } from "../../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
+import { normalizeRegistrationConfirmationMode } from "../../../../lib/passreserve-registration-confirmation.js";
 import { normalizeRegistrationQuestionnaireConfig } from "../../../../lib/passreserve-registration-questionnaire.js";
 import {
   deleteOrganizerEventAction,
@@ -14,6 +15,7 @@ import {
   suspendOrganizerEventAction
 } from "../actions.js";
 import { EventGalleryEditor } from "../event-gallery-editor.js";
+import { RegistrationConfirmationModeEditor } from "../registration-confirmation-mode-editor.js";
 import { RegistrationQuestionnaireEditor } from "../registration-questionnaire-editor.js";
 import { getDetailEditId } from "./page-state.js";
 import { TicketCatalogEditor } from "./ticket-catalog-editor.js";
@@ -207,13 +209,23 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
   const organizerQuestionnaireConfig = normalizeRegistrationQuestionnaireConfig(
     data.organizer.registrationQuestionnaireConfig
   );
+  const organizerRegistrationConfirmationMode = normalizeRegistrationConfirmationMode(
+    data.organizer.registrationConfirmationMode
+  );
   const selectedEventQuestionnaireConfig = normalizeRegistrationQuestionnaireConfig(
     selectedEvent?.registrationQuestionnaireConfig || organizerQuestionnaireConfig,
     {
       baseConfig: organizerQuestionnaireConfig
     }
   );
+  const selectedEventRegistrationConfirmationMode = normalizeRegistrationConfirmationMode(
+    selectedEvent?.registrationConfirmationMode || organizerRegistrationConfirmationMode,
+    organizerRegistrationConfirmationMode
+  );
   const selectedEventHasQuestionnaireOverride = Boolean(selectedEvent?.registrationQuestionnaireConfig);
+  const selectedEventHasRegistrationConfirmationOverride = Boolean(
+    selectedEvent?.registrationConfirmationMode
+  );
   const italianCopyStarted = hasLocalizedContentStarted(selectedEvent, "it");
   const englishCopyStarted = hasLocalizedContentStarted(selectedEvent, "en");
   const initialGalleryItems = normalizeGalleryItems(selectedEvent?.gallery, selectedEvent?.imageUrl);
@@ -766,6 +778,32 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
               initialConfig={selectedEventQuestionnaireConfig}
               initialOverrideEnabled={selectedEventHasQuestionnaireOverride}
               inputName="registrationQuestionnaireConfigJson"
+              isItalian={isItalian}
+            />
+          </EventFormSection>
+
+          <EventFormSection
+            defaultOpen={!isEditing || activeTab === "basics"}
+            description={
+              isItalian
+                ? "Scegli se questo evento richiede davvero il click sul link email prima di arrivare a conferma o pagamento."
+                : "Choose whether this event really requires the email-link click before confirmation or payment."
+            }
+            id="event-confirmation-flow"
+            title={isItalian ? "Booking confirmation step" : "Booking confirmation step"}
+          >
+            <p className="admin-page-tip">
+              {isItalian
+                ? "Puoi ereditare il default organizer oppure personalizzare solo questo evento. Disattivare il passaggio email non disattiva le email di conferma o recap."
+                : "You can inherit the organizer default or customize just this event. Disabling the email-link step does not disable confirmation or recap emails."}
+            </p>
+
+            <RegistrationConfirmationModeEditor
+              allowInherit
+              inheritedMode={organizerRegistrationConfirmationMode}
+              initialMode={selectedEventRegistrationConfirmationMode}
+              initialOverrideEnabled={selectedEventHasRegistrationConfirmationOverride}
+              inputName="registrationConfirmationMode"
               isItalian={isItalian}
             />
           </EventFormSection>

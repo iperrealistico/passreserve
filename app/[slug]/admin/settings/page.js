@@ -5,12 +5,14 @@ import { getLocalizedFormText } from "../../../../lib/passreserve-content.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { REGISTRATION_REMINDER_LEAD_OPTIONS } from "../../../../lib/passreserve-email-delivery.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
+import { normalizeRegistrationConfirmationMode } from "../../../../lib/passreserve-registration-confirmation.js";
 import { normalizeRegistrationQuestionnaireConfig } from "../../../../lib/passreserve-registration-questionnaire.js";
 import {
   organizerChangePasswordAction,
   publishOrganizerProfileAction,
   saveOrganizerSettingsAction
 } from "../actions.js";
+import { RegistrationConfirmationModeEditor } from "../registration-confirmation-mode-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 import { RegistrationQuestionnaireEditor } from "../registration-questionnaire-editor.js";
 
@@ -112,9 +114,13 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
   const organizerQuestionnaireConfig = normalizeRegistrationQuestionnaireConfig(
     data.organizer.registrationQuestionnaireConfig
   );
+  const organizerRegistrationConfirmationMode = normalizeRegistrationConfirmationMode(
+    data.organizer.registrationConfirmationMode
+  );
   const settingsAnchors = [
     ["organization", isItalian ? "Organization" : "Organization"],
     ["questionnaire", isItalian ? "Questionario" : "Questionnaire"],
+    ["registration-flow", isItalian ? "Conferma" : "Confirmation"],
     ["notifications", isItalian ? "Notifications" : "Notifications"],
     ["account", isItalian ? "Account" : "Account"],
     ["billing", isItalian ? "Billing" : "Billing"],
@@ -451,6 +457,33 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
             initialConfig={organizerQuestionnaireConfig}
             isItalian={isItalian}
             inputName="registrationQuestionnaireConfigJson"
+          />
+        </section>
+
+        <section className="panel section-card admin-section" id="registration-flow">
+          <div className="admin-section-header">
+            <div>
+              <div className="section-kicker">
+                {isItalian ? "Flow di registrazione" : "Registration flow"}
+              </div>
+              <h3>
+                {isItalian
+                  ? "Decidi se il prenotante deve cliccare il link email prima di proseguire"
+                  : "Choose whether the lead guest must click the email link before the booking continues"}
+              </h3>
+            </div>
+          </div>
+
+          <p className="admin-page-tip">
+            {isItalian
+              ? "Questo è il default organizer. Ogni evento può ereditarlo oppure usare una propria variante. Disattivare il passaggio email non disattiva le email di conferma o recap."
+              : "This is the organizer-wide default. Each event can inherit it or use its own variant. Disabling the email-link step does not disable confirmation or recap emails."}
+          </p>
+
+          <RegistrationConfirmationModeEditor
+            initialMode={organizerRegistrationConfirmationMode}
+            inputName="registrationConfirmationMode"
+            isItalian={isItalian}
           />
         </section>
 

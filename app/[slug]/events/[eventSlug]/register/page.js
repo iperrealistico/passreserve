@@ -83,6 +83,7 @@ export default async function RegistrationPage({ params, searchParams }) {
         locale={locale}
         collectDietaryInfo={event.collectDietaryInfo}
         registrationQuestionnaireConfig={event.registrationQuestionnaireConfig}
+        registrationConfirmationMode={event.registrationConfirmationMode}
       />
 
         <PublicFooter dictionary={dictionary} locale={locale} />

@@ -1052,6 +1052,38 @@
     @apply text-sm font-semibold text-foreground;
   }
 
+  .confirmation-mode-grid {
+    @apply grid gap-4 lg:grid-cols-2;
+  }
+
+  .confirmation-mode-card {
+    @apply flex w-full rounded-[1.75rem] border border-border bg-background p-5 text-left transition-transform transition-colors hover:-translate-y-0.5 hover:bg-muted/30;
+  }
+
+  .confirmation-mode-card-active {
+    @apply border-primary bg-primary/5;
+  }
+
+  .confirmation-mode-card-head {
+    @apply flex w-full flex-col gap-3 lg:flex-row lg:items-start lg:justify-between;
+  }
+
+  .confirmation-mode-card-head strong {
+    @apply text-lg font-semibold tracking-tight text-foreground;
+  }
+
+  .confirmation-mode-card-head span {
+    @apply mt-2 block text-sm leading-6 text-muted-foreground;
+  }
+
+  .confirmation-mode-note {
+    @apply bg-background;
+  }
+
+  .confirmation-mode-preview .timeline {
+    @apply mt-4;
+  }
+
   .field-hint {
     @apply text-xs leading-6 text-muted-foreground;
   }

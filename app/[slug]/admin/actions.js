@@ -259,6 +259,7 @@ export async function saveOrganizerEventAction(formData) {
           formData,
           "registrationQuestionnaireConfigJson"
         ),
+        registrationConfirmationMode: value(formData, "registrationConfirmationMode"),
         salesWindowStartsAt: value(formData, "salesWindowStartsAt"),
         salesWindowEndsAt: value(formData, "salesWindowEndsAt"),
         attendeeInstructions:
@@ -591,6 +592,7 @@ export async function saveOrganizerSettingsAction(formData) {
         formData,
         "registrationQuestionnaireConfigJson"
       ),
+      registrationConfirmationMode: value(formData, "registrationConfirmationMode"),
       minAdvanceHours: value(formData, "minAdvanceHours"),
       maxAdvanceDays: value(formData, "maxAdvanceDays"),
       registrationRemindersEnabled: checked(formData, "registrationRemindersEnabled"),

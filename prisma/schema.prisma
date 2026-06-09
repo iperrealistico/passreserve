@@ -76,6 +76,11 @@ enum OrganizerBillingStatus {
   INACTIVE
 }
 
+enum RegistrationConfirmationMode {
+  EMAIL_LINK_REQUIRED
+  DIRECT_CONFIRM
+}
+
 enum PaymentStatus {
   PENDING
   SUCCEEDED
@@ -145,6 +150,7 @@ model Organizer {
   minAdvanceHours    Int                           @default(0)
   maxAdvanceDays     Int?
   registrationQuestionnaireConfig Json?
+  registrationConfirmationMode RegistrationConfirmationMode @default(EMAIL_LINK_REQUIRED)
   registrationRemindersEnabled Boolean            @default(false)
   registrationReminderLeadHours Int               @default(24)
   registrationReminderNote     String             @default("")
@@ -268,6 +274,7 @@ model EventType {
   cancellationPolicy    String          @default("")
   collectDietaryInfo    Boolean         @default(true)
   registrationQuestionnaireConfig Json?
+  registrationConfirmationMode RegistrationConfirmationMode?
   salesWindowStartsAt   DateTime?
   salesWindowEndsAt     DateTime?
   highlights            Json?

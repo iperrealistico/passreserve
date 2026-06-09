@@ -297,6 +297,103 @@ describe("passreserve-registrations", () => {
     });
   });
 
+  it("supports direct confirmation without the email-link step when the organizer default is changed", async () => {
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "officina-gravel-house");
+      organizer.registrationConfirmationMode = "DIRECT_CONFIRM";
+      organizer.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("officina-gravel-house", "gravel-social-camp", {
+      quantity: 1,
+      termsAccepted: "yes",
+      responsibilityAccepted: "yes"
+    });
+    const result = await createRegistrationHold(input);
+    const state = await loadPersistentState();
+
+    expect(result.ok).toBe(true);
+    expect(result.redirectHref).toContain("/register/confirmed/");
+    expect(state.registrations[0].status).toBe("CONFIRMED_UNPAID");
+    expect(
+      state.emailDeliveries.some(
+        (entry) =>
+          entry.templateSlug === "attendee_registration_confirmed" &&
+          entry.recipientEmail === "ada@example.com"
+      )
+    ).toBe(true);
+    expect(
+      state.emailDeliveries.some((entry) => entry.templateSlug === "attendee_pending_confirmation")
+    ).toBe(false);
+  });
+
+  it("blocks direct-confirm submissions when the final confirmations are missing", async () => {
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "officina-gravel-house");
+      organizer.registrationConfirmationMode = "DIRECT_CONFIRM";
+      organizer.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("officina-gravel-house", "gravel-social-camp", {
+      quantity: 1
+    });
+    const result = await createRegistrationHold(input);
+
+    expect(result.ok).toBe(false);
+    expect(result.fieldErrors.termsAccepted).toBeTruthy();
+    expect(result.fieldErrors.responsibilityAccepted).toBeTruthy();
+  });
+
+  it("supports direct confirmation with immediate payment handoff when the organizer default is changed", async () => {
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");
+      organizer.registrationConfirmationMode = "DIRECT_CONFIRM";
+      organizer.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session", {
+      termsAccepted: "yes",
+      responsibilityAccepted: "yes",
+      baseUrl: "http://localhost:3000"
+    });
+    const result = await createRegistrationHold(input);
+    const state = await loadPersistentState();
+
+    expect(result.ok).toBe(true);
+    expect(result.redirectHref).toContain("/register/payment/preview/");
+    expect(state.registrations[0].status).toBe("PENDING_PAYMENT");
+    expect(state.registrations[0].holdToken).toBeNull();
+    expect(
+      state.emailDeliveries.some((entry) => entry.templateSlug === "attendee_pending_confirmation")
+    ).toBe(false);
+    expect(
+      state.emailDeliveries.some((entry) => entry.templateSlug === "organizer_new_registration")
+    ).toBe(true);
+  });
+
+  it("lets an event override the organizer default back to email-link confirmation", async () => {
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");
+      const event = draft.events.find((entry) => entry.slug === "sunrise-ridge-session");
+
+      organizer.registrationConfirmationMode = "DIRECT_CONFIRM";
+      event.registrationConfirmationMode = "EMAIL_LINK_REQUIRED";
+      organizer.updatedAt = new Date().toISOString();
+      event.updatedAt = new Date().toISOString();
+    });
+
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const result = await createRegistrationHold(input);
+    const state = await loadPersistentState();
+
+    expect(result.ok).toBe(true);
+    expect(result.redirectHref).toContain("/register/pending");
+    expect(state.registrations[0].status).toBe("PENDING_CONFIRM");
+    expect(
+      state.emailDeliveries.some((entry) => entry.templateSlug === "attendee_pending_confirmation")
+    ).toBe(true);
+  });
+
   it("blocks registrations that are too far ahead of the allowed booking window", async () => {
     await mutatePersistentState(async (draft) => {
       const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");
