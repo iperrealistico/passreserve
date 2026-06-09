@@ -423,7 +423,7 @@ export default function RegistrationFlowExperience({
                     type="button"
                   >
                     <div className="registration-choice-head">
-                      <div>
+                      <div className="registration-choice-copy">
                         <strong>{occurrence.label}</strong>
                         <span>{occurrence.time}</span>
                       </div>

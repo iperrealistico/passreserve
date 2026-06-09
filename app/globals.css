@@ -618,6 +618,18 @@
     @apply text-left;
   }
 
+  .registration-choice-copy {
+    @apply flex min-w-0 flex-col gap-2;
+  }
+
+  .registration-choice-copy strong {
+    @apply text-2xl font-semibold tracking-tight text-foreground;
+  }
+
+  .registration-choice-copy span {
+    @apply text-base leading-7 text-muted-foreground;
+  }
+
   .registration-choice-active,
   .admin-card-active {
     @apply border-primary ring-2 ring-primary/10;
