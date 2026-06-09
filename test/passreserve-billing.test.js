@@ -4,6 +4,7 @@ import path from "node:path";
 
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { getOrganizerOnlinePaymentsGate } from "../lib/passreserve-billing.js";
 import { saveOrganizerOccurrence } from "../lib/passreserve-admin-service.js";
 import { loadPersistentState, mutatePersistentState } from "../lib/passreserve-state.js";
 
@@ -26,6 +27,54 @@ async function getOrganizerEventId(slug) {
 }
 
 describe("passreserve billing gates", () => {
+  it("describes why paid publishing is blocked when no Stripe account is linked", () => {
+    const gate = getOrganizerOnlinePaymentsGate({
+      stripeAccountId: null,
+      stripeConnectionStatus: "NOT_CONNECTED",
+      stripeDetailsSubmitted: false,
+      stripeChargesEnabled: false,
+      stripePayoutsEnabled: false,
+      onlinePaymentsMonthlyFeeCents: 0,
+      onlinePaymentsBillingStatus: "NOT_REQUIRED"
+    });
+
+    expect(gate.enabled).toBe(false);
+    expect(gate.statusHeadline).toBe("No Stripe account is linked to this organizer yet.");
+    expect(gate.blockerDetails).toContain(
+      "Passreserve does not have a saved Stripe connected account for this organizer yet."
+    );
+    expect(gate.progressSteps.map((step) => [step.id, step.status])).toEqual([
+      ["stripe-account", "BLOCKED"],
+      ["stripe-details", "BLOCKED"],
+      ["stripe-charges", "BLOCKED"],
+      ["stripe-payouts", "BLOCKED"],
+      ["passreserve-billing", "NOT_REQUIRED"]
+    ]);
+  });
+
+  it("describes pending Stripe onboarding when the account is linked but not fully enabled", () => {
+    const gate = getOrganizerOnlinePaymentsGate({
+      stripeAccountId: "acct_123456789",
+      stripeConnectionStatus: "PENDING",
+      stripeDetailsSubmitted: true,
+      stripeChargesEnabled: false,
+      stripePayoutsEnabled: false,
+      onlinePaymentsMonthlyFeeCents: 0,
+      onlinePaymentsBillingStatus: "NOT_REQUIRED"
+    });
+
+    expect(gate.enabled).toBe(false);
+    expect(gate.statusHeadline).toBe("Stripe is linked, but onboarding is still incomplete.");
+    expect(gate.nextActionTitle).toBe("Finish Stripe onboarding");
+    expect(gate.progressLabel).toBe("2/4 Stripe readiness steps complete");
+    expect(gate.blockerDetails).toContain(
+      "Stripe has not enabled card charges for this organizer yet."
+    );
+    expect(gate.blockerDetails).toContain(
+      "Stripe has not enabled payouts for this organizer yet."
+    );
+  });
+
   it("blocks publishing paid occurrences until Stripe and billing are ready", async () => {
     const eventTypeId = await getOrganizerEventId("alpine-trail-lab");
 

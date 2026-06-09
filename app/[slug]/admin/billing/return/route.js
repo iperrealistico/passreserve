@@ -14,10 +14,19 @@ export async function GET(request, { params }) {
   }
 
   try {
-    await refreshOrganizerStripeConnection(slug, sessionUser.userId);
+    const result = await refreshOrganizerStripeConnection(slug, sessionUser.userId);
+    let message = "stripe-connected";
+
+    if (!result?.stripeAccountId) {
+      message = "stripe-missing";
+    } else if (result.stripeConnectionStatus === "RESTRICTED") {
+      message = "stripe-restricted";
+    } else if (result.stripeConnectionStatus !== "CONNECTED") {
+      message = "stripe-pending";
+    }
 
     return NextResponse.redirect(
-      new URL(`/${slug}/admin/billing?message=stripe-connected`, request.url)
+      new URL(`/${slug}/admin/billing?message=${message}`, request.url)
     );
   } catch (error) {
     const message =

@@ -469,6 +469,26 @@
     @apply inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary;
   }
 
+  .billing-step-pill {
+    @apply ml-auto shrink-0 self-start;
+  }
+
+  .billing-step-pill-success {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-700;
+  }
+
+  .billing-step-pill-warning {
+    @apply border-amber-200 bg-amber-50 text-amber-700;
+  }
+
+  .billing-step-pill-danger {
+    @apply border-red-200 bg-red-50 text-red-700;
+  }
+
+  .billing-step-pill-muted {
+    @apply border-border bg-muted text-muted-foreground;
+  }
+
   .field {
     @apply flex flex-col gap-2 text-sm font-medium text-foreground;
   }

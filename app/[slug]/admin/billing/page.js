@@ -8,7 +8,13 @@ import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 function messageFor(value) {
   switch (value) {
     case "stripe-connected":
-      return "Stripe status refreshed successfully.";
+      return "Stripe is ready for paid events.";
+    case "stripe-pending":
+      return "Stripe is linked, but onboarding is still incomplete.";
+    case "stripe-restricted":
+      return "Stripe is linked, but requirements still need attention before paid events can go live.";
+    case "stripe-missing":
+      return "Stripe status was checked, but no connected Stripe account is currently saved for this organizer.";
     case "billing-synced":
       return "Billing status refreshed successfully.";
     default:
@@ -60,7 +66,15 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
           <span className="pill">Monthly fee: {data.billing.monthlyFeeLabel}</span>
           <span className="pill">Billing: {data.billing.billingStatusLabel}</span>
         </div>
-        <p>{data.billing.paidPublishingLabel}</p>
+        <div className="status-list">
+          <div className="status-item">
+            <span className="status-index">1</span>
+            <div>
+              <strong>{data.billing.statusHeadline}</strong>
+              <span>{data.billing.nextActionDetail}</span>
+            </div>
+          </div>
+        </div>
         <div className="hero-actions">
           <a className="button button-primary" href={appendEventQuery(`/${slug}/admin/billing/connect`)}>
             {data.billing.stripeAccountId ? "Reconnect Stripe" : "Connect Stripe"}
@@ -69,6 +83,7 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
             Refresh status
           </a>
         </div>
+        <p>{data.billing.paidPublishingLabel}</p>
       </section>
 
       {selectedEventRecord ? (
@@ -102,21 +117,70 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
 
       <section className="admin-grid">
         <article className="panel section-card admin-section">
-          <div className="section-kicker">Eligibility</div>
-          <h3>Paid event publishing</h3>
+          <div className="section-kicker">Snapshot</div>
+          <h3>Current organizer billing status</h3>
+          <div className="admin-card-metrics">
+            <div>
+              <span className="metric-label">Stripe account</span>
+              <strong>{data.billing.stripeAccountLabel}</strong>
+            </div>
+            <div>
+              <span className="metric-label">Stripe progress</span>
+              <strong>{data.billing.progressLabel}</strong>
+            </div>
+            <div>
+              <span className="metric-label">Connected at</span>
+              <strong>{data.billing.stripeConnectedAtLabel}</strong>
+            </div>
+            <div>
+              <span className="metric-label">Last synced</span>
+              <strong>{data.billing.stripeLastSyncedAtLabel}</strong>
+            </div>
+          </div>
+          <div className="status-list">
+            <div className="status-item">
+              <span className="status-index">2</span>
+              <div>
+                <strong>{data.billing.nextActionTitle}</strong>
+                <span>{data.billing.nextActionDetail}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article className="panel section-card admin-section">
+          <div className="section-kicker">Blockers</div>
+          <h3>Why paid events are still blocked</h3>
           <div className="timeline">
-            <div className="timeline-step">
-              <strong>Stripe account</strong>
-              <span>{data.billing.stripeAccountId || "No connected account yet"}</span>
-            </div>
-            <div className="timeline-step">
-              <strong>Connected at</strong>
-              <span>{data.billing.stripeConnectedAtLabel}</span>
-            </div>
-            <div className="timeline-step">
-              <strong>Last synced</strong>
-              <span>{data.billing.stripeLastSyncedAtLabel}</span>
-            </div>
+            {(data.billing.blockerDetails.length > 0
+              ? data.billing.blockerDetails
+              : ["No blocker is active. Stripe and billing are ready for paid dates."]).map(
+              (item) => (
+                <div className="timeline-step" key={item}>
+                  <strong>{item}</strong>
+                </div>
+              )
+            )}
+          </div>
+        </article>
+      </section>
+
+      <section className="admin-grid">
+        <article className="panel section-card admin-section">
+          <div className="section-kicker">Readiness</div>
+          <h3>Stripe and billing breakdown</h3>
+          <div className="timeline">
+            {data.billing.progressSteps.map((step) => (
+              <div className="timeline-step" key={step.id}>
+                <div>
+                  <strong>{step.label}</strong>
+                  <span>{step.detail}</span>
+                </div>
+                <span className={`pill billing-step-pill billing-step-pill-${step.tone.toLowerCase()}`}>
+                  {step.statusLabel}
+                </span>
+              </div>
+            ))}
           </div>
         </article>
 
@@ -131,6 +195,31 @@ export default async function OrganizerBillingPage({ params, searchParams }) {
                 </div>
               )
             )}
+          </div>
+        </article>
+      </section>
+
+      <section className="admin-grid">
+        <article className="panel section-card admin-section">
+          <div className="section-kicker">Eligibility</div>
+          <h3>Paid event publishing</h3>
+          <div className="timeline">
+            <div className="timeline-step">
+              <strong>Connection status</strong>
+              <span>{data.billing.stripeConnectionStatusLabel}</span>
+            </div>
+            <div className="timeline-step">
+              <strong>Charges</strong>
+              <span>{data.billing.stripeChargesEnabled ? "Enabled" : "Blocked"}</span>
+            </div>
+            <div className="timeline-step">
+              <strong>Payouts</strong>
+              <span>{data.billing.stripePayoutsEnabled ? "Enabled" : "Blocked"}</span>
+            </div>
+            <div className="timeline-step">
+              <strong>Organizer billing</strong>
+              <span>{data.billing.billingStatusLabel}</span>
+            </div>
           </div>
         </article>
       </section>
