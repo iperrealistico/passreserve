@@ -198,6 +198,12 @@
     @apply flex items-center;
   }
 
+  @media (min-width: 1024px) {
+    .site-footer-nav {
+      padding-top: 2.1rem;
+    }
+  }
+
   .site-footer-bottom {
     @apply flex flex-col gap-2 border-t border-border py-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between;
   }
