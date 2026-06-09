@@ -438,6 +438,11 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                 name="minAdvanceHours"
                 type="number"
               />
+              <small className="field-hint">
+                {isItalian
+                  ? "Regola organizer di fallback: viene ignorata quando evento o data hanno una chiusura vendite esplicita."
+                  : "Organizer fallback rule: ignored when the event or date has an explicit sales-window closing time."}
+              </small>
             </label>
             <label className="field">
               <span>{isItalian ? "Giorni massimi di anticipo" : "Maximum advance days"}</span>
@@ -447,6 +452,11 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
                 name="maxAdvanceDays"
                 type="number"
               />
+              <small className="field-hint">
+                {isItalian
+                  ? "Regola organizer di fallback: viene ignorata quando evento o data hanno un'apertura vendite esplicita."
+                  : "Organizer fallback rule: ignored when the event or date has an explicit sales-window opening time."}
+              </small>
             </label>
 
             <div className="field field-span">

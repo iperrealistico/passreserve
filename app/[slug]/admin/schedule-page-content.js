@@ -514,8 +514,8 @@ function ScheduleFormSection({
 
       <p className="admin-page-tip">
         {isItalian
-          ? `Gli orari seguono ${data.organizer.timeZone}. Lascia vuota la finestra di vendita se vuoi usare quella di default dell'evento.`
-          : `Times follow ${data.organizer.timeZone}. Leave the sales window blank if you want to inherit the event default.`}
+          ? `Gli orari seguono ${data.organizer.timeZone}. Lascia vuota la finestra di vendita se vuoi usare quella di default dell'evento; se la imposti qui, questa data prevale anche sulle regole organizer di fallback.`
+          : `Times follow ${data.organizer.timeZone}. Leave the sales window blank if you want to inherit the event default; if you set it here, this date overrides the organizer fallback booking rules too.`}
       </p>
 
       <form action={saveOrganizerOccurrenceAction} className="registration-field-grid">

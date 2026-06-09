@@ -32,6 +32,20 @@ function getOccurrenceById(event, occurrenceId) {
   );
 }
 
+function getInitialOccurrenceId(event, preferredOccurrenceId = "") {
+  const requestedOccurrence =
+    event.occurrences.find((occurrence) => occurrence.id === preferredOccurrenceId) ?? null;
+
+  if (requestedOccurrence) {
+    return requestedOccurrence.id;
+  }
+
+  const firstAvailableOccurrence =
+    event.occurrences.find((occurrence) => occurrence.registrationAvailable) ?? null;
+
+  return firstAvailableOccurrence?.id ?? event.occurrences[0]?.id ?? "";
+}
+
 function buildDefaultCart(occurrence) {
   if (!occurrence?.registrationAvailable) {
     return [];
@@ -158,15 +172,14 @@ export default function RegistrationFlowExperience({
     createRegistrationHoldAction,
     initialActionState
   );
+  const resolvedInitialOccurrenceId = getInitialOccurrenceId(event, initialOccurrenceId ?? "");
   const [activeStep, setActiveStep] = useState(0);
-  const [occurrenceId, setOccurrenceId] = useState(
-    initialOccurrenceId ?? event.occurrences[0]?.id ?? ""
-  );
+  const [occurrenceId, setOccurrenceId] = useState(resolvedInitialOccurrenceId);
   const [cartItems, setCartItems] = useState(
-    buildDefaultCart(getOccurrenceById(event, initialOccurrenceId ?? event.occurrences[0]?.id ?? ""))
+    buildDefaultCart(getOccurrenceById(event, resolvedInitialOccurrenceId))
   );
   const [attendees, setAttendees] = useState(
-    buildDefaultCart(getOccurrenceById(event, initialOccurrenceId ?? event.occurrences[0]?.id ?? ""))
+    buildDefaultCart(getOccurrenceById(event, resolvedInitialOccurrenceId))
       .flatMap((item) =>
         Array.from({ length: item.quantity }, () => createBlankAttendee(item.ticketCategoryId))
       )
@@ -175,6 +188,10 @@ export default function RegistrationFlowExperience({
   const selectedOccurrence = getOccurrenceById(event, occurrenceId);
   const maxCartQuantity = getMaxCartQuantity(selectedOccurrence);
   const totalQuantity = sumCartQuantity(cartItems);
+  const canAccessTickets = Boolean(selectedOccurrence?.registrationAvailable);
+  const canAccessAttendees = canAccessTickets && totalQuantity > 0;
+  const attendeesComplete = attendees.every(isAttendeeComplete);
+  const canAccessReview = canAccessAttendees && attendeesComplete;
   const cartDetails = useMemo(
     () => getCartItemsWithViewData(selectedOccurrence, cartItems),
     [cartItems, selectedOccurrence]
@@ -220,6 +237,20 @@ export default function RegistrationFlowExperience({
       toast.error(actionState.message);
     }
   }, [actionState.message]);
+
+  useEffect(() => {
+    const highestAllowedStep = canAccessReview
+      ? 3
+      : canAccessAttendees
+        ? 2
+        : canAccessTickets
+          ? 1
+          : 0;
+
+    if (activeStep > highestAllowedStep) {
+      setActiveStep(highestAllowedStep);
+    }
+  }, [activeStep, canAccessAttendees, canAccessReview, canAccessTickets]);
 
   useEffect(() => {
     const requiredTicketIds = expandCartTicketIds(selectedOccurrence, cartItems);
@@ -321,7 +352,6 @@ export default function RegistrationFlowExperience({
     );
   }
 
-  const attendeesComplete = attendees.every(isAttendeeComplete);
   const attendeeSummary = useMemo(
     () =>
       attendees.map((attendee) => ({
@@ -337,6 +367,21 @@ export default function RegistrationFlowExperience({
   const serializedAttendees = JSON.stringify(attendees);
   const serializedItems = JSON.stringify(cartItems);
 
+  function isStepAccessible(stepIndex) {
+    switch (stepIndex) {
+      case 0:
+        return true;
+      case 1:
+        return canAccessTickets;
+      case 2:
+        return canAccessAttendees;
+      case 3:
+        return canAccessReview;
+      default:
+        return false;
+    }
+  }
+
   return (
     <section className="registration-grid">
       <article className="panel section-card registration-flow-card">
@@ -348,8 +393,13 @@ export default function RegistrationFlowExperience({
           {Object.entries(dictionary.registration.steps).map(([id, label], index) => (
             <button
               className={`registration-step${index === activeStep ? " registration-step-active" : ""}`}
+              disabled={!isStepAccessible(index)}
               key={id}
-              onClick={() => setActiveStep(index)}
+              onClick={() => {
+                if (isStepAccessible(index)) {
+                  setActiveStep(index);
+                }
+              }}
               type="button"
             >
               <span className="registration-step-index">{index + 1}</span>
@@ -392,7 +442,7 @@ export default function RegistrationFlowExperience({
             <div className="hero-actions">
               <button
                 className="button button-primary"
-                disabled={!selectedOccurrence?.registrationAvailable}
+                disabled={!canAccessTickets}
                 onClick={() => setActiveStep(1)}
                 type="button"
               >
@@ -470,7 +520,7 @@ export default function RegistrationFlowExperience({
               </button>
               <button
                 className="button button-primary"
-                disabled={totalQuantity <= 0}
+                disabled={!canAccessAttendees}
                 onClick={() => setActiveStep(2)}
                 type="button"
               >
@@ -599,7 +649,7 @@ export default function RegistrationFlowExperience({
               </button>
               <button
                 className="button button-primary"
-                disabled={!attendeesComplete}
+                disabled={!canAccessReview}
                 onClick={() => setActiveStep(3)}
                 type="button"
               >

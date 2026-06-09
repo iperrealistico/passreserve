@@ -536,6 +536,10 @@
     @apply flex items-start gap-3 rounded-[1.5rem] border border-border bg-background p-4 text-left text-sm text-muted-foreground hover:bg-muted;
   }
 
+  .registration-step:disabled {
+    @apply cursor-not-allowed opacity-55 hover:bg-background;
+  }
+
   .registration-step-active {
     @apply border-primary bg-primary/5 text-foreground;
   }

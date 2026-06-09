@@ -628,8 +628,8 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
 
         <p className="admin-page-tip">
           {isItalian
-            ? "Imposta prezzo base, dettagli pubblici e finestra di vendita di default. Le singole date potranno sovrascrivere la finestra quando serve."
-            : "Set the base price, public details, and the default sales window here. Then move to Schedule for the real bookable dates under this event."}
+            ? "Imposta prezzo base, dettagli pubblici e finestra di vendita di default. Le singole date potranno sovrascrivere la finestra quando serve, e una finestra esplicita prevale sulle regole organizer di fallback."
+            : "Set the base price, public details, and the default sales window here. Then move to Schedule for the real bookable dates under this event. An explicit event sales window overrides the organizer fallback booking rules."}
         </p>
 
         <form
