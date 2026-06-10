@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AdminLegalFooter } from "../../../components/admin-legal-footer.js";
 import { LocaleSwitcher } from "../../../components/locale-switcher.js";
 import { TopNav } from "../../../components/top-nav.js";
 import { getTranslations } from "../../../lib/passreserve-i18n.js";
@@ -171,6 +172,7 @@ export default async function OrganizerAdminLayout({ children, params }) {
             </section>
 
             {children}
+            <AdminLegalFooter locale={locale} />
           </div>
         </section>
       </div>

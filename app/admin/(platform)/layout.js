@@ -1,3 +1,4 @@
+import { AdminLegalFooter } from "../../../components/admin-legal-footer.js";
 import { LocaleSwitcher } from "../../../components/locale-switcher.js";
 import { TopNav } from "../../../components/top-nav.js";
 import {
@@ -123,6 +124,7 @@ export default async function PlatformAdminLayout({ children }) {
             </section>
 
             {children}
+            <AdminLegalFooter locale={locale} />
           </div>
         </section>
       </div>

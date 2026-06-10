@@ -3,6 +3,10 @@
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import {
+  BookingResponsibilityLabel,
+  BookingTermsLabel
+} from "../../../../../components/booking-legal-copy.js";
 import { calculatePaymentBreakdown } from "../../../../../lib/passreserve-domain.js";
 import {
   getRegistrationQuestionnaireRole,
@@ -247,14 +251,6 @@ export default function RegistrationFlowExperience({
         locale === "it"
           ? "Il click finale salta il link email obbligatorio, ma le email di conferma e recap restano attive."
           : "The final submit skips the required email-link step, but confirmation and recap emails still stay active.",
-      terms:
-        locale === "it"
-          ? "Accetto le indicazioni dell'organizer, le note venue e le policy pubblicate per questa data."
-          : "I accept the organizer guidance, venue notes, and published policies for this date.",
-      responsibility:
-        locale === "it"
-          ? "Confermo il numero dei partecipanti e che la data selezionata è corretta per il gruppo registrato."
-          : "I confirm the participant count and that the selected date still matches the registered group.",
       createHoldCta:
         locale === "it" ? "Crea hold registrazione" : "Create registration hold",
       directConfirmCta:
@@ -791,13 +787,13 @@ export default function RegistrationFlowExperience({
 
                 <div className="registration-checklist flex flex-col gap-3">
                   <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
-                    <input name="termsAccepted" type="checkbox" value="yes" />
-                    <span>{labels.terms}</span>
+                    <input name="termsAccepted" required type="checkbox" value="yes" />
+                    <BookingTermsLabel locale={locale} />
                   </label>
 
                   <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
-                    <input name="responsibilityAccepted" type="checkbox" value="yes" />
-                    <span>{labels.responsibility}</span>
+                    <input name="responsibilityAccepted" required type="checkbox" value="yes" />
+                    <BookingResponsibilityLabel locale={locale} />
                   </label>
                 </div>
               </>

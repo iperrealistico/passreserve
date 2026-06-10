@@ -167,15 +167,8 @@ export default async function RegistrationConfirmPage({ params }) {
               <ConfirmationForm
                 eventSlug={eventSlug}
                 holdToken={holdToken}
+                locale={locale}
                 labels={{
-                  terms:
-                    locale === "it"
-                      ? "Accetto le indicazioni dell'organizer, le note venue e le policy pubblicate per questa data."
-                      : "I accept the organizer guidance, venue notes, and published policies for this date.",
-                  responsibility:
-                    locale === "it"
-                      ? "Confermo il numero dei partecipanti e che la data selezionata è corretta per il gruppo registrato."
-                      : "I confirm the participant count and that the selected date still matches the registered group.",
                   submit: locale === "it" ? "Conferma registrazione" : "Confirm registration",
                   submitting: locale === "it" ? "Conferma in corso..." : "Confirming registration..."
                 }}

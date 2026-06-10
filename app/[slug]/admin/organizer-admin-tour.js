@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { driver } from "driver.js";
 
 import { useInteractionFeedback } from "../../../components/interaction-feedback-provider.js";
+import { buildClientCookieString } from "../../../lib/passreserve-legal.js";
 import {
   ORGANIZER_ADMIN_TOUR_EVENT,
   ORGANIZER_ADMIN_TOUR_MODES,
@@ -359,7 +360,9 @@ export function OrganizerAdminTour({ locale, slug, storageSeed = null }) {
     invalidateCurrentRender();
     destroyDriver();
 
-    document.cookie = `${PASSRESERVE_LOCALE_COOKIE}=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    document.cookie = buildClientCookieString(PASSRESERVE_LOCALE_COOKIE, nextLocale, {
+      maxAge: 60 * 60 * 24 * 365
+    });
     setTourLocale(nextLocale);
 
     const query = searchParams?.toString();

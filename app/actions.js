@@ -51,6 +51,10 @@ function validateOrganizerRequest(payload) {
     errors.eventFocus = "Tell us what kinds of events you host.";
   }
 
+  if (payload.termsAccepted !== "yes") {
+    errors.termsAccepted = "Accept the privacy notice and terms before sending the request.";
+  }
+
   return errors;
 }
 
@@ -64,7 +68,8 @@ function buildOrganizerRequestPayload(formData) {
     launchWindow: toValue(formData, "launchWindow"),
     paymentModel: toValue(formData, "paymentModel"),
     eventFocus: toValue(formData, "eventFocus"),
-    note: toValue(formData, "note")
+    note: toValue(formData, "note"),
+    termsAccepted: toValue(formData, "termsAccepted")
   };
 }
 

@@ -3,6 +3,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useInteractionFeedback } from "./interaction-feedback-provider.js";
+import { buildClientCookieString } from "../lib/passreserve-legal.js";
 import {
   PASSRESERVE_LOCALE_COOKIE,
   SUPPORTED_LOCALES
@@ -19,7 +20,9 @@ export function LocaleSwitcher({ locale = "en", label = "Language", labels = {} 
       return;
     }
 
-    document.cookie = `${PASSRESERVE_LOCALE_COOKIE}=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+    document.cookie = buildClientCookieString(PASSRESERVE_LOCALE_COOKIE, nextLocale, {
+      maxAge: 60 * 60 * 24 * 365
+    });
     const query = searchParams?.toString();
     startRouteFeedback({
       currentPathname: pathname,

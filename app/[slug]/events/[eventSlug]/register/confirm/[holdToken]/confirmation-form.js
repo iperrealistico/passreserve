@@ -2,6 +2,10 @@
 
 import { useActionState } from "react";
 
+import {
+  BookingResponsibilityLabel,
+  BookingTermsLabel
+} from "../../../../../../../components/booking-legal-copy.js";
 import { confirmRegistrationAction } from "../../actions.js";
 
 const initialActionState = {
@@ -12,12 +16,9 @@ const initialActionState = {
 export default function ConfirmationForm({
   eventSlug,
   holdToken,
+  locale = "en",
   slug,
   labels = {
-    terms:
-      "I accept the organizer terms, venue guidance, and published policy notes for this occurrence.",
-    responsibility:
-      "I confirm the attendee count, arrival readiness, and that the selected occurrence still matches the group I am registering.",
     submit: "Confirm registration",
     submitting: "Confirming registration..."
   }
@@ -37,13 +38,13 @@ export default function ConfirmationForm({
 
       <div className="registration-checklist flex flex-col gap-3">
         <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
-          <input name="termsAccepted" type="checkbox" value="yes" />
-          <span>{labels.terms}</span>
+          <input name="termsAccepted" required type="checkbox" value="yes" />
+          <BookingTermsLabel locale={locale} />
         </label>
 
         <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
-          <input name="responsibilityAccepted" type="checkbox" value="yes" />
-          <span>{labels.responsibility}</span>
+          <input name="responsibilityAccepted" required type="checkbox" value="yes" />
+          <BookingResponsibilityLabel locale={locale} />
         </label>
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
@@ -276,6 +277,20 @@ export function HomeOrganizerRequestModal({
                 placeholder="Share timing, audience, venue details, or anything helpful."
                 rows="2"
               />
+            </label>
+            <label className="registration-check-item field field-span flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4" style={{ gridColumn: "1 / -1" }}>
+              <input name="termsAccepted" required type="checkbox" value="yes" />
+              <span>
+                I have read the{" "}
+                <Link href="/privacy" rel="noreferrer" target="_blank">
+                  Privacy Notice
+                </Link>{" "}
+                and accept the{" "}
+                <Link href="/terms" rel="noreferrer" target="_blank">
+                  Terms of Use
+                </Link>{" "}
+                for organizer access requests.
+              </span>
             </label>
             <div className="field field-span" style={{ gridColumn: "1 / -1" }}>
               <span>Human verification</span>

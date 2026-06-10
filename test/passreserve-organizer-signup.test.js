@@ -37,6 +37,7 @@ function buildOrganizerRequestFormData(overrides = {}) {
     paymentModel: "Deposit online",
     eventFocus: "Outdoor workshops and tastings",
     note: "Please onboard us quickly.",
+    termsAccepted: "yes",
     altcha: "signed-altcha-payload",
     submissionId: `submission-${now}`,
     companyWebsite: "",
