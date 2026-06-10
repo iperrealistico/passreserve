@@ -658,6 +658,16 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
         null
       : null;
   const currentRegistrationsHref = buildRegistrationsHref(slug, query);
+  const exportActions = selectedOccurrenceRecord ? (
+    <>
+      <a className="button button-secondary" href={`${exportBaseHref}&variant=operational`}>
+        {isItalian ? "Esporta PDF operativo" : "Export operational PDF"}
+      </a>
+      <a className="button button-primary" href={`${exportBaseHref}&variant=full`}>
+        {isItalian ? "Esporta PDF completo" : "Export full PDF"}
+      </a>
+    </>
+  ) : null;
 
   return (
     <div className="admin-page">
@@ -727,6 +737,7 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
             >
               {isItalian ? "Apri programma" : "Open schedule"}
             </Link>
+            {exportActions}
           </>
         }
         title={
@@ -969,12 +980,6 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
               <div className="hero-actions">
                 <a className="button button-secondary" href={buildRegistrationsHref(slug, query, { view: "event-day" })}>
                   {isItalian ? "Apri modalità evento" : "Open event-day mode"}
-                </a>
-                <a className="button button-secondary" href={`${exportBaseHref}&variant=operational`}>
-                  {isItalian ? "Esporta PDF operativo" : "Export operational PDF"}
-                </a>
-                <a className="button button-primary" href={`${exportBaseHref}&variant=full`}>
-                  {isItalian ? "Esporta PDF completo" : "Export full PDF"}
                 </a>
               </div>
             </>
