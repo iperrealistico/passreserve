@@ -146,6 +146,11 @@ Attempted browser-plugin smoke on the local dev server, but the in-app browser i
 
 ## Commit, push, and deployment status
 
-- Commit created: pending
-- Push to GitHub: pending
-- Vercel production deployment: pending
+- Commit created: `107c0c5` (`feat: add privacy and cookie compliance foundation`)
+- Push to GitHub: completed on `main`
+- Vercel production deployment: `READY`
+  - deployment id: `dpl_HxW4F3i3Wgh3LGULtQoHQCPd4AQ1`
+  - deployment url: `https://passreserve-clkzhpp8k-iperrealisticos-projects.vercel.app`
+  - live aliases:
+    - `https://passreserve.com`
+    - `https://passreserve.vercel.app`
