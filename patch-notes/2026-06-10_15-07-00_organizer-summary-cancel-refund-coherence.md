@@ -57,6 +57,6 @@ This created exactly the kind of mismatch the organizer reported: live operation
 
 ## Commit, push, and deployment status
 
-- Commit created: pending
-- Push to GitHub: pending
-- Vercel production deployment: pending
+- Commit created: `ba59222` (`fix: reconcile organizer stats after cancellations`)
+- Push to GitHub: completed on `origin/main`
+- Vercel production deployment: `dpl_C99CZexRZF1JgQ13rZjQazJv58Nv` (`READY`) on `https://passreserve.com`
