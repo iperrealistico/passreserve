@@ -8,7 +8,8 @@ import {
   getOrganizerDashboard,
   getPlatformOrganizerDetail,
   getPlatformOrganizers,
-  getPlatformOverview
+  getPlatformOverview,
+  summarizeOrganizerRegistrationList
 } from "../lib/passreserve-admin-service.js";
 import { formatCurrencyFromCents } from "../lib/passreserve-format.js";
 import { loadPersistentState, mutatePersistentState } from "../lib/passreserve-state.js";
@@ -128,5 +129,51 @@ describe("passreserve admin financial summaries", () => {
     expect(overview.summary.dueAtEventLabel).toBe(
       formatCurrencyFromCents(platformExpected.dueAtEvent)
     );
+  });
+
+  it("keeps refund work visible while excluding cancelled participants and venue balances from current queue summaries", () => {
+    const summary = summarizeOrganizerRegistrationList(
+      [
+        {
+          status: "CANCELLED",
+          operationallyActive: false,
+          quantity: 2,
+          source: "PUBLIC",
+          dueAtEventCents: 9000,
+          venueCollectedCents: 0,
+          dietary: {
+            participantsWithRestrictions: 2
+          },
+          refundSummary: {
+            status: "PENDING",
+            pendingRefundCents: 2000
+          }
+        },
+        {
+          status: "CONFIRMED_UNPAID",
+          operationallyActive: true,
+          quantity: 1,
+          source: "PUBLIC",
+          dueAtEventCents: 3000,
+          venueCollectedCents: 0,
+          dietary: {
+            participantsWithRestrictions: 1
+          },
+          refundSummary: {
+            status: "NOT_REQUIRED"
+          }
+        }
+      ],
+      {
+        countHistoricalParticipants: false
+      }
+    );
+
+    expect(summary.registrationCount).toBe(2);
+    expect(summary.participantCount).toBe(1);
+    expect(summary.restrictionsCount).toBe(1);
+    expect(summary.dueAtVenueCents).toBe(3000);
+    expect(summary.refundPendingCount).toBe(1);
+    expect(summary.refundPendingCents).toBe(2000);
   });
 });

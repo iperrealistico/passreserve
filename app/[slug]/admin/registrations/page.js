@@ -3,7 +3,8 @@ import Link from "next/link";
 import { OrganizerRegistrationCancelModal } from "./organizer-registration-cancel-modal.js";
 import {
   getOrganizerEventsAdmin,
-  getOrganizerRegistrationsAdmin
+  getOrganizerRegistrationsAdmin,
+  summarizeOrganizerRegistrationList
 } from "../../../../lib/passreserve-admin-service.js";
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
@@ -574,47 +575,9 @@ export default async function OrganizerRegistrationsPage({ params, searchParams 
   )}&occurrence=${encodeURIComponent(selectedOccurrence)}&locale=${encodeURIComponent(
     locale
   )}&source=${encodeURIComponent(selectedSource)}&origin=${encodeURIComponent(selectedOrigin)}`;
-  const summary = registrations.reduce(
-    (accumulator, registration) => {
-      const participantCount = getParticipantCount(registration);
-
-      accumulator.registrationCount += 1;
-      accumulator.participantCount += participantCount;
-      accumulator.restrictionsCount += registration.dietary.participantsWithRestrictions || 0;
-      accumulator.dueAtVenueCents += registration.dueAtEventOpenCents || 0;
-      if (registration.source === "ORGANIZER_MANUAL") {
-        accumulator.manualCount += 1;
-      }
-      if (registration.refundSummary?.status === "READY") {
-        accumulator.refundReadyCount += 1;
-        accumulator.refundReadyCents += registration.refundSummary.refundableOnlineAmountCents || 0;
-      }
-      if (registration.refundSummary?.status === "PENDING") {
-        accumulator.refundPendingCount += 1;
-        accumulator.refundPendingCents += registration.refundSummary.pendingRefundCents || 0;
-      }
-      if (registration.refundSummary?.status === "FAILED") {
-        accumulator.refundFailedCount += 1;
-        accumulator.refundFailedCents +=
-          registration.refundSummary.refundableOnlineAmountCents || 0;
-      }
-
-      return accumulator;
-    },
-    {
-      registrationCount: 0,
-      participantCount: 0,
-      restrictionsCount: 0,
-      dueAtVenueCents: 0,
-      manualCount: 0,
-      refundReadyCount: 0,
-      refundReadyCents: 0,
-      refundPendingCount: 0,
-      refundPendingCents: 0,
-      refundFailedCount: 0,
-      refundFailedCents: 0
-    }
-  );
+  const summary = summarizeOrganizerRegistrationList(registrations, {
+    countHistoricalParticipants: currentFocus === "history"
+  });
   const orderedRegistrations = [...registrations].sort((left, right) => {
     const rankDifference = getEventDayRank(left) - getEventDayRank(right);
 

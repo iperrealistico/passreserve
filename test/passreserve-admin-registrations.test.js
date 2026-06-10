@@ -263,4 +263,73 @@ describe("passreserve organizer admin registrations payload", () => {
       statusTone: "danger"
     });
   });
+
+  it("treats fully refunded cancelled registrations as closed financial work even if a stale pending refund row exists", async () => {
+    let registrationId = null;
+
+    await mutatePersistentState(async (draft) => {
+      const organizer = draft.organizers.find((entry) => entry.slug === "alpine-trail-lab");
+      const registration = draft.registrations.find(
+        (entry) => entry.organizerId === organizer.id && Number(entry.onlineAmountCents || 0) > 0
+      );
+
+      registrationId = registration.id;
+      registration.status = "CANCELLED";
+      registration.onlineCollectedCents = registration.onlineAmountCents || 4500;
+      registration.refundedCents = registration.onlineCollectedCents;
+      registration.dueAtEventCents = 9000;
+      registration.venueCollectedCents = 0;
+      draft.payments = draft.payments.filter((entry) => entry.registrationId !== registration.id);
+
+      draft.payments.unshift(
+        {
+          id: "refund_pending_stale_test",
+          registrationId: registration.id,
+          provider: "STRIPE",
+          kind: "REFUND",
+          status: "PENDING",
+          amountCents: registration.onlineCollectedCents,
+          currency: registration.currency,
+          externalEventId: null,
+          stripeAccountId: "acct_stale_123",
+          stripeSessionId: null,
+          stripePaymentIntentId: "pi_stale_123",
+          note: "Stale pending refund row kept for regression coverage.",
+          metadata: {
+            reason: "organizer_cancelled"
+          },
+          occurredAt: "2026-12-01T10:05:00.000Z",
+          createdAt: "2026-12-01T10:05:00.000Z"
+        },
+        {
+          id: "capture_stale_test",
+          registrationId: registration.id,
+          provider: "STRIPE",
+          kind: "CAPTURE",
+          status: "SUCCEEDED",
+          amountCents: registration.onlineCollectedCents,
+          currency: registration.currency,
+          externalEventId: null,
+          stripeAccountId: "acct_stale_123",
+          stripeSessionId: "cs_stale_123",
+          stripePaymentIntentId: "pi_stale_123",
+          note: "Stripe payment captured.",
+          metadata: null,
+          occurredAt: "2026-12-01T10:00:00.000Z",
+          createdAt: "2026-12-01T10:00:00.000Z"
+        }
+      );
+    });
+
+    const data = await getOrganizerRegistrationsAdmin("alpine-trail-lab", "it");
+    const registration = data.registrations.find((entry) => entry.id === registrationId);
+
+    expect(registration.refundSummary).toMatchObject({
+      reason: "already_fully_refunded",
+      status: "REFUNDED",
+      statusLabel: "Rimborso completato"
+    });
+    expect(registration.dueAtEventOpenCents).toBe(0);
+    expect(registration.dueAtEventOpenLabel).toBe("€0");
+  });
 });
