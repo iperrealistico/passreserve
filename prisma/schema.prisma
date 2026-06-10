@@ -150,6 +150,7 @@ model Organizer {
   minAdvanceHours    Int                           @default(0)
   maxAdvanceDays     Int?
   registrationQuestionnaireConfig Json?
+  registrationLanguagePromptEnabled Boolean        @default(true)
   registrationConfirmationMode RegistrationConfirmationMode @default(EMAIL_LINK_REQUIRED)
   registrationRemindersEnabled Boolean            @default(false)
   registrationReminderLeadHours Int               @default(24)
@@ -274,6 +275,7 @@ model EventType {
   cancellationPolicy    String          @default("")
   collectDietaryInfo    Boolean         @default(true)
   registrationQuestionnaireConfig Json?
+  registrationLanguagePromptEnabled Boolean?
   registrationConfirmationMode RegistrationConfirmationMode?
   salesWindowStartsAt   DateTime?
   salesWindowEndsAt     DateTime?
