@@ -59,6 +59,10 @@ export async function GET(request, { params }) {
       return false;
     }
 
+    if (variant === "operational" && !registration.operationallyActive) {
+      return false;
+    }
+
     return registration.occurrenceId === occurrenceId;
   });
   const occurrence = data.occurrences.find((entry) => entry.id === occurrenceId) || null;
