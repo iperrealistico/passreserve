@@ -146,4 +146,41 @@ describe("passreserve organizer admin events payload", () => {
     expect(updated.refundPolicyType).toBe("NON_REFUNDABLE");
     expect(updated.cancellationPolicy).toBe("Tickets are not refundable once the booking is confirmed.");
   });
+
+  it("allows events to leave duration unset without forcing the legacy 180-minute default", async () => {
+    const before = await getOrganizerEventsAdmin("sillico");
+    const event = before.events.find((entry) => entry.id === "event-sillico-prova");
+
+    await saveOrganizerEvent("sillico", {
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      category: event.category,
+      visibility: event.visibility,
+      summary: event.summary,
+      description: event.description,
+      audience: event.audience,
+      durationMinutes: "",
+      venueTitle: event.venueTitle,
+      venueDetail: event.venueDetail,
+      mapHref: event.mapHref || "",
+      basePriceCents: String(event.basePriceCents || 0),
+      ticketCatalogJson: JSON.stringify(event.ticketCategories || []),
+      prepayPercentage: String(event.prepayPercentage || 0),
+      attendeeInstructions: event.attendeeInstructions || "",
+      organizerNotes: event.organizerNotes || "",
+      refundPolicyType: event.refundPolicyType || "",
+      cancellationPolicy: event.cancellationPolicy || "",
+      highlights: (event.highlights || []).join("\n"),
+      included: (event.included || []).join("\n"),
+      policies: (event.policies || []).join("\n"),
+      galleryJson: JSON.stringify(event.gallery || []),
+      imageUrl: event.imageUrl || ""
+    });
+
+    const after = await getOrganizerEventsAdmin("sillico");
+    const updated = after.events.find((entry) => entry.id === "event-sillico-prova");
+
+    expect(updated.durationMinutes).toBeNull();
+  });
 });

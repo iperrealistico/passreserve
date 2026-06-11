@@ -270,7 +270,7 @@ model EventType {
   summary               String          @default("")
   description           String          @default("")
   audience              String          @default("")
-  durationMinutes       Int             @default(180)
+  durationMinutes       Int?
   venueTitle            String          @default("")
   venueDetail           String          @default("")
   mapHref               String          @default("")

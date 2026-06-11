@@ -1,0 +1,3 @@
+ALTER TABLE "EventType"
+ALTER COLUMN "durationMinutes" DROP DEFAULT,
+ALTER COLUMN "durationMinutes" DROP NOT NULL;

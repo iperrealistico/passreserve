@@ -755,9 +755,12 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                 />
               </label>
               <label className="field">
-                <span>{isItalian ? "Durata in minuti" : "Duration minutes"}</span>
+                <span>
+                  {isItalian ? "Durata in minuti (opzionale)" : "Duration minutes (optional)"}
+                </span>
                 <input
                   defaultValue={selectedEvent?.durationMinutes ?? ""}
+                  placeholder={isItalian ? "Lascia vuoto se non serve" : "Leave blank if not needed"}
                   name="durationMinutes"
                   type="number"
                 />
