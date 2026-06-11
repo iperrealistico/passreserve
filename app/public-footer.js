@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { LegalLinksRow } from "../components/legal-links-row.js";
 import { LocaleSwitcher } from "../components/locale-switcher.js";
-import { getOperatorFooterLine } from "../lib/passreserve-legal.js";
 
 export function PublicFooter({ locale = "en", dictionary }) {
   const year = new Date().getFullYear();
@@ -44,7 +43,6 @@ export function PublicFooter({ locale = "en", dictionary }) {
         <div className="site-footer-bottom-copy">
           <span>{`© ${year} Passreserve.com. ${dictionary.footer.rights}`}</span>
           <span>{dictionary.footer.note}</span>
-          <span>{getOperatorFooterLine(locale)}</span>
         </div>
         <LegalLinksRow locale={locale} />
       </div>
