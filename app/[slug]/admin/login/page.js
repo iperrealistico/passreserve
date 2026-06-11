@@ -87,30 +87,15 @@ export default async function OrganizerLoginPage({ params, searchParams }) {
         <section className="mx-auto mt-6 max-w-5xl">
           <article className="panel public-hero-copy rounded-[2rem] border border-border bg-card p-6 sm:p-8">
             <div className="section-kicker">{shell.organizer.name}</div>
-            <h1>
-              {activePanel === "reset"
-                ? isItalian
-                  ? "Reset password admin organizer"
-                  : "Organizer admin password reset"
-                : isItalian
-                  ? "Accesso admin organizer"
-                  : "Organizer admin sign in"}
-            </h1>
-            <p>
-              {activePanel === "reset"
-                ? isItalian
-                  ? "Genera un nuovo link per l'admin organizer. Passreserve invierà o registrerà il link in base alla configurazione email corrente."
-                  : "Generate a fresh link for the organizer admin. Passreserve will email or log the link depending on the active email configuration."
-                : isItalian
-                  ? "Gestisci eventi, programma, registrazioni, pagamenti e dati partecipanti da un'area admin pulita e responsive."
-                  : "Manage events, schedule, registrations, payments, and attendee data from a cleaner responsive admin area."}
-            </p>
-            {activePanel === "login" ? (
-              <div className="pill-list">
-                <span className="pill">{isItalian ? "Eventi" : "Events"}</span>
-                <span className="pill">{isItalian ? "Programma" : "Schedule"}</span>
-                <span className="pill">{isItalian ? "Registrazioni" : "Registrations"}</span>
-              </div>
+            {activePanel === "reset" ? (
+              <>
+                <h1>{isItalian ? "Reset password admin organizer" : "Organizer admin password reset"}</h1>
+                <p>
+                  {isItalian
+                    ? "Genera un nuovo link per l'admin organizer. Passreserve invierà o registrerà il link in base alla configurazione email corrente."
+                    : "Generate a fresh link for the organizer admin. Passreserve will email or log the link depending on the active email configuration."}
+                </p>
+              </>
             ) : null}
             {error ? (
               <div className="registration-message registration-message-error">{error}</div>
