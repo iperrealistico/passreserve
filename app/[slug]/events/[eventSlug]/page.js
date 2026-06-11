@@ -325,10 +325,7 @@ export default async function EventDetailPage({ params, searchParams }) {
             <div className="agenda-list">
               {orderedOccurrences.length ? (
                 orderedOccurrences.map((occurrence) => (
-                  <article
-                    className={`agenda-item${occurrence.id === selectedOccurrence?.id ? " registration-choice-active" : ""}`}
-                    key={occurrence.id}
-                  >
+                  <article className="agenda-item" key={occurrence.id}>
                     <div className="agenda-head">
                       <div className="flex flex-col gap-2">
                         <strong className="text-2xl font-semibold text-foreground">
