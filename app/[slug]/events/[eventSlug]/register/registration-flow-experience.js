@@ -279,10 +279,6 @@ export default function RegistrationFlowExperience({
       selectTickets: locale === "it" ? "Componi i ticket" : "Build your ticket mix",
       included: locale === "it" ? "Include" : "Includes",
       noTickets: locale === "it" ? "Seleziona almeno un ticket." : "Select at least one ticket.",
-      quantityHint:
-        locale === "it"
-          ? "Puoi combinare piu ticket nello stesso acquisto."
-          : "You can mix different tickets in the same purchase.",
       ticketAssigned:
         locale === "it" ? "Ticket assegnato a questo partecipante" : "Ticket assigned to this participant",
       ticketMix: locale === "it" ? "Mix ticket" : "Ticket mix",
@@ -650,7 +646,6 @@ export default function RegistrationFlowExperience({
         {activeStep === 1 ? (
           <div className="registration-panel-stack">
             <h3>{labels.selectTickets}</h3>
-            <p className="admin-page-tip">{labels.quantityHint}</p>
             <div className="registration-choice-grid">
               {selectedOccurrence?.ticketCategories.map((category) => {
                 const item = cartItems.find((entry) => entry.ticketCategoryId === category.id);
