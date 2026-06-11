@@ -113,11 +113,11 @@ export function RegistrationLanguagePromptEditor({
               type="button"
             >
               <div className="confirmation-mode-card-head">
-                <div>
+                <div className="confirmation-mode-card-copy">
                   <strong>{option.title}</strong>
                   <span>{option.detail}</span>
                 </div>
-                {option.badge ? <span className="route-label">{option.badge}</span> : null}
+                {option.badge ? <span className="confirmation-mode-badge">{option.badge}</span> : null}
               </div>
             </button>
           );

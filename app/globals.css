@@ -1369,12 +1369,21 @@
     @apply flex w-full flex-col gap-3 lg:flex-row lg:items-start lg:justify-between;
   }
 
-  .confirmation-mode-card-head strong {
+  .confirmation-mode-card-copy {
+    @apply min-w-0 flex-1;
+  }
+
+  .confirmation-mode-card-copy strong {
     @apply text-lg font-semibold tracking-tight text-foreground;
   }
 
-  .confirmation-mode-card-head span {
+  .confirmation-mode-card-copy span {
     @apply mt-2 block text-sm leading-6 text-muted-foreground;
+  }
+
+  .confirmation-mode-badge {
+    @apply inline-flex shrink-0 items-center self-start whitespace-nowrap rounded-full border border-border bg-background px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground lg:ml-4;
+    line-height: 1.1;
   }
 
   .confirmation-mode-note {

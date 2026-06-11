@@ -588,12 +588,12 @@ export default function RegistrationFlowExperience({
                         type="button"
                       >
                         <div className="confirmation-mode-card-head">
-                          <div>
+                          <div className="confirmation-mode-card-copy">
                             <strong>{option.label}</strong>
                             <span>{labels.bookingLanguageNote}</span>
                           </div>
                           {active ? (
-                            <span className="route-label">
+                            <span className="confirmation-mode-badge">
                               {dictionary.registration.bookingLanguageCurrent}
                             </span>
                           ) : null}
