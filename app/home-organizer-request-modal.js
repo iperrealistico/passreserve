@@ -278,9 +278,9 @@ export function HomeOrganizerRequestModal({
                 rows="2"
               />
             </label>
-            <label className="registration-check-item field field-span flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4" style={{ gridColumn: "1 / -1" }}>
+            <label className="inline-consent-row field-span" style={{ gridColumn: "1 / -1" }}>
               <input name="termsAccepted" required type="checkbox" value="yes" />
-              <span>
+              <span className="inline-consent-copy">
                 I have read the{" "}
                 <Link href="/privacy" rel="noreferrer" target="_blank">
                   Privacy Notice

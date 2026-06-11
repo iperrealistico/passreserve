@@ -2140,6 +2140,18 @@
     @apply text-sm leading-6 text-muted-foreground;
   }
 
+  .inline-consent-row {
+    @apply flex items-start gap-3 text-sm font-medium text-foreground;
+  }
+
+  .inline-consent-row input[type="checkbox"] {
+    @apply mt-1 h-4 w-4 shrink-0 rounded border-input bg-background p-0 shadow-none accent-primary;
+  }
+
+  .inline-consent-copy {
+    @apply text-sm leading-6 text-foreground;
+  }
+
   .registration-ticket-head {
     @apply flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
   }
