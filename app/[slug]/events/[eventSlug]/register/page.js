@@ -10,9 +10,12 @@ import RegistrationFlowExperience from "./registration-flow-experience.js";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
   const { slug, eventSlug } = await params;
-  const { locale } = await getTranslations();
+  const query = await searchParams;
+  const preferredLocale =
+    typeof query?.bookingLocale === "string" ? query.bookingLocale : undefined;
+  const { locale } = await getTranslations(preferredLocale);
   const entry = await getRegistrationExperienceBySlugs(slug, eventSlug, { locale });
 
   if (!entry) {
@@ -28,7 +31,9 @@ export async function generateMetadata({ params }) {
 export default async function RegistrationPage({ params, searchParams }) {
   const { slug, eventSlug } = await params;
   const query = await searchParams;
-  const { locale, dictionary } = await getTranslations();
+  const preferredLocale =
+    typeof query.bookingLocale === "string" ? query.bookingLocale : undefined;
+  const { locale, dictionary } = await getTranslations(preferredLocale);
   const entry = await getRegistrationExperienceBySlugs(slug, eventSlug, {
     locale,
     occurrenceId: typeof query.occurrence === "string" ? query.occurrence : undefined

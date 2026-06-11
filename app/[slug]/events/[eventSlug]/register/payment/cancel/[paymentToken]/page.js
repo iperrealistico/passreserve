@@ -41,7 +41,7 @@ function CancellationStatePanel({ view }) {
 export default async function RegistrationPaymentCancelPage({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
   const view = await getRegistrationPaymentCancellationView(slug, eventSlug, paymentToken);
-  const { locale, dictionary } = await getTranslations();
+  const { locale, dictionary } = await getTranslations(view.locale);
 
   if (view.state !== "ready") {
     return <CancellationStatePanel view={view} />;

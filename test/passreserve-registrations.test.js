@@ -75,7 +75,7 @@ describe("passreserve-registrations", () => {
 
     expect(result.ok).toBe(true);
     expect(result.redirectHref).toBe(
-      "/alpine-trail-lab/events/sunrise-ridge-session/register/pending"
+      "/alpine-trail-lab/events/sunrise-ridge-session/register/pending?bookingLocale=en"
     );
 
     const holdToken = result.confirmationHref.split("/").at(-1);
@@ -96,6 +96,59 @@ describe("passreserve-registrations", () => {
       )
     ).toBe(true);
     expect(state.registrations[0].items).toHaveLength(1);
+  });
+
+  it("keeps the public registration context locale-aware for booking-language options", async () => {
+    const italianExperience = await getRegistrationExperienceBySlugs(
+      "alpine-trail-lab",
+      "sunrise-ridge-session",
+      {
+        locale: "it"
+      }
+    );
+    const englishExperience = await getRegistrationExperienceBySlugs(
+      "alpine-trail-lab",
+      "sunrise-ridge-session",
+      {
+        locale: "en"
+      }
+    );
+
+    expect(italianExperience.event.registrationLanguagePromptEnabled).toBe(true);
+    expect(italianExperience.event.supportedRegistrationLanguages).toEqual([
+      {
+        value: "it",
+        label: "Italiano"
+      },
+      {
+        value: "en",
+        label: "English"
+      }
+    ]);
+    expect(englishExperience.event.supportedRegistrationLanguages).toEqual([
+      {
+        value: "it",
+        label: "Italian"
+      },
+      {
+        value: "en",
+        label: "English"
+      }
+    ]);
+  });
+
+  it("carries the chosen booking locale through the pending redirect", async () => {
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session", {
+      registrationLocale: "it"
+    });
+    const result = await createRegistrationHold(input);
+    const state = await loadPersistentState();
+
+    expect(result.ok).toBe(true);
+    expect(result.redirectHref).toBe(
+      "/alpine-trail-lab/events/sunrise-ridge-session/register/pending?bookingLocale=it"
+    );
+    expect(state.registrations[0].registrationLocale).toBe("it");
   });
 
   it("routes payment-required confirmations into the preview payment handoff", async () => {

@@ -22,10 +22,13 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function RegistrationPendingPage({ params }) {
+export default async function RegistrationPendingPage({ params, searchParams }) {
   const { slug, eventSlug } = await params;
-  const view = await getRegistrationPendingView(slug, eventSlug);
-  const { locale, dictionary } = await getTranslations();
+  const query = await searchParams;
+  const preferredLocale =
+    typeof query?.bookingLocale === "string" ? query.bookingLocale : undefined;
+  const view = await getRegistrationPendingView(slug, eventSlug, preferredLocale);
+  const { locale, dictionary } = await getTranslations(view.locale || preferredLocale);
 
   if (view.state !== "ready") {
     notFound();

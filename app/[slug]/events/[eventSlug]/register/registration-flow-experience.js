@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import {
@@ -19,6 +20,7 @@ const initialActionState = {
   message: "",
   fieldErrors: {}
 };
+const REGISTRATION_LANGUAGE_RESTORE_KEY = "passreserve-registration-language-restore";
 
 function createBlankAttendee(ticketCategoryId = "") {
   return {
@@ -169,6 +171,40 @@ function isAttendeeComplete(attendee, registrationQuestionnaireConfig, index) {
   );
 }
 
+function sanitizeCartItemsForOccurrence(occurrence, cartItems) {
+  const validCategoryIds = new Set(
+    (occurrence?.ticketCategories || []).map((category) => category.id)
+  );
+
+  return Array.isArray(cartItems)
+    ? cartItems
+        .map((item) => ({
+          ticketCategoryId: String(item?.ticketCategoryId || ""),
+          quantity: Math.max(0, Math.min(8, Number(item?.quantity || 0)))
+        }))
+        .filter(
+          (item) => item.ticketCategoryId && item.quantity > 0 && validCategoryIds.has(item.ticketCategoryId)
+        )
+    : [];
+}
+
+function sanitizeRestoredAttendees(attendees) {
+  return Array.isArray(attendees)
+    ? attendees.map((attendee) => ({
+        ...createBlankAttendee(String(attendee?.ticketCategoryId || "")),
+        firstName: String(attendee?.firstName || ""),
+        lastName: String(attendee?.lastName || ""),
+        address: String(attendee?.address || ""),
+        phone: String(attendee?.phone || ""),
+        email: String(attendee?.email || ""),
+        dietaryFlags: Array.isArray(attendee?.dietaryFlags)
+          ? attendee.dietaryFlags.filter(Boolean).map((flag) => String(flag))
+          : [],
+        dietaryOther: String(attendee?.dietaryOther || "")
+      }))
+    : [];
+}
+
 export default function RegistrationFlowExperience({
   collectDietaryInfo = true,
   event,
@@ -179,6 +215,9 @@ export default function RegistrationFlowExperience({
   registrationQuestionnaireConfig,
   registrationConfirmationMode = "EMAIL_LINK_REQUIRED"
 }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [actionState, formAction, isPending] = useActionState(
     createRegistrationHoldAction,
     initialActionState
@@ -214,6 +253,10 @@ export default function RegistrationFlowExperience({
     [cartItems, selectedOccurrence]
   );
   const requiresEmailLinkConfirmation = registrationConfirmationMode !== "DIRECT_CONFIRM";
+  const bookingLanguagePromptEnabled = Boolean(event.registrationLanguagePromptEnabled);
+  const supportedRegistrationLanguages = Array.isArray(event.supportedRegistrationLanguages)
+    ? event.supportedRegistrationLanguages
+    : [];
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const priceFormatter = useMemo(
     () =>
@@ -256,7 +299,11 @@ export default function RegistrationFlowExperience({
       directConfirmCta:
         locale === "it" ? "Conferma registrazione" : "Confirm registration",
       directPaymentCta:
-        locale === "it" ? "Vai al pagamento" : "Continue to payment"
+        locale === "it" ? "Vai al pagamento" : "Continue to payment",
+      bookingLanguageNote:
+        locale === "it"
+          ? "La lingua scelta viene mantenuta per questa registrazione."
+          : "The selected language stays attached to this registration."
     }),
     [locale]
   );
@@ -310,12 +357,87 @@ export default function RegistrationFlowExperience({
     });
   }, [cartItems, selectedOccurrence]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const rawSnapshot = window.sessionStorage.getItem(REGISTRATION_LANGUAGE_RESTORE_KEY);
+
+    if (!rawSnapshot) {
+      return;
+    }
+
+    try {
+      const snapshot = JSON.parse(rawSnapshot);
+
+      if (
+        snapshot?.organizerSlug !== event.organizerSlug ||
+        snapshot?.eventSlug !== event.slug ||
+        snapshot?.pathname !== pathname
+      ) {
+        return;
+      }
+
+      const restoredOccurrenceId = getInitialOccurrenceId(
+        event,
+        String(snapshot.occurrenceId || resolvedInitialOccurrenceId)
+      );
+      const restoredOccurrence = getOccurrenceById(event, restoredOccurrenceId);
+      const restoredCartItems = sanitizeCartItemsForOccurrence(
+        restoredOccurrence,
+        snapshot.cartItems
+      );
+
+      setOccurrenceId(restoredOccurrenceId);
+      setCartItems(restoredCartItems);
+      setAttendees(sanitizeRestoredAttendees(snapshot.attendees));
+      setActiveStep(
+        Math.max(0, Math.min(3, Number.isFinite(Number(snapshot.activeStep)) ? Number(snapshot.activeStep) : 0))
+      );
+    } catch {
+      // Ignore malformed restore payloads and keep the default state.
+    } finally {
+      window.sessionStorage.removeItem(REGISTRATION_LANGUAGE_RESTORE_KEY);
+    }
+  }, [event, pathname, resolvedInitialOccurrenceId]);
+
   function handleOccurrenceChange(nextOccurrenceId) {
     const nextOccurrence = getOccurrenceById(event, nextOccurrenceId);
 
     setOccurrenceId(nextOccurrenceId);
     setCartItems(buildDefaultCart(nextOccurrence));
     setActiveStep(0);
+  }
+
+  function handleBookingLanguageChange(nextLocale) {
+    if (!nextLocale || nextLocale === locale || typeof window === "undefined") {
+      return;
+    }
+
+    window.sessionStorage.setItem(
+      REGISTRATION_LANGUAGE_RESTORE_KEY,
+      JSON.stringify({
+        organizerSlug: event.organizerSlug,
+        eventSlug: event.slug,
+        pathname,
+        activeStep,
+        occurrenceId,
+        cartItems,
+        attendees
+      })
+    );
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("bookingLocale", nextLocale);
+
+    if (selectedOccurrence?.id) {
+      params.set("occurrence", selectedOccurrence.id);
+    }
+
+    router.replace(`${pathname}?${params.toString()}`, {
+      scroll: false
+    });
   }
 
   function updateCartQuantity(ticketCategoryId, nextQuantity) {
@@ -439,6 +561,42 @@ export default function RegistrationFlowExperience({
 
         {activeStep === 0 ? (
           <div className="registration-panel-stack">
+            {bookingLanguagePromptEnabled ? (
+              <div className="questionnaire-preset-note confirmation-mode-note">
+                <span className="admin-filter-label">
+                  {dictionary.registration.bookingLanguageTitle}
+                </span>
+                <p>{dictionary.registration.bookingLanguageSummary}</p>
+
+                <div className="confirmation-mode-grid mt-4">
+                  {supportedRegistrationLanguages.map((option) => {
+                    const active = option.value === locale;
+
+                    return (
+                      <button
+                        className={`confirmation-mode-card ${active ? "confirmation-mode-card-active" : ""}`}
+                        key={option.value}
+                        onClick={() => handleBookingLanguageChange(option.value)}
+                        type="button"
+                      >
+                        <div className="confirmation-mode-card-head">
+                          <div>
+                            <strong>{option.label}</strong>
+                            <span>{labels.bookingLanguageNote}</span>
+                          </div>
+                          {active ? (
+                            <span className="route-label">
+                              {dictionary.registration.bookingLanguageCurrent}
+                            </span>
+                          ) : null}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ) : null}
+
             <h3>{dictionary.event.dates}</h3>
             <div className="registration-choice-grid">
               {event.occurrences.map((occurrence) => {

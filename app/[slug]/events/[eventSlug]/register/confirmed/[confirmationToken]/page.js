@@ -53,7 +53,7 @@ function ConfirmationStatePanel({ view }) {
 export default async function RegistrationConfirmedPage({ params }) {
   const { slug, eventSlug, confirmationToken } = await params;
   const view = await getConfirmedRegistrationView(slug, eventSlug, confirmationToken);
-  const { locale, dictionary } = await getTranslations();
+  const { locale, dictionary } = await getTranslations(view.locale);
 
   if (view.state !== "ready") {
     return <ConfirmationStatePanel view={view} />;

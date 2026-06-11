@@ -44,7 +44,7 @@ function HoldStatePanel({ holdView }) {
 export default async function RegistrationConfirmPage({ params }) {
   const { slug, eventSlug, holdToken } = await params;
   const holdView = await getRegistrationHoldView(slug, eventSlug, holdToken);
-  const { locale, dictionary } = await getTranslations();
+  const { locale, dictionary } = await getTranslations(holdView.locale);
 
   if (holdView.state !== "ready") {
     return <HoldStatePanel holdView={holdView} />;
