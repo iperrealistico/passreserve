@@ -35,7 +35,7 @@ export default async function OrganizerAccessPage({ searchParams }) {
                 <input
                   autoComplete="off"
                   name="slug"
-                  placeholder={copy.slugPlaceholder}
+                  placeholder={copy.slugPlaceholder || undefined}
                   spellCheck="false"
                   type="text"
                 />
@@ -50,7 +50,6 @@ export default async function OrganizerAccessPage({ searchParams }) {
               </div>
             </form>
 
-            <p className="muted-text">{copy.helper}</p>
           </article>
 
           <aside className="panel auth-card auth-card-secondary">
