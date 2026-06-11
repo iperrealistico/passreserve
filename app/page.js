@@ -118,6 +118,18 @@ export default async function HomePage({ searchParams }) {
 
         <div className="mt-5 flex justify-center">
           <Link className="inline-link" href="/about">
+            <span aria-hidden="true" className="inline-link-icon">
+              <svg fill="none" height="16" viewBox="0 0 16 16" width="16">
+                <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />
+                <path
+                  d="M8 7.1V11"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeWidth="1.5"
+                />
+                <circle cx="8" cy="4.7" fill="currentColor" r="0.9" />
+              </svg>
+            </span>
             {dictionary.home.storyLink}
           </Link>
         </div>
