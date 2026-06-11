@@ -8,6 +8,14 @@ export const metadata = {
   title: "Organizer sign in"
 };
 
+function buildPanelHref(slug, panel) {
+  if (panel === "reset") {
+    return `/${slug}/admin/login?panel=reset`;
+  }
+
+  return `/${slug}/admin/login`;
+}
+
 function messageFor(value, locale) {
   const isItalian = locale === "it";
 
@@ -47,6 +55,12 @@ export default async function OrganizerLoginPage({ params, searchParams }) {
   const isItalian = locale === "it";
   const error = messageFor(typeof query.error === "string" ? query.error : "", locale);
   const message = messageFor(typeof query.message === "string" ? query.message : "", locale);
+  const activePanel =
+    typeof query.panel === "string" && query.panel === "reset"
+      ? "reset"
+      : typeof query.message === "string" && query.message === "reset-sent"
+        ? "reset"
+        : "login";
 
   if (!shell) {
     return (
@@ -70,20 +84,34 @@ export default async function OrganizerLoginPage({ params, searchParams }) {
   return (
     <main className="shell admin-shell">
       <div className="content">
-        <section className="hero detail-hero">
-          <article className="panel hero-copy public-hero-copy">
+        <section className="mx-auto mt-6 max-w-5xl">
+          <article className="panel public-hero-copy rounded-[2rem] border border-border bg-card p-6 sm:p-8">
             <div className="section-kicker">{shell.organizer.name}</div>
-            <h1>{isItalian ? "Accesso admin organizer" : "Organizer admin sign in"}</h1>
+            <h1>
+              {activePanel === "reset"
+                ? isItalian
+                  ? "Reset password admin organizer"
+                  : "Organizer admin password reset"
+                : isItalian
+                  ? "Accesso admin organizer"
+                  : "Organizer admin sign in"}
+            </h1>
             <p>
-              {isItalian
-                ? "Gestisci eventi, programma, registrazioni, pagamenti e dati partecipanti da un'area admin pulita e responsive."
-                : "Manage events, schedule, registrations, payments, and attendee data from a cleaner responsive admin area."}
+              {activePanel === "reset"
+                ? isItalian
+                  ? "Genera un nuovo link per l'admin organizer. Passreserve invierà o registrerà il link in base alla configurazione email corrente."
+                  : "Generate a fresh link for the organizer admin. Passreserve will email or log the link depending on the active email configuration."
+                : isItalian
+                  ? "Gestisci eventi, programma, registrazioni, pagamenti e dati partecipanti da un'area admin pulita e responsive."
+                  : "Manage events, schedule, registrations, payments, and attendee data from a cleaner responsive admin area."}
             </p>
-            <div className="pill-list">
-              <span className="pill">{isItalian ? "Eventi" : "Events"}</span>
-              <span className="pill">{isItalian ? "Programma" : "Schedule"}</span>
-              <span className="pill">{isItalian ? "Registrazioni" : "Registrations"}</span>
-            </div>
+            {activePanel === "login" ? (
+              <div className="pill-list">
+                <span className="pill">{isItalian ? "Eventi" : "Events"}</span>
+                <span className="pill">{isItalian ? "Programma" : "Schedule"}</span>
+                <span className="pill">{isItalian ? "Registrazioni" : "Registrations"}</span>
+              </div>
+            ) : null}
             {error ? (
               <div className="registration-message registration-message-error">{error}</div>
             ) : null}
@@ -91,59 +119,52 @@ export default async function OrganizerLoginPage({ params, searchParams }) {
               <div className="registration-message registration-message-success">{message}</div>
             ) : null}
 
-            <form action={organizerLoginAction} className="registration-panel-stack">
-              <input name="slug" type="hidden" value={slug} />
-              <label className="field">
-                <span>Email</span>
-                <input name="email" placeholder="host-admin@example.com" type="email" />
-              </label>
-              <label className="field">
-                <span>Password</span>
-                <input name="password" type="password" />
-              </label>
-              <div className="hero-actions">
-                <button className="button button-primary" type="submit">
-                  {isItalian ? "Accedi" : "Sign in"}
-                </button>
-                <Link className="button button-secondary" href={`/${slug}`}>
-                  {isItalian ? "Pagina pubblica" : "Public page"}
-                </Link>
-              </div>
-            </form>
+            {activePanel === "reset" ? (
+              <form action={organizerRequestResetAction} className="registration-panel-stack">
+                <input name="slug" type="hidden" value={slug} />
+                <input
+                  name="baseUrl"
+                  type="hidden"
+                  value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
+                />
+                <label className="field">
+                  <span>{isItalian ? "Email account" : "Account email"}</span>
+                  <input name="email" placeholder="host-admin@example.com" type="email" />
+                </label>
+                <div className="hero-actions">
+                  <button className="button button-secondary" type="submit">
+                    {isItalian ? "Invia link reset" : "Send reset link"}
+                  </button>
+                  <Link className="button button-secondary" href={buildPanelHref(slug, "login")}>
+                    {isItalian ? "Torna al login" : "Back to sign in"}
+                  </Link>
+                </div>
+              </form>
+            ) : (
+              <form action={organizerLoginAction} className="registration-panel-stack">
+                <input name="slug" type="hidden" value={slug} />
+                <label className="field">
+                  <span>Email</span>
+                  <input name="email" placeholder="host-admin@example.com" type="email" />
+                </label>
+                <label className="field">
+                  <span>Password</span>
+                  <input name="password" type="password" />
+                </label>
+                <div className="hero-actions">
+                  <button className="button button-primary" type="submit">
+                    {isItalian ? "Accedi" : "Sign in"}
+                  </button>
+                  <Link className="button button-secondary" href={`/${slug}`}>
+                    {isItalian ? "Pagina pubblica" : "Public page"}
+                  </Link>
+                  <Link className="button button-secondary" href={buildPanelHref(slug, "reset")}>
+                    {isItalian ? "Reset password" : "Reset password"}
+                  </Link>
+                </div>
+              </form>
+            )}
           </article>
-
-          <aside className="panel hero-aside public-hero-aside">
-            <div className="status-block">
-              <div className="status-label">{isItalian ? "Reset password" : "Password reset"}</div>
-              <h2>
-                {isItalian
-                  ? "Genera un nuovo link per l'admin organizer."
-                  : "Generate a fresh link for the organizer admin."}
-              </h2>
-              <p>
-                {isItalian
-                  ? "Passreserve invierà o registrerà il link in base alla configurazione email corrente."
-                  : "Passreserve will email or log the link depending on the active email configuration."}
-              </p>
-            </div>
-            <form action={organizerRequestResetAction} className="registration-panel-stack">
-              <input name="slug" type="hidden" value={slug} />
-              <input
-                name="baseUrl"
-                type="hidden"
-                value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
-              />
-              <label className="field">
-                <span>{isItalian ? "Email account" : "Account email"}</span>
-                <input name="email" placeholder="host-admin@example.com" type="email" />
-              </label>
-              <div className="hero-actions">
-                <button className="button button-secondary" type="submit">
-                  {isItalian ? "Invia link reset" : "Send reset link"}
-                </button>
-              </div>
-            </form>
-          </aside>
         </section>
       </div>
     </main>

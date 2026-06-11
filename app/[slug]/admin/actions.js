@@ -202,7 +202,7 @@ export async function organizerRequestResetAction(formData) {
     value(formData, "email"),
     value(formData, "baseUrl")
   );
-  redirect(`/${slug}/admin/login?message=reset-sent`);
+  redirect(`/${slug}/admin/login?message=reset-sent&panel=reset`);
 }
 
 export async function organizerResetPasswordAction(formData) {
