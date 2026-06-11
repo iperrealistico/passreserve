@@ -384,6 +384,14 @@
     @apply text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground;
   }
 
+  .result-city {
+    @apply inline-flex flex-wrap items-center gap-2;
+  }
+
+  .result-city-separator {
+    @apply text-border;
+  }
+
   .button {
     @apply inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-medium transition-[background-color,border-color,color,transform,box-shadow,filter,opacity] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50;
     transform: translateZ(0);

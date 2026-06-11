@@ -80,6 +80,9 @@ export default async function EventsPage({ searchParams }) {
                     </div>
                     <div className="result-city text-sm text-muted-foreground">
                       <span>{entry.city}</span>
+                      <span aria-hidden="true" className="result-city-separator">
+                        ·
+                      </span>
                       <span className="result-region">{entry.region}</span>
                     </div>
                   </div>
