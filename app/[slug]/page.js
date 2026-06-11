@@ -82,19 +82,6 @@ export default async function OrganizerPage({ params }) {
               {summary}
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3 text-sm text-muted-foreground">
-              {organizer.venue.title ? (
-                <span className="rounded-full border border-border px-3 py-2">
-                  {organizer.venue.title}
-                </span>
-              ) : null}
-              {organizer.defaultCollectionLabel ? (
-                <span className="rounded-full border border-border px-3 py-2">
-                  {organizer.defaultCollectionLabel}
-                </span>
-              ) : null}
-            </div>
-
             <div className="hero-actions mt-6">
               <a className="button button-primary" href="#agenda">
                 {isItalian ? "Vedi calendario" : "View calendar"}
