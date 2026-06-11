@@ -250,6 +250,7 @@ async function main() {
         }
       ],
       registrationLocale: "en",
+      refundPolicyAccepted: "yes",
       attendees: [
         {
           ticketCategoryId: registrationExperience.selectedTicketCategory.id,

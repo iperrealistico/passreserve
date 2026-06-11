@@ -64,6 +64,7 @@ async function createInput(slug, eventSlug, overrides = {}) {
     items,
     registrationLocale: "en",
     attendees,
+    refundPolicyAccepted: "yes",
     ...overrides
   };
 }
@@ -83,6 +84,9 @@ describe("passreserve-registrations", () => {
     const state = await loadPersistentState();
 
     expect(holdView.state).toBe("ready");
+    expect(holdView.refundPolicy).toMatchObject({
+      label: expect.any(String)
+    });
     expect(holdView.attendee).toMatchObject({
       name: "Ada Lovelace",
       email: "ada@example.com"
@@ -99,7 +103,25 @@ describe("passreserve-registrations", () => {
         locale: "en"
       })
     });
+    expect(state.registrations[0].refundPolicyAcceptedAt).toBeTruthy();
+    expect(state.registrations[0].refundPolicySnapshot).toMatchObject({
+      label: expect.any(String),
+      locale: "en"
+    });
     expect(state.registrations[0].items).toHaveLength(1);
+  });
+
+  it("blocks hold creation until the organizer refund policy is accepted", async () => {
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session", {
+      refundPolicyAccepted: ""
+    });
+    const result = await createRegistrationHold(input);
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("Accept the organizer refund policy");
+    expect(result.fieldErrors).toMatchObject({
+      refundPolicyAccepted: "Required before continuing."
+    });
   });
 
   it("keeps the public registration context locale-aware for booking-language options", async () => {

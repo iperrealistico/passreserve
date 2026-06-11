@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import {
+  BookingLegalRecap,
   BookingResponsibilityLabel,
   BookingTermsLabel
 } from "../../../../../../../components/booking-legal-copy.js";
@@ -27,6 +28,7 @@ export default function ConfirmationForm({
     confirmRegistrationAction,
     initialActionState
   );
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
@@ -37,10 +39,20 @@ export default function ConfirmationForm({
       <input name="baseUrl" type="hidden" value={baseUrl} />
 
       <div className="registration-checklist flex flex-col gap-3">
-        <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
-          <input name="termsAccepted" required type="checkbox" value="yes" />
-          <BookingTermsLabel locale={locale} />
-        </label>
+        <div className="registration-check-card">
+          <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
+            <input
+              checked={termsAccepted}
+              name="termsAccepted"
+              onChange={(event) => setTermsAccepted(event.target.checked)}
+              required
+              type="checkbox"
+              value="yes"
+            />
+            <BookingTermsLabel locale={locale} />
+          </label>
+          <BookingLegalRecap active={termsAccepted} locale={locale} />
+        </div>
 
         <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
           <input name="responsibilityAccepted" required type="checkbox" value="yes" />

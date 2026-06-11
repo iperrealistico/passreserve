@@ -40,6 +40,7 @@ export async function createRegistrationHoldAction(_previousState, formData) {
     registrationLocale: toStringValue(formData, "registrationLocale"),
     attendees: toJsonValue(formData, "attendeesJson"),
     termsAccepted: toStringValue(formData, "termsAccepted"),
+    refundPolicyAccepted: toStringValue(formData, "refundPolicyAccepted"),
     responsibilityAccepted: toStringValue(formData, "responsibilityAccepted"),
     baseUrl: toStringValue(formData, "baseUrl")
   });

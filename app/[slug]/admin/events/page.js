@@ -11,6 +11,10 @@ import { normalizeRegistrationConfirmationMode } from "../../../../lib/passreser
 import { normalizeRegistrationLanguagePromptEnabledInput } from "../../../../lib/passreserve-registration-language.js";
 import { normalizeRegistrationQuestionnaireConfig } from "../../../../lib/passreserve-registration-questionnaire.js";
 import {
+  getRefundPolicyTypeOptions,
+  normalizeRefundPolicyType
+} from "../../../../lib/passreserve-refund-policy.js";
+import {
   deleteOrganizerEventAction,
   saveOrganizerEventAction,
   suspendOrganizerEventAction
@@ -242,6 +246,11 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
   const selectedEventHasRegistrationConfirmationOverride = Boolean(
     selectedEvent?.registrationConfirmationMode
   );
+  const selectedEventRefundPolicyType = normalizeRefundPolicyType(
+    selectedEvent?.refundPolicyType,
+    null
+  );
+  const refundPolicyTypeOptions = getRefundPolicyTypeOptions(isItalian ? "it" : "en");
   const italianCopyStarted = hasLocalizedContentStarted(selectedEvent, "it");
   const englishCopyStarted = hasLocalizedContentStarted(selectedEvent, "en");
   const initialGalleryItems = normalizeGalleryItems(selectedEvent?.gallery, selectedEvent?.imageUrl);
@@ -863,6 +872,39 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                   inputName="registrationConfirmationMode"
                   isItalian={isItalian}
                 />
+              </div>
+
+              <div>
+                <div className="section-kicker">
+                  {isItalian ? "Policy rimborso" : "Refund policy"}
+                </div>
+                <h4>
+                  {isItalian
+                    ? "Classifica subito il tipo di policy mostrato ai clienti"
+                    : "Classify the customer-facing policy at a glance"}
+                </h4>
+                <p className="admin-page-tip">
+                  {isItalian
+                    ? "Il testo dettagliato resta opzionale e localizzato qui sotto nelle sezioni Italiano e English. Questa scelta invece definisce il badge sintetico che il cliente vedra prima di accettare la policy."
+                    : "The detailed text stays optional and localized below in the Italian and English sections. This choice defines the quick policy badge customers see before accepting it."}
+                </p>
+
+                <div className="registration-choice-grid mt-4">
+                  {refundPolicyTypeOptions.map((option) => (
+                    <label className="registration-choice admin-refund-policy-option" key={option.value}>
+                      <div className="admin-refund-policy-option-head">
+                        <input
+                          defaultChecked={selectedEventRefundPolicyType === option.value}
+                          name="refundPolicyType"
+                          type="radio"
+                          value={option.value}
+                        />
+                        <strong>{option.label}</strong>
+                      </div>
+                      <span>{option.summary}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           </EventFormSection>

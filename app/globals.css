@@ -170,6 +170,130 @@
     @apply mt-8 border-t border-border pt-6;
   }
 
+  .registration-check-card {
+    @apply flex flex-col gap-2;
+  }
+
+  .booking-legal-recap {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-0.35rem) scale(0.985);
+    transition:
+      max-height 220ms ease,
+      opacity 180ms ease,
+      transform 220ms ease;
+    will-change: max-height, opacity, transform;
+  }
+
+  .booking-legal-recap-active {
+    max-height: 14rem;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .booking-legal-recap-inner {
+    @apply rounded-[1.1rem] border border-border bg-card/85 px-4 py-3 text-sm text-muted-foreground shadow-sm;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(244, 245, 241, 0.9)),
+      radial-gradient(circle at top left, rgba(52, 85, 65, 0.08), transparent 10rem);
+  }
+
+  .booking-legal-recap-title {
+    @apply mb-2 inline-flex text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-foreground;
+  }
+
+  .booking-legal-recap-list {
+    @apply grid gap-2 pl-4;
+    list-style: disc;
+  }
+
+  .booking-legal-recap-list li {
+    opacity: 0;
+    transform: translateY(0.4rem);
+    transition:
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
+
+  .booking-legal-recap-active .booking-legal-recap-list li {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .booking-legal-recap-active .booking-legal-recap-list li:nth-child(1) {
+    transition-delay: 20ms;
+  }
+
+  .booking-legal-recap-active .booking-legal-recap-list li:nth-child(2) {
+    transition-delay: 55ms;
+  }
+
+  .booking-legal-recap-active .booking-legal-recap-list li:nth-child(3) {
+    transition-delay: 90ms;
+  }
+
+  .booking-refund-policy {
+    @apply rounded-[1.1rem] border border-border bg-card/85 px-4 py-3 shadow-sm;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(244, 245, 241, 0.9)),
+      radial-gradient(circle at top left, rgba(52, 85, 65, 0.08), transparent 10rem);
+  }
+
+  .booking-refund-policy-summary {
+    @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  .booking-refund-policy-copy {
+    @apply flex min-w-0 flex-col gap-2;
+  }
+
+  .booking-refund-policy-kicker {
+    @apply text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground;
+  }
+
+  .booking-refund-policy-copy strong {
+    @apply text-lg font-semibold tracking-tight text-foreground;
+  }
+
+  .booking-refund-policy-copy p {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
+  .booking-refund-policy-toggle {
+    @apply self-start;
+  }
+
+  .booking-refund-policy-details {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-0.25rem);
+    transition:
+      max-height 220ms ease,
+      opacity 180ms ease,
+      transform 220ms ease;
+  }
+
+  .booking-refund-policy-details-active {
+    max-height: 18rem;
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .booking-refund-policy-details-inner {
+    @apply mt-3 rounded-[1rem] border border-border bg-muted/40 px-4 py-3 text-sm leading-6 text-muted-foreground;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .booking-legal-recap,
+    .booking-legal-recap-list li,
+    .booking-refund-policy-details {
+      transition: none;
+      transform: none;
+    }
+  }
+
   .site-footer-main {
     @apply flex flex-col gap-6 py-4 lg:flex-row lg:items-start lg:justify-between;
   }
@@ -1107,6 +1231,26 @@
     @apply flex flex-col gap-4;
   }
 
+  .admin-refund-policy-option {
+    @apply flex flex-col gap-3;
+  }
+
+  .admin-refund-policy-option:has(input:checked) {
+    @apply border-primary ring-2 ring-primary/10;
+  }
+
+  .admin-refund-policy-option-head {
+    @apply flex items-start gap-3;
+  }
+
+  .admin-refund-policy-option-head input {
+    @apply mt-1;
+  }
+
+  .admin-refund-policy-option span {
+    @apply text-sm leading-6 text-muted-foreground;
+  }
+
   .admin-filter-strip {
     @apply flex flex-col gap-3;
   }
@@ -2033,6 +2177,18 @@
 
   .event-format-summary {
     @apply mt-5 text-base leading-7 text-muted-foreground;
+  }
+
+  .event-policy-summary {
+    @apply text-base leading-7 text-muted-foreground;
+  }
+
+  .event-policy-detail {
+    @apply rounded-[1.5rem] border border-border bg-muted/35 p-4;
+  }
+
+  .event-policy-detail p {
+    @apply text-sm leading-6 text-muted-foreground;
   }
 
   .event-format-included {

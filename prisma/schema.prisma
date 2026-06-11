@@ -81,6 +81,12 @@ enum RegistrationConfirmationMode {
   DIRECT_CONFIRM
 }
 
+enum RefundPolicyType {
+  REFUNDABLE
+  NON_REFUNDABLE
+  REFUNDABLE_WITH_CONDITIONS
+}
+
 enum PaymentStatus {
   PENDING
   SUCCEEDED
@@ -273,6 +279,7 @@ model EventType {
   attendeeInstructions  String          @default("")
   organizerNotes        String          @default("")
   cancellationPolicy    String          @default("")
+  refundPolicyType      RefundPolicyType?
   collectDietaryInfo    Boolean         @default(true)
   registrationQuestionnaireConfig Json?
   registrationLanguagePromptEnabled Boolean?
@@ -379,6 +386,8 @@ model Registration {
   noShowAt             DateTime?
   termsAcceptedAt      DateTime?
   responsibilityAt     DateTime?
+  refundPolicyAcceptedAt DateTime?
+  refundPolicySnapshot Json?
   note                 String             @default("")
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt

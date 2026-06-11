@@ -271,6 +271,7 @@ export async function saveOrganizerEventAction(formData) {
         attendeeInstructionsIt: value(formData, "attendeeInstructionsIt"),
         attendeeInstructionsEn: value(formData, "attendeeInstructionsEn"),
         organizerNotes: value(formData, "organizerNotes"),
+        refundPolicyType: value(formData, "refundPolicyType"),
         cancellationPolicy:
           value(formData, "cancellationPolicyEn") || value(formData, "cancellationPolicyIt"),
         cancellationPolicyIt: value(formData, "cancellationPolicyIt"),

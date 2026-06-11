@@ -243,6 +243,17 @@ export default async function EventDetailPage({ params, searchParams }) {
             </section>
           ) : null}
 
+          {event.refundPolicy ? (
+            <section className="panel section-card mt-6">
+              <div className="section-kicker">{isItalian ? "Policy rimborso" : "Refund policy"}</div>
+              <h2>{event.refundPolicy.label}</h2>
+              <p className="event-policy-summary mt-3">{event.refundPolicy.summary}</p>
+              <div className="event-policy-detail mt-5">
+                <p>{event.refundPolicy.detail}</p>
+              </div>
+            </section>
+          ) : null}
+
           {ticketFormatGroups.length ? (
             <section className="panel section-card mt-6">
               <div className="section-kicker">{isItalian ? "Formato" : "Format"}</div>

@@ -1,10 +1,7 @@
 import Link from "next/link";
 
 import { PublicFooter } from "../../../../../../public-footer.js";
-import {
-  getConfirmationFieldRules,
-  getRegistrationHoldView
-} from "../../../../../../../lib/passreserve-service.js";
+import { getRegistrationHoldView } from "../../../../../../../lib/passreserve-service.js";
 import { getTranslations } from "../../../../../../../lib/passreserve-i18n.js";
 import { PublicHeader } from "../../../../../../public-header.js";
 import ConfirmationForm from "./confirmation-form.js";
@@ -154,8 +151,15 @@ export default async function RegistrationConfirmPage({ params }) {
               </div>
             </div>
 
+            {holdView.refundPolicy ? (
+              <div className="event-policy-detail mt-6">
+                <strong>{holdView.refundPolicy.label}</strong>
+                <p className="mt-2">{holdView.refundPolicy.detail}</p>
+              </div>
+            ) : null}
+
             <div className="registration-rule-list mt-6">
-              {getConfirmationFieldRules().map((rule) => (
+              {holdView.confirmationRules.map((rule) => (
                 <div className="registration-rule-item rounded-[1.25rem] border border-border bg-muted/40 p-4" key={rule.field}>
                   <strong>{rule.label}</strong>
                   <span>{rule.detail}</span>

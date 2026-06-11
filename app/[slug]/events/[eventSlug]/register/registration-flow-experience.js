@@ -5,6 +5,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import {
+  BookingLegalRecap,
+  BookingRefundPolicyDisclosure,
+  BookingRefundPolicyLabel,
   BookingResponsibilityLabel,
   BookingTermsLabel
 } from "../../../../../components/booking-legal-copy.js";
@@ -234,6 +237,9 @@ export default function RegistrationFlowExperience({
         Array.from({ length: item.quantity }, () => createBlankAttendee(item.ticketCategoryId))
       )
   );
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [refundPolicyAccepted, setRefundPolicyAccepted] = useState(false);
+  const [refundPolicyExpanded, setRefundPolicyExpanded] = useState(false);
 
   const selectedOccurrence = getOccurrenceById(event, occurrenceId);
   const maxCartQuantity = getMaxCartQuantity(selectedOccurrence);
@@ -253,6 +259,8 @@ export default function RegistrationFlowExperience({
     [cartItems, selectedOccurrence]
   );
   const requiresEmailLinkConfirmation = registrationConfirmationMode !== "DIRECT_CONFIRM";
+  const refundPolicy = event.refundPolicy || null;
+  const requiresRefundPolicyAcceptance = Boolean(refundPolicy?.requiresAcceptance);
   const bookingLanguagePromptEnabled = Boolean(event.registrationLanguagePromptEnabled);
   const supportedRegistrationLanguages = Array.isArray(event.supportedRegistrationLanguages)
     ? event.supportedRegistrationLanguages
@@ -936,6 +944,30 @@ export default function RegistrationFlowExperience({
               </div>
             </div>
 
+            {requiresRefundPolicyAcceptance ? (
+              <div className="registration-checklist flex flex-col gap-3">
+                <div className="registration-check-card">
+                  <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
+                    <input
+                      checked={refundPolicyAccepted}
+                      name="refundPolicyAccepted"
+                      onChange={(event) => setRefundPolicyAccepted(event.target.checked)}
+                      required
+                      type="checkbox"
+                      value="yes"
+                    />
+                    <BookingRefundPolicyLabel locale={locale} />
+                  </label>
+                  <BookingRefundPolicyDisclosure
+                    expanded={refundPolicyExpanded}
+                    locale={locale}
+                    onToggle={() => setRefundPolicyExpanded((current) => !current)}
+                    policy={refundPolicy}
+                  />
+                </div>
+              </div>
+            ) : null}
+
             {!requiresEmailLinkConfirmation ? (
               <>
                 <div className="questionnaire-preset-note confirmation-mode-note">
@@ -944,10 +976,20 @@ export default function RegistrationFlowExperience({
                 </div>
 
                 <div className="registration-checklist flex flex-col gap-3">
-                  <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
-                    <input name="termsAccepted" required type="checkbox" value="yes" />
-                    <BookingTermsLabel locale={locale} />
-                  </label>
+                  <div className="registration-check-card">
+                    <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
+                      <input
+                        checked={termsAccepted}
+                        name="termsAccepted"
+                        onChange={(event) => setTermsAccepted(event.target.checked)}
+                        required
+                        type="checkbox"
+                        value="yes"
+                      />
+                      <BookingTermsLabel locale={locale} />
+                    </label>
+                    <BookingLegalRecap active={termsAccepted} locale={locale} />
+                  </div>
 
                   <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
                     <input name="responsibilityAccepted" required type="checkbox" value="yes" />
