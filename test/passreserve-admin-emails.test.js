@@ -41,6 +41,12 @@ describe("passreserve admin email lifecycle", () => {
         entry.organizerId === "org-officina-gravel-house"
     );
 
+    await mutatePersistentState(async (draft) => {
+      const target = draft.registrations.find((entry) => entry.id === registration.id);
+      target.registrationLocale = "it";
+      target.updatedAt = new Date().toISOString();
+    });
+
     await updateOrganizerRegistration(
       "officina-gravel-house",
       registration.id,
@@ -52,18 +58,32 @@ describe("passreserve admin email lifecycle", () => {
 
     expect(updated.status).toBe("CANCELLED");
     expect(
-      state.emailDeliveries.some(
+      state.emailDeliveries.find(
         (entry) =>
           entry.templateSlug === "attendee_registration_cancelled" &&
           entry.registrationId === registration.id
       )
-    ).toBe(true);
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
+    });
   });
 
   it("cancels active date registrations and sends occurrence-cancelled emails once", async () => {
     const stateBefore = await loadPersistentState();
     const occurrence = stateBefore.occurrences.find((entry) => entry.id === "atl-clinic-2026-04-26");
     const event = stateBefore.events.find((entry) => entry.id === occurrence.eventTypeId);
+
+    await mutatePersistentState(async (draft) => {
+      const target = draft.registrations.find(
+        (entry) =>
+          entry.attendeeEmail === "luca@example.com" &&
+          entry.organizerId === "org-alpine-trail-lab"
+      );
+      target.registrationLocale = "it";
+      target.updatedAt = new Date().toISOString();
+    });
 
     await saveOrganizerOccurrence("alpine-trail-lab", {
       id: occurrence.id,
@@ -89,12 +109,16 @@ describe("passreserve admin email lifecycle", () => {
 
     expect(updatedRegistration.status).toBe("CANCELLED");
     expect(
-      state.emailDeliveries.some(
+      state.emailDeliveries.find(
         (entry) =>
           entry.templateSlug === "attendee_occurrence_cancelled" &&
           entry.registrationId === updatedRegistration.id
       )
-    ).toBe(true);
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
+    });
   });
 
   it("only allows organizer reminder opt-in when platform reminders are enabled", async () => {

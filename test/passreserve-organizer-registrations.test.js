@@ -81,7 +81,8 @@ async function createOrganizerInput(slug, eventSlug, overrides = {}) {
 describe("passreserve organizer manual registrations", () => {
   it("creates a pending confirmation registration for the organizer flow", async () => {
     const input = await createOrganizerInput("alpine-trail-lab", "sunrise-ridge-session", {
-      origin: "walk-in"
+      origin: "walk-in",
+      registrationLocale: "it"
     });
     const stateBefore = await loadPersistentState();
     const result = await createOrganizerRegistration("alpine-trail-lab", input);
@@ -104,7 +105,10 @@ describe("passreserve organizer manual registrations", () => {
     ).toBe(false);
     expect(state.emailDeliveries[0]).toMatchObject({
       registrationId: registration.id,
-      templateSlug: "attendee_pending_confirmation"
+      templateSlug: "attendee_pending_confirmation",
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
     });
     expect(
       state.auditLogs.some(
@@ -125,7 +129,8 @@ describe("passreserve organizer manual registrations", () => {
 
   it("supports organizer confirm unpaid by rewriting the whole balance to venue collection", async () => {
     const input = await createOrganizerInput("alpine-trail-lab", "sunrise-ridge-session", {
-      mode: ORGANIZER_MANUAL_REGISTRATION_MODE.CONFIRM_UNPAID
+      mode: ORGANIZER_MANUAL_REGISTRATION_MODE.CONFIRM_UNPAID,
+      registrationLocale: "it"
     });
     const result = await createOrganizerRegistration("alpine-trail-lab", input);
     const state = await loadPersistentState();
@@ -141,13 +146,25 @@ describe("passreserve organizer manual registrations", () => {
     expect(
       registration.items.every((item) => item.dueAtEventCents === item.subtotalCents)
     ).toBe(true);
+    expect(
+      state.emailDeliveries.find(
+        (entry) =>
+          entry.templateSlug === "attendee_registration_confirmed" &&
+          entry.registrationId === registration.id
+      )
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
+    });
   });
 
   it("creates a pending payment registration and preview payment link for organizers", async () => {
     const input = await createOrganizerInput("alpine-trail-lab", "sunrise-ridge-session", {
       mode: ORGANIZER_MANUAL_REGISTRATION_MODE.SEND_PAYMENT_LINK,
       quantity: 1,
-      origin: "email"
+      origin: "email",
+      registrationLocale: "it"
     });
     const stateBefore = await loadPersistentState();
     const result = await createOrganizerRegistration("alpine-trail-lab", input);
@@ -174,6 +191,17 @@ describe("passreserve organizer manual registrations", () => {
         .filter((delivery) => delivery.registrationId === registration.id)
         .map((delivery) => delivery.templateSlug)
     ).toEqual(["organizer_new_registration", "attendee_payment_requested"]);
+    expect(
+      state.emailDeliveries.find(
+        (delivery) =>
+          delivery.registrationId === registration.id &&
+          delivery.templateSlug === "attendee_payment_requested"
+      )
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
+    });
   });
 
   it("records the online amount as an offline manual deposit when requested", async () => {

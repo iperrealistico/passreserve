@@ -89,12 +89,16 @@ describe("passreserve-registrations", () => {
     });
     expect(holdView.payment.onlineAmount).toBeGreaterThan(0);
     expect(
-      state.emailDeliveries.some(
+      state.emailDeliveries.find(
         (entry) =>
           entry.templateSlug === "attendee_pending_confirmation" &&
           entry.recipientEmail === "ada@example.com"
       )
-    ).toBe(true);
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "en"
+      })
+    });
     expect(state.registrations[0].items).toHaveLength(1);
   });
 
@@ -149,6 +153,17 @@ describe("passreserve-registrations", () => {
       "/alpine-trail-lab/events/sunrise-ridge-session/register/pending?bookingLocale=it"
     );
     expect(state.registrations[0].registrationLocale).toBe("it");
+    expect(
+      state.emailDeliveries.find(
+        (entry) =>
+          entry.templateSlug === "attendee_pending_confirmation" &&
+          entry.registrationId === state.registrations[0].id
+      )
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
+    });
   });
 
   it("routes payment-required confirmations into the preview payment handoff", async () => {
@@ -359,6 +374,7 @@ describe("passreserve-registrations", () => {
 
     const input = await createInput("officina-gravel-house", "gravel-social-camp", {
       quantity: 1,
+      registrationLocale: "it",
       termsAccepted: "yes",
       responsibilityAccepted: "yes"
     });
@@ -369,12 +385,16 @@ describe("passreserve-registrations", () => {
     expect(result.redirectHref).toContain("/register/confirmed/");
     expect(state.registrations[0].status).toBe("CONFIRMED_UNPAID");
     expect(
-      state.emailDeliveries.some(
+      state.emailDeliveries.find(
         (entry) =>
           entry.templateSlug === "attendee_registration_confirmed" &&
           entry.recipientEmail === "ada@example.com"
       )
-    ).toBe(true);
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
+    });
     expect(
       state.emailDeliveries.some((entry) => entry.templateSlug === "attendee_pending_confirmation")
     ).toBe(false);
@@ -477,6 +497,7 @@ describe("passreserve-registrations", () => {
           entry.organizerId === "org-alpine-trail-lab"
       );
       registration.status = "CONFIRMED_PARTIALLY_PAID";
+      registration.registrationLocale = "it";
       registration.confirmedAt = "2026-04-13T09:00:00.000Z";
       const occurrence = draft.occurrences.find((entry) => entry.id === registration.occurrenceId);
       occurrence.startsAt = "2026-04-14T12:00:00.000Z";
@@ -492,11 +513,15 @@ describe("passreserve-registrations", () => {
       sent: 1
     });
     expect(
-      state.emailDeliveries.some(
+      state.emailDeliveries.find(
         (entry) =>
           entry.templateSlug === "attendee_occurrence_reminder" &&
           entry.recipientEmail === "luca@example.com"
       )
-    ).toBe(true);
+    ).toMatchObject({
+      metadata: expect.objectContaining({
+        locale: "it"
+      })
+    });
   });
 });
