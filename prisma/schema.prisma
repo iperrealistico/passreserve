@@ -460,10 +460,13 @@ model EmailTemplate {
   audience     String
   category     String
   subject      String
+  subjectTranslations Json?
   preview      String   @default("")
+  previewTranslations Json?
   trigger      String   @default("")
   placeholders Json?
   bodyHtml     String   @default("")
+  bodyHtmlTranslations Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

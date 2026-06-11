@@ -119,17 +119,95 @@ export default async function PlatformEmailsPage({ searchParams }) {
 
                 <form action={updateEmailTemplateAction} className="registration-panel-stack">
                   <input name="id" type="hidden" value={template.id} />
+                  <div className="admin-note-item">
+                    <span className="spotlight-label">
+                      {isItalian ? "Fallback / default" : "Fallback / default"}
+                    </span>
+                    <strong>
+                      {isItalian
+                        ? "Se un campo per lingua resta vuoto, l'email usa questi valori di default."
+                        : "If a locale-specific field stays empty, the email falls back to these default values."}
+                    </strong>
+                  </div>
                   <label className="field">
-                    <span>{isItalian ? "Oggetto" : "Subject"}</span>
+                    <span>{isItalian ? "Oggetto default" : "Default subject"}</span>
                     <input defaultValue={template.subject} name="subject" type="text" />
                   </label>
                   <label className="field">
-                    <span>{isItalian ? "Preview" : "Preview"}</span>
+                    <span>{isItalian ? "Preview default" : "Default preview"}</span>
                     <textarea defaultValue={template.preview} name="preview" rows="2" />
                   </label>
                   <label className="field">
-                    <span>{isItalian ? "Body HTML" : "HTML body"}</span>
+                    <span>{isItalian ? "Body HTML default" : "Default HTML body"}</span>
                     <textarea defaultValue={template.bodyHtml} name="bodyHtml" rows="8" />
+                  </label>
+                  <div className="admin-note-list">
+                    <div className="admin-note-item">
+                      <span className="spotlight-label">Italiano</span>
+                      <strong>
+                        {isItalian
+                          ? "Questi override vengono usati quando la registrazione è in italiano."
+                          : "These overrides are used when the registration locale is Italian."}
+                      </strong>
+                    </div>
+                  </div>
+                  <label className="field">
+                    <span>{isItalian ? "Oggetto IT" : "Italian subject"}</span>
+                    <input
+                      defaultValue={template.subjectTranslations?.it || ""}
+                      name="subject_it"
+                      type="text"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>{isItalian ? "Preview IT" : "Italian preview"}</span>
+                    <textarea
+                      defaultValue={template.previewTranslations?.it || ""}
+                      name="preview_it"
+                      rows="2"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>{isItalian ? "Body HTML IT" : "Italian HTML body"}</span>
+                    <textarea
+                      defaultValue={template.bodyHtmlTranslations?.it || ""}
+                      name="bodyHtml_it"
+                      rows="8"
+                    />
+                  </label>
+                  <div className="admin-note-list">
+                    <div className="admin-note-item">
+                      <span className="spotlight-label">English</span>
+                      <strong>
+                        {isItalian
+                          ? "Questi override vengono usati quando la registrazione è in inglese."
+                          : "These overrides are used when the registration locale is English."}
+                      </strong>
+                    </div>
+                  </div>
+                  <label className="field">
+                    <span>{isItalian ? "Oggetto EN" : "English subject"}</span>
+                    <input
+                      defaultValue={template.subjectTranslations?.en || ""}
+                      name="subject_en"
+                      type="text"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>{isItalian ? "Preview EN" : "English preview"}</span>
+                    <textarea
+                      defaultValue={template.previewTranslations?.en || ""}
+                      name="preview_en"
+                      rows="2"
+                    />
+                  </label>
+                  <label className="field">
+                    <span>{isItalian ? "Body HTML EN" : "English HTML body"}</span>
+                    <textarea
+                      defaultValue={template.bodyHtmlTranslations?.en || ""}
+                      name="bodyHtml_en"
+                      rows="8"
+                    />
                   </label>
                   <div className="hero-actions">
                     <button className="button button-primary" type="submit">

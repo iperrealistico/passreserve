@@ -8,6 +8,7 @@ import {
   getOrganizerSettingsAdmin,
   saveOrganizerOccurrence,
   sendOrganizerDirectEmailFromPlatform,
+  updateEmailTemplate,
   updateOrganizerRegistration,
   updateOrganizerSettings
 } from "../lib/passreserve-admin-service.js";
@@ -154,6 +155,48 @@ describe("passreserve admin email lifecycle", () => {
 
     expect(organizerAfter.registrationLanguagePromptEnabled).toBe(false);
     expect(settingsAfter.organizer.registrationLanguagePromptEnabled).toBe(false);
+  });
+
+  it("persists localized email template overrides in the platform email console state", async () => {
+    const stateBefore = await loadPersistentState();
+    const template = stateBefore.emailTemplates.find(
+      (entry) => entry.slug === "attendee_registration_confirmed"
+    );
+
+    await updateEmailTemplate({
+      id: template.id,
+      subject: template.subject,
+      preview: template.preview,
+      bodyHtml: template.bodyHtml,
+      subjectTranslations: {
+        it: "Registrazione confermata da test",
+        en: "Test confirmed registration"
+      },
+      previewTranslations: {
+        it: "Anteprima IT",
+        en: "Preview EN"
+      },
+      bodyHtmlTranslations: {
+        it: "<p>Corpo IT</p>",
+        en: "<p>Body EN</p>"
+      }
+    });
+
+    const stateAfter = await loadPersistentState();
+    const updated = stateAfter.emailTemplates.find((entry) => entry.id === template.id);
+
+    expect(updated.subjectTranslations).toEqual({
+      it: "Registrazione confermata da test",
+      en: "Test confirmed registration"
+    });
+    expect(updated.previewTranslations).toEqual({
+      it: "Anteprima IT",
+      en: "Preview EN"
+    });
+    expect(updated.bodyHtmlTranslations).toEqual({
+      it: "<p>Corpo IT</p>",
+      en: "<p>Body EN</p>"
+    });
   });
 
   it("keeps organizer settings bound to an active admin account", async () => {

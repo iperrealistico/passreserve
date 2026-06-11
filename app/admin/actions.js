@@ -131,11 +131,23 @@ export async function updateEmailTemplateAction(formData) {
       id: value(formData, "id"),
       subject: value(formData, "subject"),
       preview: value(formData, "preview"),
-      bodyHtml: value(formData, "bodyHtml")
+      bodyHtml: value(formData, "bodyHtml"),
+      subjectTranslations: {
+        it: value(formData, "subject_it"),
+        en: value(formData, "subject_en")
+      },
+      previewTranslations: {
+        it: value(formData, "preview_it"),
+        en: value(formData, "preview_en")
+      },
+      bodyHtmlTranslations: {
+        it: value(formData, "bodyHtml_it"),
+        en: value(formData, "bodyHtml_en")
+      }
     },
     user.userId
   );
-  redirect("/admin/emails?message=saved");
+  redirect("/admin/emails?tab=templates&message=saved");
 }
 
 export async function createOrganizerAction(formData) {
