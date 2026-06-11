@@ -734,7 +734,7 @@ export default function RegistrationFlowExperience({
                 return (
                   <article className="registration-choice registration-choice-active" key={`attendee-${index}`}>
                     <div className="registration-choice-head">
-                      <div>
+                      <div className="registration-choice-copy">
                         <strong>
                           {dictionary.registration.participant} {index + 1}
                         </strong>
