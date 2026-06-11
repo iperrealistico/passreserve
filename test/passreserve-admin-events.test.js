@@ -5,7 +5,10 @@ import path from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { getDetailEditId } from "../app/[slug]/admin/events/page-state.js";
-import { getOrganizerEventsAdmin } from "../lib/passreserve-admin-service.js";
+import {
+  getOrganizerEventsAdmin,
+  saveOrganizerEvent
+} from "../lib/passreserve-admin-service.js";
 import { mutatePersistentState } from "../lib/passreserve-state.js";
 
 beforeEach(async () => {
@@ -45,5 +48,63 @@ describe("passreserve organizer admin events payload", () => {
         caption: ""
       }
     ]);
+  });
+
+  it("persists and clears the event-level booking language override", async () => {
+    const before = await getOrganizerEventsAdmin("sillico");
+    const event = before.events.find((entry) => entry.id === "event-sillico-prova");
+
+    expect(event.resolvedRegistrationLanguagePromptEnabled).toBe(true);
+    expect(event.hasRegistrationLanguagePromptOverride).toBe(false);
+
+    const baseInput = {
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      category: event.category,
+      visibility: event.visibility,
+      summary: event.summary,
+      description: event.description,
+      audience: event.audience,
+      durationMinutes: String(event.durationMinutes || 180),
+      venueTitle: event.venueTitle,
+      venueDetail: event.venueDetail,
+      mapHref: event.mapHref || "",
+      basePriceCents: String(event.basePriceCents || 0),
+      ticketCatalogJson: JSON.stringify(event.ticketCategories || []),
+      prepayPercentage: String(event.prepayPercentage || 0),
+      attendeeInstructions: event.attendeeInstructions || "",
+      organizerNotes: event.organizerNotes || "",
+      cancellationPolicy: event.cancellationPolicy || "",
+      highlights: (event.highlights || []).join("\n"),
+      included: (event.included || []).join("\n"),
+      policies: (event.policies || []).join("\n"),
+      galleryJson: JSON.stringify(event.gallery || []),
+      imageUrl: event.imageUrl || ""
+    };
+
+    await saveOrganizerEvent("sillico", {
+      ...baseInput,
+      registrationLanguagePromptEnabled: "false"
+    });
+
+    let after = await getOrganizerEventsAdmin("sillico");
+    let updated = after.events.find((entry) => entry.id === "event-sillico-prova");
+
+    expect(updated.registrationLanguagePromptEnabled).toBe(false);
+    expect(updated.resolvedRegistrationLanguagePromptEnabled).toBe(false);
+    expect(updated.hasRegistrationLanguagePromptOverride).toBe(true);
+
+    await saveOrganizerEvent("sillico", {
+      ...baseInput,
+      registrationLanguagePromptEnabled: ""
+    });
+
+    after = await getOrganizerEventsAdmin("sillico");
+    updated = after.events.find((entry) => entry.id === "event-sillico-prova");
+
+    expect(updated.registrationLanguagePromptEnabled).toBeNull();
+    expect(updated.resolvedRegistrationLanguagePromptEnabled).toBe(true);
+    expect(updated.hasRegistrationLanguagePromptOverride).toBe(false);
   });
 });

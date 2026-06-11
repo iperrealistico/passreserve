@@ -6,6 +6,7 @@ import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.j
 import { REGISTRATION_REMINDER_LEAD_OPTIONS } from "../../../../lib/passreserve-email-delivery.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import { normalizeRegistrationConfirmationMode } from "../../../../lib/passreserve-registration-confirmation.js";
+import { normalizeRegistrationLanguagePromptEnabledInput } from "../../../../lib/passreserve-registration-language.js";
 import { normalizeRegistrationQuestionnaireConfig } from "../../../../lib/passreserve-registration-questionnaire.js";
 import {
   organizerChangePasswordAction,
@@ -13,6 +14,7 @@ import {
   saveOrganizerSettingsAction
 } from "../actions.js";
 import { RegistrationConfirmationModeEditor } from "../registration-confirmation-mode-editor.js";
+import { RegistrationLanguagePromptEditor } from "../registration-language-prompt-editor.js";
 import { OrganizerAdminPageHeader } from "../organizer-admin-ui.js";
 import { RegistrationQuestionnaireEditor } from "../registration-questionnaire-editor.js";
 
@@ -117,9 +119,15 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
   const organizerRegistrationConfirmationMode = normalizeRegistrationConfirmationMode(
     data.organizer.registrationConfirmationMode
   );
+  const organizerRegistrationLanguagePromptEnabled =
+    normalizeRegistrationLanguagePromptEnabledInput(
+      data.organizer.registrationLanguagePromptEnabled,
+      true
+    );
   const settingsAnchors = [
     ["organization", isItalian ? "Organization" : "Organization"],
     ["questionnaire", isItalian ? "Questionario" : "Questionnaire"],
+    ["booking-language", isItalian ? "Lingua booking" : "Booking language"],
     ["registration-flow", isItalian ? "Conferma" : "Confirmation"],
     ["notifications", isItalian ? "Notifications" : "Notifications"],
     ["account", isItalian ? "Account" : "Account"],
@@ -480,11 +488,51 @@ export default async function OrganizerSettingsPage({ params, searchParams }) {
               : "This is the organizer-wide default. Each event can inherit it or use its own variant. Disabling the email-link step does not disable confirmation or recap emails."}
           </p>
 
-          <RegistrationConfirmationModeEditor
-            initialMode={organizerRegistrationConfirmationMode}
-            inputName="registrationConfirmationMode"
-            isItalian={isItalian}
-          />
+          <div className="admin-subsection-stack">
+            <div id="booking-language">
+              <div className="section-kicker">
+                {isItalian ? "Lingua booking" : "Booking language"}
+              </div>
+              <h4>
+                {isItalian
+                  ? "Decidi se il prenotante deve confermare esplicitamente italiano o inglese"
+                  : "Choose whether the lead guest explicitly confirms Italian or English"}
+              </h4>
+              <p className="admin-page-tip">
+                {isItalian
+                  ? "Questo è il default organizer. Ogni evento può ereditarlo oppure usare una propria variante. Per ora il perimetro supportato resta limitato a italiano e inglese."
+                  : "This is the organizer-wide default. Each event can inherit it or use its own variant. The supported scope intentionally stays limited to Italian and English for now."}
+              </p>
+
+              <RegistrationLanguagePromptEditor
+                initialEnabled={organizerRegistrationLanguagePromptEnabled}
+                inputName="registrationLanguagePromptEnabled"
+                isItalian={isItalian}
+              />
+            </div>
+
+            <div>
+              <div className="section-kicker">
+                {isItalian ? "Conferma email" : "Email confirmation"}
+              </div>
+              <h4>
+                {isItalian
+                  ? "Decidi se il prenotante deve cliccare il link email prima di proseguire"
+                  : "Choose whether the lead guest must click the email link before the booking continues"}
+              </h4>
+              <p className="admin-page-tip">
+                {isItalian
+                  ? "Disattivare il passaggio email non disattiva le email di conferma o recap."
+                  : "Disabling the email-link step does not disable confirmation or recap emails."}
+              </p>
+
+              <RegistrationConfirmationModeEditor
+                initialMode={organizerRegistrationConfirmationMode}
+                inputName="registrationConfirmationMode"
+                isItalian={isItalian}
+              />
+            </div>
+          </div>
         </section>
 
         <section className="panel section-card admin-section" id="notifications">

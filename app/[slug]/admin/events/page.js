@@ -8,6 +8,7 @@ import {
 import { requireOrganizerAdminSession } from "../../../../lib/passreserve-auth.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 import { normalizeRegistrationConfirmationMode } from "../../../../lib/passreserve-registration-confirmation.js";
+import { normalizeRegistrationLanguagePromptEnabledInput } from "../../../../lib/passreserve-registration-language.js";
 import { normalizeRegistrationQuestionnaireConfig } from "../../../../lib/passreserve-registration-questionnaire.js";
 import {
   deleteOrganizerEventAction,
@@ -16,6 +17,7 @@ import {
 } from "../actions.js";
 import { EventGalleryEditor } from "../event-gallery-editor.js";
 import { RegistrationConfirmationModeEditor } from "../registration-confirmation-mode-editor.js";
+import { RegistrationLanguagePromptEditor } from "../registration-language-prompt-editor.js";
 import { RegistrationQuestionnaireEditor } from "../registration-questionnaire-editor.js";
 import { getDetailEditId } from "./page-state.js";
 import { TicketCatalogEditor } from "./ticket-catalog-editor.js";
@@ -212,6 +214,11 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
   const organizerRegistrationConfirmationMode = normalizeRegistrationConfirmationMode(
     data.organizer.registrationConfirmationMode
   );
+  const organizerRegistrationLanguagePromptEnabled =
+    normalizeRegistrationLanguagePromptEnabledInput(
+      data.organizer.registrationLanguagePromptEnabled,
+      true
+    );
   const selectedEventQuestionnaireConfig = normalizeRegistrationQuestionnaireConfig(
     selectedEvent?.registrationQuestionnaireConfig || organizerQuestionnaireConfig,
     {
@@ -222,7 +229,16 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
     selectedEvent?.registrationConfirmationMode || organizerRegistrationConfirmationMode,
     organizerRegistrationConfirmationMode
   );
+  const selectedEventRegistrationLanguagePromptEnabled =
+    normalizeRegistrationLanguagePromptEnabledInput(
+      typeof selectedEvent?.registrationLanguagePromptEnabled === "boolean"
+        ? selectedEvent.registrationLanguagePromptEnabled
+        : organizerRegistrationLanguagePromptEnabled,
+      organizerRegistrationLanguagePromptEnabled
+    );
   const selectedEventHasQuestionnaireOverride = Boolean(selectedEvent?.registrationQuestionnaireConfig);
+  const selectedEventHasRegistrationLanguagePromptOverride =
+    typeof selectedEvent?.registrationLanguagePromptEnabled === "boolean";
   const selectedEventHasRegistrationConfirmationOverride = Boolean(
     selectedEvent?.registrationConfirmationMode
   );
@@ -798,14 +814,57 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                 : "You can inherit the organizer default or customize just this event. Disabling the email-link step does not disable confirmation or recap emails."}
             </p>
 
-            <RegistrationConfirmationModeEditor
-              allowInherit
-              inheritedMode={organizerRegistrationConfirmationMode}
-              initialMode={selectedEventRegistrationConfirmationMode}
-              initialOverrideEnabled={selectedEventHasRegistrationConfirmationOverride}
-              inputName="registrationConfirmationMode"
-              isItalian={isItalian}
-            />
+            <div className="admin-subsection-stack">
+              <div>
+                <div className="section-kicker">
+                  {isItalian ? "Lingua booking" : "Booking language"}
+                </div>
+                <h4>
+                  {isItalian
+                    ? "Decidi se questo evento chiede esplicitamente italiano o inglese"
+                    : "Choose whether this event explicitly asks for Italian or English"}
+                </h4>
+                <p className="admin-page-tip">
+                  {isItalian
+                    ? "Puoi ereditare il default organizer oppure personalizzare solo questo evento. Per ora il perimetro supportato resta limitato a italiano e inglese."
+                    : "You can inherit the organizer default or customize just this event. The supported scope intentionally stays limited to Italian and English for now."}
+                </p>
+
+                <RegistrationLanguagePromptEditor
+                  allowInherit
+                  inheritedEnabled={organizerRegistrationLanguagePromptEnabled}
+                  initialEnabled={selectedEventRegistrationLanguagePromptEnabled}
+                  initialOverrideEnabled={selectedEventHasRegistrationLanguagePromptOverride}
+                  inputName="registrationLanguagePromptEnabled"
+                  isItalian={isItalian}
+                />
+              </div>
+
+              <div>
+                <div className="section-kicker">
+                  {isItalian ? "Conferma email" : "Email confirmation"}
+                </div>
+                <h4>
+                  {isItalian
+                    ? "Scegli se questo evento richiede davvero il click sul link email"
+                    : "Choose whether this event really requires the email-link click"}
+                </h4>
+                <p className="admin-page-tip">
+                  {isItalian
+                    ? "Disattivare il passaggio email non disattiva le email di conferma o recap."
+                    : "Disabling the email-link step does not disable confirmation or recap emails."}
+                </p>
+
+                <RegistrationConfirmationModeEditor
+                  allowInherit
+                  inheritedMode={organizerRegistrationConfirmationMode}
+                  initialMode={selectedEventRegistrationConfirmationMode}
+                  initialOverrideEnabled={selectedEventHasRegistrationConfirmationOverride}
+                  inputName="registrationConfirmationMode"
+                  isItalian={isItalian}
+                />
+              </div>
+            </div>
           </EventFormSection>
 
           <EventFormSection

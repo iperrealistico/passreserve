@@ -259,6 +259,10 @@ export async function saveOrganizerEventAction(formData) {
           formData,
           "registrationQuestionnaireConfigJson"
         ),
+        registrationLanguagePromptEnabled: value(
+          formData,
+          "registrationLanguagePromptEnabled"
+        ),
         registrationConfirmationMode: value(formData, "registrationConfirmationMode"),
         salesWindowStartsAt: value(formData, "salesWindowStartsAt"),
         salesWindowEndsAt: value(formData, "salesWindowEndsAt"),
@@ -591,6 +595,10 @@ export async function saveOrganizerSettingsAction(formData) {
       registrationQuestionnaireConfig: parseOptionalJsonObjectField(
         formData,
         "registrationQuestionnaireConfigJson"
+      ),
+      registrationLanguagePromptEnabled: value(
+        formData,
+        "registrationLanguagePromptEnabled"
       ),
       registrationConfirmationMode: value(formData, "registrationConfirmationMode"),
       minAdvanceHours: value(formData, "minAdvanceHours"),

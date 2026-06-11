@@ -129,6 +129,33 @@ describe("passreserve admin email lifecycle", () => {
     expect(organizer.registrationReminderLeadHours).toBe(48);
   });
 
+  it("persists the organizer booking-language prompt setting", async () => {
+    const stateBefore = await loadPersistentState();
+    const organizerBefore = stateBefore.organizers.find(
+      (entry) => entry.slug === "alpine-trail-lab"
+    );
+
+    expect(organizerBefore.registrationLanguagePromptEnabled).toBe(true);
+
+    await updateOrganizerSettings("alpine-trail-lab", {
+      name: organizerBefore.name,
+      city: organizerBefore.city,
+      region: organizerBefore.region,
+      publicEmail: organizerBefore.publicEmail,
+      interestEmail: organizerBefore.interestEmail,
+      registrationLanguagePromptEnabled: "false"
+    });
+
+    const stateAfter = await loadPersistentState();
+    const organizerAfter = stateAfter.organizers.find(
+      (entry) => entry.slug === "alpine-trail-lab"
+    );
+    const settingsAfter = await getOrganizerSettingsAdmin("alpine-trail-lab");
+
+    expect(organizerAfter.registrationLanguagePromptEnabled).toBe(false);
+    expect(settingsAfter.organizer.registrationLanguagePromptEnabled).toBe(false);
+  });
+
   it("keeps organizer settings bound to an active admin account", async () => {
     const stateBefore = await loadPersistentState();
     const organizer = stateBefore.organizers.find((entry) => entry.slug === "alpine-trail-lab");
