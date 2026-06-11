@@ -295,11 +295,7 @@
   }
 
   .site-footer-main {
-    @apply flex flex-col gap-6 py-4 lg:flex-row lg:items-start lg:justify-between;
-  }
-
-  .site-footer-brand-block {
-    @apply max-w-sm space-y-2;
+    @apply grid gap-x-8 gap-y-4 py-4;
   }
 
   .site-footer-brand {
@@ -307,7 +303,7 @@
   }
 
   .site-footer-copy {
-    @apply text-sm leading-6 text-muted-foreground;
+    @apply max-w-sm text-sm leading-6 text-muted-foreground;
   }
 
   .site-footer-nav {
@@ -323,8 +319,38 @@
   }
 
   @media (min-width: 1024px) {
+    .site-footer-main {
+      grid-template-areas:
+        "brand . tools"
+        "copy nav tools";
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: start;
+    }
+
+    .site-footer-brand {
+      grid-area: brand;
+    }
+
+    .site-footer-copy {
+      grid-area: copy;
+    }
+
     .site-footer-nav {
-      padding-top: 0.85rem;
+      grid-area: nav;
+      justify-self: start;
+      align-self: start;
+    }
+
+    .site-footer-nav a {
+      padding-top: 0;
+      padding-bottom: 0;
+      line-height: 1.5rem;
+    }
+
+    .site-footer-tools {
+      grid-area: tools;
+      justify-self: end;
+      align-self: start;
     }
   }
 

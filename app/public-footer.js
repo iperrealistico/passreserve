@@ -15,12 +15,11 @@ export function PublicFooter({ locale = "en", dictionary }) {
   return (
     <footer className="site-footer">
       <div className="site-footer-main">
-        <div className="site-footer-brand-block">
-          <Link className="site-footer-brand" href="/">
-            Passreserve.com
-          </Link>
-          <p className="site-footer-copy">{dictionary.footer.summary}</p>
-        </div>
+        <Link className="site-footer-brand" href="/">
+          Passreserve.com
+        </Link>
+
+        <p className="site-footer-copy">{dictionary.footer.summary}</p>
 
         <nav aria-label="Footer" className="site-footer-nav">
           {navItems.map((item) => (
