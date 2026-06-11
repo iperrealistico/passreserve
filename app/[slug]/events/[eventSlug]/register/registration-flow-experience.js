@@ -290,14 +290,6 @@ export default function RegistrationFlowExperience({
         locale === "it"
           ? "Scegli almeno un ticket prima di continuare."
           : "Choose at least one ticket before continuing.",
-      directConfirmHeadline:
-        locale === "it"
-          ? "Conferma diretta attiva per questo evento"
-          : "Direct confirmation is active for this event",
-      directConfirmDetail:
-        locale === "it"
-          ? "Il click finale salta il link email obbligatorio, ma le email di conferma e recap restano attive."
-          : "The final submit skips the required email-link step, but confirmation and recap emails still stay active.",
       createHoldCta:
         locale === "it" ? "Crea hold registrazione" : "Create registration hold",
       directConfirmCta:
@@ -965,11 +957,6 @@ export default function RegistrationFlowExperience({
 
             {!requiresEmailLinkConfirmation ? (
               <>
-                <div className="questionnaire-preset-note confirmation-mode-note">
-                  <span className="admin-filter-label">{labels.directConfirmHeadline}</span>
-                  <p>{labels.directConfirmDetail}</p>
-                </div>
-
                 <div className="registration-checklist flex flex-col gap-3">
                   <div className="registration-check-card">
                     <label className="registration-check-item flex gap-3 rounded-[1.25rem] border border-border bg-muted/40 p-4">
