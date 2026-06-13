@@ -41,11 +41,12 @@ function PreviewStatePanel({ view }) {
 export default async function RegistrationPaymentPreviewPage({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
   const view = await getRegistrationPaymentPreviewView(slug, eventSlug, paymentToken);
-  const { locale, dictionary } = await getTranslations(view.locale);
 
   if (view.state !== "ready") {
     return <PreviewStatePanel view={view} />;
   }
+
+  const { locale, dictionary } = await getTranslations(view.locale);
 
   if (view.paymentExpired) {
     return (
