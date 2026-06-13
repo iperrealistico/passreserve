@@ -70,6 +70,13 @@ That meant a future database issue could still turn into split-brain state or hi
 - `node scripts/db-restore.mjs --file=archives/passreserve-state-2026-06-13T11-42-22-864Z.json.gz --yes`
   - expected safe refusal because target matched the primary `DATABASE_URL`
 - `npm run verify`
+- verified Vercel production deployment `dpl_3XPoWoSgvF9vGDBDLvKbGvhjbDUe` reached `READY`
+- live route checks after deploy:
+  - `https://passreserve.com/` → `200`
+  - `https://passreserve.com/sillico` → `200`
+  - `https://passreserve.com/sillico/admin/login` → `200`
+  - `https://passreserve.com/admin/health` → `307` redirect to `/admin/login`
+- checked runtime logs for the new deployment and found no fresh `error` or `fatal` entries
 
 ## Caveats
 
@@ -85,6 +92,6 @@ That meant a future database issue could still turn into split-brain state or hi
 
 ## Commit and push status
 
-- commit: pending
-- push: pending
-- Vercel production verification: pending
+- commit: `3ca2556` (`fix: harden production storage and add local backups`)
+- push: completed to `origin/main`
+- Vercel production verification: completed (`dpl_3XPoWoSgvF9vGDBDLvKbGvhjbDUe`, `READY`)
