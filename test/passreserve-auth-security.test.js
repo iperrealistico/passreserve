@@ -9,6 +9,7 @@ import {
   consumeAdminLoginRateLimit,
   findOrganizerAdminForAuthentication,
   findPlatformAdminForAuthentication,
+  pruneExpiredAuthRateLimits,
   validateOrganizerAdminSessionUser,
   validatePlatformAdminSessionUser
 } from "../lib/passreserve-auth-security.js";
@@ -131,5 +132,42 @@ describe("passreserve-auth-security", () => {
         "alpine-trail-lab"
       )
     ).toBeNull();
+  });
+
+  it("prunes expired auth rate-limit entries without touching active ones", async () => {
+    const rateLimitPath = `${process.env.PASSRESERVE_STATE_FILE}.auth-rate-limits.json`;
+    const now = new Date("2026-06-13T18:00:00.000Z");
+
+    await fs.writeFile(
+      rateLimitPath,
+      JSON.stringify(
+        {
+          expired_entry: {
+            count: 3,
+            expiresAt: "2026-06-13T17:00:00.000Z"
+          },
+          active_entry: {
+            count: 1,
+            expiresAt: "2026-06-13T19:00:00.000Z"
+          }
+        },
+        null,
+        2
+      )
+    );
+
+    const result = await pruneExpiredAuthRateLimits(now);
+    const nextEntries = JSON.parse(await fs.readFile(rateLimitPath, "utf8"));
+
+    expect(result).toEqual({
+      mode: "file",
+      deletedCount: 1
+    });
+    expect(nextEntries).toEqual({
+      active_entry: {
+        count: 1,
+        expiresAt: "2026-06-13T19:00:00.000Z"
+      }
+    });
   });
 });

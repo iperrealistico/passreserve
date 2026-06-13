@@ -91,11 +91,6 @@ export default async function PlatformAdminLoginPage({ searchParams }) {
               <h2>{isItalian ? "Invia link reset" : "Send reset link"}</h2>
             </div>
             <form action={platformRequestResetAction} className="registration-panel-stack">
-              <input
-                name="baseUrl"
-                type="hidden"
-                value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
-              />
               <label className="field">
                 <span>{isItalian ? "Email account" : "Account email"}</span>
                 <input

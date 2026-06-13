@@ -84,6 +84,7 @@ The checked-in Prisma schema and initial migration now live under [`prisma/`](/U
 - Valid requests are provisioned immediately into a private organizer plus organizer-admin account, and access is sent through Resend.
 - Platform admins review provisioning status directly in `/admin/applications`.
 - Organizer reminder deliveries run through the daily Vercel cron at `/api/cron/reminders` and require `CRON_SECRET` plus platform and organizer reminder enablement.
+- The same cron pass also prunes expired auth-rate-limit keys and stale technical/high-volume audit events using `PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS` (default `120`, minimum `7`).
 - Inbound email is handled outside Passreserve through Cloudflare Workers, so `/api/resend/inbound` is intentionally retired.
 - Platform admins can send custom organizer emails from each organizer detail page using a sender on the configured Resend domain, defaulting to `direct@<sender-domain>`.
 - Organizer public pages only resolve after explicit publication. The public slug can be edited before publish and is locked after publish in v1.
@@ -103,6 +104,7 @@ The checked-in Prisma schema and initial migration now live under [`prisma/`](/U
 - `ALTCHA_HMAC_KEY`
 - `PLATFORM_ADMIN_EMAIL`
 - `PLATFORM_ADMIN_PASSWORD`
+- optional `PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS`
 
 Production should be treated as incomplete without PostgreSQL, Stripe, and Resend configured.
 

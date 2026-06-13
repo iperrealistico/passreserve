@@ -265,7 +265,6 @@ export default function RegistrationFlowExperience({
   const supportedRegistrationLanguages = Array.isArray(event.supportedRegistrationLanguages)
     ? event.supportedRegistrationLanguages
     : [];
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const priceFormatter = useMemo(
     () =>
       new Intl.NumberFormat(locale === "it" ? "it-IT" : "en-US", {
@@ -894,7 +893,6 @@ export default function RegistrationFlowExperience({
             <input name="itemsJson" type="hidden" value={serializedItems} />
             <input name="registrationLocale" type="hidden" value={locale} />
             <input name="attendeesJson" type="hidden" value={serializedAttendees} />
-            <input name="baseUrl" type="hidden" value={baseUrl} />
 
             <h3>{dictionary.registration.summaryCard}</h3>
             <div className="registration-choice-grid">

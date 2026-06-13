@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { processRegistrationReminderDeliveries } from "../../../../lib/passreserve-service.js";
+import {
+  processRegistrationReminderDeliveries,
+  runOperationalHousekeeping
+} from "../../../../lib/passreserve-service.js";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +34,13 @@ export async function GET(request) {
     );
   }
 
-  const result = await processRegistrationReminderDeliveries();
+  const [result, housekeeping] = await Promise.all([
+    processRegistrationReminderDeliveries(),
+    runOperationalHousekeeping()
+  ]);
 
-  return NextResponse.json(result);
+  return NextResponse.json({
+    ...result,
+    housekeeping
+  });
 }

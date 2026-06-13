@@ -130,7 +130,7 @@ All platform admin pages require a valid platform session.
    - online amount required: registration moves into payment flow
 5. Stripe Checkout or preview payment completes.
 6. Webhook or success-page resolution updates the payment ledger and registration status.
-7. Confirmation emails and audit entries are recorded.
+7. Confirmation emails and audit entries are recorded, including checkout-handoff traces such as `payment_checkout_started` and `payment_checkout_failed` where applicable.
 
 Default timing rules live in [`lib/passreserve-config.js`](/Users/leonardofiori/Documents/Antigravity/gatherpass/lib/passreserve-config.js):
 
@@ -161,6 +161,17 @@ Platform admins can:
 - edit about-page content
 - edit email templates
 - inspect logs and environment health summaries
+
+## Operational cron
+
+The shared operations cron route is:
+
+- `/api/cron/reminders`
+
+It currently handles both:
+
+- attendee and organizer reminder delivery
+- safe housekeeping for expired auth-rate-limit keys plus stale technical/high-volume audit events
 
 ## Deployment model
 

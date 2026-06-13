@@ -197,11 +197,7 @@ export async function returnToPlatformDashboardAction() {
 export async function organizerRequestResetAction(formData) {
   const slug = value(formData, "slug");
 
-  await requestOrganizerPasswordReset(
-    slug,
-    value(formData, "email"),
-    value(formData, "baseUrl")
-  );
+  await requestOrganizerPasswordReset(slug, value(formData, "email"));
   redirect(`/${slug}/admin/login?message=reset-sent&panel=reset`);
 }
 

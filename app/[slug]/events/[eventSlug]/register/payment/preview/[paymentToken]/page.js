@@ -4,6 +4,7 @@ import { PublicFooter } from "../../../../../../../public-footer.js";
 import { PublicHeader } from "../../../../../../../public-header.js";
 import { getTranslations } from "../../../../../../../../lib/passreserve-i18n.js";
 import { getRegistrationPaymentPreviewView } from "../../../../../../../../lib/passreserve-service.js";
+import ResumePaymentForm from "../../cancel/[paymentToken]/resume-payment-form.js";
 
 export async function generateMetadata({ params }) {
   const { slug, eventSlug, paymentToken } = await params;
@@ -124,12 +125,30 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
             </div>
 
             <div className="hero-actions mt-6">
-              <Link
-                className="button button-primary"
-                href={`/${slug}/events/${eventSlug}/register/payment/success/${paymentToken}?preview=1`}
-              >
-                Continue to secure payment
-              </Link>
+              {view.checkoutMode === "live" ? (
+                <ResumePaymentForm
+                  buttonLabel="Continue to secure payment"
+                  eventSlug={eventSlug}
+                  paymentToken={paymentToken}
+                  pendingLabel="Opening secure payment..."
+                  slug={slug}
+                />
+              ) : view.checkoutMode === "preview" ? (
+                <Link
+                  className="button button-primary"
+                  href={`/${slug}/events/${eventSlug}/register/payment/success/${paymentToken}?preview=1`}
+                >
+                  Continue to secure payment
+                </Link>
+              ) : (
+                <div className="registration-message registration-message-error">
+                  <strong>Checkout is unavailable.</strong>
+                  <span>
+                    Secure payment cannot open from this environment right now. Please return to
+                    the event page and try again later.
+                  </span>
+                </div>
+              )}
               <Link
                 className="button button-secondary"
                 href={`/${slug}/events/${eventSlug}/register/payment/cancel/${paymentToken}`}

@@ -17,7 +17,6 @@ import {
   updateEmailTemplate,
   updateSiteSettings
 } from "../../lib/passreserve-admin-service.js";
-import { getBaseUrl } from "../../lib/passreserve-config.js";
 import {
   authenticatePlatformAdmin,
   requestOrganizerPasswordReset,
@@ -71,7 +70,7 @@ export async function platformLogoutAction() {
 }
 
 export async function platformRequestResetAction(formData) {
-  await requestPlatformPasswordReset(value(formData, "email"), value(formData, "baseUrl"));
+  await requestPlatformPasswordReset(value(formData, "email"));
   redirect("/admin/login?message=reset-sent");
 }
 
@@ -246,7 +245,7 @@ export async function sendOrganizerResetFromPlatformAction(formData) {
   const slug = value(formData, "slug");
   const email = value(formData, "email");
 
-  await requestOrganizerPasswordReset(slug, email, getBaseUrl());
+  await requestOrganizerPasswordReset(slug, email);
   redirect(`/admin/organizers/${slug}?message=reset-sent`);
 }
 

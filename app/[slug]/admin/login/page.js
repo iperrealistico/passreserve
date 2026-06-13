@@ -107,11 +107,6 @@ export default async function OrganizerLoginPage({ params, searchParams }) {
             {activePanel === "reset" ? (
               <form action={organizerRequestResetAction} className="registration-panel-stack">
                 <input name="slug" type="hidden" value={slug} />
-                <input
-                  name="baseUrl"
-                  type="hidden"
-                  value={typeof query.baseUrl === "string" ? query.baseUrl : ""}
-                />
                 <label className="field">
                   <span>{isItalian ? "Email account" : "Account email"}</span>
                   <input name="email" placeholder="host-admin@example.com" type="email" />

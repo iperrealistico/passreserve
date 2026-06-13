@@ -71,11 +71,7 @@ describe("passreserve password reset requests", () => {
     });
 
     const { requestOrganizerPasswordReset } = await import("../lib/passreserve-service.js");
-    const result = await requestOrganizerPasswordReset(
-      "sillico",
-      "polissillico@gmail.com",
-      "https://passreserve.com"
-    );
+    const result = await requestOrganizerPasswordReset("sillico", "polissillico@gmail.com");
 
     expect(prisma.$transaction).toHaveBeenCalledOnce();
     expect(mutatePersistentState).not.toHaveBeenCalled();
@@ -106,6 +102,85 @@ describe("passreserve password reset requests", () => {
       ok: true,
       token: updatePayload.data.passwordResetToken
     });
+  });
+
+  it("ignores any caller-supplied reset host and always uses the trusted server base URL", async () => {
+    const sendPrismaTemplateEmail = vi.fn().mockResolvedValue({
+      ok: true,
+      mode: "log",
+      id: null
+    });
+    const tx = {
+      organizer: {
+        findUnique: vi.fn().mockResolvedValue({
+          id: "org-sillico",
+          slug: "sillico"
+        })
+      },
+      organizerAdminUser: {
+        findFirst: vi.fn().mockResolvedValue({
+          id: "admin-sillico",
+          email: "polissillico@gmail.com",
+          name: "Sillico Admin"
+        }),
+        update: vi.fn().mockResolvedValue({})
+      },
+      platformAdminUser: {
+        findFirst: vi.fn(),
+        update: vi.fn()
+      },
+      auditLog: {
+        create: vi.fn().mockResolvedValue({})
+      }
+    };
+    const prisma = {
+      $transaction: vi.fn(async (callback) => callback(tx))
+    };
+
+    vi.doMock("../lib/passreserve-config.js", () => ({
+      HOLD_DURATION_MINUTES: 30,
+      PAYMENT_WINDOW_HOURS: 12,
+      getBaseUrl: () => "https://passreserve.com",
+      getStorageMode: () => "database",
+      getStorageSummary: () => ({
+        mode: "database",
+        label: "Postgres + Prisma",
+        detail: "test"
+      })
+    }));
+    vi.doMock("../lib/passreserve-prisma.js", () => ({
+      getPrismaClient: () => prisma,
+      logDatabaseFallback: vi.fn()
+    }));
+    vi.doMock("../lib/passreserve-state.js", () => ({
+      loadFileBackedState: vi.fn(),
+      loadPersistentState: vi.fn(),
+      mutatePersistentState: vi.fn()
+    }));
+    vi.doMock("../lib/passreserve-email-delivery.js", async (importOriginal) => {
+      const actual = await importOriginal();
+
+      return {
+        ...actual,
+        sendPrismaTemplateEmail
+      };
+    });
+
+    const { requestOrganizerPasswordReset } = await import("../lib/passreserve-service.js");
+    await requestOrganizerPasswordReset(
+      "sillico",
+      "polissillico@gmail.com",
+      "https://evil.example.com"
+    );
+
+    expect(sendPrismaTemplateEmail).toHaveBeenCalledWith(
+      prisma,
+      expect.objectContaining({
+        replacements: expect.objectContaining({
+          "{{reset_url}}": expect.stringMatching(/^https:\/\/passreserve\.com\//)
+        })
+      })
+    );
   });
 
   it("does not send an email when the organizer admin account does not exist", async () => {
@@ -165,11 +240,7 @@ describe("passreserve password reset requests", () => {
     });
 
     const { requestOrganizerPasswordReset } = await import("../lib/passreserve-service.js");
-    const result = await requestOrganizerPasswordReset(
-      "sillico",
-      "missing@example.com",
-      "https://passreserve.com"
-    );
+    const result = await requestOrganizerPasswordReset("sillico", "missing@example.com");
 
     expect(prisma.$transaction).toHaveBeenCalledOnce();
     expect(mutatePersistentState).not.toHaveBeenCalled();

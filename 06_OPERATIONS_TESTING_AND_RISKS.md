@@ -18,6 +18,7 @@ The current runtime expects these environment variables:
 - `PLATFORM_ADMIN_PASSWORD`
 - optional `PLATFORM_ADMIN_NAME`
 - optional `PASSRESERVE_STATE_FILE`
+- optional `PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS`
 
 ## Storage and deployment modes
 
@@ -80,6 +81,16 @@ Restore safeguards:
 - use `PASSRESERVE_RESTORE_DATABASE_URL` or `RESTORE_DATABASE_URL` for staging or test restores
 
 This is an application-level backup of the Passreserve runtime tables managed by the current codebase, not a raw PostgreSQL physical backup.
+
+## Audit retention and housekeeping
+
+- the daily `/api/cron/reminders` pass also runs operational housekeeping
+- housekeeping currently prunes:
+  - expired auth-rate-limit keys
+  - stale technical/high-volume audit events
+- business-history audit entries are intentionally preserved
+- `PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS` controls the retention window for those technical events
+- default retention is `120` days, with a floor of `7`
 
 ## Verification baseline
 

@@ -41,8 +41,7 @@ export async function createRegistrationHoldAction(_previousState, formData) {
     attendees: toJsonValue(formData, "attendeesJson"),
     termsAccepted: toStringValue(formData, "termsAccepted"),
     refundPolicyAccepted: toStringValue(formData, "refundPolicyAccepted"),
-    responsibilityAccepted: toStringValue(formData, "responsibilityAccepted"),
-    baseUrl: toStringValue(formData, "baseUrl")
+    responsibilityAccepted: toStringValue(formData, "responsibilityAccepted")
   });
 
   if (!result.ok) {
@@ -61,7 +60,6 @@ export async function confirmRegistrationAction(_previousState, formData) {
     slug: toStringValue(formData, "slug"),
     eventSlug: toStringValue(formData, "eventSlug"),
     holdToken: toStringValue(formData, "holdToken"),
-    baseUrl: toStringValue(formData, "baseUrl"),
     termsAccepted: toStringValue(formData, "termsAccepted"),
     responsibilityAccepted: toStringValue(formData, "responsibilityAccepted")
   });
@@ -81,8 +79,7 @@ export async function resumeRegistrationPaymentAction(_previousState, formData) 
   const result = await resumeRegistrationPayment({
     slug: toStringValue(formData, "slug"),
     eventSlug: toStringValue(formData, "eventSlug"),
-    paymentToken: toStringValue(formData, "paymentToken"),
-    baseUrl: toStringValue(formData, "baseUrl")
+    paymentToken: toStringValue(formData, "paymentToken")
   });
 
   if (!result.ok) {

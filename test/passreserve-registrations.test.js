@@ -10,13 +10,25 @@ import {
   getConfirmedRegistrationView,
   getRegistrationExperienceBySlugs,
   getRegistrationHoldView,
-  processRegistrationReminderDeliveries
+  processRegistrationReminderDeliveries,
+  resolveSuccessfulRegistrationConfirmation
 } from "../lib/passreserve-registrations";
 import { loadPersistentState, mutatePersistentState } from "../lib/passreserve-state.js";
+
+const ORIGINAL_ENV = {
+  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+  VERCEL: process.env.VERCEL,
+  VERCEL_ENV: process.env.VERCEL_ENV
+};
 
 beforeEach(async () => {
   vi.useFakeTimers();
   vi.setSystemTime(new Date("2026-04-01T09:00:00.000Z"));
+  delete process.env.STRIPE_SECRET_KEY;
+  delete process.env.STRIPE_WEBHOOK_SECRET;
+  delete process.env.VERCEL;
+  delete process.env.VERCEL_ENV;
   process.env.PASSRESERVE_STATE_FILE = path.join(
     os.tmpdir(),
     `passreserve-registrations-${Date.now()}-${Math.random()}.json`
@@ -28,6 +40,14 @@ beforeEach(async () => {
 
 afterEach(() => {
   vi.useRealTimers();
+
+  for (const [key, value] of Object.entries(ORIGINAL_ENV)) {
+    if (value == null) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
 });
 
 async function createInput(slug, eventSlug, overrides = {}) {
@@ -205,6 +225,194 @@ describe("passreserve-registrations", () => {
       ok: true
     });
     expect(confirmation.redirectHref).toContain("/register/payment/preview/");
+    const state = await loadPersistentState();
+    expect(
+      state.auditLogs.some(
+        (entry) =>
+          entry.eventType === "payment_checkout_started" &&
+          entry.metadata?.source === "registration_confirmation"
+      )
+    ).toBe(true);
+  });
+
+  it("allows preview payment completion only in local non-Vercel preview mode", async () => {
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const hold = await createRegistrationHold(input);
+    const holdToken = hold.confirmationHref.split("/").at(-1);
+    const confirmation = await confirmRegistrationHold({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      holdToken,
+      termsAccepted: "yes",
+      responsibilityAccepted: "yes"
+    });
+    const paymentToken = confirmation.redirectHref.split("/").at(-1);
+
+    const resolution = await resolveSuccessfulRegistrationConfirmation({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      paymentToken,
+      preview: "1",
+      sessionId: ""
+    });
+
+    expect(resolution).toMatchObject({
+      state: "redirect"
+    });
+    expect(resolution.redirectHref).toContain("/register/confirmed/");
+
+    const state = await loadPersistentState();
+    const registration = state.registrations[0];
+
+    expect(registration.onlineCollectedCents).toBe(registration.onlineAmountCents);
+    expect(
+      state.payments.some(
+        (payment) =>
+          payment.registrationId === registration.id &&
+          payment.kind === "CAPTURE" &&
+          payment.status === "SUCCEEDED"
+      )
+    ).toBe(true);
+    expect(
+      state.auditLogs.some(
+        (entry) =>
+          entry.registrationId === registration.id && entry.eventType === "payment_completed"
+      )
+    ).toBe(true);
+  });
+
+  it("still redirects to the confirmed registration when a paid success route is reopened later", async () => {
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const hold = await createRegistrationHold(input);
+    const holdToken = hold.confirmationHref.split("/").at(-1);
+    const confirmation = await confirmRegistrationHold({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      holdToken,
+      termsAccepted: "yes",
+      responsibilityAccepted: "yes"
+    });
+    const paymentToken = confirmation.redirectHref.split("/").at(-1);
+
+    const firstResolution = await resolveSuccessfulRegistrationConfirmation({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      paymentToken,
+      preview: "1",
+      sessionId: ""
+    });
+
+    expect(firstResolution).toMatchObject({
+      state: "redirect"
+    });
+
+    const secondResolution = await resolveSuccessfulRegistrationConfirmation({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      paymentToken,
+      preview: "",
+      sessionId: ""
+    });
+
+    expect(secondResolution).toMatchObject({
+      state: "redirect"
+    });
+    expect(secondResolution.redirectHref).toContain("/register/confirmed/");
+  });
+
+  it("rejects preview payment completion when live Stripe checkout is enabled", async () => {
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const hold = await createRegistrationHold(input);
+    const holdToken = hold.confirmationHref.split("/").at(-1);
+    const confirmation = await confirmRegistrationHold({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      holdToken,
+      termsAccepted: "yes",
+      responsibilityAccepted: "yes"
+    });
+    const paymentToken = confirmation.redirectHref.split("/").at(-1);
+    process.env.STRIPE_SECRET_KEY = "sk_test_security_guard";
+
+    const resolution = await resolveSuccessfulRegistrationConfirmation({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      paymentToken,
+      preview: "1",
+      sessionId: ""
+    });
+
+    expect(resolution).toMatchObject({
+      state: "error",
+      title: "This payment return link is not valid."
+    });
+
+    const state = await loadPersistentState();
+    const registration = state.registrations[0];
+
+    expect(registration.status).toBe("PENDING_PAYMENT");
+    expect(registration.onlineCollectedCents).toBe(0);
+    expect(
+      state.payments.some(
+        (payment) =>
+          payment.registrationId === registration.id &&
+          payment.kind === "CAPTURE" &&
+          payment.status === "SUCCEEDED"
+      )
+    ).toBe(false);
+    expect(
+      state.auditLogs.some(
+        (entry) =>
+          entry.registrationId === registration.id && entry.eventType === "payment_completed"
+      )
+    ).toBe(false);
+  });
+
+  it("rejects payment success routes that arrive without Stripe confirmation data", async () => {
+    const input = await createInput("alpine-trail-lab", "sunrise-ridge-session");
+    const hold = await createRegistrationHold(input);
+    const holdToken = hold.confirmationHref.split("/").at(-1);
+    const confirmation = await confirmRegistrationHold({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      holdToken,
+      termsAccepted: "yes",
+      responsibilityAccepted: "yes"
+    });
+    const paymentToken = confirmation.redirectHref.split("/").at(-1);
+
+    const resolution = await resolveSuccessfulRegistrationConfirmation({
+      slug: input.slug,
+      eventSlug: input.eventSlug,
+      paymentToken,
+      preview: "",
+      sessionId: ""
+    });
+
+    expect(resolution).toMatchObject({
+      state: "error",
+      title: "Stripe confirmation is missing."
+    });
+
+    const state = await loadPersistentState();
+    const registration = state.registrations[0];
+
+    expect(registration.status).toBe("PENDING_PAYMENT");
+    expect(registration.onlineCollectedCents).toBe(0);
+    expect(
+      state.payments.some(
+        (payment) =>
+          payment.registrationId === registration.id &&
+          payment.kind === "CAPTURE" &&
+          payment.status === "SUCCEEDED"
+      )
+    ).toBe(false);
+    expect(
+      state.auditLogs.some(
+        (entry) =>
+          entry.registrationId === registration.id && entry.eventType === "payment_completed"
+      )
+    ).toBe(false);
   });
 
   it("finalizes zero-online registrations without a payment handoff", async () => {
@@ -463,6 +671,13 @@ describe("passreserve-registrations", () => {
     ).toBe(false);
     expect(
       state.emailDeliveries.some((entry) => entry.templateSlug === "organizer_new_registration")
+    ).toBe(true);
+    expect(
+      state.auditLogs.some(
+        (entry) =>
+          entry.eventType === "payment_checkout_started" &&
+          entry.metadata?.source === "registration_direct_confirm"
+      )
     ).toBe(true);
   });
 

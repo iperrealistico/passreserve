@@ -9,19 +9,23 @@ const initialActionState = {
   fieldErrors: {}
 };
 
-export default function ResumePaymentForm({ eventSlug, paymentToken, slug }) {
+export default function ResumePaymentForm({
+  buttonLabel = "Reopen Checkout",
+  eventSlug,
+  paymentToken,
+  pendingLabel = "Reopening Checkout...",
+  slug
+}) {
   const [actionState, formAction, isPending] = useActionState(
     resumeRegistrationPaymentAction,
     initialActionState
   );
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
     <form action={formAction} className="registration-confirm-form">
       <input name="slug" type="hidden" value={slug} />
       <input name="eventSlug" type="hidden" value={eventSlug} />
       <input name="paymentToken" type="hidden" value={paymentToken} />
-      <input name="baseUrl" type="hidden" value={baseUrl} />
 
       {actionState.message ? (
         <div className="registration-message registration-message-error">
@@ -32,7 +36,7 @@ export default function ResumePaymentForm({ eventSlug, paymentToken, slug }) {
 
       <div className="hero-actions">
         <button className="button button-primary" disabled={isPending} type="submit">
-          {isPending ? "Reopening Checkout..." : "Reopen Checkout"}
+          {isPending ? pendingLabel : buttonLabel}
         </button>
       </div>
     </form>
