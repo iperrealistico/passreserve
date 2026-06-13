@@ -16,6 +16,7 @@
 - During live production sign-off, discovered that the invalid-token payment preview route still crashed in database mode because it was reaching into the legacy file-state path before the error view could be rendered.
 - Fixed that hot path immediately by building the database-mode payment preview/cancel view directly from Prisma-backed registration data and by loading translations only after confirming the view is actually `ready`.
 - Added focused regression coverage for the database-backed invalid-token and happy-path preview branches, created hotfix commit `ba1ebd1cdd2bece803c7514968463829023bfbf7` (`fix: stabilize payment preview in database mode`), pushed again, and verified the follow-up Vercel production deployment `dpl_6trJ8XRW1NAUsEbr5ikpgYfohTpS` reached `READY`.
+- Closed the protocol-required documentation handoff with commit `47b5086344dda62c5d4b274fb19033eb053e9127` (`docs: finalize security hardening release handoff`), pushed it to `origin/main`, and verified the resulting Vercel production deployment `dpl_AqCbxsam2uBYPRzvjbAeHEazPCfE` reached `READY`.
 
 ## Files changed
 
@@ -61,6 +62,7 @@
 - Vercel MCP deployment verification for:
   - `dpl_EBxGJj94b2kkUbAd3xe4YvLHSAud` on commit `28d6889d2c19e1c61173e84c9c00da2bc7d1f22d`
   - `dpl_6trJ8XRW1NAUsEbr5ikpgYfohTpS` on commit `ba1ebd1cdd2bece803c7514968463829023bfbf7`
+  - `dpl_AqCbxsam2uBYPRzvjbAeHEazPCfE` on commit `47b5086344dda62c5d4b274fb19033eb053e9127`
 - Live production header checks:
   - `curl -I -s https://passreserve.com/events`
   - `curl -I -s https://passreserve.com/sillico/admin/login`
@@ -74,6 +76,7 @@
 
 - Release deployment: `dpl_EBxGJj94b2kkUbAd3xe4YvLHSAud` — `READY`
 - Hotfix deployment: `dpl_6trJ8XRW1NAUsEbr5ikpgYfohTpS` — `READY`
+- Documentation closeout deployment: `dpl_AqCbxsam2uBYPRzvjbAeHEazPCfE` — `READY`
 - Verification method: `Vercel MCP` for deployment status and runtime logs, plus live `curl` checks against `https://passreserve.com`
 - Production alias confirmed live on the hotfix deployment via asset/header responses carrying `dpl_6trJ8XRW1NAUsEbr5ikpgYfohTpS`
 
@@ -88,4 +91,4 @@
 - Read the four earlier June 13 security-hardening patch notes together with this release-pass note before touching payment, auth, webhook, or response-header behavior again.
 - If you modify payment preview, payment cancel, or registration recovery routes, test invalid tokens on live Vercel after deploy, not only locally.
 - Preserve the database-mode direct Prisma view builders in `lib/passreserve-service.js`; do not route tokenized production recovery pages back through the legacy file-state loader.
-- Treat this phase as shipped: commits `28d6889d2c19e1c61173e84c9c00da2bc7d1f22d` and `ba1ebd1cdd2bece803c7514968463829023bfbf7` are already on `origin/main`, and the remaining work after this note is documentation closeout only.
+- Treat this phase as fully closed: commits `28d6889d2c19e1c61173e84c9c00da2bc7d1f22d`, `ba1ebd1cdd2bece803c7514968463829023bfbf7`, and `47b5086344dda62c5d4b274fb19033eb053e9127` are already on `origin/main`, and all three related production deployments have been verified.
