@@ -173,7 +173,7 @@ async function main() {
     assert(homepage.response.status === 200, "Homepage should return 200.");
     assert(
       homepage.text.includes("Find an event that feels easy to trust.") &&
-        homepage.text.includes("Operate events with Airbnb-level clarity.") &&
+        homepage.text.includes("Operate events with precision and clarity.") &&
         homepage.text.includes("What is Passreserve?"),
       "Homepage should render the split attendee/organizer landing page."
     );
