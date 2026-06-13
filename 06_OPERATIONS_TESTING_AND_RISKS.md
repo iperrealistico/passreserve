@@ -41,6 +41,7 @@ Production is expected to use:
 - real Resend credentials
 - a real `NEXT_PUBLIC_BASE_URL`
 - no pending checked-in Prisma migrations after a production publish
+- fail-closed storage behavior when the configured database is unavailable or schema-incompatible
 
 ## Build and migration safety
 
@@ -52,6 +53,33 @@ The current build path is intentionally non-destructive:
 - every production deploy that introduces new migration files must be followed by `npm run db:migrate` on the live database and a clean `prisma migrate status` check before sign-off
 
 There is no checked-in `prisma db push --accept-data-loss` path in the active build pipeline anymore.
+
+## Backup and restore operations
+
+The repo now includes workspace-local backup utilities intended to run from the Codex machine:
+
+- `npm run ops:backup`
+- `npm run ops:backup:weekly`
+- `npm run ops:restore`
+
+Current backup design:
+
+- backup root: [`.ops/backups/passreserve`](/Users/leonardofiori/Documents/Antigravity/gatherpass/.ops/backups/passreserve)
+- archive format: compressed JSON snapshot of the Passreserve Prisma-backed state
+- verification:
+  - snapshot round-trip parse check after write
+  - metadata file with checksum and entity counts
+- retention:
+  - latest `12` weekly backups
+  - one older backup per month for `12` months
+
+Restore safeguards:
+
+- restore requires `--yes`
+- restore refuses to target the same `DATABASE_URL` by default
+- use `PASSRESERVE_RESTORE_DATABASE_URL` or `RESTORE_DATABASE_URL` for staging or test restores
+
+This is an application-level backup of the Passreserve runtime tables managed by the current codebase, not a raw PostgreSQL physical backup.
 
 ## Verification baseline
 
@@ -107,6 +135,8 @@ Vercel previews can function without Postgres, but `/tmp/passreserve-state.json`
 ### 1b. Schema drift can look like an auth bug
 
 If production code expects newer Prisma columns and the live database was not migrated, Passreserve can hit schema errors and fall back to the runtime file store. When that happens, organizer auth, login throttling, and other stateful flows may start reading stale runtime state instead of PostgreSQL even though the organizer account and password are still correct.
+
+The runtime now treats Vercel production more strictly: production storage is expected to fail closed instead of silently continuing on the file store.
 
 ### 2. Local bootstrap credentials are intentionally weak
 

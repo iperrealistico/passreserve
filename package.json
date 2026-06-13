@@ -16,6 +16,9 @@
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
     "db:seed": "node prisma/seed.js",
+    "ops:backup": "node scripts/db-backup.mjs",
+    "ops:backup:weekly": "node scripts/db-backup.mjs --retain-weekly=12 --retain-monthly=12",
+    "ops:restore": "node scripts/db-restore.mjs",
     "postinstall": "prisma generate",
     "verify": "npm run lint && npm run test && npm run test:copy && npm run db:generate && npm run build && npm run test:smoke"
   },

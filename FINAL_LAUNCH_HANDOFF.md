@@ -35,6 +35,12 @@ Passreserve.com now has a production-shaped application runtime in this reposito
 
 This fallback mode is intentional and useful, but it is not the intended final production persistence path.
 
+### Production storage hardening
+
+- Vercel production is expected to fail closed on storage
+- if the configured database is unavailable or schema-incompatible, production must error explicitly instead of silently falling back to the file store
+- workspace-local backup utilities now exist for operator-run snapshots on this machine
+
 ## Required environment variables
 
 Use [`.env.example`](/Users/leonardofiori/Documents/Antigravity/gatherpass/.env.example) as the template.
@@ -77,6 +83,9 @@ These are development-only defaults and must never be kept for production use.
 - `npm install`
 - `npm run dev`
 - `npm run verify`
+- `npm run ops:backup`
+- `npm run ops:backup:weekly`
+- `npm run ops:restore`
 
 Database-backed setup:
 
@@ -85,6 +94,23 @@ Database-backed setup:
 2. Run `npm run db:migrate`.
 3. Optionally run `npm run db:seed`.
 4. Run `npm run dev` or `npm run start`.
+
+## Local backup path and retention
+
+Workspace-local backups are written under:
+
+- [`.ops/backups/passreserve`](/Users/leonardofiori/Documents/Antigravity/gatherpass/.ops/backups/passreserve)
+
+Default weekly retention:
+
+- keep the newest `12` weekly backups
+- keep one older backup per month for `12` months
+
+Restore notes:
+
+- backups are logical Passreserve state snapshots read through Prisma
+- restore requires explicit `--yes`
+- restore refuses to write into the same `DATABASE_URL` unless explicitly overridden
 
 ## Recommended launch sequence
 

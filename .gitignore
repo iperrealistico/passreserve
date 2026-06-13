@@ -29,6 +29,7 @@ playwright-report/
 test-results/
 .runtime-data/
 .playwright-cli/
+.ops/backups/
 
 # Misc
 *.log

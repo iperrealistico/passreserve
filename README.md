@@ -43,6 +43,9 @@ The checked-in Prisma schema and initial migration now live under [`prisma/`](/U
 - `npm run db:migrate`
 - `npm run db:migrate:dev`
 - `npm run db:seed`
+- `npm run ops:backup`
+- `npm run ops:backup:weekly`
+- `npm run ops:restore`
 - `npm run verify`
 
 `npm run verify` is the main local quality gate. It runs linting, tests, UI copy checks, Prisma client generation, a production build, and the built-app smoke suite.
@@ -62,6 +65,18 @@ The checked-in Prisma schema and initial migration now live under [`prisma/`](/U
 2. Run `npm run db:migrate`.
 3. Optionally run `npm run db:seed` for a preloaded local database.
 4. Run `npm run dev` or `npm run start`.
+
+### Local backup operations
+
+- `npm run ops:backup` creates a compressed Passreserve snapshot in [`.ops/backups/passreserve`](/Users/leonardofiori/Documents/Antigravity/gatherpass/.ops/backups/passreserve)
+- `npm run ops:backup:weekly` applies the default retention policy:
+  - newest `12` weekly backups
+  - one older backup per month for `12` months
+- backups are logical Passreserve state snapshots read through Prisma rather than raw `pg_dump` archives
+- restore is intentionally guarded:
+  - `npm run ops:restore -- --file=archives/<backup>.json.gz --yes`
+  - by default it refuses to write back into the same `DATABASE_URL`
+  - use `PASSRESERVE_RESTORE_DATABASE_URL` or `RESTORE_DATABASE_URL` for a separate restore target
 
 ## Organizer provisioning and reminder operations
 
@@ -106,3 +121,5 @@ Production should be treated as incomplete without PostgreSQL, Stripe, and Resen
 ## Deployment rule
 
 Vercel is the canonical deployment target. Local success does not replace deployment verification: after every meaningful push, verify the triggered Vercel deployment before closing the work.
+
+Production storage is now intended to be fail-closed. If the live database is unavailable or schema-incompatible, the runtime must error explicitly instead of silently falling back to the file store.
