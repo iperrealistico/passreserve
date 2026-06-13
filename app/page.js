@@ -67,9 +67,6 @@ export default async function HomePage({ searchParams }) {
                     <button className="button button-primary" type="submit">
                       {dictionary.home.attendeeCta}
                     </button>
-                    <Link className="button button-secondary" href="/events">
-                      {dictionary.nav.events}
-                    </Link>
                   </div>
                 </form>
               </div>
