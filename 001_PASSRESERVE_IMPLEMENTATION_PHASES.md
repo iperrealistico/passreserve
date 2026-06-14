@@ -43,7 +43,7 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 
 ## Phase 01: Governance, onboarding, and handoff scaffolding
 
-**Status:** `DONE`
+**Status:** `IN PROGRESS`
 
 **Patch note:** `patch-notes/2026-04-04_12-38-55_phase-01_workflow-bootstrap.md`
 
@@ -309,6 +309,8 @@ Every future AI agent must keep this document accurate. Every meaningful action 
 - `2026-04-05 22:47 CEST` Verified Phase 09 locally with `npm run build`, `npm run start -- --port 3001`, headed browser checks of the paid and zero-online attendee flows, a webhook fallback POST to `/api/stripe/webhooks`, and a `/favicon.ico` redirect fix so browser verification no longer emits a false 404.
 - `2026-04-05 22:50 CEST` Committed the initial Phase 09 implementation as `fed77ab00f694cc3ab626294b8cea0700d19d0db`, pushed `main`, and verified through the Vercel integration that deployment `dpl_5aZ7WJnWfThrC1iZN5akBjoKqb4z` reached `READY` on the production aliases including `passreserve.vercel.app`.
 - `2026-04-05 22:52 CEST` Production verification surfaced a stale Phase 08 metric and footer string on the homepage, so a follow-up Phase 09 consistency fix is being shipped immediately to keep the public Passreserve.com landing page aligned with the live payment phase.
+- `2026-06-14 19:57 CEST` Reopened Phase 09 for a production payment-success hotfix after live Stripe checkouts started landing on the fallback message "Payment confirmation is temporarily unavailable" while the connected-account charge itself completed successfully.
+- `2026-06-14 19:57 CEST` Replaced the database-mode payment success path's full-state reads with payment-token scoped Prisma state snapshots, added a regression test for database-mode success reconciliation, and verified the change locally with targeted Stripe/registration tests plus a full `npm run verify` pass.
 
 ---
 
