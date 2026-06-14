@@ -739,16 +739,12 @@ export default function RegistrationFlowExperience({
                     <div className="registration-field-grid mt-4">
                       <div className="field field-span">
                         <span>{labels.ticketAssigned}</span>
-                        <div
-                          aria-label={labels.ticketAssigned}
-                          className="field-static-value"
-                          role="note"
-                        >
-                          <span className="field-static-value-label">{ticketLabel}</span>
-                          <span className="field-static-value-hint">
+                        <div aria-label={labels.ticketAssigned} className="ticket-assigned-note" role="note">
+                          <span className="ticket-assigned-pill">{ticketLabel}</span>
+                          <span className="ticket-assigned-copy">
                             {locale === "it"
-                              ? "Selezionato al passaggio ticket"
-                              : "Selected in the ticket step"}
+                              ? "Gia assegnato dal ticket selezionato."
+                              : "Already assigned from the selected ticket."}
                           </span>
                         </div>
                       </div>
