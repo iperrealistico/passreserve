@@ -737,10 +737,21 @@ export default function RegistrationFlowExperience({
                     </div>
 
                     <div className="registration-field-grid mt-4">
-                      <label className="field field-span">
+                      <div className="field field-span">
                         <span>{labels.ticketAssigned}</span>
-                        <input readOnly type="text" value={ticketLabel} />
-                      </label>
+                        <div
+                          aria-label={labels.ticketAssigned}
+                          className="field-static-value"
+                          role="note"
+                        >
+                          <span className="field-static-value-label">{ticketLabel}</span>
+                          <span className="field-static-value-hint">
+                            {locale === "it"
+                              ? "Selezionato al passaggio ticket"
+                              : "Selected in the ticket step"}
+                          </span>
+                        </div>
+                      </div>
                       {isRegistrationQuestionnaireFieldVisible(
                         registrationQuestionnaireConfig,
                         attendeeRole,

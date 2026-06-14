@@ -1698,10 +1698,21 @@ export function OrganizerManualRegistrationContextStep({
                       ) : null}
 
                       <div className="registration-field-grid mt-4">
-                        <label className="field field-span">
+                        <div className="field field-span">
                           <span>{isItalian ? "Ticket assegnato" : "Assigned ticket"}</span>
-                          <input readOnly type="text" value={ticketLabel} />
-                        </label>
+                          <div
+                            aria-label={isItalian ? "Ticket assegnato" : "Assigned ticket"}
+                            className="field-static-value"
+                            role="note"
+                          >
+                            <span className="field-static-value-label">{ticketLabel}</span>
+                            <span className="field-static-value-hint">
+                              {isItalian
+                                ? "Selezionato nel passaggio ticket"
+                                : "Selected in the ticket step"}
+                            </span>
+                          </div>
+                        </div>
                         {isRegistrationQuestionnaireFieldVisible(
                           selectedQuestionnaireConfig,
                           attendeeRole,
