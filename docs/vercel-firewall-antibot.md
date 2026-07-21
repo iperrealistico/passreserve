@@ -11,6 +11,10 @@ does not require a deployment.
 - Custom rule: `Passreserve - deny malicious scanner paths`
 - Rule id: `rule_passreserve_deny_malicious_scanner_paths_04MH7D`
 - Action: `deny` at the Vercel Firewall edge
+- Public GET burst rule: `Passreserve - conservative public GET burst challenge`
+- Public GET rule id: `rule_passreserve_conservative_public_get_burst_challenge_dZwkI8`
+- Public GET rule: `120 requests / 60 seconds / IP`, fixed window, then Vercel
+  `challenge`
 - Bot Protection: enabled with action `log` only; it does not challenge or deny
 - Attack Challenge Mode: not enabled
 - Public GET rate limiting: not enabled yet; wait for 24–48 hours of evidence
@@ -22,6 +26,11 @@ The custom rule matches only these path families:
 - `/wp-*`
 - `/phpmyadmin*` and `/adminer*`
 - any path ending in `.bak`, `.sql`, `.zip`, `.tar.gz`, `.old`, or `.backup`
+
+The public GET rate-limit rule matches only `GET` requests for the homepage,
+top-level public pages, organizer pages, public event pages, and public
+registration pages. It does not match `POST` requests, API routes, admin routes,
+static assets, confirmation routes, or payment-token routes.
 
 The rule is intentionally path-only and has no application route match. It does
 not alter `proxy.js`, Next.js middleware behavior, database access, caching,
@@ -37,6 +46,8 @@ The rule does not match any of the following functional surfaces:
 - Resend routes;
 - `/api/cron/reminders`;
 - platform admin and organizer admin routes, including login and reset flows.
+- tokenized registration confirmation, pending, success, cancel, preview, and
+  payment routes.
 
 Bot Protection is currently log-only, so it also does not block any functional
 surface. If it is later changed to `challenge` or a rate limit is introduced,
@@ -52,6 +63,9 @@ The following production checks were performed after publishing the rule:
   `200`;
 - `/api/stripe/webhooks` returned its application-level `405` for an unsupported
   GET, and `/api/cron/reminders` returned its application-level `401`;
+- the new public GET rule was verified live with normal requests returning `200`;
+  no synthetic 121-request burst was sent to production, so the challenge was
+  not intentionally triggered during the smoke check;
 - no Next.js code, database schema, feature, payment flow, email flow, or cron
   code was changed.
 
@@ -62,6 +76,20 @@ Disable the custom rule, then publish the staged change:
 ```bash
 npx --yes vercel@56.4.0 firewall rules disable \
   rule_passreserve_deny_malicious_scanner_paths_04MH7D \
+  --project prj_eU02UtIG5GkGV4wa3eMnrfqyYpyn \
+  --scope team_HkXanAKxflViaTU8bv2zg4Cf
+npx --yes vercel@56.4.0 firewall publish \
+  --project prj_eU02UtIG5GkGV4wa3eMnrfqyYpyn \
+  --scope team_HkXanAKxflViaTU8bv2zg4Cf \
+  --yes
+```
+
+If only the public-page rate limiter needs to be disabled, use its rule id in
+the same two-step sequence:
+
+```bash
+npx --yes vercel@56.4.0 firewall rules disable \
+  rule_passreserve_conservative_public_get_burst_challenge_dZwkI8 \
   --project prj_eU02UtIG5GkGV4wa3eMnrfqyYpyn \
   --scope team_HkXanAKxflViaTU8bv2zg4Cf
 npx --yes vercel@56.4.0 firewall publish \
