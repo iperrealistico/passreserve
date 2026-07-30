@@ -763,6 +763,7 @@ export default async function AboutPage() {
               <Link
                 className="inline-flex h-14 items-center justify-center gap-3 whitespace-nowrap rounded-2xl border-2 border-gray-200 px-6 text-base font-medium text-gray-900 transition hover:border-gray-300 hover:bg-gray-50 sm:px-8 sm:text-lg"
                 href="/organizer-access"
+                prefetch={false}
               >
                 <LayoutDashboard className="h-5 w-5 shrink-0" />
                 <span>{content.hero.organizerCta}</span>
@@ -1217,6 +1218,7 @@ export default async function AboutPage() {
               <Link
                 className="inline-flex h-14 w-full items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-white px-6 text-base font-semibold text-[#244231] transition hover:bg-[#f3f6f4] sm:text-lg"
                 href="/organizer-access"
+                prefetch={false}
               >
                 <span>{content.cta.organizerCta}</span>
                 <ArrowRight className="h-5 w-5 shrink-0" />

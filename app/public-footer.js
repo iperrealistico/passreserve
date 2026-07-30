@@ -9,7 +9,11 @@ export function PublicFooter({ locale = "en", dictionary }) {
     { href: "/", label: dictionary.nav.discover },
     { href: "/events", label: dictionary.nav.events },
     { href: "/about", label: dictionary.nav.about },
-    { href: "/organizer-access", label: dictionary.nav.organizerAccess }
+    {
+      href: "/organizer-access",
+      label: dictionary.nav.organizerAccess,
+      prefetch: false
+    }
   ];
 
   return (
@@ -23,7 +27,7 @@ export function PublicFooter({ locale = "en", dictionary }) {
 
         <nav aria-label="Footer" className="site-footer-nav">
           {navItems.map((item) => (
-            <Link href={item.href} key={item.href}>
+            <Link href={item.href} key={item.href} prefetch={item.prefetch}>
               {item.label}
             </Link>
           ))}

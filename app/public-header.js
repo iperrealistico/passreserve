@@ -34,7 +34,9 @@ export function PublicHeader({ dictionary, currentPath = "/", contextItem = null
               {item.label}
             </Link>
           ))}
-          <Link href="/organizer-access">{dictionary.nav.organizerAccess}</Link>
+          <Link href="/organizer-access" prefetch={false}>
+            {dictionary.nav.organizerAccess}
+          </Link>
         </nav>
       </div>
     </header>
