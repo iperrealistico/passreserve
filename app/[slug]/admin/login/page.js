@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { organizerLoginAction, organizerRequestResetAction } from "../actions.js";
-import { getOrganizerShell } from "../../../../lib/passreserve-admin-service.js";
+import { getOrganizerLoginShell } from "../../../../lib/passreserve-admin-service.js";
 import { getTranslations } from "../../../../lib/passreserve-i18n.js";
 
 export const metadata = {
@@ -49,7 +49,7 @@ function messageFor(value, locale) {
 
 export default async function OrganizerLoginPage({ params, searchParams }) {
   const { slug } = await params;
-  const shell = await getOrganizerShell(slug);
+  const shell = await getOrganizerLoginShell(slug);
   const query = await searchParams;
   const { locale } = await getTranslations();
   const isItalian = locale === "it";
