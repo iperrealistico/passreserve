@@ -2,8 +2,9 @@
 
 ## Document status
 
-- Status: execution in progress; Phases 0–2 passed their local gates on
-  2026-07-30, with production implementation phases still pending.
+- Status: execution in progress; Phases 0–12 passed their local gates on
+  2026-07-30. Preview/production release (Phase 13) and the full 48-hour
+  production validation (Phase 14) remain.
 - Scope: Passreserve/Gatherpass on Vercel.
 - Target environment: production at `passreserve.com`.
 - Vercel project: `passreserve` (`prj_eU02UtIG5GkGV4wa3eMnrfqyYpyn`).
