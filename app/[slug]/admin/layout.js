@@ -6,6 +6,7 @@ import { LocaleSwitcher } from "../../../components/locale-switcher.js";
 import { TopNav } from "../../../components/top-nav.js";
 import { getTranslations } from "../../../lib/passreserve-i18n.js";
 import {
+  getOrganizerLoginShell,
   getOrganizerShell
 } from "../../../lib/passreserve-admin-service.js";
 import {
@@ -17,21 +18,31 @@ import { organizerLogoutAction, returnToPlatformDashboardAction } from "./action
 
 export default async function OrganizerAdminLayout({ children, params }) {
   const { slug } = await params;
-  const shell = await getOrganizerShell(slug);
-  const { locale, dictionary } = await getTranslations();
+  const sessionUser = await getValidatedOrganizerAdminSessionUser(slug);
+
+  const signedIn = Boolean(sessionUser);
+
+  if (!signedIn) {
+    if (!(await getOrganizerLoginShell(slug))) {
+      notFound();
+    }
+
+    return children;
+  }
+
+  const [shell, translations, platformUser] = await Promise.all([
+    getOrganizerShell(slug),
+    getTranslations(),
+    getValidatedStoredPlatformSessionUser()
+  ]);
 
   if (!shell) {
     notFound();
   }
-  const organizer = shell.organizer;
-  const sessionUser = await getValidatedOrganizerAdminSessionUser(slug);
-  const platformUser = await getValidatedStoredPlatformSessionUser();
-  const signedIn = Boolean(sessionUser);
-  const isItalian = locale === "it";
 
-  if (!signedIn) {
-    return children;
-  }
+  const organizer = shell.organizer;
+  const { locale, dictionary } = translations;
+  const isItalian = locale === "it";
 
   const navigation = [
     {
