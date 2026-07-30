@@ -5,7 +5,10 @@ import { getTranslations } from "../../lib/passreserve-i18n.js";
 import { getLegalDocument } from "../../lib/passreserve-legal.js";
 
 export const metadata = {
-  title: "Cookie Policy"
+  title: "Cookie Policy",
+  alternates: {
+    canonical: "/cookie-policy"
+  }
 };
 
 export default async function CookiePolicyPage() {

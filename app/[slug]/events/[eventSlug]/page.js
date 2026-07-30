@@ -118,7 +118,10 @@ export async function generateMetadata({ params }) {
 
   return {
     title: entry.event.title,
-    description: entry.event.summary
+    description: entry.event.summary,
+    alternates: {
+      canonical: entry.event.detailHref
+    }
   };
 }
 
@@ -347,7 +350,11 @@ export default async function EventDetailPage({ params, searchParams }) {
 
                     {occurrence.registrationAvailable ? (
                       <div className="hero-actions mt-5">
-                        <Link className="button button-primary" href={occurrence.registrationHref}>
+                        <Link
+                          className="button button-primary"
+                          href={occurrence.registrationHref}
+                          prefetch={false}
+                        >
                           {isItalian ? "Registrati per questa data" : "Register for this date"}
                         </Link>
                       </div>

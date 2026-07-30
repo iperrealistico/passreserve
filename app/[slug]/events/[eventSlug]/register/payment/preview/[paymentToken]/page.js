@@ -138,6 +138,7 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
                 <Link
                   className="button button-primary"
                   href={`/${slug}/events/${eventSlug}/register/payment/success/${paymentToken}?preview=1`}
+                  prefetch={false}
                 >
                   Continue to secure payment
                 </Link>
@@ -153,6 +154,7 @@ export default async function RegistrationPaymentPreviewPage({ params }) {
               <Link
                 className="button button-secondary"
                 href={`/${slug}/events/${eventSlug}/register/payment/cancel/${paymentToken}`}
+                prefetch={false}
               >
                 Not now
               </Link>

@@ -40,6 +40,7 @@ export default async function RegistrationPaymentSuccessPage({
             <Link
               className="button button-primary"
               href={`/${slug}/events/${eventSlug}/register/payment/cancel/${paymentToken}`}
+              prefetch={false}
             >
               Open the pending payment page
             </Link>

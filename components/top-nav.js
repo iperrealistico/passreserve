@@ -76,7 +76,7 @@ export function TopNav({
   return (
     <header className={cn("admin-topbar", className)}>
       <div className="admin-topbar-row">
-        <Link className="admin-brand" href={brandHref}>
+        <Link className="admin-brand" href={brandHref} prefetch={false}>
           {brand}
         </Link>
 
@@ -111,6 +111,7 @@ export function TopNav({
                 data-organizer-tour={link.tourId}
                 href={link.href}
                 key={link.href}
+                prefetch={false}
               >
                 {Icon ? <Icon className="admin-tab-icon" size={16} /> : null}
                 {link.label}
@@ -138,6 +139,7 @@ export function TopNav({
                   href={link.href}
                   key={link.href}
                   onClick={() => setOpen(false)}
+                  prefetch={false}
                 >
                   {Icon ? <Icon className="admin-tab-icon" size={16} /> : null}
                   {link.label}

@@ -39,7 +39,10 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${organizer.name} · Organizer`,
-    description: organizer.description
+    description: organizer.description,
+    alternates: {
+      canonical: organizer.organizerHref
+    }
   };
 }
 
@@ -122,6 +125,7 @@ export default async function OrganizerPage({ params }) {
                       <Link
                         className="button button-primary"
                         href={buildRegistrationHref(organizerRouteSlug, occurrence.eventSlug, occurrence.id)}
+                        prefetch={false}
                       >
                         {dictionary.organizer.cta}
                       </Link>

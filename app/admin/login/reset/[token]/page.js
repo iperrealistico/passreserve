@@ -21,7 +21,7 @@ export default async function PlatformResetPasswordPage({ params, searchParams }
             <span className="wordmark-tag">Reset platform access</span>
           </div>
           <nav className="nav" aria-label="Reset navigation">
-            <Link href="/admin/login">Back to sign in</Link>
+            <Link href="/admin/login" prefetch={false}>Back to sign in</Link>
           </nav>
         </header>
 

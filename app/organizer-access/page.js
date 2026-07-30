@@ -4,7 +4,10 @@ import { openOrganizerAccessAction } from "./actions.js";
 import { getTranslations } from "../../lib/passreserve-i18n.js";
 
 export const metadata = {
-  title: "Organizer access"
+  title: "Organizer access",
+  alternates: {
+    canonical: "/organizer-access"
+  }
 };
 
 export default async function OrganizerAccessPage({ searchParams }) {
@@ -59,7 +62,7 @@ export default async function OrganizerAccessPage({ searchParams }) {
             </div>
             <p>{copy.platformSummary}</p>
             <div className="hero-actions">
-              <Link className="button button-secondary" href="/admin/login">
+              <Link className="button button-secondary" href="/admin/login" prefetch={false}>
                 {copy.platformCta}
               </Link>
             </div>

@@ -7,6 +7,12 @@ import { getDiscoveryResults } from "../../lib/passreserve-service.js";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  alternates: {
+    canonical: "/events"
+  }
+};
+
 const discoveryChips = ["workshop", "retreat", "sunrise", "gravel", "family", "dinner"];
 
 const DEFAULT_DISCOVERY_COUNTRY = "italy";

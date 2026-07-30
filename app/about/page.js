@@ -700,7 +700,10 @@ export async function generateMetadata() {
 
   return {
     title: content.metaTitle,
-    description: content.metaDescription
+    description: content.metaDescription,
+    alternates: {
+      canonical: "/about"
+    }
   };
 }
 

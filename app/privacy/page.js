@@ -5,7 +5,10 @@ import { getTranslations } from "../../lib/passreserve-i18n.js";
 import { getLegalDocument } from "../../lib/passreserve-legal.js";
 
 export const metadata = {
-  title: "Privacy"
+  title: "Privacy",
+  alternates: {
+    canonical: "/privacy"
+  }
 };
 
 export default async function PrivacyPage() {

@@ -11,6 +11,12 @@ import { getTranslations } from "../lib/passreserve-i18n.js";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  alternates: {
+    canonical: "/"
+  }
+};
+
 function Notice({ query }) {
   if (query.message === "request-saved") {
     return (
