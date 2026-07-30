@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  readPrismaPublicOrganizerCapacityV2,
+  readPrismaPublicOrganizerContentV2,
   readPrismaPublicOrganizerStateV2
 } from "../lib/passreserve-public-read-model.js";
 
@@ -109,14 +111,10 @@ describe("public read model v2", () => {
       quantity: true,
       expiresAt: true
     });
-    expect(registrationQuery.where.occurrence).toMatchObject({
-      published: true,
-      startsAt: {
-        gt: now
-      },
-      eventType: {
-        organizerId: fixture.organizer.id,
-        visibility: "PUBLIC"
+    expect(registrationQuery.where).toMatchObject({
+      organizerId: fixture.organizer.id,
+      occurrenceId: {
+        in: [fixture.occurrence.id]
       }
     });
     expect(fixture.prisma.eventType.findMany).toHaveBeenCalledWith(
@@ -126,6 +124,43 @@ describe("public read model v2", () => {
           visibility: "PUBLIC"
         },
         select: expect.any(Object)
+      })
+    );
+  });
+
+  it("keeps stable content and live capacity as separate reads", async () => {
+    const fixture = createFixture();
+    const now = new Date("2026-08-01T12:00:00.000Z");
+    const content = await readPrismaPublicOrganizerContentV2(
+      fixture.prisma,
+      "sillico",
+      now
+    );
+
+    expect(content.registrations).toEqual([]);
+    expect(fixture.prisma.registration.findMany).not.toHaveBeenCalled();
+
+    const registrations = await readPrismaPublicOrganizerCapacityV2(
+      fixture.prisma,
+      fixture.organizer.id,
+      [fixture.occurrence.id, fixture.occurrence.id, ""],
+      now
+    );
+
+    expect(registrations).toEqual([
+      expect.objectContaining({
+        id: fixture.registration.id,
+        quantity: 2
+      })
+    ]);
+    expect(fixture.prisma.registration.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          organizerId: fixture.organizer.id,
+          occurrenceId: {
+            in: [fixture.occurrence.id]
+          }
+        })
       })
     );
   });

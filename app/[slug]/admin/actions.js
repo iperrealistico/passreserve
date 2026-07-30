@@ -30,6 +30,9 @@ import {
   consumeAdminLoginRateLimit
 } from "../../../lib/passreserve-auth-security.js";
 import {
+  invalidatePublicOrganizerContent
+} from "../../../lib/passreserve-public-cache.js";
+import {
   requireOrganizerAdminSession,
   restorePlatformAdminSession,
   signInOrganizerAdmin,
@@ -292,9 +295,11 @@ export async function saveOrganizerEventAction(formData) {
   }
 
   if (savedEvent?.id) {
+    invalidatePublicOrganizerContent(slug);
     redirect(`/${slug}/admin/events?message=saved&edit=${encodeURIComponent(savedEvent.id)}#event-form`);
   }
 
+  invalidatePublicOrganizerContent(slug);
   redirect(`/${slug}/admin/events?message=saved`);
 }
 
@@ -303,6 +308,7 @@ export async function suspendOrganizerEventAction(formData) {
   const user = await requireOrganizerAdminSession(slug);
 
   await toggleOrganizerEventSuspended(slug, value(formData, "eventId"), user.userId);
+  invalidatePublicOrganizerContent(slug);
   redirect(`/${slug}/admin/events?message=status-updated`);
 }
 
@@ -312,6 +318,7 @@ export async function deleteOrganizerEventAction(formData) {
 
   try {
     await deleteOrganizerEvent(slug, value(formData, "eventId"), user.userId);
+    invalidatePublicOrganizerContent(slug);
     redirect(`/${slug}/admin/events?message=deleted`);
   } catch (error) {
     const message =
@@ -366,6 +373,7 @@ export async function saveOrganizerOccurrenceAction(formData) {
   }
 
   if (savedOccurrence?.id) {
+    invalidatePublicOrganizerContent(slug);
     const cancellationSummary = savedOccurrence.cancellationSummary;
 
     if (cancellationSummary) {
@@ -606,6 +614,7 @@ export async function saveOrganizerSettingsAction(formData) {
     },
     user.userId
   );
+  invalidatePublicOrganizerContent(slug);
   redirect(`/${slug}/admin/settings?message=saved&tab=general`);
 }
 
@@ -618,6 +627,7 @@ export async function publishOrganizerProfileAction(formData) {
     redirect(`/${slug}/admin/settings?error=${encodeURIComponent(result.message)}&tab=general`);
   }
 
+  invalidatePublicOrganizerContent(slug);
   redirect(`/${slug}/admin/settings?message=published&tab=general`);
 }
 

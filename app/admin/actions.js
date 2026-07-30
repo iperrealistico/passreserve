@@ -28,6 +28,11 @@ import {
   consumeAdminLoginRateLimit
 } from "../../lib/passreserve-auth-security.js";
 import {
+  invalidatePublicAboutContent,
+  invalidatePublicOrganizerContent,
+  invalidatePublicSiteContent
+} from "../../lib/passreserve-public-cache.js";
+import {
   requirePlatformAdminSession,
   restorePlatformAdminSession,
   signInOrganizerAdmin,
@@ -103,6 +108,7 @@ export async function updateSiteSettingsAction(formData) {
     },
     user.userId
   );
+  invalidatePublicSiteContent();
   redirect("/admin/settings?message=saved");
 }
 
@@ -119,6 +125,7 @@ export async function updateAboutPageAction(formData) {
     },
     user.userId
   );
+  invalidatePublicAboutContent();
   redirect("/admin/about?message=saved");
 }
 
@@ -173,6 +180,7 @@ export async function createOrganizerAction(formData) {
       },
       user.userId
     );
+    invalidatePublicOrganizerContent(value(formData, "publicSlug"));
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "The organizer could not be created.";
@@ -187,6 +195,7 @@ export async function approveOrganizerRequestAction(formData) {
   const user = await requirePlatformAdminSession();
 
   await approveOrganizerRequest(value(formData, "requestId"), user.userId);
+  invalidatePublicOrganizerContent();
   redirect("/admin/applications?message=resent");
 }
 
@@ -237,6 +246,7 @@ export async function updateOrganizerBillingAction(formData) {
     },
     user.userId
   );
+  invalidatePublicOrganizerContent(slug);
   redirect(`/admin/organizers/${slug}?message=billing-saved`);
 }
 
@@ -298,6 +308,7 @@ export async function suspendOrganizerAction(formData) {
   const slug = value(formData, "slug");
 
   await suspendOrganizerFromPlatform(slug, user.userId);
+  invalidatePublicOrganizerContent(slug);
   redirect(`/admin/organizers/${slug}?message=status-updated`);
 }
 
@@ -306,5 +317,6 @@ export async function deleteOrganizerAction(formData) {
   const slug = value(formData, "slug");
 
   await deleteOrganizerFromPlatform(slug, user.userId);
+  invalidatePublicOrganizerContent(slug);
   redirect("/admin/organizers?message=deleted");
 }
