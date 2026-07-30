@@ -167,7 +167,9 @@ export default async function EventDetailPage({ params, searchParams }) {
         <div className="mx-auto max-w-4xl">
           <section className="panel section-card mt-6">
             <div className="breadcrumb">
-              <Link href={organizer.organizerHref}>{organizer.name}</Link>
+              <Link href={organizer.organizerHref} prefetch={false}>
+                {organizer.name}
+              </Link>
               <span>/</span>
               <span>{event.title}</span>
             </div>
@@ -206,7 +208,11 @@ export default async function EventDetailPage({ params, searchParams }) {
                     ? "Scegli data"
                     : "Choose date"}
               </a>
-              <Link className="button button-secondary" href={organizer.organizerHref}>
+              <Link
+                className="button button-secondary"
+                href={organizer.organizerHref}
+                prefetch={false}
+              >
                 {dictionary.event.hostPage}
               </Link>
             </div>

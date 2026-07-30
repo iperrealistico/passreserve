@@ -105,6 +105,7 @@ export default async function OrganizerPage({ params }) {
                         <Link
                           className="text-2xl font-semibold text-foreground hover:text-primary"
                           href={`/${organizerRouteSlug}/events/${occurrence.eventSlug}`}
+                          prefetch={false}
                         >
                           {occurrence.eventTitle}
                         </Link>
@@ -136,6 +137,7 @@ export default async function OrganizerPage({ params }) {
                           occurrence.eventSlug,
                           occurrence.id
                         )}
+                        prefetch={false}
                       >
                         {dictionary.events.openEvent}
                       </Link>

@@ -138,12 +138,20 @@ export default async function EventsPage({ searchParams }) {
                 {dictionary.events.inputLabel}
               </button>
               {hasActiveSearch ? (
-                <Link className="button button-secondary button-compact" href={clearHref}>
+                <Link
+                  className="button button-secondary button-compact"
+                  href={clearHref}
+                  prefetch={false}
+                >
                   Clear
                 </Link>
               ) : null}
               {hasActiveFilters ? (
-                <Link className="button button-secondary button-compact" href={showAllHref}>
+                <Link
+                  className="button button-secondary button-compact"
+                  href={showAllHref}
+                  prefetch={false}
+                >
                   {dictionary.events.showAll}
                 </Link>
               ) : null}
@@ -160,6 +168,7 @@ export default async function EventsPage({ searchParams }) {
                     city: appliedFilters.city
                   })}
                   key={chip}
+                  prefetch={false}
                 >
                   {chip}
                 </Link>
@@ -202,10 +211,18 @@ export default async function EventsPage({ searchParams }) {
                   </div>
 
                   <div className="hero-actions search-actions-row mt-4">
-                    <Link className="button button-primary button-compact" href={entry.eventHref}>
+                    <Link
+                      className="button button-primary button-compact"
+                      href={entry.eventHref}
+                      prefetch={false}
+                    >
                       {dictionary.events.openEvent}
                     </Link>
-                    <Link className="button button-secondary button-compact" href={entry.organizerHref}>
+                    <Link
+                      className="button button-secondary button-compact"
+                      href={entry.organizerHref}
+                      prefetch={false}
+                    >
                       {dictionary.events.openOrganizer}
                     </Link>
                   </div>
