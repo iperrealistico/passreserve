@@ -121,7 +121,7 @@ export default async function HomePage({ searchParams }) {
         </section>
 
         <div className="mt-5 flex justify-center">
-          <Link className="inline-link" href="/about">
+          <Link className="inline-link" href="/about" prefetch={false}>
             <span aria-hidden="true" className="inline-link-icon">
               <svg fill="none" height="16" viewBox="0 0 16 16" width="16">
                 <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.5" />

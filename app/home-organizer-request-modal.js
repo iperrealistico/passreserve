@@ -85,8 +85,10 @@ export function HomeOrganizerRequestModal({
   };
 
   useEffect(() => {
-    import("altcha");
-  }, []);
+    if (open) {
+      import("altcha");
+    }
+  }, [open]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -282,11 +284,11 @@ export function HomeOrganizerRequestModal({
               <input name="termsAccepted" required type="checkbox" value="yes" />
               <span className="inline-consent-copy">
                 I have read the{" "}
-                <Link href="/privacy" rel="noreferrer" target="_blank">
+                <Link href="/privacy" prefetch={false} rel="noreferrer" target="_blank">
                   Privacy Notice
                 </Link>{" "}
                 and accept the{" "}
-                <Link href="/terms" rel="noreferrer" target="_blank">
+                <Link href="/terms" prefetch={false} rel="noreferrer" target="_blank">
                   Terms of Use
                 </Link>{" "}
                 for organizer access requests.

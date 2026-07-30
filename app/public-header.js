@@ -17,7 +17,7 @@ export function PublicHeader({ dictionary, currentPath = "/", contextItem = null
 
   return (
     <header className="topbar">
-      <Link className="wordmark" href="/">
+      <Link className="wordmark" href="/" prefetch={false}>
         <span className="wordmark-name">Passreserve.com</span>
         <span className="wordmark-tag">{dictionary.home.eyebrow}</span>
       </Link>
@@ -29,6 +29,7 @@ export function PublicHeader({ dictionary, currentPath = "/", contextItem = null
               className={item.contextual ? "nav-context-link" : undefined}
               href={item.href}
               key={item.href}
+              prefetch={false}
               title={item.label}
             >
               {item.label}

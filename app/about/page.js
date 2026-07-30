@@ -731,6 +731,7 @@ export default async function AboutPage() {
           <Link
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-gray-900"
             href="/"
+            prefetch={false}
           >
             <ArrowLeft className="h-4 w-4" />
             <span>{content.backLabel}</span>
@@ -755,6 +756,7 @@ export default async function AboutPage() {
               <Link
                 className="inline-flex h-14 items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-gray-900 px-6 text-base font-semibold text-white transition hover:bg-gray-800 sm:px-8 sm:text-lg"
                 href="/"
+                prefetch={false}
               >
                 <Ticket className="h-5 w-5 shrink-0" />
                 <span>{content.hero.attendeeCta}</span>
@@ -1207,6 +1209,7 @@ export default async function AboutPage() {
               <Link
                 className="inline-flex h-14 w-full items-center justify-center gap-3 whitespace-nowrap rounded-2xl bg-white px-6 text-base font-semibold text-gray-900 transition hover:bg-gray-100 sm:text-lg"
                 href="/"
+                prefetch={false}
               >
                 <span>{content.cta.attendeeCta}</span>
                 <ArrowRight className="h-5 w-5 shrink-0" />
