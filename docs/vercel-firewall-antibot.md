@@ -17,7 +17,8 @@ does not require a deployment.
   `challenge`
 - Bot Protection: enabled with action `log` only; it does not challenge or deny
 - Attack Challenge Mode: not enabled
-- Public GET rate limiting: not enabled yet; wait for 24–48 hours of evidence
+- Public GET rate limiting: enabled with the conservative challenge threshold
+  above
 
 The custom rule matches only these path families:
 
@@ -32,16 +33,15 @@ top-level public pages, organizer pages, public event pages, and public
 registration pages. It does not match `POST` requests, API routes, admin routes,
 static assets, confirmation routes, or payment-token routes.
 
-The rule is intentionally path-only and has no application route match. It does
-not alter `proxy.js`, Next.js middleware behavior, database access, caching,
+Both custom rules run at the Vercel Firewall edge, before Next.js. They do not
+alter `proxy.js`, Next.js middleware behavior, database access, caching,
 payments, email, or cron execution.
 
 ## Functional routes left alone
 
-The rule does not match any of the following functional surfaces:
+Neither custom rule matches any of the following functional surfaces:
 
-- public homepage, organizer, event, registration, confirmation, or payment pages;
-- registration and ALTCHA APIs;
+- registration submissions and ALTCHA APIs;
 - Stripe webhook and billing return/connect routes;
 - Resend routes;
 - `/api/cron/reminders`;
@@ -49,9 +49,15 @@ The rule does not match any of the following functional surfaces:
 - tokenized registration confirmation, pending, success, cancel, preview, and
   payment routes.
 
-Bot Protection is currently log-only, so it also does not block any functional
-surface. If it is later changed to `challenge` or a rate limit is introduced,
-these surfaces must remain explicitly excluded before publishing that change.
+Normal `GET` visits to the public homepage, public organizer pages, public event
+pages, and public registration entry pages remain available. Only an IP that
+exceeds 120 matching public `GET` requests within 60 seconds receives a Vercel
+challenge. No public `POST`, API, admin, confirmation, or tokenized payment route
+is included in that rule.
+
+Bot Protection is currently log-only, so it does not block any functional
+surface. If it is later changed to `challenge`, the functional exclusions above
+must be rechecked before publishing that change.
 
 ## Verification
 
@@ -113,6 +119,6 @@ For the next 24–48 hours, record Firewall events and runtime request counts fo
 - successful public registration, payment, webhook, email, admin, and cron
   checks.
 
-Do not enable a public GET rate limit or change Bot Protection to `challenge`
-until those checks show a clear abuse pattern and the functional exclusions have
-been tested.
+Do not lower the public GET threshold, expand its route scope, or change Bot
+Protection to `challenge` until those checks show a clear abuse pattern and the
+functional exclusions have been tested.
