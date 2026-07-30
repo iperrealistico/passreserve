@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const ORIGINAL_ENV = {
   PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS:
     process.env.PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS,
+  PASSRESERVE_PUBLIC_READ_MODEL: process.env.PASSRESERVE_PUBLIC_READ_MODEL,
   SESSION_SECRET: process.env.SESSION_SECRET,
   VERCEL: process.env.VERCEL,
   VERCEL_ENV: process.env.VERCEL_ENV
@@ -12,6 +13,7 @@ beforeEach(() => {
   vi.resetModules();
   delete process.env.SESSION_SECRET;
   delete process.env.PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS;
+  delete process.env.PASSRESERVE_PUBLIC_READ_MODEL;
   delete process.env.VERCEL;
   delete process.env.VERCEL_ENV;
 });
@@ -86,5 +88,30 @@ describe("passreserve session secret policy", () => {
         PASSRESERVE_TECHNICAL_AUDIT_LOG_RETENTION_DAYS: "1"
       })
     ).toBe(120);
+  });
+
+  it("keeps the public read model on legacy unless v2 is explicitly enabled", async () => {
+    vi.doMock("../lib/passreserve-prisma.js", () => ({
+      hasCompatibleDatabaseSchema: () => true
+    }));
+
+    const {
+      PUBLIC_READ_MODEL_VERSION,
+      getPublicReadModelVersion
+    } = await import("../lib/passreserve-config.js");
+
+    expect(getPublicReadModelVersion({})).toBe(
+      PUBLIC_READ_MODEL_VERSION.LEGACY
+    );
+    expect(
+      getPublicReadModelVersion({
+        PASSRESERVE_PUBLIC_READ_MODEL: "v2"
+      })
+    ).toBe(PUBLIC_READ_MODEL_VERSION.V2);
+    expect(
+      getPublicReadModelVersion({
+        PASSRESERVE_PUBLIC_READ_MODEL: "unexpected"
+      })
+    ).toBe(PUBLIC_READ_MODEL_VERSION.LEGACY);
   });
 });
