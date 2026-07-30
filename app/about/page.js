@@ -644,13 +644,25 @@ function getAboutContent(isItalian) {
   };
 }
 
-function AboutImage({ alt, src, className = "" }) {
+function AboutImage({ alt, src, className = "", priority = false }) {
+  const webpSrc = src.endsWith(".png")
+    ? src.replace(/\.png$/, ".v1.webp")
+    : null;
+
   return (
-    <img
-      alt={alt}
-      className={`w-full rounded-3xl border border-gray-200 shadow-xl ${className}`.trim()}
-      src={src}
-    />
+    <picture className="block">
+      {webpSrc ? <source srcSet={webpSrc} type="image/webp" /> : null}
+      <img
+        alt={alt}
+        className={`w-full rounded-3xl border border-gray-200 shadow-xl ${className}`.trim()}
+        decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
+        height="1024"
+        loading={priority ? "eager" : "lazy"}
+        src={src}
+        width="1536"
+      />
+    </picture>
   );
 }
 
@@ -758,7 +770,11 @@ export default async function AboutPage() {
             </div>
           </div>
           <div className="hidden lg:block">
-            <AboutImage alt="Passreserve interface overview" src={content.hero.image} />
+            <AboutImage
+              alt="Passreserve interface overview"
+              priority
+              src={content.hero.image}
+            />
           </div>
         </div>
       </section>
