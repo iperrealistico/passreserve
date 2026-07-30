@@ -34,8 +34,8 @@ registration pages. It does not match `POST` requests, API routes, admin routes,
 static assets, confirmation routes, or payment-token routes.
 
 Both custom rules run at the Vercel Firewall edge, before Next.js. They do not
-alter `proxy.js`, Next.js middleware behavior, database access, caching,
-payments, email, or cron execution.
+alter Next.js routing, database access, caching, payments, email, or cron
+execution.
 
 ## Functional routes left alone
 

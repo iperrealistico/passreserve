@@ -2,25 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   PASSRESERVE_NO_STORE_CACHE_CONTROL,
-  applyPassreserveSecurityHeaders,
+  PASSRESERVE_SECURITY_HEADER_SOURCE,
+  PASSRESERVE_SENSITIVE_HEADER_SOURCES,
   buildPassreserveSecurityHeaders,
-  getPassreserveRoutePrivacyPolicy
+  getPassreserveRoutePrivacyPolicy,
+  getPassreserveStaticHeaderRules
 } from "../lib/passreserve-http-security.js";
-
-function createResponseDouble() {
-  const store = new Map();
-
-  return {
-    headers: {
-      get(key) {
-        return store.get(String(key));
-      },
-      set(key, value) {
-        store.set(String(key), String(value));
-      }
-    }
-  };
-}
 
 describe("passreserve-http-security", () => {
   it("adds baseline browser security headers without forcing hsts on local http", () => {
@@ -100,21 +87,38 @@ describe("passreserve-http-security", () => {
     });
   });
 
-  it("applies no-store and noindex headers to sensitive responses", () => {
-    const response = createResponseDouble();
-
-    applyPassreserveSecurityHeaders(response, "/sillico/admin/login", {
-      protocol: "https:"
-    });
-
-    expect(response.headers.get("Cache-Control")).toBe(
-      PASSRESERVE_NO_STORE_CACHE_CONTROL
+  it("builds deployment routing headers for public and sensitive routes", () => {
+    const rules = getPassreserveStaticHeaderRules();
+    const baselineRule = rules[0];
+    const sensitiveRules = rules.slice(1);
+    const baselineHeaders = Object.fromEntries(
+      baselineRule.headers.map(({ key, value }) => [key, value])
     );
-    expect(response.headers.get("Pragma")).toBe("no-cache");
-    expect(response.headers.get("Expires")).toBe("0");
-    expect(response.headers.get("X-Robots-Tag")).toBe("noindex, nofollow");
-    expect(response.headers.get("Strict-Transport-Security")).toContain(
+
+    expect(baselineRule.source).toBe(PASSRESERVE_SECURITY_HEADER_SOURCE);
+    expect(baselineHeaders["Content-Security-Policy"]).toContain(
+      "upgrade-insecure-requests"
+    );
+    expect(baselineHeaders["Strict-Transport-Security"]).toContain(
       "max-age=31536000"
     );
+    expect(sensitiveRules.map((rule) => rule.source)).toEqual(
+      PASSRESERVE_SENSITIVE_HEADER_SOURCES
+    );
+
+    for (const rule of sensitiveRules) {
+      const headers = Object.fromEntries(
+        rule.headers.map(({ key, value }) => [key, value])
+      );
+
+      expect(headers["Cache-Control"]).toBe(
+        PASSRESERVE_NO_STORE_CACHE_CONTROL
+      );
+      expect(headers["CDN-Cache-Control"]).toBe("no-store");
+      expect(headers["Vercel-CDN-Cache-Control"]).toBe("no-store");
+      expect(headers.Pragma).toBe("no-cache");
+      expect(headers.Expires).toBe("0");
+      expect(headers["X-Robots-Tag"]).toBe("noindex, nofollow");
+    }
   });
 });
