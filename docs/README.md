@@ -20,5 +20,8 @@ Tracked docs in this repository are for repo-facing, reviewable documentation.
 ## Current convention
 
 - `docs/system-overview.md` is the light repo summary.
+- `docs/vercel-resource-optimization-production-plan.md` is the phased,
+  implementation-ready plan for aggressive, reversible Vercel resource
+  optimization through production.
 - `docs/reference/` holds historical or relocated reference material.
 - The local-only AI control plane lives in `START-HERE-AI.local.md` and `documents-local/`.

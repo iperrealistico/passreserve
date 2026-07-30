@@ -9,6 +9,13 @@ import { setTimeout as delay } from "node:timers/promises";
 
 import { findForbiddenUiCopy } from "./ui-copy-policy.mjs";
 
+const DATABASE_ENV_KEYS = [
+  "DATABASE_URL",
+  "POSTGRES_PRISMA_URL",
+  "POSTGRES_URL",
+  "POSTGRES_URL_NON_POOLING"
+];
+
 function assert(condition, message) {
   if (!condition) {
     throw new Error(message);
@@ -110,10 +117,26 @@ async function main() {
   );
   process.env.ORGANIZER_REQUESTS_FILE = organizerRequestsFile;
   process.env.PASSRESERVE_STATE_FILE = passreserveStateFile;
+  DATABASE_ENV_KEYS.forEach((key) => {
+    delete process.env[key];
+  });
+
+  const { getStorageMode } = await import("../lib/passreserve-config.js");
+  assert(
+    getStorageMode() === "file",
+    "Smoke checks must use the isolated temporary file store."
+  );
+
   const { mutatePersistentState } = await import("../lib/passreserve-state.js");
 
   await mutatePersistentState(async (draft) => {
-    const baseTimestamp = Date.parse("2026-06-20T08:00:00.000Z");
+    const now = new Date();
+    const baseTimestamp = Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() + 7,
+      8
+    );
     const occurrences = Array.isArray(draft.occurrences) ? draft.occurrences : [];
 
     occurrences.forEach((occurrence, index) => {
