@@ -322,4 +322,61 @@ describe("passreserve-registration-core", () => {
       dietaryOther: ""
     });
   });
+
+  it("builds exact online and at-event totals across different ticket prices", () => {
+    const result = prepareRegistrationBuild({
+      items: [
+        { ticketCategoryId: "standard", quantity: 2 },
+        { ticketCategoryId: "premium", quantity: 1 }
+      ],
+      attendees: [
+        { ticketCategoryId: "standard", firstName: "Ada", lastName: "One", address: "Via Test 1", phone: "+39 333 555 1001", email: "a@example.com" },
+        { ticketCategoryId: "standard", firstName: "Bea", lastName: "Two", address: "Via Test 2", phone: "+39 333 555 1002", email: "b@example.com" },
+        { ticketCategoryId: "premium", firstName: "Cara", lastName: "Three", address: "Via Test 3", phone: "+39 333 555 1003", email: "c@example.com" }
+      ],
+      ticketCategories: [
+        {
+          id: "standard",
+          unitPriceCents: 2200,
+          fixedOnlineAmountCents: 700,
+          fixedDueAtEventCents: 1500
+        },
+        {
+          id: "premium",
+          unitPriceCents: 3500,
+          fixedOnlineAmountCents: 1000,
+          fixedDueAtEventCents: 2500
+        }
+      ],
+      paymentSplitMode: "FIXED_AMOUNTS"
+    });
+
+    expect(result.ok).toBe(true);
+    expect(buildRegistrationPaymentTotals(result.lineItems)).toEqual({
+      subtotalCents: 7900,
+      onlineAmountCents: 2400,
+      dueAtEventCents: 5500
+    });
+  });
+
+  it("refuses an inconsistent exact split before creating a registration", () => {
+    const result = prepareRegistrationBuild({
+      items: [{ ticketCategoryId: "standard", quantity: 1 }],
+      attendees: [
+        { ticketCategoryId: "standard", firstName: "Ada", lastName: "One", address: "Via Test 1", phone: "+39 333 555 1001", email: "a@example.com" }
+      ],
+      ticketCategories: [
+        {
+          id: "standard",
+          unitPriceCents: 2200,
+          fixedOnlineAmountCents: 700,
+          fixedDueAtEventCents: 1400
+        }
+      ],
+      paymentSplitMode: "FIXED_AMOUNTS"
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toContain("payment amounts");
+  });
 });

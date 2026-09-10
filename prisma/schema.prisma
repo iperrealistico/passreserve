@@ -276,6 +276,7 @@ model EventType {
   mapHref               String          @default("")
   basePriceCents        Int             @default(0)
   prepayPercentage      Int             @default(0)
+  paymentSplitMode      String          @default("PERCENTAGE")
   attendeeInstructions  String          @default("")
   organizerNotes        String          @default("")
   cancellationPolicy    String          @default("")
@@ -312,6 +313,8 @@ model TicketCategory {
   contentI18n    Json?
   included       Json?
   unitPriceCents Int
+  fixedOnlineAmountCents Int?
+  fixedDueAtEventCents   Int?
   isDefault      Boolean       @default(false)
   isActive       Boolean       @default(true)
   sortOrder      Int           @default(0)
@@ -335,6 +338,7 @@ model EventOccurrence {
   capacity          Int
   priceCents        Int
   prepayPercentage  Int
+  paymentSplitMode  String           @default("PERCENTAGE")
   venueTitle        String           @default("")
   contentI18n       Json?
   note              String           @default("")

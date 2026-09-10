@@ -1,0 +1,9 @@
+ALTER TABLE "EventType"
+ADD COLUMN "paymentSplitMode" TEXT NOT NULL DEFAULT 'PERCENTAGE';
+
+ALTER TABLE "TicketCategory"
+ADD COLUMN "fixedOnlineAmountCents" INTEGER,
+ADD COLUMN "fixedDueAtEventCents" INTEGER;
+
+ALTER TABLE "EventOccurrence"
+ADD COLUMN "paymentSplitMode" TEXT NOT NULL DEFAULT 'PERCENTAGE';

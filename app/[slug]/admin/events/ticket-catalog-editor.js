@@ -11,11 +11,23 @@ function toEurosInput(cents) {
   return Number.isInteger(euros) ? String(euros) : euros.toFixed(2);
 }
 
-function createBlankTicket(priceCents = 0, sortOrder = 0) {
+function splitPriceByPercentage(priceCents, prepayPercentage) {
+  const onlineAmountCents = Math.round(
+    (Number(priceCents || 0) * Number(prepayPercentage || 0)) / 100
+  );
+
+  return {
+    fixedOnlineAmountEuros: toEurosInput(onlineAmountCents),
+    fixedDueAtEventEuros: toEurosInput(Number(priceCents || 0) - onlineAmountCents)
+  };
+}
+
+function createBlankTicket(priceCents = 0, sortOrder = 0, prepayPercentage = 0) {
   return {
     id: "",
     slug: "",
     priceEuros: toEurosInput(priceCents),
+    ...splitPriceByPercentage(priceCents, prepayPercentage),
     isDefault: sortOrder === 0,
     isActive: true,
     sortOrder,
@@ -28,11 +40,17 @@ function createBlankTicket(priceCents = 0, sortOrder = 0) {
   };
 }
 
-function buildEditableTicket(ticket, index) {
+function buildEditableTicket(ticket, index, prepayPercentage) {
+  const fallbackSplit = splitPriceByPercentage(ticket.unitPriceCents, prepayPercentage);
+
   return {
     id: ticket.id || "",
     slug: ticket.slug || "",
     priceEuros: toEurosInput(ticket.unitPriceCents),
+    fixedOnlineAmountEuros:
+      toEurosInput(ticket.fixedOnlineAmountCents) || fallbackSplit.fixedOnlineAmountEuros,
+    fixedDueAtEventEuros:
+      toEurosInput(ticket.fixedDueAtEventCents) || fallbackSplit.fixedDueAtEventEuros,
     isDefault: Boolean(ticket.isDefault),
     isActive: ticket.isActive !== false,
     sortOrder: Number(ticket.sortOrder || index),
@@ -56,21 +74,31 @@ function buildEditableTicket(ticket, index) {
 export function TicketCatalogEditor({
   defaultPriceCents = 0,
   initialTickets = [],
+  initialPaymentSplitMode = "PERCENTAGE",
+  initialPrepayPercentage = 0,
   isItalian = false
 }) {
+  const [paymentSplitMode, setPaymentSplitMode] = useState(
+    initialPaymentSplitMode === "FIXED_AMOUNTS" ? "FIXED_AMOUNTS" : "PERCENTAGE"
+  );
+  const [prepayPercentage, setPrepayPercentage] = useState(
+    String(initialPrepayPercentage ?? 0)
+  );
   const [tickets, setTickets] = useState(() => {
     const safeInitialTickets = Array.isArray(initialTickets) ? initialTickets : [];
 
     return safeInitialTickets.length
-      ? safeInitialTickets.map((ticket, index) => buildEditableTicket(ticket, index))
-      : [createBlankTicket(defaultPriceCents, 0)];
+      ? safeInitialTickets.map((ticket, index) =>
+          buildEditableTicket(ticket, index, initialPrepayPercentage)
+        )
+      : [createBlankTicket(defaultPriceCents, 0, initialPrepayPercentage)];
   });
 
   useEffect(() => {
     if (!tickets.length) {
-      setTickets([createBlankTicket(defaultPriceCents, 0)]);
+      setTickets([createBlankTicket(defaultPriceCents, 0, Number(prepayPercentage || 0))]);
     }
-  }, [defaultPriceCents, tickets.length]);
+  }, [defaultPriceCents, prepayPercentage, tickets.length]);
 
   function updateTicket(index, patch) {
     setTickets((current) =>
@@ -92,14 +120,14 @@ export function TicketCatalogEditor({
   function addTicket() {
     setTickets((current) => [
       ...current,
-      createBlankTicket(defaultPriceCents, current.length)
+      createBlankTicket(defaultPriceCents, current.length, Number(prepayPercentage || 0))
     ]);
   }
 
   function removeTicket(index) {
     setTickets((current) => {
       if (current.length === 1) {
-        return [createBlankTicket(defaultPriceCents, 0)];
+        return [createBlankTicket(defaultPriceCents, 0, Number(prepayPercentage || 0))];
       }
 
       const next = current.filter((_ticket, ticketIndex) => ticketIndex !== index);
@@ -149,6 +177,62 @@ export function TicketCatalogEditor({
     <div className="registration-panel-stack">
       <input name="ticketCatalogJson" type="hidden" value={serializedTickets} />
 
+      <div className="admin-card">
+        <div className="admin-section-header">
+          <div>
+            <span className="metric-label">
+              {isItalian ? "Modalità di pagamento" : "Payment split mode"}
+            </span>
+            <strong>
+              {isItalian
+                ? "Scegli percentuale oppure importi esatti per ogni ticket."
+                : "Choose a percentage or exact amounts for each ticket."}
+            </strong>
+          </div>
+        </div>
+        <div className="registration-field-grid">
+          <label className="field">
+            <span>{isItalian ? "Suddivisione pagamento" : "Payment split"}</span>
+            <select
+              name="paymentSplitMode"
+              onChange={(event) => setPaymentSplitMode(event.target.value)}
+              value={paymentSplitMode}
+            >
+              <option value="PERCENTAGE">
+                {isItalian ? "Percentuale online" : "Online percentage"}
+              </option>
+              <option value="FIXED_AMOUNTS">
+                {isItalian ? "Importi esatti online + in presenza" : "Exact online + at-event amounts"}
+              </option>
+            </select>
+          </label>
+          {paymentSplitMode === "PERCENTAGE" ? (
+            <label className="field">
+              <span>{isItalian ? "Percentuale prepagata" : "Prepay percentage"}</span>
+              <input
+                max="100"
+                min="0"
+                name="prepayPercentage"
+                onChange={(event) => setPrepayPercentage(event.target.value)}
+                type="number"
+                value={prepayPercentage}
+              />
+            </label>
+          ) : (
+            <input name="prepayPercentage" type="hidden" value={prepayPercentage} />
+          )}
+        </div>
+        <p className="admin-page-tip">
+          {paymentSplitMode === "FIXED_AMOUNTS"
+            ? isItalian
+              ? "Per ogni ticket inserisci due importi che, sommati, devono coincidere con il prezzo del ticket."
+              : "For each ticket, enter two amounts whose sum must match the ticket price."
+            : isItalian
+              ? "La percentuale viene applicata allo stesso modo a tutti i ticket."
+              : "The percentage is applied consistently to every ticket."}
+        </p>
+      </div>
+
       <div className="admin-section-header">
         <div>
           <span className="metric-label">{isItalian ? "Catalogo ticket" : "Ticket catalog"}</span>
@@ -196,6 +280,36 @@ export function TicketCatalogEditor({
                   value={ticket.slug}
                 />
               </label>
+              {paymentSplitMode === "FIXED_AMOUNTS" ? (
+                <>
+                  <label className="field">
+                    <span>{isItalian ? "Da pagare online (EUR)" : "Pay online (EUR)"}</span>
+                    <input
+                      inputMode="decimal"
+                      min="0"
+                      onChange={(event) =>
+                        updateTicket(index, { fixedOnlineAmountEuros: event.target.value })
+                      }
+                      step="0.01"
+                      type="number"
+                      value={ticket.fixedOnlineAmountEuros}
+                    />
+                  </label>
+                  <label className="field">
+                    <span>{isItalian ? "Da pagare in presenza (EUR)" : "Pay at event (EUR)"}</span>
+                    <input
+                      inputMode="decimal"
+                      min="0"
+                      onChange={(event) =>
+                        updateTicket(index, { fixedDueAtEventEuros: event.target.value })
+                      }
+                      step="0.01"
+                      type="number"
+                      value={ticket.fixedDueAtEventEuros}
+                    />
+                  </label>
+                </>
+              ) : null}
               <label className="field">
                 <span>{isItalian ? "Prezzo EUR" : "Price EUR"}</span>
                 <input

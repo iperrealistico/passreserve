@@ -183,4 +183,59 @@ describe("passreserve organizer admin events payload", () => {
 
     expect(updated.durationMinutes).toBeNull();
   });
+
+  it("persists an exact 7 EUR online plus 15 EUR at-event ticket split", async () => {
+    const before = await getOrganizerEventsAdmin("sillico");
+    const event = before.events.find((entry) => entry.id === "event-sillico-prova");
+    const ticket = event.ticketCategories[0];
+
+    await saveOrganizerEvent("sillico", {
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      category: event.category,
+      visibility: event.visibility,
+      summary: event.summary,
+      description: "First paragraph\n\nSecond paragraph",
+      descriptionEn: "First paragraph\n\nSecond paragraph",
+      audience: event.audience,
+      durationMinutes: String(event.durationMinutes || 180),
+      venueTitle: event.venueTitle,
+      venueDetail: event.venueDetail,
+      mapHref: event.mapHref || "",
+      ticketCatalogJson: JSON.stringify([
+        {
+          ...ticket,
+          priceEuros: "22",
+          fixedOnlineAmountEuros: "7",
+          fixedDueAtEventEuros: "15",
+          isDefault: true,
+          isActive: true
+        }
+      ]),
+      prepayPercentage: String(event.prepayPercentage || 0),
+      paymentSplitMode: "FIXED_AMOUNTS",
+      attendeeInstructions: event.attendeeInstructions || "",
+      organizerNotes: event.organizerNotes || "",
+      refundPolicyType: event.refundPolicyType || "",
+      cancellationPolicy: event.cancellationPolicy || "",
+      highlights: (event.highlights || []).join("\n"),
+      included: (event.included || []).join("\n"),
+      policies: (event.policies || []).join("\n"),
+      galleryJson: JSON.stringify(event.gallery || []),
+      imageUrl: event.imageUrl || ""
+    });
+
+    const after = await getOrganizerEventsAdmin("sillico");
+    const updated = after.events.find((entry) => entry.id === "event-sillico-prova");
+    const updatedTicket = updated.ticketCategories.find((entry) => entry.isDefault);
+
+    expect(updated.paymentSplitMode).toBe("FIXED_AMOUNTS");
+    expect(updated.description).toBe("First paragraph\n\nSecond paragraph");
+    expect(updatedTicket).toMatchObject({
+      unitPriceCents: 2200,
+      fixedOnlineAmountCents: 700,
+      fixedDueAtEventCents: 1500
+    });
+  });
 });

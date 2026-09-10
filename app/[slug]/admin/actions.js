@@ -254,6 +254,7 @@ export async function saveOrganizerEventAction(formData) {
         basePriceCents: value(formData, "basePriceCents"),
         ticketCatalogJson: value(formData, "ticketCatalogJson"),
         prepayPercentage: value(formData, "prepayPercentage"),
+        paymentSplitMode: value(formData, "paymentSplitMode"),
         registrationQuestionnaireConfig: parseOptionalJsonObjectField(
           formData,
           "registrationQuestionnaireConfigJson"
@@ -346,6 +347,7 @@ export async function saveOrganizerOccurrenceAction(formData) {
         capacity: value(formData, "capacity"),
         priceCents: parseOptionalEurosToCents(formData.get("priceEuros")),
         prepayPercentage: value(formData, "prepayPercentage"),
+        paymentSplitMode: value(formData, "paymentSplitMode"),
         salesWindowStartsAt: value(formData, "salesWindowStartsAt"),
         salesWindowEndsAt: value(formData, "salesWindowEndsAt"),
         venueTitle: value(formData, "venueTitleEn") || value(formData, "venueTitleIt"),

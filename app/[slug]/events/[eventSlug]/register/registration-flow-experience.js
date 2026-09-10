@@ -122,7 +122,10 @@ function getCartItemsWithViewData(occurrence, cartItems) {
       const payment = calculatePaymentBreakdown({
         unitPrice: category.unitPrice,
         quantity: item.quantity,
-        prepayPercentage: occurrence.prepayPercentage
+        prepayPercentage: occurrence.prepayPercentage,
+        paymentSplitMode: occurrence.paymentSplitMode,
+        fixedOnlineAmountCents: category.fixedOnlineAmountCents,
+        fixedDueAtEventCents: category.fixedDueAtEventCents
       });
 
       return {
@@ -146,7 +149,10 @@ function buildCartQuote(occurrence, cartItems) {
       const payment = calculatePaymentBreakdown({
         unitPrice: category.unitPrice,
         quantity: item.quantity,
-        prepayPercentage: occurrence.prepayPercentage
+        prepayPercentage: occurrence.prepayPercentage,
+        paymentSplitMode: occurrence.paymentSplitMode,
+        fixedOnlineAmountCents: category.fixedOnlineAmountCents,
+        fixedDueAtEventCents: category.fixedDueAtEventCents
       });
 
       return {

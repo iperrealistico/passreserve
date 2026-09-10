@@ -747,14 +747,6 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
                 />
               </label>
               <label className="field">
-                <span>{isItalian ? "Percentuale prepagata" : "Prepay percentage"}</span>
-                <input
-                  defaultValue={selectedEvent?.prepayPercentage ?? ""}
-                  name="prepayPercentage"
-                  type="number"
-                />
-              </label>
-              <label className="field">
                 <span>
                   {isItalian ? "Durata in minuti (opzionale)" : "Duration minutes (optional)"}
                 </span>
@@ -924,6 +916,8 @@ export default async function OrganizerEventsPage({ params, searchParams }) {
           >
             <TicketCatalogEditor
               defaultPriceCents={selectedEvent?.basePriceCents ?? 0}
+              initialPaymentSplitMode={selectedEvent?.paymentSplitMode || "PERCENTAGE"}
+              initialPrepayPercentage={selectedEvent?.prepayPercentage ?? 0}
               initialTickets={selectedEvent?.ticketCategories || []}
               isItalian={isItalian}
             />

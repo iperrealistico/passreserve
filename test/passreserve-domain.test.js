@@ -22,6 +22,24 @@ describe("passreserve-domain", () => {
     });
   });
 
+  it("uses exact per-ticket amounts without converting them back to percentages", () => {
+    expect(
+      calculatePaymentBreakdown({
+        unitPrice: 22,
+        quantity: 3,
+        prepayPercentage: 0,
+        paymentSplitMode: "FIXED_AMOUNTS",
+        fixedOnlineAmountCents: 700,
+        fixedDueAtEventCents: 1500
+      })
+    ).toMatchObject({
+      paymentSplitMode: "FIXED_AMOUNTS",
+      subtotal: 66,
+      onlineAmount: 21,
+      dueAtEvent: 45
+    });
+  });
+
   it("returns featured discovery entries when no query is provided", () => {
     const results = getDiscoveryResults();
 

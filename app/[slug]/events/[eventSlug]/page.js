@@ -50,7 +50,10 @@ function buildTicketFormatGroups(ticketCategories = [], event, isItalian) {
         signature,
         tickets: [],
         unitPriceLabel: ticket.unitPriceLabel,
-        collectionLabel: event.collectionLabel,
+        collectionLabel:
+          event.paymentSplitMode === "FIXED_AMOUNTS" && ticket.payment?.onlineAmountLabel
+            ? `${ticket.payment.onlineAmountLabel} online`
+            : event.collectionLabel,
         summary: ticket.summary,
         included: ticket.included || [],
         onlineAmountLabel: ticket.payment?.onlineAmountLabel || null,
@@ -148,7 +151,12 @@ export default async function EventDetailPage({ params, searchParams }) {
     event.occurrences[0] ||
     null;
   const orderedOccurrences = reorderOccurrences(event.occurrences, selectedOccurrence?.id || "");
-  const ticketFormatGroups = buildTicketFormatGroups(event.ticketCategories, event, isItalian);
+  const paymentPresentation = selectedOccurrence || event;
+  const ticketFormatGroups = buildTicketFormatGroups(
+    selectedOccurrence?.ticketCategories || event.ticketCategories,
+    paymentPresentation,
+    isItalian
+  );
   const registerHeroHref =
     selectedOccurrence?.registrationAvailable && selectedOccurrence?.registrationHref
       ? selectedOccurrence.registrationHref
@@ -177,7 +185,7 @@ export default async function EventDetailPage({ params, searchParams }) {
               {organizer.city}, {organizer.region}
             </div>
             <h1 className="mt-3 text-4xl font-semibold sm:text-5xl">{event.title}</h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground sm:text-lg">
+            <p className="mt-4 max-w-3xl whitespace-pre-wrap text-base leading-7 text-muted-foreground sm:text-lg">
               {summary}
             </p>
 
@@ -186,7 +194,7 @@ export default async function EventDetailPage({ params, searchParams }) {
                 {event.priceRangeLabel || event.priceLabel}
               </span>
               <span className="rounded-full border border-border px-3 py-2">
-                {event.collectionLabel}
+                {paymentPresentation.collectionLabel}
               </span>
               <span className="rounded-full border border-border px-3 py-2">
                 {event.venueTitle || organizer.venue.title}
@@ -239,7 +247,7 @@ export default async function EventDetailPage({ params, searchParams }) {
               <div className="event-meta-row mt-5">
                 <span>{event.priceRangeLabel || event.priceLabel}</span>
                 <span className="event-meta-divider" aria-hidden="true" />
-                <span>{event.collectionLabel}</span>
+                <span>{selectedOccurrence.collectionLabel}</span>
                 <span className="event-meta-divider" aria-hidden="true" />
                 <span>{event.venueTitle || organizer.venue.title}</span>
               </div>
@@ -348,7 +356,7 @@ export default async function EventDetailPage({ params, searchParams }) {
                     <div className="event-meta-row mt-5">
                       <span>{event.priceRangeLabel || event.priceLabel}</span>
                       <span className="event-meta-divider" aria-hidden="true" />
-                      <span>{event.collectionLabel}</span>
+                      <span>{occurrence.collectionLabel}</span>
                       <span className="event-meta-divider" aria-hidden="true" />
                       <span>{event.venueTitle || organizer.venue.title}</span>
                       {occurrence.note ? <span>{occurrence.note}</span> : null}

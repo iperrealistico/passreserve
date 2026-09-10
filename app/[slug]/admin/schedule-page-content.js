@@ -324,7 +324,11 @@ function ScheduleOccurrenceCard({ occurrence, isItalian, query, slug, timeZone }
       <div className="ops-inline-list">
         <span>
           {occurrence.usesOnlinePayments
-            ? `${occurrence.prepayPercentage}% online`
+            ? occurrence.paymentSplitMode === "FIXED_AMOUNTS"
+              ? isItalian
+                ? "Importi esatti online + in presenza"
+                : "Exact online + at-event amounts"
+              : `${occurrence.prepayPercentage}% online`
             : isItalian
               ? "Pagamento sul posto"
               : "Pay at the event"}
@@ -580,6 +584,29 @@ function ScheduleFormSection({
           />
         </label>
         <label className="field">
+          <span>{isItalian ? "Suddivisione pagamento" : "Payment split"}</span>
+          <select
+            defaultValue={
+              selectedOccurrence?.paymentSplitMode ||
+              activeEvent?.paymentSplitMode ||
+              "PERCENTAGE"
+            }
+            name="paymentSplitMode"
+          >
+            <option value="PERCENTAGE">
+              {isItalian ? "Percentuale online" : "Online percentage"}
+            </option>
+            {activeEvent?.paymentSplitMode === "FIXED_AMOUNTS" ||
+            selectedOccurrence?.paymentSplitMode === "FIXED_AMOUNTS" ? (
+              <option value="FIXED_AMOUNTS">
+                {isItalian
+                  ? "Importi esatti definiti nei ticket"
+                  : "Exact amounts defined in tickets"}
+              </option>
+            ) : null}
+          </select>
+        </label>
+        <label className="field">
           <span>{isItalian ? "Percentuale prepagata" : "Prepay percentage"}</span>
           <input
             defaultValue={selectedOccurrence?.prepayPercentage ?? activeEvent?.prepayPercentage ?? 0}
@@ -588,6 +615,11 @@ function ScheduleFormSection({
             name="prepayPercentage"
             type="number"
           />
+          <small className="field-hint">
+            {isItalian
+              ? "Usata solo quando la modalità è percentuale."
+              : "Used only when percentage mode is selected."}
+          </small>
         </label>
         <label className="field">
           <span>{isItalian ? "Pubblicazione" : "Published"}</span>

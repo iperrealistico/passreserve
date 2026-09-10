@@ -216,6 +216,10 @@ function buildOccurrenceCollectionLabel(occurrence) {
     return "0% online";
   }
 
+  if (occurrence.paymentSplitMode === "FIXED_AMOUNTS") {
+    return "Exact amount online";
+  }
+
   const prepayPercentage = Number(occurrence.prepayPercentage || 0);
 
   if (prepayPercentage >= 100) {
@@ -459,7 +463,10 @@ function getCartItemsWithViewData(ticketCategories, occurrence, cartItems) {
       const payment = calculatePaymentBreakdown({
         unitPrice: Number(category.unitPriceCents || 0) / 100,
         quantity: item.quantity,
-        prepayPercentage: occurrence?.prepayPercentage || 0
+        prepayPercentage: occurrence?.prepayPercentage || 0,
+        paymentSplitMode: occurrence?.paymentSplitMode,
+        fixedOnlineAmountCents: category.fixedOnlineAmountCents,
+        fixedDueAtEventCents: category.fixedDueAtEventCents
       });
 
       return {
@@ -483,7 +490,10 @@ function buildCartQuote(ticketCategories, occurrence, cartItems) {
       const payment = calculatePaymentBreakdown({
         unitPrice: Number(category?.unitPriceCents || 0) / 100,
         quantity: item.quantity,
-        prepayPercentage: occurrence?.prepayPercentage || 0
+        prepayPercentage: occurrence?.prepayPercentage || 0,
+        paymentSplitMode: occurrence?.paymentSplitMode,
+        fixedOnlineAmountCents: category?.fixedOnlineAmountCents,
+        fixedDueAtEventCents: category?.fixedDueAtEventCents
       });
 
       return {
@@ -1530,7 +1540,10 @@ export function OrganizerManualRegistrationContextStep({
                 const payment = calculatePaymentBreakdown({
                   unitPrice: Number(category.unitPriceCents || 0) / 100,
                   quantity: Math.max(1, quantity || 1),
-                  prepayPercentage: selectedOccurrence?.prepayPercentage || 0
+                  prepayPercentage: selectedOccurrence?.prepayPercentage || 0,
+                  paymentSplitMode: selectedOccurrence?.paymentSplitMode,
+                  fixedOnlineAmountCents: category.fixedOnlineAmountCents,
+                  fixedDueAtEventCents: category.fixedDueAtEventCents
                 });
 
                 return (
