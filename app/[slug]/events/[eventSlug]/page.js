@@ -271,6 +271,30 @@ export default async function EventDetailPage({ params, searchParams }) {
             </section>
           ) : null}
 
+          {event.attendeeInstructions ? (
+            <section className="panel section-card mt-6">
+              <div className="section-kicker">
+                {isItalian ? "Prima di partecipare" : "Before you attend"}
+              </div>
+              <h2>{isItalian ? "Istruzioni per i partecipanti" : "Participant instructions"}</h2>
+              <p className="mt-4 whitespace-pre-wrap text-base leading-7 text-muted-foreground">
+                {event.attendeeInstructions}
+              </p>
+            </section>
+          ) : null}
+
+          {event.policies?.length ? (
+            <section className="panel section-card mt-6">
+              <div className="section-kicker">{isItalian ? "Regole" : "Rules"}</div>
+              <h2>{isItalian ? "Policy dell’evento" : "Event policies"}</h2>
+              <ul className="event-format-included-list mt-5">
+                {event.policies.map((policy, index) => (
+                  <li key={`${index}-${policy}`}>{policy}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
           {ticketFormatGroups.length ? (
             <section className="panel section-card mt-6">
               <div className="section-kicker">{isItalian ? "Formato" : "Format"}</div>

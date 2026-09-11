@@ -9,7 +9,7 @@ import {
   getOrganizerEventsAdmin,
   saveOrganizerEvent
 } from "../lib/passreserve-admin-service.js";
-import { mutatePersistentState } from "../lib/passreserve-state.js";
+import { loadPersistentState, mutatePersistentState } from "../lib/passreserve-state.js";
 
 beforeEach(async () => {
   process.env.PASSRESERVE_STATE_FILE = path.join(
@@ -236,6 +236,113 @@ describe("passreserve organizer admin events payload", () => {
       unitPriceCents: 2200,
       fixedOnlineAmountCents: 700,
       fixedDueAtEventCents: 1500
+    });
+
+    const state = await loadPersistentState();
+    const eventOccurrences = state.occurrences.filter(
+      (occurrence) => occurrence.eventTypeId === event.id
+    );
+
+    expect(eventOccurrences.length).toBeGreaterThan(0);
+    expect(
+      eventOccurrences.every(
+        (occurrence) => occurrence.paymentSplitMode === "FIXED_AMOUNTS"
+      )
+    ).toBe(true);
+  });
+
+  it("keeps an occurrence payment split unchanged once it has a registration", async () => {
+    const before = await getOrganizerEventsAdmin("sillico");
+    const event = before.events.find((entry) => entry.id === "event-sillico-prova");
+    const ticket = event.ticketCategories[0];
+    const stateBefore = await loadPersistentState();
+    const [unbookedOccurrence, registeredOccurrence] = stateBefore.occurrences.filter(
+      (occurrence) => occurrence.eventTypeId === event.id
+    );
+
+    expect(unbookedOccurrence).toBeTruthy();
+    expect(registeredOccurrence).toBeTruthy();
+
+    await mutatePersistentState(async (draft) => {
+      for (const occurrence of draft.occurrences) {
+        if (occurrence.eventTypeId === event.id) {
+          occurrence.paymentSplitMode = "PERCENTAGE";
+          occurrence.prepayPercentage = 40;
+        }
+      }
+
+      draft.registrations.push({
+        id: "registration-payment-split-sentinel",
+        organizerId: event.organizerId,
+        eventTypeId: event.id,
+        occurrenceId: registeredOccurrence.id,
+        ticketCategoryId: ticket.id,
+        status: "CONFIRMED_UNPAID",
+        attendeeName: "Protected attendee",
+        attendeeEmail: "protected@example.com",
+        attendeePhone: "+39000000000",
+        quantity: 1,
+        subtotalCents: ticket.unitPriceCents,
+        onlineAmountCents: 0,
+        dueAtEventCents: ticket.unitPriceCents,
+        attendees: [],
+        items: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+    });
+
+    await saveOrganizerEvent("sillico", {
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      category: event.category,
+      visibility: event.visibility,
+      summary: event.summary,
+      description: event.description,
+      audience: event.audience,
+      durationMinutes: String(event.durationMinutes || 180),
+      venueTitle: event.venueTitle,
+      venueDetail: event.venueDetail,
+      mapHref: event.mapHref || "",
+      ticketCatalogJson: JSON.stringify([
+        {
+          ...ticket,
+          priceEuros: "22",
+          fixedOnlineAmountEuros: "7",
+          fixedDueAtEventEuros: "15",
+          isDefault: true,
+          isActive: true
+        }
+      ]),
+      prepayPercentage: "0",
+      paymentSplitMode: "FIXED_AMOUNTS",
+      attendeeInstructions: event.attendeeInstructions || "",
+      organizerNotes: event.organizerNotes || "",
+      refundPolicyType: event.refundPolicyType || "",
+      cancellationPolicy: event.cancellationPolicy || "",
+      highlights: (event.highlights || []).join("\n"),
+      included: (event.included || []).join("\n"),
+      policies: (event.policies || []).join("\n"),
+      galleryJson: JSON.stringify(event.gallery || []),
+      imageUrl: event.imageUrl || ""
+    });
+
+    const stateAfter = await loadPersistentState();
+    const unbookedAfter = stateAfter.occurrences.find(
+      (occurrence) => occurrence.id === unbookedOccurrence.id
+    );
+    const registeredAfter = stateAfter.occurrences.find(
+      (occurrence) => occurrence.id === registeredOccurrence.id
+    );
+
+    expect(unbookedAfter).toMatchObject({
+      paymentSplitMode: "FIXED_AMOUNTS",
+      prepayPercentage: 0
+    });
+    expect(registeredAfter).toMatchObject({
+      paymentSplitMode: "PERCENTAGE",
+      prepayPercentage: 40
     });
   });
 });
